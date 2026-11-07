@@ -12,6 +12,7 @@ var current_save_version: int
 var save_schema_path: String
 
 var _migrations: Dictionary = {}
+var _migration_schema_paths: Dictionary = {}
 
 
 func _init(
@@ -24,14 +25,29 @@ func _init(
 	save_schema_path = schema_path
 
 
-func register_migration(from_version: int, migrator: Callable) -> InfrastructureResult:
+func register_migration(
+	from_version: int,
+	migrator: Callable,
+	post_migration_schema_path: String = ""
+) -> InfrastructureResult:
 	if from_version <= 0:
 		return InfrastructureResult.failure(&"invalid_migration_version", "Migration source version must be positive.")
 	if from_version >= current_save_version:
 		return InfrastructureResult.failure(&"invalid_migration_version", "Migration source version must be below the current version.")
 	if not migrator.is_valid():
 		return InfrastructureResult.failure(&"invalid_migrator", "Migration callable is not valid.")
+	if (
+		not post_migration_schema_path.is_empty()
+		and not post_migration_schema_path.begins_with("res://")
+		and not post_migration_schema_path.begins_with("user://")
+	):
+		return InfrastructureResult.failure(
+			&"invalid_migration_schema_path",
+			"Migration schema path must use res:// or user://."
+		)
 	_migrations[from_version] = migrator
+	if not post_migration_schema_path.is_empty():
+		_migration_schema_paths[from_version] = post_migration_schema_path
 	return InfrastructureResult.success()
 
 
@@ -258,12 +274,23 @@ func _load_with_migration(path: String) -> InfrastructureResult:
 				"Migration produced an invalid save version.",
 				{"from_version": save_version, "to_version": next_version}
 			)
-		var migrated_validation := validate_envelope(document)
+		var migration_schema := String(
+			_migration_schema_paths.get(save_version, save_schema_path)
+		)
+		var migrated_validation := SchemaValidatorScript.new().validate_document(
+			document,
+			migration_schema
+		)
 		if not migrated_validation.ok:
 			return InfrastructureResult.failure(
 				&"migration_validation_failed",
 				"Migrated save failed validation.",
-				{"cause": String(migrated_validation.code), "from_version": save_version}
+				{
+					"cause": String(migrated_validation.code),
+					"from_version": save_version,
+					"target_version": next_version,
+					"schema_path": migration_schema,
+				}
 			)
 		save_version = next_version
 

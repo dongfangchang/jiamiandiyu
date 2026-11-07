@@ -7,20 +7,26 @@ const ProgressionCommandScript := preload("res://src/core/progression_command.gd
 const UpgradedBattleContentPortScript := preload("res://src/gameplay/upgraded_battle_content_port.gd")
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
+const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
 const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
-const ResultScreenScene := preload("res://scenes/ui/result_screen.tscn")
+const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
+const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
+const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 
 const ROUTE_START: StringName = &"start"
 const ROUTE_IDENTITY: StringName = &"identity"
 const ROUTE_HUB: StringName = &"hub"
+const ROUTE_MAP: StringName = &"map"
+const ROUTE_REST: StringName = &"rest"
 const ROUTE_BATTLE: StringName = &"battle"
 const ROUTE_REWARD: StringName = &"reward"
 const ROUTE_GACHA: StringName = &"gacha"
 const ROUTE_UPGRADE: StringName = &"upgrade"
-const ROUTE_RESULT: StringName = &"result"
+const ROUTE_RITUAL: StringName = &"ritual"
+const ROUTE_ROUTE_RESULT: StringName = &"route_result"
 
 var save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
 var checkpoint_slot: String = "checkpoint"
@@ -29,7 +35,6 @@ var _route: StringName = &""
 var _screen: Control = null
 var _session: RefCounted = null
 var _last_checkpoint_summary: Dictionary = {}
-var _last_encounter_id: StringName = &""
 var _seed_override: int = -1
 
 
@@ -60,12 +65,11 @@ func show_start_screen() -> void:
 
 func start_new_game(
 	seed_value: int = -1,
-	encounter_id: StringName = &""
+	_encounter_id: StringName = &""
 ) -> InfrastructureResult:
 	var resolved_seed := _resolve_seed(seed_value)
-	var result = AppBootstrapScript.start_campaign(
+	var result = AppBootstrapScript.start_route(
 		resolved_seed,
-		encounter_id,
 		{"save_directory": save_directory},
 		checkpoint_slot,
 		false
@@ -74,13 +78,12 @@ func start_new_game(
 		_show_start_error(result)
 		return result
 	_session = result.data
-	_last_encounter_id = _session.encounter_id
-	_show_progression_home()
+	_show_current_state()
 	return result
 
 
 func continue_saved_checkpoint() -> InfrastructureResult:
-	var inspected = AppBootstrapScript.inspect_checkpoint(
+	var inspected = AppBootstrapScript.inspect_route_checkpoint(
 		checkpoint_slot,
 		save_directory
 	)
@@ -93,12 +96,8 @@ func continue_saved_checkpoint() -> InfrastructureResult:
 		return failed
 	_last_checkpoint_summary = inspected.data.get("checkpoint", {}).duplicate(true)
 	var seed_value := int(_last_checkpoint_summary.get("rng_seed", _resolve_seed(-1)))
-	var encounter_id := StringName(
-		String(_last_checkpoint_summary.get("encounter_id", ""))
-	)
-	var result = AppBootstrapScript.start_campaign(
+	var result = AppBootstrapScript.start_route(
 		seed_value,
-		encounter_id,
 		{"save_directory": save_directory},
 		checkpoint_slot,
 		true
@@ -107,8 +106,7 @@ func continue_saved_checkpoint() -> InfrastructureResult:
 		_show_start_error(result)
 		return result
 	_session = result.data
-	_last_encounter_id = _session.encounter_id
-	_show_progression_home()
+	_show_current_state()
 	return result
 
 
@@ -130,12 +128,24 @@ func get_progression_snapshot() -> ProgressionSnapshot:
 	return _session.get_progression_snapshot()
 
 
+func get_route_snapshot() -> RouteSnapshot:
+	if _session == null:
+		return null
+	return _session.get_route_snapshot()
+
+
+func get_ritual_snapshot() -> RitualSnapshot:
+	if _session == null:
+		return null
+	return _session.get_ritual_snapshot()
+
+
 func get_last_checkpoint_summary() -> Dictionary:
 	return _last_checkpoint_summary.duplicate(true)
 
 
 func _refresh_checkpoint_summary(start_screen: Control) -> void:
-	var inspected = AppBootstrapScript.inspect_checkpoint(
+	var inspected = AppBootstrapScript.inspect_route_checkpoint(
 		checkpoint_slot,
 		save_directory
 	)
@@ -164,28 +174,53 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 	start_screen.show_checkpoint_status("none")
 
 
-func _show_progression_home() -> void:
+func _show_current_state() -> void:
 	if _session == null:
 		_show_start_error(InfrastructureResult.failure(
 			&"campaign_missing",
 			"Campaign session was not created."
 		))
 		return
-	var snapshot: ProgressionSnapshot = _session.get_progression_snapshot()
-	var phase := String(snapshot.data.get("phase", "")) if snapshot != null else ""
-	match phase:
-		"identity_selection":
-			_show_identity_selection()
-		"hub":
-			_show_hub()
-		"reward":
-			_show_reward()
+	var progression: ProgressionSnapshot = _session.get_progression_snapshot()
+	if progression == null:
+		_show_start_error(InfrastructureResult.failure(
+			&"progression_missing",
+			"Campaign progression snapshot is unavailable."
+		))
+		return
+	var progression_phase := String(progression.data.get("phase", ""))
+	if progression_phase == "identity_selection":
+		_show_identity_selection()
+		return
+	if progression_phase == "reward":
+		_show_reward()
+		return
+	var route: RouteSnapshot = _session.get_route_snapshot()
+	var route_data := route.data if route != null else {}
+	var route_phase := String(route_data.get("phase", ""))
+	match route_phase:
+		"map":
+			_show_route_screen()
+		"rest_pending":
+			_show_rest_screen()
+		"ritual":
+			_show_ritual_screen()
+		"completed", "failed":
+			_show_route_result()
+		"battle_pending":
+			_show_route_screen()
 		_:
-			_show_start_error(InfrastructureResult.failure(
-				&"progression_phase_invalid",
-				"Campaign progression entered an unsupported phase.",
-				{"phase": phase}
-			))
+			if progression_phase == "hub":
+				_show_hub()
+			else:
+				_show_start_error(InfrastructureResult.failure(
+					&"route_state_invalid",
+					"The saved campaign is in an unsupported state.",
+					{
+						"progression_phase": progression_phase,
+						"route_phase": route_phase,
+					}
+				))
 
 
 func _show_identity_selection() -> void:
@@ -218,23 +253,96 @@ func _on_identity_selected(identity_id: StringName) -> void:
 	if _screen != null:
 		_screen.apply_command_result(result)
 	if result.accepted:
-		_show_hub()
+		_show_route_screen()
 
 
 func _on_battle_requested() -> void:
 	if _session == null or _route != ROUTE_HUB:
 		return
-	var result: InfrastructureResult = _session.begin_battle()
-	if not result.ok:
-		_show_hub()
-		push_error(
-			"Unable to begin battle: %s: %s" % [
-				String(result.code),
-				result.message,
-			]
-		)
+	_show_route_screen()
+
+
+func _show_route_screen() -> void:
+	if _session == null:
 		return
-	_show_battle()
+	var screen := _replace_screen(RouteScreenScene)
+	screen.route_command_requested.connect(_on_route_command_requested)
+	screen.result_requested.connect(_show_route_result)
+	screen.hub_requested.connect(_show_hub)
+	screen.apply_snapshot(_session.get_route_snapshot())
+	_set_route(ROUTE_MAP)
+
+
+func _show_rest_screen() -> void:
+	if _session == null:
+		return
+	var screen := _replace_screen(RestScreenScene)
+	screen.route_command_requested.connect(_on_route_command_requested)
+	screen.apply_snapshot(_session.get_route_snapshot())
+	_set_route(ROUTE_REST)
+
+
+func _show_ritual_screen() -> void:
+	if _session == null:
+		return
+	var screen := _replace_screen(RitualScreenScene)
+	screen.route_command_requested.connect(_on_route_command_requested)
+	screen.apply_snapshot(_session.get_ritual_snapshot())
+	_set_route(ROUTE_RITUAL)
+
+
+func _on_route_command_requested(command: RouteCommand) -> void:
+	if _session == null or _screen == null:
+		return
+	if command == null:
+		return
+	if command.type == RouteCommand.SELECT_NODE:
+		var node := _route_node(command.node_id)
+		var node_type := String(node.get("type", ""))
+		if node_type in ["normal", "elite", "boss"]:
+			var started: InfrastructureResult = _session.begin_route_battle()
+			if not started.ok:
+				if _screen != null:
+					_screen.apply_command_result(RouteCommandResult.new(
+						false,
+						started.code
+					))
+				return
+			_show_battle()
+			return
+		var selected: RouteCommandResult = _session.submit_route(command)
+		_screen.apply_command_result(selected)
+		if selected.accepted:
+			if String(selected.snapshot.data.get("phase", "")) == "rest_pending":
+				_show_rest_screen()
+		return
+	var result: RouteCommandResult = _session.submit_route(command)
+	_screen.apply_command_result(result)
+	if not result.accepted:
+		return
+	var phase := String(result.snapshot.data.get("phase", ""))
+	match command.type:
+		RouteCommand.USE_REST:
+			_show_route_screen()
+		RouteCommand.BEGIN_ASCENSION:
+			_show_ritual_screen()
+		RouteCommand.SUBMIT_RITUAL_STEP, RouteCommand.REQUEST_RITUAL_HINT:
+			if phase in ["completed", "failed"]:
+				_show_route_result()
+			else:
+				_show_ritual_screen()
+		RouteCommand.CANCEL_RITUAL:
+			_show_route_screen()
+
+
+func _route_node(node_id: StringName) -> Dictionary:
+	if _session == null:
+		return {}
+	var snapshot: RouteSnapshot = _session.get_route_snapshot()
+	for value in snapshot.data.get("nodes", []):
+		if value is Dictionary and String(value.get("id", "")) == String(node_id):
+			return value
+	return {}
 
 
 func _show_battle() -> void:
@@ -242,13 +350,19 @@ func _show_battle() -> void:
 		return
 	var snapshot: BattleSnapshot = _session.get_battle_snapshot()
 	if snapshot == null:
-		_show_hub()
-		push_error("Campaign battle snapshot is unavailable.")
+		_show_route_screen()
+		push_error("Route battle snapshot is unavailable.")
 		return
 	var screen := _replace_screen(BattleScreenScene)
 	var labels := _build_display_labels()
+	var encounter_name := "未知遭遇"
+	var resolved = _session.resolve_current_encounter()
+	if resolved.ok:
+		encounter_name = String(
+			resolved.data.get("display_name_zh", resolved.data.get("id", encounter_name))
+		)
 	screen.configure(
-		String(_session.encounter_name),
+		encounter_name,
 		labels.cards,
 		labels.enemies,
 		Callable(_session, "query_card_play")
@@ -279,7 +393,11 @@ func _route_after_battle(snapshot: BattleSnapshot) -> void:
 	if outcome == "victory" and phase == "reward":
 		_show_reward()
 		return
-	_show_result(snapshot)
+	var route: RouteSnapshot = _session.get_route_snapshot()
+	if String(route.data.get("phase", "")) in ["completed", "failed"]:
+		_show_route_result()
+		return
+	_show_route_screen()
 
 
 func _show_reward() -> void:
@@ -298,7 +416,7 @@ func _on_reward_claimed(reward_id: StringName) -> void:
 	)
 	_screen.apply_command_result(result)
 	if result.accepted:
-		_show_hub()
+		_show_route_screen()
 
 
 func _on_gacha_requested() -> void:
@@ -349,34 +467,21 @@ func _on_upgrade_command_requested(definition_id: StringName) -> void:
 	_screen.apply_command_result(result)
 
 
-func _show_result(snapshot: BattleSnapshot) -> void:
+func _show_route_result() -> void:
 	if _session == null:
 		show_start_screen()
 		return
-	var save_status := "failed"
-	var save_message := "Post-battle checkpoint result was not produced."
+	var save_state := "failed"
 	if _session.last_checkpoint_result != null:
 		var save_result: InfrastructureResult = _session.last_checkpoint_result
 		if save_result.ok:
-			save_status = (
-				"already_saved"
-				if bool(save_result.details.get("already_saved", false))
-				else "saved"
-			)
-			save_message = ""
-		else:
-			save_message = save_result.message
-
-	var screen := _replace_screen(ResultScreenScene)
-	screen.show_result(
-		snapshot,
-		String(_session.encounter_name),
-		save_status,
-		save_message
-	)
-	screen.return_to_title_requested.connect(show_start_screen)
-	screen.retry_requested.connect(_show_hub)
-	_set_route(ROUTE_RESULT)
+			save_state = "saved"
+		elif bool(save_result.details.get("backup_available", false)):
+			save_state = "backup"
+	var screen := _replace_screen(RouteResultScreenScene)
+	screen.show_result(_session.get_route_snapshot(), save_state)
+	screen.hub_requested.connect(_show_hub)
+	_set_route(ROUTE_ROUTE_RESULT)
 
 
 func _build_display_labels() -> Dictionary:
@@ -384,7 +489,7 @@ func _build_display_labels() -> Dictionary:
 	var enemy_labels: Dictionary = {}
 	if _session == null:
 		return {"cards": card_labels, "enemies": enemy_labels}
-	var resolved = _session.catalog.resolve_encounter(_session.encounter_id)
+	var resolved = _session.resolve_current_encounter()
 	if not resolved.ok:
 		return {"cards": card_labels, "enemies": enemy_labels}
 	for definition_value in resolved.data.get("deck_definition_ids", []):
@@ -539,4 +644,3 @@ func _set_route(next_route: StringName) -> void:
 
 func _clear_session() -> void:
 	_session = null
-	_last_encounter_id = &""

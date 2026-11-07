@@ -80,7 +80,7 @@ v0.4.0 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.4.0/<role>.md` 记录本版本工作。
 - UI 与美术是独立角色。美术提交候选资产和制作记录，UI 必须从实际游戏界面审稿并明确通过、退回或仅 UI 适配；美术不得自行验收。
 
-v0.5.0 当前所有权：
+v0.5.0 已关闭所有权（保留历史）：
 
 - `src/core/**`：玩法设计唯一负责人。
 - `data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`：玩法设计。
@@ -91,6 +91,19 @@ v0.5.0 当前所有权：
 - `art/**`：美术独占；正式 PNG 只能由主协调者受控迁移到 `assets/game/**`。
 - `tests/integration/**`、`assets/game/**`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.5.0/<role>.md` 记录本版本工作。
+- UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
+
+v0.6.0 当前所有权：
+
+- `src/core/**`：玩法设计唯一负责人。
+- `src/gameplay/**`、`tests/gameplay/**`、正式内容目录：玩法设计。
+- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
+- `data/schema/**`：本地数据层唯一负责人。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
+- `art/**`：美术独占；正式资产由主协调者迁移到 `assets/game/v0.6.0/**`。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.6.0/<role>.md` 记录本版本工作。
 - UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
 
 ## 5. 协作与同步

@@ -7,8 +7,14 @@ const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
 const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
+const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
+const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
+const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
+const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
+const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
+const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
 
 const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
@@ -22,7 +28,12 @@ func _ready() -> void:
 	await _capture_reward()
 	await _capture_gacha()
 	await _capture_upgrade()
+	await _capture_route_map()
+	await _capture_rest()
+	await _capture_ritual()
+	await _capture_route_result()
 	await _capture_battle()
+	await _capture_boss_battle()
 	await _capture_result()
 	get_tree().quit(0)
 
@@ -31,7 +42,7 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.4.0",
+		"content_version": "v0.5.0",
 		"sequence": 9,
 		"deck_size": 12,
 		"identity_id": "identity.reporter",
@@ -125,6 +136,108 @@ func _capture_upgrade() -> void:
 	await get_tree().process_frame
 
 
+func _capture_route_map() -> void:
+	var screen = RouteScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_route_snapshot({
+		"phase": "map",
+		"completed_node_ids": ["route.v050.node.first_hunt"],
+		"available_node_id": "route.v050.node.mirror_pursuit",
+		"nodes": _route_nodes("route.v050.node.mirror_pursuit"),
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("route_map_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_rest() -> void:
+	var screen = RestScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_route_snapshot({
+		"phase": "rest_pending",
+		"selected_node_id": "route.v050.node.old_house_rest",
+		"run_state": {
+			"hp": 31,
+			"max_hp": 54,
+			"spirit": 3,
+			"max_spirit": 3,
+			"corruption": 5,
+			"max_corruption": 10,
+			"attention": 3,
+			"max_attention": 10,
+		},
+		"rest_options": _rest_options(),
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("rest_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_ritual() -> void:
+	var screen = RitualScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_ritual_snapshot({
+		"step_index": 1,
+		"step": {
+			"id": "step.chronology",
+			"type": "ordered_ids",
+			"title_zh": "事件顺序",
+			"clue_zh": "死亡墨迹覆盖了出生日期，埋葬印章又压在两者之上。",
+			"min_selections": 3,
+			"max_selections": 3,
+			"options": [
+				{"id": "event.birth", "display_name_zh": "出生"},
+				{"id": "event.death", "display_name_zh": "死亡"},
+				{"id": "event.burial", "display_name_zh": "埋葬"},
+			],
+		},
+		"hint_text": "常理中的顺序应先于被覆盖的墨迹。",
+		"hint_spirit_cost": 1,
+		"hints_used": 1,
+		"hinted_step_indices": [1],
+	}))
+	screen.select_option("event.birth")
+	screen.select_option("event.death")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("ritual_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_route_result() -> void:
+	var screen = RouteResultScreenScene.instantiate()
+	add_child(screen)
+	screen.show_result(_route_snapshot({
+		"phase": "completed",
+		"route_outcome": "completed",
+		"completed_node_ids": [
+			"route.v050.node.first_hunt",
+			"route.v050.node.mirror_pursuit",
+			"route.v050.node.old_house_rest",
+			"route.v050.node.mirror_baron",
+			"route.v050.node.ascension",
+		],
+		"sequence": {
+			"pathway_id": "seer",
+			"pathway_name_zh": "占卜家",
+			"current_sequence": 8,
+			"next_sequence": 8,
+			"next_sequence_name_zh": "小丑",
+			"advancement_state": "completed",
+		},
+	}), "saved")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("route_result_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
 func _capture_battle() -> void:
 	var screen = BattleScreenScene.instantiate()
 	add_child(screen)
@@ -146,6 +259,48 @@ func _capture_battle() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("battle_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_boss_battle() -> void:
+	var screen = BattleScreenScene.instantiate()
+	add_child(screen)
+	screen.configure(
+		"镜厅 · 无法退出的倒影",
+		{
+			&"card.skill.ink_dart": "墨刺",
+			&"card.skill.paper_guard": "纸符护持",
+			&"card.skill.omen": "凶兆",
+		},
+		{
+			&"enemy.mirror_baron": "镜厅男爵",
+		},
+		Callable()
+	)
+	var snapshot := _battle_snapshot()
+	snapshot.data["round_number"] = 6
+	snapshot.data["enemy_pressure_bonus"] = 2
+	snapshot.data["enemies"] = [
+		{
+			"actor_id": "enemy.baron",
+			"definition_id": "enemy.mirror_baron",
+			"lane_index": 1,
+			"hp": 21,
+			"max_hp": 38,
+			"block": 5,
+			"statuses": [],
+			"intent": {
+				"intent_id": "attack",
+				"revealed": true,
+				"visible_fields": {"damage": 10},
+			},
+		},
+	]
+	screen.apply_snapshot(snapshot)
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("boss_battle_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -308,3 +463,115 @@ func _battle_snapshot() -> BattleSnapshot:
 		"outcome": "",
 		"outcome_reason": "",
 	})
+
+
+func _route_snapshot(overrides: Dictionary) -> RouteSnapshot:
+	var data := {
+		"revision": 6,
+		"route_id": "route.v050.first_case",
+		"display_name_zh": "廷根旧宅调查",
+		"phase": "map",
+		"current_node_id": "route.v050.node.first_hunt",
+		"available_node_id": "route.v050.node.first_hunt",
+		"selected_node_id": "",
+		"completed_node_ids": [],
+		"nodes": _route_nodes("route.v050.node.first_hunt"),
+		"run_state": {
+			"hp": 42,
+			"max_hp": 54,
+			"spirit": 3,
+			"max_spirit": 3,
+			"corruption": 3,
+			"max_corruption": 10,
+			"attention": 2,
+			"max_attention": 10,
+		},
+		"rest_options": [],
+		"route_outcome": "",
+		"sequence": {
+			"pathway_id": "seer",
+			"pathway_name_zh": "占卜家",
+			"current_sequence": 9,
+			"next_sequence": 8,
+			"next_sequence_name_zh": "小丑",
+			"advancement_state": "locked",
+		},
+		"ritual": {"status": "inactive"},
+		"can_begin_ascension": false,
+	}
+	for key in overrides:
+		data[key] = overrides[key]
+	return RouteSnapshotScript.new(data)
+
+
+func _route_nodes(available_id: String) -> Array:
+	var entries := [
+		["route.v050.node.first_hunt", "normal", "雨夜双影"],
+		["route.v050.node.mirror_pursuit", "elite", "回声追猎"],
+		["route.v050.node.old_house_rest", "rest", "旧宅喘息"],
+		["route.v050.node.mirror_baron", "boss", "镜厅男爵"],
+		["route.v050.node.ascension", "ritual", "被篡改的讣告"],
+	]
+	var available_index := -1
+	for index in range(entries.size()):
+		if String(entries[index][0]) == available_id:
+			available_index = index
+			break
+	var result: Array = []
+	for index in range(entries.size()):
+		var entry: Array = entries[index]
+		var state := "locked"
+		if available_index >= 0 and index < available_index:
+			state = "completed"
+		elif index == available_index:
+			state = "available"
+		result.append({
+			"id": String(entry[0]),
+			"type": String(entry[1]),
+			"display_name_zh": String(entry[2]),
+			"state": state,
+		})
+	return result
+
+
+func _ritual_snapshot(overrides: Dictionary) -> RitualSnapshot:
+	var data := {
+		"status": "in_progress",
+		"ritual_id": "ritual.v050.tampered_obituary",
+		"display_name_zh": "被篡改的讣告",
+		"step_index": 0,
+		"step_count": 3,
+		"hints_used": 0,
+		"hinted_step_indices": [],
+		"errors": 0,
+		"hint_text": "",
+		"corruption": 2,
+		"spirit": 3,
+		"result": "",
+		"step": {},
+	}
+	for key in overrides:
+		data[key] = overrides[key]
+	return RitualSnapshotScript.new(data)
+
+
+func _rest_options() -> Array:
+	return [
+		{
+			"id": "rest.bandage",
+			"display_name_zh": "包扎伤口",
+			"description_zh": "恢复生命，但无法驱散跟随你的目光。",
+			"effects": {"hp_delta": 12, "corruption_delta": 0, "attention_delta": 0},
+		},
+		{
+			"id": "rest.seal_echo",
+			"display_name_zh": "封锁回声",
+			"description_zh": "降低污染，却会让外界更容易察觉这处旧宅。",
+			"effects": {
+				"hp_delta": 0,
+				"corruption_delta": -2,
+				"attention_delta": 1,
+				"max_spirit_delta": 1,
+			},
+		},
+	]

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.5.0 global balance and route economy",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "player",
+    "combat",
+    "progression",
+    "gacha",
+    "upgrade",
+    "reward"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "minimum": 2},
+    "content_version": {"type": "string", "minLength": 1},
+    "status": {"type": "string"},
+    "player": {
+      "type": "object",
+      "required": [
+        "max_health",
+        "starting_health",
+        "spirit_per_turn",
+        "starting_hand",
+        "turn_draw_to_hand_size",
+        "max_hand_size",
+        "corruption",
+        "attention"
+      ]
+    },
+    "combat": {
+      "type": "object",
+      "required": ["max_rounds", "enemy_pressure"]
+    },
+    "progression": {"type": "object"},
+    "gacha": {"type": "object"},
+    "upgrade": {"type": "object"},
+    "reward": {"type": "object"},
+    "route": {"type": "object"}
+  },
+  "additionalProperties": true
+}

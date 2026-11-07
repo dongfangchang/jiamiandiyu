@@ -9,6 +9,8 @@
 - `../assets/game/v0.3.0/`：已由主线程迁移的 v0.3.0 正式 PNG。
 - `assets/svg/v0.4.0/`：身份、祈愿、奖励、升级图标与卡背的 v0.4.0 矢量源。
 - `assets/game/v0.4.0/`：等待主线程迁移到 `../assets/game/v0.4.0/` 的 PNG 候选。
+- `assets/svg/v0.5.0/`：路线地图、休息、首领、晋升仪式与路线图标的矢量源。
+- `assets/svg/v0.5.0/` 的 PNG 候选位于 `assets/game/v0.5.0/`，等待主线程一次性迁移。
 - `../assets/game/`：已经渲染的 1:1 PNG，是 Godot 运行时唯一的正式 PNG 来源。
 - `preview/contact-sheet.html`：在浏览器中查看整套样张。
 - `tools/generate_art.mjs`：重新生成占位资产的脚本。
@@ -38,6 +40,14 @@ node art/tools/generate_v040_art.mjs
 ```
 
 脚本只使用 Node.js 内置模块和本机 Edge 无头渲染，不安装额外依赖。生成清单为 `assets/game/v0.4.0/render-manifest.json`，审稿拼图为 `assets/game/v0.4.0/contact-sheet.png`。
+
+v0.5.0 短路线与晋升候选：
+
+```powershell
+node art/tools/generate_v050_art.mjs
+```
+
+生成清单为 `assets/game/v0.5.0/render-manifest.json`，审稿拼图为 `assets/game/v0.5.0/contact-sheet.png`。正式资产迁移后仍应由 UI 在实际游戏界面复审。
 
 ## PNG 导出
 

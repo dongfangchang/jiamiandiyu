@@ -1,0 +1,101 @@
+{
+  "version": "v0.5.0",
+  "assets": [
+    {
+      "id": "scene.route.v050.short_road",
+      "type": "route-map",
+      "svg": "assets/svg/v0.5.0/scenes/route-map.svg",
+      "png": "assets/game/v0.5.0/scenes/route-map.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "scene.rest.old_house",
+      "type": "scene",
+      "svg": "assets/svg/v0.5.0/scenes/rest-old-house.svg",
+      "png": "assets/game/v0.5.0/scenes/rest-old-house.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "enemy.mirror_baron",
+      "type": "enemy",
+      "svg": "assets/svg/v0.5.0/enemies/enemy-mirror-baron.svg",
+      "png": "assets/game/v0.5.0/enemies/enemy-mirror-baron.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "id": "scene.ritual.tampered_obituary",
+      "type": "scene",
+      "svg": "assets/svg/v0.5.0/scenes/ritual-tampered-obituary.svg",
+      "png": "assets/game/v0.5.0/scenes/ritual-tampered-obituary.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "ritual.card.name_record",
+      "type": "ritual-card",
+      "svg": "assets/svg/v0.5.0/rituals/ritual-card-name-record.svg",
+      "png": "assets/game/v0.5.0/rituals/ritual-card-name-record.png",
+      "width": 420,
+      "height": 600
+    },
+    {
+      "id": "ritual.card.chronology",
+      "type": "ritual-card",
+      "svg": "assets/svg/v0.5.0/rituals/ritual-card-chronology.svg",
+      "png": "assets/game/v0.5.0/rituals/ritual-card-chronology.png",
+      "width": 420,
+      "height": 600
+    },
+    {
+      "id": "ritual.card.seal",
+      "type": "ritual-card",
+      "svg": "assets/svg/v0.5.0/rituals/ritual-card-seal.svg",
+      "png": "assets/game/v0.5.0/rituals/ritual-card-seal.png",
+      "width": 420,
+      "height": 600
+    },
+    {
+      "id": "status.route.pending",
+      "type": "icon",
+      "svg": "assets/svg/v0.5.0/icons/route-pending.svg",
+      "png": "assets/game/v0.5.0/icons/route-pending.png",
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "status.route.current",
+      "type": "icon",
+      "svg": "assets/svg/v0.5.0/icons/route-current.svg",
+      "png": "assets/game/v0.5.0/icons/route-current.png",
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "status.route.completed",
+      "type": "icon",
+      "svg": "assets/svg/v0.5.0/icons/route-completed.svg",
+      "png": "assets/game/v0.5.0/icons/route-completed.png",
+      "width": 96,
+      "height": 96
+    },
+    {
+      "id": "status.ritual.success",
+      "type": "icon",
+      "svg": "assets/svg/v0.5.0/icons/ritual-success.svg",
+      "png": "assets/game/v0.5.0/icons/ritual-success.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "status.ritual.failure",
+      "type": "icon",
+      "svg": "assets/svg/v0.5.0/icons/ritual-failure.svg",
+      "png": "assets/game/v0.5.0/icons/ritual-failure.png",
+      "width": 128,
+      "height": 128
+    }
+  ]
+}

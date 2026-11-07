@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.5.0 ascension ritual definitions",
+  "type": "object",
+  "required": ["schema_version", "content_version", "rituals"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rituals": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name_zh",
+          "description_zh",
+          "wrong_step_corruption",
+          "hint_spirit_cost",
+          "steps"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^ritual\\."},
+          "display_name_zh": {"type": "string", "minLength": 1},
+          "description_zh": {"type": "string"},
+          "wrong_step_corruption": {"type": "integer", "minimum": 0},
+          "hint_spirit_cost": {"type": "integer", "minimum": 0},
+          "steps": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "x-uniqueBy": "id",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "type",
+                "title_zh",
+                "clue_zh",
+                "hint_zh",
+                "min_selections",
+                "max_selections",
+                "options"
+              ],
+              "properties": {
+                "id": {"type": "string", "pattern": "^step\\."},
+                "type": {
+                  "type": "string",
+                  "enum": ["select_ids", "ordered_ids", "select_id"]
+                },
+                "title_zh": {"type": "string", "minLength": 1},
+                "clue_zh": {"type": "string", "minLength": 1},
+                "hint_zh": {"type": "string", "minLength": 1},
+                "min_selections": {"type": "integer", "minimum": 1},
+                "max_selections": {"type": "integer", "minimum": 1},
+                "correct_ids": {"type": "array", "items": {"type": "string"}},
+                "correct_order": {"type": "array", "items": {"type": "string"}},
+                "correct_id": {"type": "string"},
+                "options": {
+                  "type": "array",
+                  "minItems": 2,
+                  "x-uniqueBy": "id",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "display_name_zh"],
+                    "properties": {
+                      "id": {"type": "string", "minLength": 1},
+                      "display_name_zh": {"type": "string", "minLength": 1}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

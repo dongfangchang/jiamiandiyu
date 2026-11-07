@@ -36,7 +36,9 @@ func _init(
 	save_slot: String,
 	progression: RefCounted = null,
 	content_version_override: String = "",
-	auto_save_on_end: bool = true
+	auto_save_on_end: bool = true,
+	player_state_override: Dictionary = {},
+	apply_progression_modifiers: bool = true
 ) -> void:
 	services = app_services
 	catalog = content_catalog
@@ -65,8 +67,12 @@ func _init(
 		)
 		content = _progression.create_upgraded_content(content)
 	battle_id = StringName("%s.%d" % [String(encounter_id), run_seed])
-	var player_state := _build_player_state(balance)
-	if _progression != null:
+	var player_state: Dictionary = (
+		player_state_override.duplicate(true)
+		if not player_state_override.is_empty()
+		else _build_player_state(balance)
+	)
+	if _progression != null and apply_progression_modifiers:
 		player_state = _progression.apply_battle_modifiers(player_state)
 	_engine.initialize(
 		content,

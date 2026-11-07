@@ -1,0 +1,315 @@
+{
+	"cases": [
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.01,
+			"average_conservative_minutes": 14.88625,
+			"average_estimated_minutes": 17.405125,
+			"average_final_attention": 0.62,
+			"average_final_corruption": 1.17,
+			"average_final_health": 50.55,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 3.0,
+			"average_pressure_events": 0.49,
+			"average_relaxed_minutes": 19.924,
+			"average_ritual_errors": 0.585,
+			"average_total_rounds": 11.195,
+			"average_upgrades": 2.97,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 2.75,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 4.335,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 4.11,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "aggressive.reporter",
+			"identity_id": "identity.reporter",
+			"rest_choices": {
+				"rest.bandage": 76,
+				"rest.seal_echo": 124
+			},
+			"ritual_accuracy_assumption": 0.82,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "aggressive",
+			"target_15_30_met_conservative": false,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		},
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.01,
+			"average_conservative_minutes": 13.93575,
+			"average_estimated_minutes": 16.454625,
+			"average_final_attention": 0.62,
+			"average_final_corruption": 1.17,
+			"average_final_health": 54.34,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 1.0,
+			"average_pressure_events": 0.48,
+			"average_relaxed_minutes": 18.9734999999999,
+			"average_ritual_errors": 0.585,
+			"average_total_rounds": 11.195,
+			"average_upgrades": 2.755,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 2.75,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 4.335,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 4.11,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "aggressive.doctor",
+			"identity_id": "identity.doctor",
+			"rest_choices": {
+				"rest.bandage": 76,
+				"rest.seal_echo": 124
+			},
+			"ritual_accuracy_assumption": 0.82,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "aggressive",
+			"target_15_30_met_conservative": false,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		},
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.505,
+			"average_conservative_minutes": 18.7125,
+			"average_estimated_minutes": 21.80625,
+			"average_final_attention": 0.285,
+			"average_final_corruption": 0.68,
+			"average_final_health": 48.94,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 9.0,
+			"average_pressure_events": 2.045,
+			"average_relaxed_minutes": 24.9,
+			"average_ritual_errors": 0.34,
+			"average_total_rounds": 13.75,
+			"average_upgrades": 3.0,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 2.98,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 5.895,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 4.875,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "balanced.reporter",
+			"identity_id": "identity.reporter",
+			"rest_choices": {
+				"rest.bandage": 143,
+				"rest.seal_echo": 57
+			},
+			"ritual_accuracy_assumption": 0.9,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "balanced",
+			"target_15_30_met_conservative": true,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		},
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.57,
+			"average_conservative_minutes": 18.0285,
+			"average_estimated_minutes": 21.174,
+			"average_final_attention": 0.285,
+			"average_final_corruption": 0.68,
+			"average_final_health": 52.615,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 7.0,
+			"average_pressure_events": 2.165,
+			"average_relaxed_minutes": 24.3195,
+			"average_ritual_errors": 0.34,
+			"average_total_rounds": 13.98,
+			"average_upgrades": 2.985,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 2.98,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 6.125,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 4.875,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "balanced.doctor",
+			"identity_id": "identity.doctor",
+			"rest_choices": {
+				"rest.bandage": 143,
+				"rest.seal_echo": 57
+			},
+			"ritual_accuracy_assumption": 0.9,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "balanced",
+			"target_15_30_met_conservative": true,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		},
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.355,
+			"average_conservative_minutes": 16.319,
+			"average_estimated_minutes": 19.424,
+			"average_final_attention": 0.0,
+			"average_final_corruption": 0.36,
+			"average_final_health": 51.74,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 3.0,
+			"average_pressure_events": 1.96,
+			"average_relaxed_minutes": 22.529,
+			"average_ritual_errors": 0.18,
+			"average_total_rounds": 13.8,
+			"average_upgrades": 2.97,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 3.17,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 5.535,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 5.095,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "defensive.reporter",
+			"identity_id": "identity.reporter",
+			"rest_choices": {
+				"rest.bandage": 200
+			},
+			"ritual_accuracy_assumption": 0.95,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "defensive",
+			"target_15_30_met_conservative": true,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		},
+		{
+			"ascension_completion_rate": 1.0,
+			"average_boss_phase_events": 1.27,
+			"average_conservative_minutes": 15.23925,
+			"average_estimated_minutes": 18.291375,
+			"average_final_attention": 0.0,
+			"average_final_corruption": 0.36,
+			"average_final_health": 55.895,
+			"average_final_sequence": 8.0,
+			"average_gacha_pulls": 1.0,
+			"average_pressure_events": 1.865,
+			"average_relaxed_minutes": 21.3434999999999,
+			"average_ritual_errors": 0.18,
+			"average_total_rounds": 13.565,
+			"average_upgrades": 2.755,
+			"battle_profiles": {
+				"route.v050.node.first_hunt": {
+					"average_rounds": 3.17,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_baron": {
+					"average_rounds": 5.3,
+					"runs": 200,
+					"win_rate": 1.0
+				},
+				"route.v050.node.mirror_pursuit": {
+					"average_rounds": 5.095,
+					"runs": 200,
+					"win_rate": 1.0
+				}
+			},
+			"failure_reasons": {},
+			"id": "defensive.doctor",
+			"identity_id": "identity.doctor",
+			"rest_choices": {
+				"rest.bandage": 200
+			},
+			"ritual_accuracy_assumption": 0.95,
+			"route_completion_rate": 1.0,
+			"samples": 200,
+			"strategy_id": "defensive",
+			"target_15_30_met_conservative": true,
+			"target_15_30_met_midpoint": true,
+			"target_15_30_met_relaxed": true,
+			"valid_runs": 200
+		}
+	],
+	"engine": "RouteEngine+BattleEngine+ProgressionEngine",
+	"root_seed": 20261108,
+	"route_id": "route.v050.first_case",
+	"samples_per_case": 200,
+	"sources": {
+		"balance": "res://data/balance/v0.5.0/balance.json",
+		"cards": "res://data/cards/v0.3.0/cards.json",
+		"encounters": "res://data/encounters/v0.5.0/encounters.json",
+		"enemies": "res://data/enemies/v0.5.0/enemies.json",
+		"progression": "res://data/cards/v0.4.0/progression.json",
+		"rituals": "res://data/rituals/v0.5.0/rituals.json",
+		"routes": "res://data/routes/v0.5.0/routes.json"
+	},
+	"time_model_minutes": {
+		"battle_enter_and_result": 0.75,
+		"battle_round_conservative": 0.55,
+		"battle_round_relaxed": 1.0,
+		"gacha_decision": 1.2,
+		"note": "Planning estimate only; no human timing sample yet.",
+		"rest_choice": 1.5,
+		"ritual_step": 0.4,
+		"route_identity": 0.5,
+		"upgrade_decision": 0.7
+	},
+	"version": "v0.5.0"
+}

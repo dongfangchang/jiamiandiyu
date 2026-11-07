@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.5.0",
+  "base_cards_version": "v0.3.0",
+  "base_encounters_version": "v0.5.0",
+  "default_route_id": "route.v050.first_case",
+  "routes": [
+    {
+      "id": "route.v050.first_case",
+      "display_name_zh": "廷根旧宅调查",
+      "initial_run_state": {
+        "hp": 54,
+        "max_hp": 54,
+        "spirit": 3,
+        "max_spirit": 3,
+        "corruption": 0,
+        "max_corruption": 10,
+        "attention": 0,
+        "max_attention": 10
+      },
+      "sequence": {
+        "pathway_id": "seer",
+        "pathway_name_zh": "占卜家",
+        "current_sequence": 9,
+        "next_sequence": 8,
+        "next_sequence_name_zh": "小丑"
+      },
+      "rest_options": [
+        {
+          "id": "rest.bandage",
+          "display_name_zh": "包扎伤口",
+          "description_zh": "恢复生命，但无法驱散跟随你的目光。",
+          "effects": {
+            "hp_delta": 12,
+            "corruption_delta": 0,
+            "attention_delta": 0
+          }
+        },
+        {
+          "id": "rest.seal_echo",
+          "display_name_zh": "封锁回声",
+          "description_zh": "引来更多注视，封锁旧宅回声，并让下一场战斗获得额外灵性上限。",
+          "effects": {
+            "hp_delta": 0,
+            "corruption_delta": -2,
+            "attention_delta": 1,
+            "max_spirit_delta": 1
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "route.v050.node.first_hunt",
+          "type": "normal",
+          "display_name_zh": "雨夜双影",
+          "encounter_id": "encounter.first_hunt"
+        },
+        {
+          "id": "route.v050.node.mirror_pursuit",
+          "type": "elite",
+          "display_name_zh": "回声追猎",
+          "encounter_id": "encounter.mirror_pursuit"
+        },
+        {
+          "id": "route.v050.node.old_house_rest",
+          "type": "rest",
+          "display_name_zh": "旧宅喘息"
+        },
+        {
+          "id": "route.v050.node.mirror_baron",
+          "type": "boss",
+          "display_name_zh": "镜厅男爵",
+          "encounter_id": "encounter.mirror_baron"
+        },
+        {
+          "id": "route.v050.node.ascension",
+          "type": "ritual",
+          "display_name_zh": "被篡改的讣告",
+          "ritual_id": "ritual.v050.tampered_obituary"
+        }
+      ]
+    }
+  ]
+}

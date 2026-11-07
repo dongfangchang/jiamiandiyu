@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="paperWash" cx="42%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F1E4C8"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0E120E"/>
+      <stop offset=".52" stop-color="#29302A"/>
+      <stop offset="1" stop-color="#090C09"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8D091"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5D4726"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".56" numOctaves="3" seed="53" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+
+  </defs>
+
+    <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+    <rect width="1600" height="900" fill="url(#hatch)" opacity=".12"/>
+    <path d="M0 746 C222 652 424 730 636 664 S1011 671 1224 645 S1464 666 1600 626 V900H0Z" fill="#070A07"/>
+    <path d="M0 803 C213 755 407 812 622 777 S970 758 1179 792 S1445 747 1600 773 V900H0Z" fill="#788079" opacity=".07"/>
+    <circle cx="800" cy="445" r="332" fill="none" stroke="#B99750" stroke-width="2" opacity=".38"/>
+    <circle cx="800" cy="445" r="276" fill="none" stroke="#B99750" stroke-width="1" stroke-dasharray="4 14" opacity=".5"/>
+    <circle cx="800" cy="445" r="145" fill="none" stroke="#7A2828" stroke-width="1.6" opacity=".48"/>
+    <path d="M800 113V777 M468 445H1132 M565 210L1035 680 M1035 210L565 680"
+      stroke="#B99750" stroke-width=".9" opacity=".2"/>
+    <g transform="translate(800 445)">
+      <circle r="53" fill="#788079" opacity=".16" stroke="#E8DFC9" stroke-width="2"/>
+      <circle r="22" fill="none" stroke="#7A2828" stroke-width="3"/>
+      <path d="M0-39V39M-39 0H39" stroke="#B99750" stroke-width="2" opacity=".58"/>
+    </g>
+    <g transform="translate(380 489) rotate(-10)">
+      <rect x="-134" y="-189" width="268" height="378" fill="#D8C29A" opacity=".82" stroke="#B99750" stroke-width="3"/>
+      <rect x="-113" y="-168" width="226" height="336" fill="none" stroke="#211D18" stroke-width="1" opacity=".35"/>
+      <path d="M-72-94H72 M-72-58H72 M-72-22H52 M-72 78H64" stroke="#211D18" stroke-width="2" opacity=".24"/>
+      <circle cy="20" r="31" fill="none" stroke="#211D18" stroke-width="2" opacity=".4"/>
+    </g>
+    <g transform="translate(800 460) rotate(2)">
+      <rect x="-142" y="-200" width="284" height="400" fill="#D8C29A" opacity=".92" stroke="#B99750" stroke-width="4"/>
+      <rect x="-119" y="-177" width="238" height="354" fill="none" stroke="#211D18" stroke-width="1.2" opacity=".38"/>
+      <path d="M-72-110H72 M-72-73H72 M-72-36H49" stroke="#211D18" stroke-width="2" opacity=".24"/>
+      <path d="M0-5L45 48L0 101L-45 48Z" fill="#7A2828" opacity=".58"/>
+    </g>
+    <g transform="translate(1220 500) rotate(12)">
+      <rect x="-134" y="-189" width="268" height="378" fill="#D8C29A" opacity=".82" stroke="#B99750" stroke-width="3"/>
+      <rect x="-113" y="-168" width="226" height="336" fill="none" stroke="#211D18" stroke-width="1" opacity=".35"/>
+      <circle cy="20" r="51" fill="none" stroke="#211D18" stroke-width="2" opacity=".42"/>
+      <path d="M0-31L13-10L0 11L-13-10Z" fill="#7A2828" opacity=".68"/>
+    </g>
+    <path d="M630 692 C708 651 892 651 970 692" fill="none" stroke="#211D18" stroke-width="15" opacity=".72"/>
+    <path d="M602 736H998" stroke="#B99750" stroke-width="2" opacity=".28"/>
+    <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#B99750" stroke-width="1.4" opacity=".34"/>
+
+</svg>

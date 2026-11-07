@@ -121,6 +121,15 @@ func initialize(
 		enemy["statuses"] = []
 		enemy["intent"] = {}
 		enemy["defeated_announced"] = false
+		var phase_source: Variant = enemy.get("phases", [])
+		enemy["phases"] = (
+			phase_source.duplicate(true)
+			if phase_source is Array
+			else phase_source
+		)
+		enemy["triggered_phases"] = []
+		if not _validate_enemy_phases(enemy["phases"]):
+			return _initialization_error(&"enemy_state_invalid")
 		_enemies.append(enemy)
 	_enemies.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["lane_index"]) < int(b["lane_index"])
@@ -208,6 +217,8 @@ func get_snapshot() -> BattleSnapshot:
 			"block": int(enemy["block"]),
 			"statuses": enemy["statuses"].duplicate(true),
 			"intent": enemy["intent"].duplicate(true),
+			"phases": enemy.get("phases", []).duplicate(true),
+			"triggered_phase_count": enemy.get("triggered_phases", []).size(),
 		})
 
 	var revision_value: int = _revision
@@ -331,9 +342,48 @@ func _begin_round(draw_target: int) -> void:
 	_player["spirit"] = int(_player["max_spirit"])
 	_emit(&"RoundStarted", {"round_number": _round_number})
 	_apply_enemy_pressure_if_due()
+	_trigger_due_enemy_phases()
 	_generate_enemy_intents()
 	_draw_to_hand(draw_target)
 	_phase = PHASE_PLAYER_ACTION
+
+
+func _trigger_due_enemy_phases() -> void:
+	for enemy in _enemies:
+		if not _is_alive(enemy):
+			continue
+		var phases: Array = enemy.get("phases", [])
+		var triggered: Array = enemy.get("triggered_phases", [])
+		for phase_index in range(phases.size()):
+			if phase_index in triggered:
+				continue
+			var phase: Dictionary = phases[phase_index]
+			if int(phase.get("at_round", -1)) != _round_number:
+				continue
+			var attack_bonus: int = int(phase.get("base_attack_bonus", 0))
+			var block_bonus: int = int(phase.get("block_bonus", 0))
+			var heal_amount: int = int(phase.get("heal", 0))
+			enemy["base_attack"] = int(enemy["base_attack"]) + attack_bonus
+			enemy["block"] = int(enemy["block"]) + block_bonus
+			if heal_amount > 0:
+				enemy["hp"] = mini(
+					int(enemy["max_hp"]),
+					int(enemy["hp"]) + heal_amount
+				)
+			triggered.append(phase_index)
+			enemy["triggered_phases"] = triggered
+			_emit(&"EnemyPhaseTriggered", {
+				"enemy_id": String(enemy["id"]),
+				"phase_index": phase_index,
+				"phase_id": String(phase.get("id", "")),
+				"display_name_zh": String(
+					phase.get("display_name_zh", phase.get("id", ""))
+				),
+				"round_number": _round_number,
+				"base_attack_bonus": attack_bonus,
+				"block_bonus": block_bonus,
+				"heal": heal_amount,
+			})
 
 
 func _generate_enemy_intents() -> void:
@@ -818,6 +868,29 @@ func _validate_enemy_state(enemy: Dictionary) -> bool:
 		return false
 	if int(enemy["lane_index"]) < 0 or int(enemy["lane_index"]) >= 3:
 		return false
+	return true
+
+
+func _validate_enemy_phases(phases_value: Variant) -> bool:
+	if not phases_value is Array:
+		return false
+	var seen_rounds: Dictionary = {}
+	for value in phases_value:
+		if not value is Dictionary:
+			return false
+		var phase: Dictionary = value
+		if not _is_positive_integer(phase.get("at_round")):
+			return false
+		var at_round: int = int(phase["at_round"])
+		if seen_rounds.has(at_round):
+			return false
+		seen_rounds[at_round] = true
+		if not _is_non_negative_integer(phase.get("base_attack_bonus", 0)):
+			return false
+		if not _is_non_negative_integer(phase.get("block_bonus", 0)):
+			return false
+		if not _is_non_negative_integer(phase.get("heal", 0)):
+			return false
 	return true
 
 

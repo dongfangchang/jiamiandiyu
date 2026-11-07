@@ -4,6 +4,7 @@ extends RefCounted
 const InfrastructureResultScript := preload("res://src/infrastructure/infrastructure_result.gd")
 
 var content_version: String = ""
+var cards_content_version: String = ""
 var _cards_by_id: Dictionary = {}
 var _enemies_by_id: Dictionary = {}
 var _encounters_by_id: Dictionary = {}
@@ -15,18 +16,48 @@ func load_from_documents(
 	enemies_document: Dictionary,
 	encounters_document: Dictionary
 ) -> InfrastructureResult:
-	var versions: Array[String] = [
-		String(cards_document.get("content_version", "")),
-		String(enemies_document.get("content_version", "")),
-		String(encounters_document.get("content_version", "")),
-	]
-	if versions.has("") or versions[0] != versions[1] or versions[0] != versions[2]:
+	var cards_version := String(cards_document.get("content_version", ""))
+	var enemies_version := String(enemies_document.get("content_version", ""))
+	var encounters_version := String(encounters_document.get("content_version", ""))
+	var enemies_base_cards := String(
+		enemies_document.get("base_cards_version", "")
+	)
+	var encounters_base_cards := String(
+		encounters_document.get("base_cards_version", "")
+	)
+	var cross_version_package := (
+		not enemies_base_cards.is_empty()
+		or not encounters_base_cards.is_empty()
+	)
+	var versions_valid := false
+	if cross_version_package:
+		versions_valid = (
+			not cards_version.is_empty()
+			and not enemies_version.is_empty()
+			and enemies_version == encounters_version
+			and enemies_base_cards == cards_version
+			and encounters_base_cards == cards_version
+		)
+	else:
+		versions_valid = (
+			not cards_version.is_empty()
+			and cards_version == enemies_version
+			and cards_version == encounters_version
+		)
+	if not versions_valid:
 		return InfrastructureResultScript.failure(
 			&"content_version_mismatch",
-			"Cards, enemies, and encounters must share one non-empty content_version.",
-			{"versions": versions}
+			"Content packages must share a package version and reference one base card version.",
+			{
+				"cards_version": cards_version,
+				"enemies_version": enemies_version,
+				"encounters_version": encounters_version,
+				"enemies_base_cards_version": enemies_base_cards,
+				"encounters_base_cards_version": encounters_base_cards,
+			}
 		)
-	content_version = versions[0]
+	content_version = enemies_version
+	cards_content_version = cards_version
 	_cards_by_id.clear()
 	_enemies_by_id.clear()
 	_encounters_by_id.clear()
@@ -137,10 +168,17 @@ func resolve_encounter(encounter_id: StringName) -> InfrastructureResult:
 			"id": "%s.enemy.%d" % [String(encounter_id), lane_index],
 			"definition_id": enemy_id,
 			"display_name_zh": String(enemy.get("display_name_zh", enemy_id)),
+			"tier": String(enemy.get("tier", "normal")),
+			"threat": String(enemy.get("threat", "")),
 			"lane_index": lane_index,
 			"hp": int(enemy.get("base_health", 0)),
 			"max_hp": int(enemy.get("base_health", 0)),
 			"base_attack": int(enemy.get("base_attack", 0)),
+			"phases": (
+				enemy.get("phases", []).duplicate(true)
+				if enemy.get("phases", []) is Array
+				else []
+			),
 		})
 	return InfrastructureResultScript.success({
 		"id": String(encounter_id),

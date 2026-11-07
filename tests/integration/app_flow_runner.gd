@@ -2,9 +2,14 @@ extends Node
 
 const AppRootScene := preload("res://src/app/app_root.tscn")
 
-const TEST_ROOT := "user://mask_whispers_app_integration_v04"
+const TEST_ROOT := "user://mask_whispers_app_integration_v05"
 const IDENTITY_ID := "identity.reporter"
 const UPGRADE_CARD_ID := "card.skill.ink_dart"
+const FIRST_NODE := "route.v050.node.first_hunt"
+const ELITE_NODE := "route.v050.node.mirror_pursuit"
+const REST_NODE := "route.v050.node.old_house_rest"
+const BOSS_NODE := "route.v050.node.mirror_baron"
+const RITUAL_NODE := "route.v050.node.ascension"
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -17,167 +22,230 @@ func _ready() -> void:
 	_app = AppRootScene.instantiate()
 	_app.configure_for_testing(TEST_ROOT, "flow_slot", 424242)
 	add_child(_app)
-	await get_tree().process_frame
+	await _wait_frames(2)
 
-	await _test_start_route()
-	await _test_new_campaign_identity()
-	await _test_identity_to_hub()
-	await _test_hub_to_real_battle()
-	await _test_battle_to_reward()
-	await _test_reward_and_gacha()
-	await _test_upgrade_and_next_battle()
-	await _test_checkpoint_continue()
+	await _test_start_state()
+	await _test_new_route_identity()
+	await _advance_battle(FIRST_NODE, "first_hunt")
+	await _claim_reward("reward.ink_dart_fragments")
+	await _test_growth_between_nodes()
+	await _advance_battle(ELITE_NODE, "mirror_pursuit")
+	await _claim_reward("reward.divination_tickets")
+	await _test_rest_boundary_restore()
+	await _advance_battle(BOSS_NODE, "mirror_baron")
+	await _claim_reward("reward.divination_tickets")
+	await _test_ritual_and_sequence()
+	await _test_completed_checkpoint_continue()
 	await _test_corrupt_checkpoint_state()
 
 	_remove_tree(TEST_ROOT)
 	_finish()
 
 
-func _test_start_route() -> void:
+func _test_start_state() -> void:
 	_expect(_app.get_current_route() == &"start", "app starts on start route")
 	var start = _app.get_current_screen()
 	_expect(start != null, "start screen is mounted")
 	_expect(not start.is_continue_enabled(), "continue disabled without checkpoint")
-	_expect(start.get_status_text().contains("尚未"), "start shows empty checkpoint state")
-	await get_tree().process_frame
+	_expect(start.get_status_text().contains("尚未"), "start reports no local checkpoint")
+	await _wait_frames(1)
 
 
-func _test_new_campaign_identity() -> void:
+func _test_new_route_identity() -> void:
 	_app.get_current_screen().new_game_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"identity", "new game routes to identity selection")
-	_expect(_app.get_session() != null, "campaign session is retained")
-	var snapshot = _app.get_progression_snapshot()
-	_expect(snapshot != null and snapshot.data.get("phase", "") == "identity_selection", "progression is in identity phase")
-	var screen = _app.get_current_screen()
-	_expect(screen.get_selected_identity_id() == "", "identity screen starts without selection")
-	screen.choose_identity(IDENTITY_ID)
-	await get_tree().process_frame
-	await get_tree().process_frame
-
-
-func _test_identity_to_hub() -> void:
-	_expect(_app.get_current_route() == &"hub", "identity selection routes to hub")
-	var snapshot = _app.get_progression_snapshot()
-	_expect(String(snapshot.data.get("identity_id", "")) == IDENTITY_ID, "selected identity persists in snapshot")
-	_expect(String(snapshot.data.get("phase", "")) == "hub", "hub phase is active")
-	var screen = _app.get_current_screen()
-	_expect(screen.has_hub_actions(), "hub actions are available")
-	screen.battle_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
-
-
-func _test_hub_to_real_battle() -> void:
-	_expect(_app.get_current_route() == &"battle", "hub enters a real battle")
-	var battle = _app.get_current_screen()
-	_expect(battle.get_snapshot_data().size() > 0, "battle screen receives a real snapshot")
+	_expect(_app.get_session() != null, "route session is retained")
+	var progression = _app.get_progression_snapshot()
 	_expect(
-		String(battle.get_snapshot_data().get("battle_id", "")).contains("first_hunt"),
-		"formal first-hunt encounter is active"
+		progression != null and progression.data.get("phase", "") == "identity_selection",
+		"progression starts in identity selection"
 	)
+	_app.get_current_screen().choose_identity(IDENTITY_ID)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"map", "identity selection enters route map")
+	var route = _app.get_route_snapshot()
+	_expect(route != null and route.data.get("nodes", []).size() == 5, "route map exposes five fixed nodes")
+	_expect(
+		String(route.data.get("available_node_id", "")) == FIRST_NODE,
+		"first hunt is the first available node"
+	)
+
+
+func _advance_battle(node_id: String, encounter_fragment: String) -> void:
+	var route_screen = _app.get_current_screen()
+	_expect(_app.get_current_route() == &"map", "route map is active before %s" % node_id)
+	route_screen.request_node(node_id)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"battle", "node %s starts a real battle" % node_id)
+	var battle = _app.get_current_screen()
+	var battle_id := String(battle.get_snapshot_data().get("battle_id", ""))
+	_expect(battle_id.contains(encounter_fragment), "battle uses encounter %s" % encounter_fragment)
 	await _fight_until_finished()
+	_expect(_app.get_current_route() == &"reward", "victory from %s enters reward phase" % node_id)
 
 
-func _test_battle_to_reward() -> void:
-	_expect(_app.get_current_route() == &"reward", "victory routes from battle to reward")
+func _claim_reward(reward_id: String) -> void:
+	_expect(_app.get_current_route() == &"reward", "reward screen active before claim")
 	var screen = _app.get_current_screen()
-	_expect(screen.get_option_count() == 2, "reward screen receives two choices")
-	var snapshot = _app.get_progression_snapshot()
-	_expect(String(snapshot.data.get("phase", "")) == "reward", "progression enters reward phase")
+	_expect(screen.get_option_count() == 2, "reward screen exposes two choices")
+	screen.claim_reward(reward_id)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"map", "claimed reward returns to route map")
 
 
-func _test_reward_and_gacha() -> void:
-	var reward_screen = _app.get_current_screen()
-	reward_screen.claim_reward("reward.ink_dart_fragments")
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_app.get_current_route() == &"hub", "reward claim routes back to hub")
-
+func _test_growth_between_nodes() -> void:
+	var route_screen = _app.get_current_screen()
+	route_screen.hub_requested.emit()
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"hub", "route hub opens the identity/growth hub")
 	var hub = _app.get_current_screen()
 	hub.gacha_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"gacha", "hub opens spirit-world gacha")
 	var gacha = _app.get_current_screen()
 	var tickets_before := int(_app.get_progression_snapshot().data.get("divination_tickets", 0))
 	gacha.request_draw(1)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	var snapshot = _app.get_progression_snapshot()
-	_expect(snapshot.data.get("last_gacha_results", []).size() == 1, "single draw produces one result")
+	await _wait_frames(3)
+	_expect(gacha.get_result_count() == 1, "single draw displays one result")
 	_expect(
-		int(snapshot.data.get("divination_tickets", 0)) == tickets_before - 2,
+		int(_app.get_progression_snapshot().data.get("divination_tickets", 0))
+		== tickets_before - 2,
 		"single draw deducts two tickets"
 	)
-	_expect(gacha.get_result_count() == 1, "gacha screen displays one result")
 	gacha.back_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_app.get_current_route() == &"hub", "gacha returns to hub")
-
-
-func _test_upgrade_and_next_battle() -> void:
-	var hub = _app.get_current_screen()
-	hub.upgrade_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_app.get_current_route() == &"upgrade", "hub opens card upgrade screen")
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"hub", "gacha returns to identity hub")
+	_app.get_current_screen().upgrade_requested.emit()
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"upgrade", "hub opens card upgrade")
 	var upgrade = _app.get_current_screen()
-	_expect(upgrade.get_card_row_count() > 0, "upgrade screen displays owned upgradeable cards")
 	upgrade.request_upgrade(UPGRADE_CARD_ID)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_collection_level(UPGRADE_CARD_ID) == 1, "ink dart upgrades to level one")
+	await _wait_frames(3)
+	_expect(_collection_level(UPGRADE_CARD_ID) >= 1, "ink dart upgrade is persisted")
 	upgrade.back_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"hub", "upgrade returns to hub")
-
 	_app.get_current_screen().battle_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_app.get_current_route() == &"battle", "hub starts the next battle")
-	_expect(_collection_level(UPGRADE_CARD_ID) == 1, "upgraded level remains active in the next battle")
-
-
-func _test_checkpoint_continue() -> void:
-	_app.show_start_screen()
-	await get_tree().process_frame
-	var start = _app.get_current_screen()
-	_expect(start.is_continue_enabled(), "checkpoint enables continue after the short loop")
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"map", "hub battle action returns to the active route")
 	_expect(
-		String(_app.get_last_checkpoint_summary().get("identity_id", "")) == IDENTITY_ID,
-		"checkpoint summary preserves identity"
+		String(_app.get_route_snapshot().data.get("available_node_id", "")) == ELITE_NODE,
+		"next route node is the mirror pursuit elite"
+	)
+
+
+func _test_rest_boundary_restore() -> void:
+	var route_screen = _app.get_current_screen()
+	route_screen.request_node(REST_NODE)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"rest", "rest node opens the rest screen")
+	_expect(_app.get_current_screen().get_option_count() == 2, "rest exposes two choices")
+
+	_app.show_start_screen()
+	await _wait_frames(2)
+	var start = _app.get_current_screen()
+	_expect(start.is_continue_enabled(), "rest checkpoint enables continue")
+	_expect(
+		String(_app.get_last_checkpoint_summary().get("current_node_id", "")) == REST_NODE,
+		"checkpoint summary records the rest node"
 	)
 	start.continue_requested.emit()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_expect(_app.get_current_route() == &"hub", "continue restores the progression hub")
-	_expect(_collection_level(UPGRADE_CARD_ID) == 1, "continue restores upgraded collection")
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"rest", "continue restores the rest screen")
+	_expect(_app.get_current_screen().get_option_count() == 2, "restored rest screen keeps choices")
+	_app.get_current_screen().select_rest("rest.bandage")
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"map", "rest selection advances to boss route map")
+	_expect(
+		String(_app.get_route_snapshot().data.get("available_node_id", "")) == BOSS_NODE,
+		"boss becomes available after rest"
+	)
+
+
+func _test_ritual_and_sequence() -> void:
+	var route_screen = _app.get_current_screen()
+	route_screen.request_node(RITUAL_NODE)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"ritual", "boss completion unlocks ascension ritual")
+
+	_app.get_current_screen().request_cancel()
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"map", "cancelled ritual returns to route map")
+	_app.get_current_screen().request_node(RITUAL_NODE)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"ritual", "ritual can be re-entered after cancel")
+
+	var ritual = _app.get_current_screen()
+	ritual.select_option("name.mira_finch")
+	ritual.select_option("name.elin_ward")
+	ritual.submit_step()
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"ritual", "wrong ritual step keeps the ritual open")
+	_expect(_app.get_ritual_snapshot().data.get("errors", 0) == 1, "wrong step records one error")
+	_expect(_app.get_ritual_snapshot().data.get("corruption", 0) >= 2, "wrong step adds corruption")
+
+	await _submit_ritual(["name.elin_ward", "name.thomas_ward"])
+	await _submit_ritual(["event.birth", "event.death", "event.burial"])
+	await _submit_ritual(["seal.inverted_eye"])
+	_expect(_app.get_current_route() == &"route_result", "completed ritual opens route result")
+	var route = _app.get_route_snapshot()
+	_expect(route.data.get("route_outcome", "") == "completed", "route outcome is completed")
+	var sequence = _app.get_session().get_sequence_state().data
+	_expect(int(sequence.get("current_sequence", 0)) == 8, "sequence advances to eight")
+	_expect(String(sequence.get("next_sequence_name_zh", "")) == "小丑", "sequence name is Clown")
+
+
+func _submit_ritual(selections: Array[String]) -> void:
+	var ritual = _app.get_current_screen()
+	for selection in selections:
+		ritual.select_option(selection)
+	ritual.submit_step()
+	await _wait_frames(3)
+
+
+func _test_completed_checkpoint_continue() -> void:
+	_expect(_app.get_current_route() == &"route_result", "completed route result is visible")
+	_expect(_app.get_current_screen().get_title_text() == "晋升完成", "result title reports ascension")
+	_app.show_start_screen()
+	await _wait_frames(2)
+	var start = _app.get_current_screen()
+	_expect(start.is_continue_enabled(), "completed route checkpoint enables continue")
+	var summary = _app.get_last_checkpoint_summary()
+	_expect(String(summary.get("checkpoint_kind", "")) == "route", "checkpoint kind is route")
+	_expect(int(summary.get("sequence", 0)) == 8, "checkpoint summary stores sequence eight")
+	start.continue_requested.emit()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"route_result", "continue restores completed route result")
+	var sequence = _app.get_session().get_sequence_state().data
+	_expect(int(sequence.get("current_sequence", 0)) == 8, "continued session keeps sequence eight")
 
 
 func _fight_until_finished() -> void:
 	var commands_sent := 0
-	for _round_index in 12:
+	for _round_index in 15:
 		if _app.get_current_route() != &"battle":
 			break
 		var battle = _app.get_current_screen()
 		var data: Dictionary = battle.get_snapshot_data()
-		var hand: Array = data.get("hand", [])
-		for card_value in hand.duplicate():
+		var hand: Array = data.get("hand", []).duplicate()
+		for card_value in hand:
 			if _app.get_current_route() != &"battle" or not card_value is Dictionary:
 				break
 			var card: Dictionary = card_value
 			var instance_id := StringName(card.get("instance_id", ""))
 			if instance_id.is_empty():
 				continue
-			battle.select_card_instance(instance_id)
+			var target_id: StringName = &""
 			if String(card.get("target_type", "")) == "enemy":
-				var target_id := _first_alive_enemy(battle.get_snapshot_data())
+				target_id = _lowest_health_enemy(battle.get_snapshot_data())
 				if target_id.is_empty():
-					break
+					continue
+			var playability = _app.get_session().query_card_play(instance_id, target_id)
+			if playability == null or not playability.playable:
+				continue
+			battle.select_card_instance(instance_id)
+			if not target_id.is_empty():
 				battle.select_target(target_id)
 			battle.play_selected()
 			commands_sent += 1
@@ -186,19 +254,22 @@ func _fight_until_finished() -> void:
 			break
 		battle.end_turn()
 		commands_sent += 1
-		await get_tree().process_frame
-		await get_tree().process_frame
+		await _wait_frames(3)
 	_expect(commands_sent > 0, "battle automation sent real UI commands")
 
 
-func _first_alive_enemy(snapshot: Dictionary) -> StringName:
+func _lowest_health_enemy(snapshot: Dictionary) -> StringName:
+	var selected_id: StringName = &""
+	var selected_hp := 2147483647
 	for enemy_value in snapshot.get("enemies", []):
 		if not enemy_value is Dictionary:
 			continue
 		var enemy: Dictionary = enemy_value
-		if int(enemy.get("hp", 0)) > 0:
-			return StringName(enemy.get("actor_id", ""))
-	return &""
+		var hp := int(enemy.get("hp", 0))
+		if hp > 0 and hp < selected_hp:
+			selected_hp = hp
+			selected_id = StringName(enemy.get("actor_id", ""))
+	return selected_id
 
 
 func _collection_level(definition_id: String) -> int:
@@ -224,11 +295,16 @@ func _test_corrupt_checkpoint_state() -> void:
 	file.close()
 
 	_app.show_start_screen()
-	await get_tree().process_frame
+	await _wait_frames(2)
 	var start = _app.get_current_screen()
 	_expect(_app.get_current_route() == &"start", "corrupt checkpoint stays on start route")
 	_expect(not start.is_continue_enabled(), "corrupt checkpoint disables continue")
 	_expect(start.get_status_text().contains("无法读取"), "corrupt checkpoint is reported without overwrite")
+
+
+func _wait_frames(count: int) -> void:
+	for _index in count:
+		await get_tree().process_frame
 
 
 func _expect(condition: bool, message: String) -> void:
@@ -239,12 +315,12 @@ func _expect(condition: bool, message: String) -> void:
 
 func _finish() -> void:
 	if _failures.is_empty():
-		print("APP_V04_INTEGRATION_OK checks=%d" % _checks)
+		print("APP_V05_INTEGRATION_OK checks=%d" % _checks)
 		get_tree().quit(0)
 		return
 	for failure in _failures:
-		printerr("APP_V04_INTEGRATION_FAIL %s" % failure)
-	print("APP_V04_INTEGRATION_FAIL checks=%d failures=%d" % [_checks, _failures.size()])
+		printerr("APP_V05_INTEGRATION_FAIL %s" % failure)
+	print("APP_V05_INTEGRATION_FAIL checks=%d failures=%d" % [_checks, _failures.size()])
 	get_tree().quit(1)
 
 

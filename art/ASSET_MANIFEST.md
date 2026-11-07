@@ -64,6 +64,27 @@
 
 审稿拼图：`assets/game/v0.4.0/contact-sheet.png`。正文和资源数字必须由 Godot 渲染，不能烘焙进这些图像。
 
+## v0.5.0 短路线与晋升候选
+
+以下资产根据 `docs/versions/v0.5.0.md` 制作，美术只提交候选。UI 必须在路线、休息、首领和晋升界面接入后实际审稿。
+
+| 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
+|---|---|---|---:|---|
+| `scene.route.v050.short_road` | `art/assets/svg/v0.5.0/scenes/route-map.svg` | `assets/game/v0.5.0/scenes/route-map.png` | 1600×900 | 五节点羊皮纸路线图 |
+| `scene.rest.old_house` | `art/assets/svg/v0.5.0/scenes/rest-old-house.svg` | `assets/game/v0.5.0/scenes/rest-old-house.png` | 1600×900 | 旧宅休息场景 |
+| `enemy.mirror_baron` | `art/assets/svg/v0.5.0/enemies/enemy-mirror-baron.svg` | `assets/game/v0.5.0/enemies/enemy-mirror-baron.png` | 900×900 | 原创首领镜厅男爵 |
+| `scene.ritual.tampered_obituary` | `art/assets/svg/v0.5.0/scenes/ritual-tampered-obituary.svg` | `assets/game/v0.5.0/scenes/ritual-tampered-obituary.png` | 1600×900 | 三步晋升仪式背景 |
+| `ritual.card.name_record` | `art/assets/svg/v0.5.0/rituals/ritual-card-name-record.svg` | `assets/game/v0.5.0/rituals/ritual-card-name-record.png` | 420×600 | 姓名记录仪式牌 |
+| `ritual.card.chronology` | `art/assets/svg/v0.5.0/rituals/ritual-card-chronology.svg` | `assets/game/v0.5.0/rituals/ritual-card-chronology.png` | 420×600 | 事件顺序仪式牌 |
+| `ritual.card.seal` | `art/assets/svg/v0.5.0/rituals/ritual-card-seal.svg` | `assets/game/v0.5.0/rituals/ritual-card-seal.png` | 420×600 | 封印符号仪式牌 |
+| `status.route.pending` | `art/assets/svg/v0.5.0/icons/route-pending.svg` | `assets/game/v0.5.0/icons/route-pending.png` | 96×96 | 未到达节点 |
+| `status.route.current` | `art/assets/svg/v0.5.0/icons/route-current.svg` | `assets/game/v0.5.0/icons/route-current.png` | 96×96 | 当前节点 |
+| `status.route.completed` | `art/assets/svg/v0.5.0/icons/route-completed.svg` | `assets/game/v0.5.0/icons/route-completed.png` | 96×96 | 已完成节点 |
+| `status.ritual.success` | `art/assets/svg/v0.5.0/icons/ritual-success.svg` | `assets/game/v0.5.0/icons/ritual-success.png` | 128×128 | 仪式成功 |
+| `status.ritual.failure` | `art/assets/svg/v0.5.0/icons/ritual-failure.svg` | `assets/game/v0.5.0/icons/ritual-failure.png` | 128×128 | 仪式失败/污染 |
+
+审稿拼图：`assets/game/v0.5.0/contact-sheet.png`。HTML 预览：`art/preview/v0.5.0/index.html`。
+
 ## 计划资产
 
 | 批次 | 内容 | 优先级 |
@@ -72,7 +93,7 @@
 | B | 剩余 3-5 张人格牌 | 高 |
 | C | 8 张普通灵界回响牌 | 候选完成并经 UI 实际界面复审通过 |
 | D | 3 个封印物牌与独立裁切插画 | 中 |
-| E | 5 个普通敌人与 1 个首领 | v0.3.0 的 3 个普通敌人已完成候选 |
+| E | 5 个普通敌人与 1 个首领 | v0.3.0 的 3 个普通敌人和 v0.5.0 首领已完成候选 |
 | F | 白昼安全屋、夜间街区两张背景 | 夜间战斗背景已完成候选 |
 
 ## 来源规则

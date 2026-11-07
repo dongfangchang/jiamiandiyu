@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="paperWash" cx="42%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F1E4C8"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0E120E"/>
+      <stop offset=".52" stop-color="#29302A"/>
+      <stop offset="1" stop-color="#090C09"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8D091"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5D4726"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".56" numOctaves="3" seed="53" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+
+  </defs>
+
+    <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+    <rect width="1600" height="900" fill="url(#hatch)" opacity=".11"/>
+    <path d="M0 615 L0 178 H1600 V615Z" fill="#1A211B" opacity=".7"/>
+    <path d="M90 683V304H1510V683" fill="none" stroke="#B99750" stroke-width="3" opacity=".34"/>
+    <path d="M108 320H1492V662H108Z" fill="#788079" opacity=".035"/>
+    <path d="M0 694 C215 654 351 713 548 673 S902 680 1110 704 S1421 663 1600 687 V900H0Z" fill="#090C09"/>
+    <path d="M0 790 C233 744 403 802 624 761 S976 752 1194 782 S1460 742 1600 770 V900H0Z" fill="#788079" opacity=".08"/>
+    <g transform="translate(360 505)">
+      <rect x="-130" y="-210" width="260" height="365" rx="8" fill="#211D18" opacity=".9"/>
+      <path d="M-82 72 C-93-28-55-97 0-104 C57-98 94-28 81 72Z" fill="#3A3731" stroke="#B99750" stroke-width="2"/>
+      <path d="M-54 30 C-29-7 30-9 55 29" fill="none" stroke="#7A2828" stroke-width="3" opacity=".54"/>
+      <path d="M-151 102H151V170H-151Z" fill="#211D18" stroke="#B99750" stroke-width="2"/>
+      <path d="M-102 104V-38M102 104V-38" stroke="#B99750" stroke-width="2" opacity=".48"/>
+    </g>
+    <g transform="translate(1168 500)">
+      <rect x="-155" y="-180" width="310" height="365" fill="#3A3731" stroke="#B99750" stroke-width="2" opacity=".8"/>
+      <path d="M-110-115H110V-30H-110Z M-110 40H110V128H-110Z" fill="#211D18" opacity=".75"/>
+      <path d="M-72-95H72 M-72-60H49 M-72 62H72 M-72 96H42" stroke="#AF9165" stroke-width="2" opacity=".45"/>
+      <path d="M0-13V26" stroke="#B99750" stroke-width="2"/>
+      <circle cy="34" r="8" fill="#7A2828"/>
+    </g>
+    <g transform="translate(791 489)">
+      <circle r="111" fill="none" stroke="#B99750" stroke-width="1.5" opacity=".35"/>
+      <path d="M0-85 C60-85 84-34 72 22 C60 77 25 103 0 119 C-25 103-60 77-72 22 C-84-34-60-85 0-85Z"
+        fill="#E8DFC9" opacity=".08" stroke="#E8DFC9" stroke-width="1.5"/>
+      <path d="M0-80 C12-27-13 0 4 39 C20 76-19 91 0 116" fill="none" stroke="#7A2828" stroke-width="2.4" opacity=".75"/>
+      <path d="M-41-28C-18-44 16-42 41-28C20-12-19-12-41-28Z" fill="#211D18" opacity=".72"/>
+    </g>
+    <path d="M510 681 C694 638 903 638 1081 681" fill="none" stroke="#211D18" stroke-width="16" opacity=".72"/>
+    <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#B99750" stroke-width="1.4" opacity=".28"/>
+
+</svg>

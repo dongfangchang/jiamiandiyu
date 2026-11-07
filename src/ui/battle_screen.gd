@@ -34,6 +34,8 @@ const ENEMY_ART_BY_DEFINITION := {
 	&"enemy.weeping_tenant": "res://assets/game/v0.3.0/enemies/enemy-weeping-tenant.png",
 	&"enemy.candle_moth": "res://assets/game/v0.3.0/enemies/enemy-candle-moth.png",
 	&"enemy.mirror_hound": "res://assets/game/v0.3.0/enemies/enemy-mirror-hound.png",
+	&"enemy.mirror_hound_echo": "res://assets/game/v0.3.0/enemies/enemy-mirror-hound.png",
+	&"enemy.mirror_baron": "res://assets/game/v0.5.0/enemies/enemy-mirror-baron.png",
 }
 const CARD_ART_BY_DEFINITION := {
 	&"card.skill.ink_dart": "res://assets/game/v0.3.0/cards/card-skill-ink-dart.png",

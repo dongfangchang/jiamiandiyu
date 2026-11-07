@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="600" viewBox="0 0 420 600">
+  <defs>
+    <radialGradient id="paperWash" cx="42%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F1E4C8"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0E120E"/>
+      <stop offset=".52" stop-color="#29302A"/>
+      <stop offset="1" stop-color="#090C09"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8D091"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5D4726"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".56" numOctaves="3" seed="53" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+
+  </defs>
+
+
+    <rect width="420" height="600" fill="url(#paperWash)" filter="url(#grain)"/>
+    <rect width="420" height="600" fill="url(#hatch)"/>
+    <path d="M0 491.99999999999994 C96.60000000000001 438, 172.2 546, 256.2 486.00000000000006 S352.8 462, 420 516"
+      fill="none" stroke="#211D18" stroke-width="1.2" opacity=".12"/>
+
+    <rect x="20" y="20" width="380" height="560" rx="4" fill="none" stroke="#211D18" stroke-width="5"/>
+    <rect x="30" y="30" width="360" height="540" fill="none" stroke="#B99750" stroke-width="2"/>
+    <path d="M20 58L58 20M362 20L400 58M20 542L58 580M362 580L400 542"
+      fill="none" stroke="url(#brass)" stroke-width="4"/>
+    <path d="M45 92H375 M45 520H375" stroke="#211D18" stroke-width="1" opacity=".35"/>
+
+      <path d="M53 132H367 M53 174H307 M53 216H367 M53 258H301 M53 300H367 M53 342H323"
+        stroke="#211D18" stroke-width="4" opacity=".32"/>
+      <path d="M68 394H352V489H68Z" fill="#E8DFC9" opacity=".18" stroke="#211D18" stroke-width="1"/>
+      <path d="M93 440H156 M244 440H307" stroke="#7A2828" stroke-width="5"/>
+      <circle cx="326" cy="119" r="19" fill="none" stroke="#B99750" stroke-width="2"/>
+      <path d="M318 119L325 126L337 110" fill="none" stroke="#B99750" stroke-width="3"/>
+
+    <path d="M210 551L219 560L210 569L201 560Z" fill="#7A2828"/>
+
+</svg>
