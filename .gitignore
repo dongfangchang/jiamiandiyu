@@ -1,0 +1,16 @@
+# Local toolchain
+.tools/
+
+# Godot generated data
+.godot/
+export/
+build/
+
+# Local temporary files
+*.tmp
+*.log
+
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store

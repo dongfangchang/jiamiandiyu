@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+  <filter id="paperGrain" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="17" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+    <feComponentTransfer in="mono" result="faint">
+      <feFuncA type="table" tableValues="0 .10"/>
+    </feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+  </filter>
+  <radialGradient id="paperWash" cx="47%" cy="36%" r="72%">
+    <stop offset="0" stop-color="#EFE1C0"/>
+    <stop offset=".58" stop-color="#D8C29A"/>
+    <stop offset="1" stop-color="#AF9165"/>
+  </radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="47%" r="68%">
+    <stop offset=".55" stop-color="#211D18" stop-opacity="0"/>
+    <stop offset="1" stop-color="#211D18" stop-opacity=".48"/>
+  </radialGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#171A18"/>
+    <stop offset=".55" stop-color="#303530"/>
+    <stop offset="1" stop-color="#6E695A"/>
+  </linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E0C47A"/>
+    <stop offset=".45" stop-color="#B99750"/>
+    <stop offset="1" stop-color="#69532D"/>
+  </linearGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+    <path d="M 0 0 V 7" stroke="#211D18" stroke-width=".6" opacity=".13"/>
+  </pattern>
+  <pattern id="crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
+    <path d="M0 0L8 8M8 0L0 8" stroke="#211D18" stroke-width=".45" opacity=".10"/>
+  </pattern>
+  <filter id="roughInk">
+    <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs>
+  
+  <rect width="1200" height="800" fill="#3A3731" filter="url(#paperGrain)"/>
+  <rect width="1200" height="800" fill="url(#crosshatch)" opacity=".22"/>
+  <text x="72" y="86" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="34" font-weight="700" letter-spacing="4">状态与资源图标</text>
+  <text x="74" y="120" fill="#B99750" font-family="'Palatino Linotype',serif" font-size="14" letter-spacing="5">STATUS ICON SHEET // VECTOR SOURCE</text>
+  
+    <g transform="translate(78 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M60 20 C39 42, 34 61, 43 77 C50 91, 70 100, 84 82 C95 66, 84 43, 60 20 Z" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">灵性</text>
+    </g>
+  
+    <g transform="translate(268 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <circle cx="60" cy="60" r="27" fill="none" stroke="currentColor" stroke-width="4"/><path d="M42 60 C52 40, 69 38, 80 58 C69 79, 52 82, 42 60Z" fill="currentColor" opacity=".3"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">污染</text>
+    </g>
+  
+    <g transform="translate(458 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M60 22 C78 36, 91 52, 88 69 C85 88, 72 100, 60 102 C48 100, 35 88, 32 69 C29 52, 42 36, 60 22Z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="64" r="12" fill="currentColor"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">注视</text>
+    </g>
+  
+    <g transform="translate(648 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M60 86 C37 72, 31 53, 39 37 C47 22, 58 28, 60 43 C62 28, 73 22, 81 37 C89 53, 83 72, 60 86Z" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">生命</text>
+    </g>
+  
+    <g transform="translate(838 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M60 20 L91 33 V61 C91 82, 77 94, 60 101 C43 94, 29 82, 29 61 V33Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M43 60 H77" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">护盾</text>
+    </g>
+  
+    <g transform="translate(1028 180)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M24 94 L87 31 M72 23 L97 48 M50 66 L54 70" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">攻击</text>
+    </g>
+  
+    <g transform="translate(78 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <rect x="31" y="19" width="45" height="74" rx="3" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(9 54 56)"/><path d="M73 34 L101 62" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">抽牌</text>
+    </g>
+  
+    <g transform="translate(268 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M60 20 L93 39 L93 75 L60 100 L27 75 L27 39Z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="59" r="14" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">封印物</text>
+    </g>
+  
+    <g transform="translate(458 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <circle cx="60" cy="50" r="21" fill="none" stroke="currentColor" stroke-width="4"/><path d="M26 100 C29 76, 42 68, 60 68 C78 68, 91 76, 94 100Z" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">人格</text>
+    </g>
+  
+    <g transform="translate(648 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <circle cx="60" cy="61" r="37" fill="none" stroke="currentColor" stroke-width="4"/><path d="M60 24 L74 55 L60 98 L46 55Z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="60" cy="55" r="6" fill="currentColor"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">仪式</text>
+    </g>
+  
+    <g transform="translate(838 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M27 90 L48 68 L60 77 L90 29" fill="none" stroke="currentColor" stroke-width="5"/><path d="M76 29 H90 V43" fill="none" stroke="currentColor" stroke-width="5"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">晋升</text>
+    </g>
+  
+    <g transform="translate(1028 480)" color="#211D18">
+      <circle cx="60" cy="60" r="54" fill="#D8C29A" stroke="#B99750" stroke-width="1.5"/>
+      <path d="M30 79 C17 63, 30 39, 48 50 C45 24, 78 17, 80 45 C103 42, 109 70, 88 81 C96 98, 70 105, 60 90 C45 105, 20 98, 30 79Z" fill="none" stroke="currentColor" stroke-width="4"/>
+      <text x="60" y="153" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="18" letter-spacing="3">疯狂</text>
+    </g>
+  
+  <text x="1128" y="748" text-anchor="end" fill="#AF9165" font-family="'Noto Serif SC',serif" font-size="12">图标为项目内原创几何占位，可在 Godot 中单独着色。</text>
+  <rect x="34" y="34" width="1132" height="732" fill="none" stroke="#B99750" stroke-width="1" opacity=".5"/>
+
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="840" viewBox="0 0 600 840">
+  <defs>
+  <filter id="paperGrain" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="17" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+    <feComponentTransfer in="mono" result="faint">
+      <feFuncA type="table" tableValues="0 .10"/>
+    </feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+  </filter>
+  <radialGradient id="paperWash" cx="47%" cy="36%" r="72%">
+    <stop offset="0" stop-color="#EFE1C0"/>
+    <stop offset=".58" stop-color="#D8C29A"/>
+    <stop offset="1" stop-color="#AF9165"/>
+  </radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="47%" r="68%">
+    <stop offset=".55" stop-color="#211D18" stop-opacity="0"/>
+    <stop offset="1" stop-color="#211D18" stop-opacity=".48"/>
+  </radialGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#171A18"/>
+    <stop offset=".55" stop-color="#303530"/>
+    <stop offset="1" stop-color="#6E695A"/>
+  </linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E0C47A"/>
+    <stop offset=".45" stop-color="#B99750"/>
+    <stop offset="1" stop-color="#69532D"/>
+  </linearGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+    <path d="M 0 0 V 7" stroke="#211D18" stroke-width=".6" opacity=".13"/>
+  </pattern>
+  <pattern id="crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
+    <path d="M0 0L8 8M8 0L0 8" stroke="#211D18" stroke-width=".45" opacity=".10"/>
+  </pattern>
+  <filter id="roughInk">
+    <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+<clipPath id="artClip"><rect x="44" y="164" width="512" height="390" rx="2"/></clipPath></defs>
+  
+    
+    <rect width="600" height="840" fill="url(#paperWash)" filter="url(#paperGrain)"/>
+    <rect width="600" height="840" fill="url(#hatch)"/>
+    <rect width="600" height="840" fill="url(#vignette)"/>
+    <path d="M24 84 C140 70, 197 103, 293 79 S486 62, 579 91" fill="none" stroke="#211D18" stroke-width=".6" opacity=".14"/>
+    <path d="M39 760 C151 742, 256 772, 366 749 S506 740, 574 756" fill="none" stroke="#211D18" stroke-width=".5" opacity=".13"/>
+  
+    <rect x="44" y="164" width="512" height="390" rx="2" fill="#3A3731" opacity=".08"/>
+    <g clip-path="url(#artClip)">
+    <circle cx="300" cy="338" r="170" fill="none" stroke="#211D18" stroke-width="1" opacity=".3"/>
+    <path d="M300 177 C238 177, 195 231, 201 314 C207 390, 248 438, 300 471 C352 438, 393 390, 399 314 C405 231, 362 177, 300 177 Z"
+      fill="#E8DFC9" stroke="#211D18" stroke-width="3"/>
+    <path d="M230 281 C249 262, 272 265, 289 283 C267 299, 246 300, 230 281 Z" fill="#211D18"/>
+    <path d="M311 283 C330 265, 352 265, 370 281 C350 300, 329 299, 311 283 Z" fill="#211D18"/>
+    <path d="M281 352 C291 359, 309 359, 319 352" fill="none" stroke="#211D18" stroke-width="2"/>
+    <path d="M300 178 C311 220, 288 245, 309 278 C326 309, 285 342, 301 378 C319 411, 289 441, 300 469"
+      fill="none" stroke="#7A2828" stroke-width="2.8"/>
+    <path d="M321 222 L343 242 L331 263 L357 278 L336 302 L358 328 L329 340"
+      fill="none" stroke="#211D18" stroke-width="1.2"/>
+    <path d="M223 313 C161 304, 124 341, 113 404 C148 389, 169 407, 174 447"
+      fill="none" stroke="#3A3731" stroke-width="10" stroke-linecap="round"/>
+    <path d="M377 313 C439 304, 476 341, 487 404 C452 389, 431 407, 426 447"
+      fill="none" stroke="#3A3731" stroke-width="10" stroke-linecap="round"/>
+    <path d="M255 476 C273 495, 289 505, 300 526 C312 505, 328 495, 345 476"
+      fill="none" stroke="#3A3731" stroke-width="5"/>
+    <circle cx="181" cy="391" r="16" fill="#7A2828" opacity=".75"/>
+    <circle cx="420" cy="391" r="16" fill="#7A2828" opacity=".75"/>
+    <path d="M122 506 C202 490, 399 490, 478 506" stroke="#211D18" stroke-width="1" opacity=".5"/>
+  </g>
+    <rect x="44" y="164" width="512" height="390" rx="2" fill="none" stroke="#211D18" stroke-width="2"/>
+    <path d="M52 178 H83 M52 178 V209 M548 178 H517 M548 178 V209" fill="none" stroke="#7A2828" stroke-width="2"/>
+    <line x1="44" y1="569" x2="556" y2="569" stroke="#211D18" stroke-width="1"/>
+    <text x="50" y="68" fill="#211D18" font-family="'Noto Serif SC',serif" font-size="13" letter-spacing="3">封印物 · SEALED RELIC</text>
+    <text x="550" y="68" text-anchor="end" fill="#211D18" font-family="'Palatino Linotype',serif" font-size="13" letter-spacing="2">II / 13</text>
+    <text x="50" y="119" fill="#211D18" font-family="'Noto Serif SC',serif" font-size="38" font-weight="700" letter-spacing="4">无面遗嘱</text>
+    <text x="51" y="145" fill="#3A3731" font-family="'Noto Serif SC',serif" font-size="12" letter-spacing="1">戴上它的人，会短暂忘记自己原本是谁。</text>
+    <rect x="44" y="589" width="512" height="116" fill="#E8DFC9" opacity=".22" stroke="#211D18" stroke-width=".8"/>
+    <text x="60" y="615" fill="#7A2828" font-family="'Noto Serif SC',serif" font-size="12" font-weight="700" letter-spacing="3">效果 / EFFECT</text>
+    <text x="60" y="647" fill="#211D18" font-family="'Noto Serif SC',serif" font-size="17">
+      <tspan x="60" dy="0">复制上一张人格牌的能力。</tspan>
+      <tspan x="60" dy="27">使用后污染 +2。</tspan>
+    </text>
+    <text x="60" y="723" fill="#3A3731" font-family="'Noto Serif SC',serif" font-size="12" font-style="italic">“遗嘱没有继承人。它只是希望有人继续扮演。”</text>
+    <path d="M44 747 H556" stroke="#211D18" stroke-width=".8" opacity=".5"/>
+    
+      <circle cx="112" cy="790" r="38" fill="#211D18" stroke="#7A2828" stroke-width="1.2"/>
+      <text x="112" y="788" text-anchor="middle" fill="#E8DFC9" font-family="'Palatino Linotype','Noto Serif SC',serif" font-size="20">1</text>
+      <text x="112" y="808" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="9" letter-spacing="1">复制</text>
+    
+      <circle cx="300" cy="790" r="38" fill="#211D18" stroke="#7A2828" stroke-width="1.2"/>
+      <text x="300" y="788" text-anchor="middle" fill="#E8DFC9" font-family="'Palatino Linotype','Noto Serif SC',serif" font-size="20">2</text>
+      <text x="300" y="808" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="9" letter-spacing="1">代价</text>
+    
+      <circle cx="488" cy="790" r="38" fill="#211D18" stroke="#7A2828" stroke-width="1.2"/>
+      <text x="488" y="788" text-anchor="middle" fill="#E8DFC9" font-family="'Palatino Linotype','Noto Serif SC',serif" font-size="20">+2</text>
+      <text x="488" y="808" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="9" letter-spacing="1">污染</text>
+    
+    
+    <rect x="13" y="13" width="574" height="814" rx="5" fill="none" stroke="#211D18" stroke-width="5"/>
+    <rect x="23" y="23" width="554" height="794" rx="3" fill="none" stroke="#B99750" stroke-width="2"/>
+    <rect x="31" y="31" width="538" height="778" fill="none" stroke="#211D18" stroke-width=".8" opacity=".65"/>
+    <path d="M13 52 L52 13 M548 13 L587 52 M13 788 L52 827 M548 827 L587 788"
+      fill="none" stroke="url(#brass)" stroke-width="4"/>
+    <path d="M31 53 H78 M31 53 V100 M522 53 H569 M569 53 V100 M31 787 H78 M31 787 V740 M522 787 H569 M569 787 V740"
+      fill="none" stroke="#211D18" stroke-width="1.5"/>
+    <path d="M300 21 L310 31 L300 41 L290 31 Z" fill="url(#brass)" stroke="#211D18" stroke-width=".8"/>
+    <circle cx="300" cy="819" r="5" fill="#7A2828" stroke="#211D18" stroke-width="1"/>
+  
+  
+</svg>
