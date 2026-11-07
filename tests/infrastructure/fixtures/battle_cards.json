@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "content_version": "test.v0.2.0",
+  "cards": [
+    {
+      "id": "card.test.ink_dart",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 4
+        }
+      ]
+    },
+    {
+      "id": "card.test.paper_guard",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 5
+        }
+      ]
+    }
+  ]
+}

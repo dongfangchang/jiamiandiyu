@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b99750"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="#15160f"/>
+  <text x="80" y="86" fill="#e8dfc9" font-family="Microsoft YaHei, sans-serif" font-size="38" font-weight="700">《假面低语》页面流</text>
+  <text x="80" y="124" fill="#9f967f" font-family="Microsoft YaHei, sans-serif" font-size="18">1600×900 · v0.2.0 低保真导航与返回路径</text>
+
+  <g font-family="Microsoft YaHei, sans-serif" text-anchor="middle">
+    <g>
+      <rect x="65" y="205" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="175" y="244" fill="#e8dfc9" font-size="20">启动 / 继续</text>
+      <text x="175" y="273" fill="#9f967f" font-size="14">本地存档检测</text>
+    </g>
+    <line x1="285" y1="251" x2="365" y2="251" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="370" y="205" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="480" y="244" fill="#e8dfc9" font-size="20">白天身份</text>
+      <text x="480" y="273" fill="#9f967f" font-size="14">选择今日扮演</text>
+    </g>
+    <line x1="590" y1="251" x2="670" y2="251" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="675" y="205" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="785" y="244" fill="#e8dfc9" font-size="20">城市地图</text>
+      <text x="785" y="273" fill="#9f967f" font-size="14">路线 / 风险预览</text>
+    </g>
+    <line x1="895" y1="251" x2="975" y2="251" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="980" y="205" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="1090" y="244" fill="#e8dfc9" font-size="20">夜间战斗</text>
+      <text x="1090" y="273" fill="#9f967f" font-size="14">三列 / 命令 / 日志</text>
+    </g>
+    <line x1="1200" y1="251" x2="1280" y2="251" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="1285" y="205" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="1395" y="244" fill="#e8dfc9" font-size="20">战利品</text>
+      <text x="1395" y="273" fill="#9f967f" font-size="14">三选一 / 跳过</text>
+    </g>
+  </g>
+
+  <g font-family="Microsoft YaHei, sans-serif" text-anchor="middle">
+    <line x1="1395" y1="297" x2="1395" y2="375" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="1285" y="380" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="1395" y="419" fill="#e8dfc9" font-size="20">灵界祈愿</text>
+      <text x="1395" y="448" fill="#9f967f" font-size="14">抽卡 / 保底 / 结果</text>
+    </g>
+    <line x1="1285" y1="426" x2="1205" y2="426" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="980" y="380" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="1090" y="419" fill="#e8dfc9" font-size="20">晋升试炼</text>
+      <text x="1090" y="448" fill="#9f967f" font-size="14">条件 / 三选仪式</text>
+    </g>
+    <line x1="980" y1="426" x2="900" y2="426" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="675" y="380" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="785" y="419" fill="#e8dfc9" font-size="20">本次结算</text>
+      <text x="785" y="448" fill="#9f967f" font-size="14">收获 / 代价 / 下一局</text>
+    </g>
+    <line x1="675" y1="426" x2="595" y2="426" stroke="#b99750" stroke-width="2" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="370" y="380" width="220" height="92" rx="8" fill="#28251d" stroke="#b99750" stroke-width="2"/>
+      <text x="480" y="419" fill="#e8dfc9" font-size="20">返回白天</text>
+      <text x="480" y="448" fill="#9f967f" font-size="14">自动保存后继续</text>
+    </g>
+    <path d="M480,380 C480,330 480,315 480,297" fill="none" stroke="#788079" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+  </g>
+
+  <g font-family="Microsoft YaHei, sans-serif">
+    <rect x="65" y="580" width="1490" height="235" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="95" y="620" fill="#b99750" font-size="18" font-weight="700">跨页面规则</text>
+    <text x="95" y="660" fill="#e8dfc9" font-size="17">1. 任何提交型按钮进入 pending 后立即禁用；收到 accepted / rejected 结果才恢复。</text>
+    <text x="95" y="696" fill="#e8dfc9" font-size="17">2. 所有合法性、概率、资源扣除、伤害与阈值状态由玩法只读快照提供，UI 只显示和发送命令。</text>
+    <text x="95" y="732" fill="#e8dfc9" font-size="17">3. 战斗、抽卡、晋升与存档错误都进入统一错误页；错误页不覆盖原存档。</text>
+    <text x="95" y="768" fill="#e8dfc9" font-size="17">4. 返回键沿用实际流程，不通过场景跳转绕过未结算事件；进行中的命令先结束或明确取消。</text>
+  </g>
+
+  <g font-family="Microsoft YaHei, sans-serif" text-anchor="middle">
+    <rect x="72" y="500" width="1480" height="52" rx="8" fill="#2d1919" stroke="#7a2828"/>
+    <text x="812" y="533" fill="#e8dfc9" font-size="17">全局错误分支：内容加载失败 / 存档损坏 / 迁移失败 / 非法快照 / 不可恢复规则异常</text>
+  </g>
+</svg>

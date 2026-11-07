@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#15160f"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="70" fill="#b99750" font-size="16" letter-spacing="3">RUN SUMMARY // 本次结算</text>
+    <text x="64" y="132" fill="#e8dfc9" font-size="48" font-weight="700">你带着新的名字回到了白昼</text>
+    <text x="64" y="174" fill="#a9a18c" font-size="18">胜利 · 第 3 夜结束 · 进度已保存 · 下一次从公馆开始</text>
+    <rect x="64" y="220" width="930" height="510" rx="10" fill="#1b1a15" stroke="#3a3731"/>
+    <text x="96" y="266" fill="#b99750" font-size="18">本局收获</text>
+    <g>
+      <rect x="96" y="300" width="260" height="150" rx="7" fill="#242119" stroke="#4b463b"/>
+      <text x="226" y="345" text-anchor="middle" fill="#e8dfc9" font-size="18">灵性残渣</text>
+      <text x="226" y="403" text-anchor="middle" fill="#b99750" font-size="38" font-weight="700">+18</text>
+      <rect x="376" y="300" width="260" height="150" rx="7" fill="#242119" stroke="#4b463b"/>
+      <text x="506" y="345" text-anchor="middle" fill="#e8dfc9" font-size="18">祈愿券</text>
+      <text x="506" y="403" text-anchor="middle" fill="#b99750" font-size="38" font-weight="700">+2</text>
+      <rect x="656" y="300" width="306" height="150" rx="7" fill="#242119" stroke="#4b463b"/>
+      <text x="809" y="345" text-anchor="middle" fill="#e8dfc9" font-size="18">人格熟悉度</text>
+      <text x="809" y="403" text-anchor="middle" fill="#b99750" font-size="38" font-weight="700">记者 +1</text>
+    </g>
+    <text x="96" y="505" fill="#b99750" font-size="18">身份余波</text>
+    <text x="96" y="546" fill="#e8dfc9" font-size="17">记者人格稳定度：72 → 68</text>
+    <text x="96" y="584" fill="#d8b4a8" font-size="17">污染：2 → 4；被注视：3 → 6</text>
+    <text x="96" y="622" fill="#9f967f" font-size="15">下一白天将出现“报社主任的怀疑”事件。</text>
+    <text x="96" y="674" fill="#788079" font-size="14">自动保存状态：已提交本地存档（由数据层事件确认）</text>
+
+    <rect x="1025" y="220" width="511" height="510" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1055" y="266" fill="#b99750" font-size="18">下一入口</text>
+    <text x="1055" y="330" fill="#e8dfc9" font-size="24" font-weight="700">安全屋</text>
+    <text x="1055" y="365" fill="#9f967f" font-size="15">强化卡组 / 灵界祈愿 / 查看人格</text>
+    <rect x="1055" y="400" width="451" height="76" rx="7" fill="#b99750"/>
+    <text x="1280" y="446" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">返回安全屋</text>
+    <rect x="1055" y="495" width="451" height="76" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1280" y="541" text-anchor="middle" fill="#e8dfc9" font-size="19">开始新的夜晚</text>
+    <rect x="1055" y="590" width="451" height="76" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1280" y="636" text-anchor="middle" fill="#e8dfc9" font-size="19">保存并回到标题</text>
+    <text x="1055" y="702" fill="#788079" font-size="13">仅在数据层确认存档成功后启用离开按钮；失败时显示错误恢复入口。</text>
+
+    <rect x="64" y="770" width="1472" height="70" rx="7" fill="#242119" stroke="#3a3731"/>
+    <text x="92" y="812" fill="#e8dfc9" font-size="16">失败结局使用同一版式：原因 / 保留进度 / 代价 / 重试入口。命令 continue_run / return_home / save_and_title。</text>
+  </g>
+</svg>

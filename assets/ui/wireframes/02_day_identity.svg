@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#15160f"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">DAY 03 // 白昼身份</text>
+    <text x="64" y="114" fill="#e8dfc9" font-size="38" font-weight="700">在普通人的世界里留下一个可信的影子</text>
+    <text x="64" y="148" fill="#9f967f" font-size="17">行动会改变资源、扮演进度与风险；本轮只提交命令，不自行结算。</text>
+    <rect x="64" y="190" width="380" height="620" rx="10" fill="#201e18" stroke="#b99750" stroke-width="2"/>
+    <text x="92" y="230" fill="#b99750" font-size="18">当前人格</text>
+    <rect x="92" y="260" width="324" height="350" rx="6" fill="#d8c29a" stroke="#3a3731"/>
+    <circle cx="254" cy="375" r="92" fill="#2b2921"/>
+    <path d="M140,540 C175,450 205,420 254,420 C305,420 340,455 370,540 Z" fill="#211d18"/>
+    <rect x="228" y="405" width="52" height="90" fill="#d8c29a"/>
+    <text x="254" y="666" text-anchor="middle" fill="#e8dfc9" font-size="30" font-weight="700">记者</text>
+    <text x="254" y="704" text-anchor="middle" fill="#a9a18c" font-size="16">熟悉度 2 / 5 · 身份稳定度 72</text>
+    <text x="92" y="752" fill="#9f967f" font-size="14">提示：人格牌来自卡组，不在 UI 内拼接图片路径。</text>
+
+    <rect x="470" y="190" width="760" height="620" rx="10" fill="#1b1a15" stroke="#3a3731"/>
+    <text x="500" y="235" fill="#b99750" font-size="18">今日扮演行动</text>
+    <text x="500" y="270" fill="#e8dfc9" font-size="16">行动点：2 / 3</text>
+    <g>
+      <rect x="500" y="300" width="680" height="105" rx="7" fill="#28251d" stroke="#b99750"/>
+      <text x="528" y="337" fill="#e8dfc9" font-size="21">追查一封匿名来信</text>
+      <text x="528" y="371" fill="#a9a18c" font-size="15">需要：记者 · 预计：扮演 +1 · 被注视 +1 · 获得线索</text>
+      <rect x="1040" y="324" width="112" height="52" rx="5" fill="#b99750"/>
+      <text x="1096" y="357" text-anchor="middle" fill="#15160f" font-size="17" font-weight="700">执行</text>
+    </g>
+    <g>
+      <rect x="500" y="425" width="680" height="105" rx="7" fill="#242119" stroke="#4b463b"/>
+      <text x="528" y="462" fill="#e8dfc9" font-size="21">整理旧报馆档案</text>
+      <text x="528" y="496" fill="#a9a18c" font-size="15">需要：任意人格 · 稳定度 +2 · 获得少量资源</text>
+      <rect x="1040" y="449" width="112" height="52" rx="5" fill="#4a4332"/>
+      <text x="1096" y="482" text-anchor="middle" fill="#d8c29a" font-size="17">执行</text>
+    </g>
+    <g>
+      <rect x="500" y="550" width="680" height="105" rx="7" fill="#2d1919" stroke="#7a2828"/>
+      <text x="528" y="587" fill="#e8dfc9" font-size="21">使用封印物窥视一名陌生人</text>
+      <text x="528" y="621" fill="#d8b4a8" font-size="15">需要：灵性 2 · 被注视 +2 · 污染 +1</text>
+      <rect x="1040" y="574" width="112" height="52" rx="5" fill="#7a2828"/>
+      <text x="1096" y="607" text-anchor="middle" fill="#f2e6d2" font-size="17" font-weight="700">执行</text>
+    </g>
+    <rect x="500" y="704" width="680" height="64" rx="6" fill="#242119" stroke="#3a3731"/>
+    <text x="528" y="744" fill="#9f967f" font-size="15">行动详情只读字段：display_name / availability / reason_code / costs / consequences</text>
+
+    <rect x="1260" y="190" width="276" height="620" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1288" y="235" fill="#b99750" font-size="18">状态与资源</text>
+    <text x="1288" y="289" fill="#e8dfc9" font-size="17">身份稳定度</text>
+    <rect x="1288" y="302" width="210" height="14" rx="7" fill="#3a3731"/>
+    <rect x="1288" y="302" width="151" height="14" rx="7" fill="#b99750"/>
+    <text x="1288" y="353" fill="#e8dfc9" font-size="17">污染</text>
+    <rect x="1288" y="366" width="210" height="14" rx="7" fill="#3a3731"/>
+    <rect x="1288" y="366" width="63" height="14" rx="7" fill="#7a2828"/>
+    <text x="1288" y="417" fill="#e8dfc9" font-size="17">被注视度</text>
+    <rect x="1288" y="430" width="210" height="14" rx="7" fill="#3a3731"/>
+    <rect x="1288" y="430" width="84" height="14" rx="7" fill="#7a2828"/>
+    <line x1="1288" y1="475" x2="1508" y2="475" stroke="#3a3731"/>
+    <text x="1288" y="520" fill="#9f967f" font-size="15">灵性残渣</text><text x="1495" y="520" fill="#e8dfc9" font-size="22" text-anchor="end">14</text>
+    <text x="1288" y="562" fill="#9f967f" font-size="15">祈愿券</text><text x="1495" y="562" fill="#e8dfc9" font-size="22" text-anchor="end">3</text>
+    <text x="1288" y="604" fill="#9f967f" font-size="15">扮演进度</text><text x="1495" y="604" fill="#e8dfc9" font-size="22" text-anchor="end">2 / 4</text>
+    <rect x="1288" y="660" width="220" height="62" rx="6" fill="#b99750"/>
+    <text x="1398" y="699" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">前往地图</text>
+    <text x="1288" y="757" fill="#788079" font-size="13">危险阈值文案与颜色必须由快照 severity 决定。</text>
+  </g>
+</svg>

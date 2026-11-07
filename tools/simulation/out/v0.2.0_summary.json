@@ -1,0 +1,123 @@
+{
+  "source": "data/balance/v0.2.0/balance_draft.json",
+  "seed": 20261108,
+  "enemy_pressure_rule": {
+    "start_round": 7,
+    "attack_bonus_per_completed_enemy_round": 1,
+    "reset_each_battle": true
+  },
+  "assumptions": [
+    "Battle profiles are aggregate resource budgets, not a claim about final card timing.",
+    "The economy assumes draw-focused daytime choices.",
+    "The unique boss card is excluded from the random pool.",
+    "Enemy pressure resets per encounter; round 7 receives the base attack and gains +1 after its completed enemy action."
+  ],
+  "draw_simulation": {
+    "sequences": 10000,
+    "draws_per_sequence": 20,
+    "milestone_averages": [
+      {
+        "draws": 6,
+        "average_unique_cards_owned": 10.695,
+        "average_rare_cards_drawn": 0.6556,
+        "average_duplicate_dust": 15.9838
+      },
+      {
+        "draws": 11,
+        "average_unique_cards_owned": 13.169,
+        "average_rare_cards_drawn": 1.5517,
+        "average_duplicate_dust": 49.7968
+      },
+      {
+        "draws": 20,
+        "average_unique_cards_owned": 15.4629,
+        "average_rare_cards_drawn": 2.9458,
+        "average_duplicate_dust": 152.0738
+      }
+    ],
+    "average_rare_per_sequence": 2.9458,
+    "average_uncommon_per_sequence": 6.482,
+    "average_duplicate_dust_per_sequence": 152.0738,
+    "average_unique_cards_owned_after_sequence": 15.4629
+  },
+  "economy": {
+    "maximum_draw_focused_reward_per_run": {
+      "echo_dust": 22,
+      "divination_tickets": 10,
+      "characteristic_fragments": 2
+    },
+    "cumulative_including_first_clear": [
+      {
+        "run": 1,
+        "echo_dust": 22,
+        "divination_tickets": 13,
+        "characteristic_fragments": 3,
+        "available_draws": 6
+      },
+      {
+        "run": 2,
+        "echo_dust": 44,
+        "divination_tickets": 23,
+        "characteristic_fragments": 5,
+        "available_draws": 11
+      },
+      {
+        "run": 3,
+        "echo_dust": 66,
+        "divination_tickets": 33,
+        "characteristic_fragments": 7,
+        "available_draws": 16
+      }
+    ],
+    "promotion_cost": {
+      "characteristic_fragments": 5,
+      "echo_dust": 24
+    },
+    "promotion_ready_after_first_run": false,
+    "promotion_ready_after_second_run": true
+  },
+  "battle_simulation": [
+    {
+      "profile": "profile.cautious",
+      "assumptions": {
+        "potency_per_round": 5.5,
+        "guard_per_round": 6,
+        "rest_heal": 8
+      },
+      "win_rate": 0.9946,
+      "average_remaining_health_on_win": 11.2146,
+      "average_total_rounds": 20.4618,
+      "average_pressure_stacks": 0.9534,
+      "max_pressure_bonus_observed": 0,
+      "round_limit_failures": 0
+    },
+    {
+      "profile": "profile.balanced",
+      "assumptions": {
+        "potency_per_round": 6.5,
+        "guard_per_round": 4.5,
+        "rest_heal": 8
+      },
+      "win_rate": 0.715,
+      "average_remaining_health_on_win": 8.2179,
+      "average_total_rounds": 17.2834,
+      "average_pressure_stacks": 0,
+      "max_pressure_bonus_observed": 0,
+      "round_limit_failures": 0
+    },
+    {
+      "profile": "profile.aggressive",
+      "assumptions": {
+        "potency_per_round": 7.5,
+        "guard_per_round": 3,
+        "rest_heal": 8
+      },
+      "win_rate": 0.458,
+      "average_remaining_health_on_win": 4.3572,
+      "average_total_rounds": 14.8512,
+      "average_pressure_stacks": 0,
+      "max_pressure_bonus_observed": 0,
+      "round_limit_failures": 0
+    }
+  ]
+}

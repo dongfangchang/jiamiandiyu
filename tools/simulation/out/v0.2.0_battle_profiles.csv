@@ -1,0 +1,4 @@
+profile,win_rate,average_remaining_health_on_win,average_total_rounds,average_pressure_stacks,max_pressure_bonus_observed,round_limit_failures
+profile.cautious,0.9946,11.2146,20.4618,0.9534,0,0
+profile.balanced,0.715,8.2179,17.2834,0,0,0
+profile.aggressive,0.458,4.3572,14.8512,0,0,0

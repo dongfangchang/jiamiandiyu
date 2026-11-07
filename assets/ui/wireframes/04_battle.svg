@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#11120d"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="60" y="48" fill="#b99750" font-size="15" letter-spacing="3">NIGHT ENCOUNTER // 战斗</text>
+    <rect x="60" y="70" width="1480" height="110" rx="8" fill="#201e18" stroke="#3a3731"/>
+    <text x="88" y="112" fill="#e8dfc9" font-size="26" font-weight="700">廷根旧宅 · 第 2 回合</text>
+    <text x="88" y="146" fill="#9f967f" font-size="15">阶段：PLAYER_ACTION · 快照 revision 42 · 领域已结算，表现事件按顺序播放</text>
+    <g font-size="15">
+      <text x="650" y="110" fill="#9f967f">生命</text><text x="650" y="145" fill="#e8dfc9" font-size="22">18 / 24</text>
+      <text x="790" y="110" fill="#9f967f">灵性</text><text x="790" y="145" fill="#e8dfc9" font-size="22">3 / 5</text>
+      <text x="930" y="110" fill="#9f967f">污染</text><text x="930" y="145" fill="#d8b4a8" font-size="22">2 / 10</text>
+      <text x="1070" y="110" fill="#9f967f">被注视</text><text x="1070" y="145" fill="#d8b4a8" font-size="22">3 / 10</text>
+    </g>
+    <rect x="1295" y="95" width="210" height="62" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="1400" y="133" text-anchor="middle" fill="#e8dfc9" font-size="18">结束回合</text>
+
+    <rect x="60" y="202" width="1160" height="400" rx="8" fill="#171711" stroke="#3a3731"/>
+    <text x="88" y="238" fill="#b99750" font-size="17">威胁列 · 三列即时目标</text>
+    <g fill="#201e18" stroke="#544d40" stroke-width="2">
+      <rect x="100" y="270" width="320" height="260" rx="7"/>
+      <rect x="460" y="270" width="320" height="260" rx="7"/>
+      <rect x="820" y="270" width="320" height="260" rx="7"/>
+    </g>
+    <text x="260" y="316" text-anchor="middle" fill="#9f967f" font-size="15">第 1 列 · 空</text>
+    <text x="620" y="316" text-anchor="middle" fill="#9f967f" font-size="15">第 2 列 · 选中目标</text>
+    <text x="980" y="316" text-anchor="middle" fill="#9f967f" font-size="15">第 3 列 · 空</text>
+    <circle cx="620" cy="395" r="48" fill="#2b2921" stroke="#7a2828" stroke-width="3"/>
+    <path d="M565,442 C585,413 602,405 620,405 C642,405 660,415 675,442" fill="#15160f"/>
+    <ellipse cx="620" cy="383" rx="21" ry="8" fill="#d8c29a"/>
+    <text x="620" y="476" text-anchor="middle" fill="#e8dfc9" font-size="17">提灯追猎者</text>
+    <text x="620" y="501" text-anchor="middle" fill="#d8b4a8" font-size="13">生命 16 / 16 · 意图：攻击 ?</text>
+    <rect x="156" y="415" width="208" height="40" rx="4" fill="#242119" stroke="#3a3731"/>
+    <text x="260" y="441" text-anchor="middle" fill="#6b6250" font-size="13">无目标</text>
+    <rect x="876" y="415" width="208" height="40" rx="4" fill="#242119" stroke="#3a3731"/>
+    <text x="980" y="441" text-anchor="middle" fill="#6b6250" font-size="13">无目标</text>
+    <rect x="100" y="570" width="960" height="24" rx="4" fill="#242119" stroke="#3a3731"/>
+    <text x="116" y="587" fill="#9f967f" font-size="13">事件序列（只读）：回合开始 → 抽牌 → 玩家出牌/结束回合 → 敌方结算 → 下一回合或战斗结束</text>
+
+    <rect x="1240" y="202" width="300" height="400" rx="8" fill="#201e18" stroke="#3a3731"/>
+    <text x="1268" y="238" fill="#b99750" font-size="17">敌人与威胁</text>
+    <rect x="1268" y="265" width="244" height="190" rx="7" fill="#1b1a15" stroke="#7a2828"/>
+    <circle cx="1390" cy="350" r="62" fill="#2b2921" stroke="#7a2828" stroke-width="3"/>
+    <path d="M1320,397 C1340,360 1370,350 1390,350 C1420,350 1445,365 1460,397" fill="#15160f"/>
+    <ellipse cx="1390" cy="338" rx="26" ry="10" fill="#d8c29a"/>
+    <text x="1390" y="426" text-anchor="middle" fill="#e8dfc9" font-size="18">提灯追猎者</text>
+    <text x="1390" y="450" text-anchor="middle" fill="#9f967f" font-size="14">生命 16 / 16 · 意图：攻击 5</text>
+    <rect x="1268" y="478" width="244" height="92" rx="6" fill="#2d1919" stroke="#7a2828"/>
+    <text x="1290" y="511" fill="#e8dfc9" font-size="15">危险提示</text>
+    <text x="1290" y="541" fill="#d8b4a8" font-size="14">被注视将在本回合后达到 5</text>
+
+    <rect x="60" y="628" width="1480" height="225" rx="8" fill="#1c1b15" stroke="#3a3731"/>
+    <text x="88" y="664" fill="#b99750" font-size="17">手牌 · 点击卡牌后选择三列中的目标，再次点击取消</text>
+    <g>
+      <rect x="92" y="685" width="180" height="132" rx="7" fill="#d8c29a" stroke="#b99750"/>
+      <text x="182" y="720" text-anchor="middle" fill="#211d18" font-size="16" font-weight="700">占卜</text>
+      <text x="182" y="752" text-anchor="middle" fill="#211d18" font-size="13">费用 1 · 可打出</text>
+      <rect x="112" y="780" width="140" height="20" fill="#b99750"/>
+      <rect x="292" y="685" width="180" height="132" rx="7" fill="#d8c29a" stroke="#7a2828"/>
+      <text x="382" y="720" text-anchor="middle" fill="#211d18" font-size="16" font-weight="700">窥视者之眼</text>
+      <text x="382" y="752" text-anchor="middle" fill="#7a2828" font-size="13">费用 2 · 目标非法</text>
+      <rect x="312" y="780" width="140" height="20" fill="#7a2828"/>
+      <rect x="492" y="685" width="180" height="132" rx="7" fill="#d8c29a" stroke="#6b6250"/>
+      <text x="582" y="720" text-anchor="middle" fill="#211d18" font-size="16" font-weight="700">诡辩</text>
+      <text x="582" y="752" text-anchor="middle" fill="#211d18" font-size="13">费用 1 · 可打出</text>
+      <rect x="512" y="780" width="140" height="20" fill="#b99750"/>
+    </g>
+    <text x="710" y="718" fill="#9f967f" font-size="15">提示区：目标非法 — 该卡只能对友方牌使用</text>
+    <text x="710" y="748" fill="#9f967f" font-size="15">选择是 UI 本地态；提交只发送 PlayCardCommand / EndTurnCommand</text>
+    <text x="710" y="778" fill="#788079" font-size="14">不可用态显示 reason_code；动画只消费事件，不改变结果。</text>
+    <rect x="1210" y="697" width="280" height="82" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="1350" y="731" text-anchor="middle" fill="#e8dfc9" font-size="17">灵界日志</text>
+    <text x="1350" y="760" text-anchor="middle" fill="#9f967f" font-size="13">上一事件：TurnStarted</text>
+  </g>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#10110c"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">PATHWAY ADVANCEMENT // 晋升试炼</text>
+    <text x="64" y="118" fill="#e8dfc9" font-size="40" font-weight="700">不是答题，而是证明自己仍配得上这重身份</text>
+    <text x="64" y="154" fill="#9f967f" font-size="16">一次 30—90 秒的短仪式；失败增加代价或降低奖励，不永久卡死。</text>
+    <rect x="64" y="200" width="370" height="590" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="94" y="246" fill="#b99750" font-size="18">晋升条件</text>
+    <text x="94" y="300" fill="#e8dfc9" font-size="18">当前序列</text><text x="398" y="300" fill="#e8dfc9" font-size="22" text-anchor="end">占卜家 9</text>
+    <text x="94" y="348" fill="#e8dfc9" font-size="18">非凡特性</text><text x="398" y="348" fill="#b99750" font-size="22" text-anchor="end">3 / 3</text>
+    <text x="94" y="396" fill="#e8dfc9" font-size="18">扮演进度</text><text x="398" y="396" fill="#b99750" font-size="22" text-anchor="end">4 / 4</text>
+    <text x="94" y="444" fill="#e8dfc9" font-size="18">仪式材料</text><text x="398" y="444" fill="#b99750" font-size="22" text-anchor="end">2 / 2</text>
+    <line x1="94" y1="480" x2="404" y2="480" stroke="#3a3731"/>
+    <text x="94" y="526" fill="#9f967f" font-size="15">要求状态均来自快照：</text>
+    <text x="94" y="554" fill="#9f967f" font-size="14">requirement.id / met / current / target</text>
+    <text x="94" y="612" fill="#d8b4a8" font-size="15">当前污染：2 / 10</text>
+    <text x="94" y="642" fill="#d8b4a8" font-size="15">失败：污染 +2，保留材料</text>
+    <rect x="94" y="682" width="304" height="62" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="246" y="720" text-anchor="middle" fill="#e8dfc9" font-size="17">暂时返回安全屋</text>
+
+    <circle cx="800" cy="470" r="255" fill="none" stroke="#5e533d" stroke-width="2"/>
+    <circle cx="800" cy="470" r="182" fill="none" stroke="#7a2828" stroke-width="2" stroke-dasharray="12 8"/>
+    <path d="M800,245 L930,410 L875,620 L725,620 L670,410 Z" fill="none" stroke="#b99750" stroke-width="3"/>
+    <g>
+      <rect x="620" y="345" width="160" height="270" rx="5" fill="#d8c29a" stroke="#b99750" transform="rotate(-8 700 480)"/>
+      <text x="700" y="410" transform="rotate(-8 700 480)" text-anchor="middle" fill="#211d18" font-size="18">镜面</text>
+      <circle cx="700" cy="490" r="36" transform="rotate(-8 700 480)" fill="none" stroke="#211d18" stroke-width="4"/>
+      <rect x="820" y="345" width="160" height="270" rx="5" fill="#d8c29a" stroke="#b99750" transform="rotate(8 900 480)"/>
+      <text x="900" y="410" transform="rotate(8 900 480)" text-anchor="middle" fill="#211d18" font-size="18">阴影</text>
+      <path d="M850,510 L950,510 L900,550 Z" transform="rotate(8 900 480)" fill="none" stroke="#211d18" stroke-width="4"/>
+      <rect x="720" y="305" width="160" height="290" rx="5" fill="#e8dfc9" stroke="#b99750" stroke-width="3"/>
+      <text x="800" y="366" text-anchor="middle" fill="#211d18" font-size="18">真名</text>
+      <path d="M800,405 L829,470 L800,535 L771,470 Z" fill="#7a2828"/>
+    </g>
+    <text x="800" y="676" text-anchor="middle" fill="#e8dfc9" font-size="24" font-weight="700">选择并排列三件仪式牌</text>
+    <text x="800" y="710" text-anchor="middle" fill="#9f967f" font-size="15">选中：真名 → 镜面 → 阴影 · 可撤回到第一步</text>
+    <rect x="680" y="740" width="240" height="56" rx="6" fill="#b99750"/>
+    <text x="800" y="777" text-anchor="middle" fill="#15160f" font-size="18" font-weight="700">确认仪式</text>
+
+    <rect x="1165" y="200" width="371" height="590" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1195" y="246" fill="#b99750" font-size="18">试炼提示</text>
+    <text x="1195" y="302" fill="#e8dfc9" font-size="17">线索只来自本局：</text>
+    <text x="1195" y="338" fill="#a9a18c" font-size="15">“先承认那张脸，</text>
+    <text x="1195" y="368" fill="#a9a18c" font-size="15">再让镜面吞下影子。”</text>
+    <rect x="1195" y="414" width="310" height="80" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="1218" y="448" fill="#e8dfc9" font-size="16">整理线索</text>
+    <text x="1218" y="474" fill="#9f967f" font-size="13">打开已收集线索，不进入新谜题</text>
+    <rect x="1195" y="514" width="310" height="80" rx="6" fill="#2d1919" stroke="#7a2828"/>
+    <text x="1218" y="548" fill="#e8dfc9" font-size="16">灵性求解</text>
+    <text x="1218" y="574" fill="#d8b4a8" font-size="13">消耗 2 灵性，排除一个错误位置</text>
+    <text x="1195" y="650" fill="#788079" font-size="14">不设强制倒计时；30—90 秒为设计目标。</text>
+    <text x="1195" y="680" fill="#788079" font-size="14">错误提交：结果页说明失败原因，并可立即重试。</text>
+    <rect x="1195" y="718" width="310" height="54" rx="5" fill="#242119" stroke="#4b463b"/>
+    <text x="1350" y="752" text-anchor="middle" fill="#e8dfc9" font-size="16">查看晋升预览</text>
+  </g>
+</svg>

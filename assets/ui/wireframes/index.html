@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>假面低语 · UI 低保真线框</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #15160f;
+      --paper: #d8c29a;
+      --gold: #b99750;
+      --muted: #9f967f;
+      --line: #3a3731;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    }
+    header {
+      padding: 40px clamp(20px, 5vw, 72px) 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0 0 8px; font-size: clamp(30px, 5vw, 58px); }
+    p { color: var(--muted); line-height: 1.7; }
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+      padding: 32px clamp(20px, 5vw, 72px) 72px;
+    }
+    article {
+      border: 1px solid var(--line);
+      background: #201e18;
+      padding: 16px;
+    }
+    h2 { margin: 0 0 12px; color: var(--gold); font-size: 18px; }
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #4b463b;
+      background: #10110c;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>《假面低语》UI 低保真线框</h1>
+    <p>v0.2.0 · 1600×900 · 仅表达信息层级、交互路径与恢复状态，不代表已完成的 Godot 实现。</p>
+    <p><a href="00_flow.svg">打开总页面流</a></p>
+  </header>
+  <main>
+    <article><h2>01 · 启动与继续</h2><img src="01_start_resume.svg" alt="启动与继续页面线框"></article>
+    <article><h2>02 · 白天身份</h2><img src="02_day_identity.svg" alt="白天身份页面线框"></article>
+    <article><h2>03 · 城市地图</h2><img src="03_map.svg" alt="城市地图页面线框"></article>
+    <article><h2>04 · 夜间战斗</h2><img src="04_battle.svg" alt="夜间战斗页面线框"></article>
+    <article><h2>05 · 战利品</h2><img src="05_reward.svg" alt="战利品页面线框"></article>
+    <article><h2>06 · 灵界祈愿</h2><img src="06_gacha.svg" alt="灵界祈愿页面线框"></article>
+    <article><h2>07 · 晋升试炼</h2><img src="07_ascension.svg" alt="晋升试炼页面线框"></article>
+    <article><h2>08 · 本次结算</h2><img src="08_result.svg" alt="本次结算页面线框"></article>
+    <article><h2>09 · 错误与恢复</h2><img src="09_error.svg" alt="错误与恢复页面线框"></article>
+  </main>
+</body>
+</html>

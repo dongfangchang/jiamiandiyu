@@ -1,0 +1,45 @@
+class_name BattleBalanceAdapter
+extends BattleBalancePort
+
+const PARAMETER_PATHS: Dictionary = {
+	&"player.base_max_hp": ["player", "max_health"],
+	&"player.base_max_spirit": ["player", "spirit_per_turn"],
+	&"player.starting_hand": ["player", "starting_hand"],
+	&"player.turn_draw_to_hand_size": ["player", "turn_draw_to_hand_size"],
+	&"player.max_hand_size": ["player", "max_hand_size"],
+	&"battle.max_rounds": ["combat", "max_rounds"],
+	&"battle.enemy_pressure_start_round": ["combat", "enemy_pressure", "start_round"],
+	&"risk.corruption_thresholds": ["player", "corruption"],
+	&"risk.attention_thresholds": ["player", "attention"],
+	&"progression.sequence_9_to_8_requirements": ["upgrades", "sequence_advance"],
+	&"gacha.rules": ["gacha"],
+}
+
+var _document: Dictionary
+
+
+func _init(document: Dictionary) -> void:
+	_document = document.duplicate(true)
+
+
+func get_value(parameter_id: StringName) -> Variant:
+	if not PARAMETER_PATHS.has(parameter_id):
+		return null
+	var current: Variant = _document
+	for segment in PARAMETER_PATHS[parameter_id]:
+		if not current is Dictionary or not current.has(String(segment)):
+			return null
+		current = current[String(segment)]
+	return _copy_value(current)
+
+
+func has_parameter(parameter_id: StringName) -> bool:
+	return get_value(parameter_id) != null
+
+
+func _copy_value(value: Variant) -> Variant:
+	if value is Dictionary:
+		return value.duplicate(true)
+	if value is Array:
+		return value.duplicate(true)
+	return value

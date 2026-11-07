@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.2.0 balance draft",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "status",
+    "player",
+    "combat",
+    "cards",
+    "encounters",
+    "rewards",
+    "gacha",
+    "upgrades"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "player": {
+      "type": "object",
+      "required": [
+        "max_health",
+        "starting_health",
+        "spirit_per_turn",
+        "starting_hand",
+        "max_hand_size",
+        "corruption",
+        "attention"
+      ],
+      "properties": {
+        "max_health": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "starting_health": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spirit_per_turn": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "starting_hand": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_hand_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "corruption": {
+          "type": "object",
+          "required": [
+            "min",
+            "max",
+            "warning_at",
+            "penalty_at",
+            "run_end_at"
+          ]
+        },
+        "attention": {
+          "type": "object",
+          "required": [
+            "min",
+            "max",
+            "warning_at",
+            "hunter_at",
+            "forced_hunter_at"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "combat": {
+      "type": "object",
+      "required": [
+        "max_rounds",
+        "effect_budget_by_cost"
+      ],
+      "properties": {
+        "max_rounds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "effect_budget_by_cost": {
+          "type": "object",
+          "minProperties": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "cards": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "rarity",
+          "cost",
+          "acquisition"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^card\\."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rarity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "cost": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "acquisition": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "encounters": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "tier",
+          "health"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^enemy\\."
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "elite",
+              "boss"
+            ]
+          },
+          "health": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "rewards": {
+      "type": "object"
+    },
+    "gacha": {
+      "type": "object",
+      "required": [
+        "ticket_cost_per_draw",
+        "rarity_weights",
+        "deterministic_cards",
+        "starter_cards"
+      ],
+      "properties": {
+        "ticket_cost_per_draw": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rarity_weights": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "deterministic_cards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "starter_cards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "upgrades": {
+      "type": "object",
+      "required": [
+        "sequence_advance"
+      ],
+      "properties": {
+        "sequence_advance": {
+          "type": "object",
+          "required": [
+            "from_sequence",
+            "to_sequence"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

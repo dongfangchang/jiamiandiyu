@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#10110c"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">SPIRIT ALTAR // 灵界祈愿</text>
+    <text x="64" y="118" fill="#e8dfc9" font-size="40" font-weight="700">回应命运之前，先看清代价</text>
+    <text x="64" y="154" fill="#9f967f" font-size="16">全部抽取使用游戏内资源；概率、保底和扣除由玩法命令结算。</text>
+    <circle cx="800" cy="438" r="230" fill="none" stroke="#5e533d" stroke-width="2"/>
+    <circle cx="800" cy="438" r="172" fill="none" stroke="#7a2828" stroke-width="2" stroke-dasharray="10 8"/>
+    <circle cx="800" cy="438" r="106" fill="#201e18" stroke="#b99750" stroke-width="3"/>
+    <path d="M800,345 C835,405 812,455 800,505 C786,462 762,405 800,345 Z" fill="#d8c29a"/>
+    <ellipse cx="770" cy="420" rx="22" ry="8" fill="#15160f"/>
+    <ellipse cx="830" cy="420" rx="22" ry="8" fill="#15160f"/>
+    <text x="800" y="708" text-anchor="middle" fill="#e8dfc9" font-size="26" font-weight="700">灵界祈愿 · 第一阶段</text>
+    <text x="800" y="743" text-anchor="middle" fill="#9f967f" font-size="15">祈愿券 3 · 保底进度 4 / 10 · 关键能力由首领固定掉落</text>
+    <rect x="64" y="205" width="330" height="505" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="92" y="250" fill="#b99750" font-size="18">资源与规则</text>
+    <text x="92" y="302" fill="#e8dfc9" font-size="17">祈愿券</text><text x="360" y="302" fill="#e8dfc9" font-size="24" text-anchor="end">3</text>
+    <text x="92" y="346" fill="#e8dfc9" font-size="17">灵性残渣</text><text x="360" y="346" fill="#e8dfc9" font-size="24" text-anchor="end">14</text>
+    <text x="92" y="405" fill="#9f967f" font-size="15">单次消耗：1 券</text>
+    <text x="92" y="438" fill="#9f967f" font-size="15">十连消耗：9 券 + 1 券折扣</text>
+    <text x="92" y="496" fill="#e8dfc9" font-size="16">保底：十次内至少一件稀有</text>
+    <text x="92" y="528" fill="#e8dfc9" font-size="16">重复：转化为回响碎片</text>
+    <text x="92" y="560" fill="#e8dfc9" font-size="16">关键卡：不由抽卡独占</text>
+    <rect x="92" y="610" width="274" height="62" rx="6" fill="#2d1919" stroke="#7a2828"/>
+    <text x="229" y="648" text-anchor="middle" fill="#d8b4a8" font-size="16">查看完整概率</text>
+
+    <rect x="1206" y="205" width="330" height="505" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1234" y="250" fill="#b99750" font-size="18">当前卡池</text>
+    <text x="1234" y="302" fill="#e8dfc9" font-size="19">灵界回响</text>
+    <text x="1234" y="334" fill="#9f967f" font-size="14">普通 · 稀有 · 禁忌</text>
+    <text x="1234" y="390" fill="#e8dfc9" font-size="17">稀有 18%</text>
+    <text x="1234" y="422" fill="#e8dfc9" font-size="17">禁忌 3%</text>
+    <text x="1234" y="454" fill="#9f967f" font-size="14">显示来自池快照，不在 UI 计算。</text>
+    <text x="1234" y="510" fill="#e8dfc9" font-size="19">封印物</text>
+    <text x="1234" y="542" fill="#9f967f" font-size="14">8 件 · 当前已收集 2</text>
+    <rect x="1225" y="610" width="292" height="62" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="1371" y="648" text-anchor="middle" fill="#e8dfc9" font-size="16">查看已收集</text>
+
+    <rect x="590" y="765" width="205" height="74" rx="7" fill="#b99750"/>
+    <text x="692" y="810" text-anchor="middle" fill="#15160f" font-size="21" font-weight="700">祈愿一次</text>
+    <rect x="810" y="765" width="205" height="74" rx="7" fill="#4a4332"/>
+    <text x="912" y="810" text-anchor="middle" fill="#d8c29a" font-size="21" font-weight="700">祈愿十次</text>
+    <rect x="1020" y="765" width="205" height="74" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1122" y="810" text-anchor="middle" fill="#e8dfc9" font-size="19">返回安全屋</text>
+    <text x="800" y="866" text-anchor="middle" fill="#788079" font-size="14">结果页：逐张揭示 / 跳过演出 / 查看碎片转化；命令 draw_once / draw_ten / confirm_results / close_pool</text>
+  </g>
+</svg>

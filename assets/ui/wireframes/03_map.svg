@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#15160f"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">NIGHT ROUTE // 城市地图</text>
+    <text x="64" y="112" fill="#e8dfc9" font-size="38" font-weight="700">选择今夜要接近的异常</text>
+    <rect x="64" y="160" width="900" height="650" rx="10" fill="#1c1b15" stroke="#3a3731"/>
+    <path d="M120,700 C220,590 230,410 330,455 C410,490 430,330 520,350 C600,368 700,280 780,340 C850,390 890,300 930,255" fill="none" stroke="#6b6250" stroke-width="4" stroke-dasharray="12 10"/>
+    <g fill="#28251d" stroke="#b99750" stroke-width="3">
+      <circle cx="120" cy="700" r="34"/>
+      <circle cx="255" cy="545" r="34"/>
+      <circle cx="370" cy="440" r="34"/>
+      <circle cx="520" cy="350" r="34"/>
+      <circle cx="690" cy="320" r="34"/>
+      <circle cx="820" cy="280" r="34"/>
+    </g>
+    <g fill="#e8dfc9" font-size="16" text-anchor="middle">
+      <text x="120" y="707">起点</text>
+      <text x="255" y="552">码头</text>
+      <text x="370" y="447">旧宅</text>
+      <text x="520" y="357">教堂</text>
+      <text x="690" y="327">报馆</text>
+      <text x="820" y="287">目标</text>
+    </g>
+    <g stroke="#7a2828" stroke-width="3" fill="none">
+      <circle cx="370" cy="440" r="46"/>
+      <circle cx="820" cy="280" r="46"/>
+    </g>
+    <text x="104" y="770" fill="#788079" font-size="14">节点状态只读取 unlocked / visited / risk / selected，不在 UI 内计算可达性。</text>
+
+    <rect x="990" y="160" width="546" height="650" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1020" y="205" fill="#b99750" font-size="18">节点详情</text>
+    <text x="1020" y="255" fill="#e8dfc9" font-size="28" font-weight="700">廷根旧宅</text>
+    <text x="1020" y="290" fill="#a9a18c" font-size="16">异常类型：灵界残响 · 预计 3 回合</text>
+    <rect x="1020" y="320" width="486" height="120" rx="7" fill="#28251d" stroke="#4b463b"/>
+    <text x="1046" y="355" fill="#e8dfc9" font-size="17">风险</text>
+    <text x="1046" y="388" fill="#d8b4a8" font-size="15">污染 +1 · 被注视 +2</text>
+    <text x="1046" y="417" fill="#9f967f" font-size="15">奖励预览：灵性残渣 4—6，卡牌强化 1 次</text>
+    <text x="1020" y="487" fill="#b99750" font-size="17">当前牌组</text>
+    <g fill="#28251d" stroke="#6b6250">
+      <rect x="1020" y="510" width="96" height="132" rx="5"/>
+      <rect x="1130" y="510" width="96" height="132" rx="5"/>
+      <rect x="1240" y="510" width="96" height="132" rx="5"/>
+      <rect x="1350" y="510" width="96" height="132" rx="5"/>
+    </g>
+    <text x="1068" y="580" text-anchor="middle" fill="#9f967f" font-size="14">占卜</text>
+    <text x="1178" y="580" text-anchor="middle" fill="#9f967f" font-size="14">攻击</text>
+    <text x="1288" y="580" text-anchor="middle" fill="#9f967f" font-size="14">防御</text>
+    <text x="1398" y="580" text-anchor="middle" fill="#9f967f" font-size="14">封印</text>
+    <rect x="1020" y="675" width="225" height="72" rx="6" fill="#b99750"/>
+    <text x="1132" y="720" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">进入节点</text>
+    <rect x="1260" y="675" width="246" height="72" rx="6" fill="#242119" stroke="#4b463b"/>
+    <text x="1383" y="720" text-anchor="middle" fill="#e8dfc9" font-size="18">调整牌组</text>
+    <text x="1020" y="780" fill="#788079" font-size="13">不可达：按钮禁用 + reason_code；进入请求 pending 时全部节点锁定。</text>
+  </g>
+</svg>

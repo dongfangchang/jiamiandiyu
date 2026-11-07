@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#15160f"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="70" fill="#b99750" font-size="16" letter-spacing="3">ENCOUNTER CLEARED // 战利品</text>
+    <text x="64" y="126" fill="#e8dfc9" font-size="42" font-weight="700">异常已被暂时压制</text>
+    <text x="64" y="166" fill="#a9a18c" font-size="18">事件结算完成 · 选择一项记录或跳过 · 选择后不可撤销</text>
+    <rect x="64" y="215" width="1472" height="500" rx="10" fill="#1b1a15" stroke="#3a3731"/>
+    <text x="96" y="260" fill="#b99750" font-size="18">三选一</text>
+    <g>
+      <rect x="96" y="292" width="440" height="350" rx="9" fill="#d8c29a" stroke="#b99750" stroke-width="3"/>
+      <text x="316" y="342" text-anchor="middle" fill="#211d18" font-size="25" font-weight="700">回响：预知</text>
+      <circle cx="316" cy="438" r="66" fill="none" stroke="#211d18" stroke-width="3"/>
+      <path d="M250,438 A66,66 0 0 1 382,438" fill="none" stroke="#7a2828" stroke-width="8"/>
+      <text x="316" y="550" text-anchor="middle" fill="#211d18" font-size="16">加入牌组</text>
+      <text x="316" y="582" text-anchor="middle" fill="#7a2828" font-size="15">本局每回合首次占卜费用 -1</text>
+      <rect x="142" y="607" width="348" height="12" fill="#b99750"/>
+      <rect x="558" y="292" width="440" height="350" rx="9" fill="#d8c29a" stroke="#6b6250"/>
+      <text x="778" y="342" text-anchor="middle" fill="#211d18" font-size="25" font-weight="700">资源：灵性残渣</text>
+      <circle cx="778" cy="438" r="62" fill="#b99750"/>
+      <text x="778" y="550" text-anchor="middle" fill="#211d18" font-size="16">获得 6 点</text>
+      <text x="778" y="582" text-anchor="middle" fill="#9f967f" font-size="15">用于局外强化，不直接降低污染</text>
+      <rect x="604" y="607" width="348" height="12" fill="#6b6250"/>
+      <rect x="1020" y="292" width="480" height="350" rx="9" fill="#d8c29a" stroke="#6b6250"/>
+      <text x="1260" y="342" text-anchor="middle" fill="#211d18" font-size="25" font-weight="700">人格：夜班编辑</text>
+      <circle cx="1260" cy="438" r="66" fill="#2b2921"/>
+      <text x="1260" y="550" text-anchor="middle" fill="#211d18" font-size="16">解锁人格变体</text>
+      <text x="1260" y="582" text-anchor="middle" fill="#9f967f" font-size="15">抽卡池之外提供确定性选项</text>
+      <rect x="1066" y="607" width="388" height="12" fill="#6b6250"/>
+    </g>
+    <rect x="64" y="740" width="1472" height="70" rx="7" fill="#242119" stroke="#3a3731"/>
+    <text x="92" y="781" fill="#e8dfc9" font-size="17">获得：灵性残渣 4 / 祈愿券 1 · 污染 2 → 3 · 被注视 3 → 5</text>
+    <text x="760" y="781" fill="#d8b4a8" font-size="15">危险阈值提示：被注视已达“警觉”，由快照 severity 决定文案。</text>
+    <rect x="1260" y="755" width="240" height="40" rx="5" fill="#b99750"/>
+    <text x="1380" y="782" text-anchor="middle" fill="#15160f" font-size="17" font-weight="700">确认选择</text>
+    <text x="92" y="852" fill="#788079" font-size="14">命令：select_reward / confirm_reward / skip_reward。pending 时全部奖励按钮锁定；选择失败显示 reason，不自动跳页。</text>
+  </g>
+</svg>

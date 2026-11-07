@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#12120e"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">SAFE RECOVERY // 错误与恢复</text>
+    <text x="64" y="126" fill="#e8dfc9" font-size="44" font-weight="700">旧档没有被覆盖</text>
+    <text x="64" y="168" fill="#d8b4a8" font-size="18">错误码 E-SAVE-002 · 存档校验失败 · 当前操作已停止</text>
+    <rect x="64" y="220" width="930" height="540" rx="10" fill="#201e18" stroke="#7a2828" stroke-width="2"/>
+    <text x="96" y="270" fill="#b99750" font-size="18">发生了什么</text>
+    <text x="96" y="316" fill="#e8dfc9" font-size="18">自动存档的校验值不匹配，游戏没有写入临时文件之外的位置。</text>
+    <rect x="96" y="352" width="866" height="150" rx="7" fill="#171711" stroke="#3a3731"/>
+    <text x="120" y="394" fill="#9f967f" font-size="14">技术摘要（默认折叠，可导出诊断）</text>
+    <text x="120" y="430" fill="#e8dfc9" font-size="15">save_version=1 · content_version=v0.2.0 · error_at=atomic_commit</text>
+    <text x="120" y="462" fill="#e8dfc9" font-size="15">last_good_backup=available · rng_seed=93841 · log=local_run_03</text>
+    <text x="96" y="552" fill="#b99750" font-size="18">推荐恢复路径</text>
+    <text x="96" y="592" fill="#e8dfc9" font-size="17">1. 先尝试读取最近绿色备份。</text>
+    <text x="96" y="628" fill="#e8dfc9" font-size="17">2. 如仍失败，导出诊断并返回标题。</text>
+    <text x="96" y="664" fill="#e8dfc9" font-size="17">3. 不会自动删除、覆盖或回写原存档。</text>
+    <text x="96" y="720" fill="#788079" font-size="14">UI 不解析文件；错误分类和可用动作来自恢复快照。</text>
+
+    <rect x="1025" y="220" width="511" height="540" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1055" y="270" fill="#b99750" font-size="18">安全操作</text>
+    <rect x="1055" y="315" width="451" height="76" rx="7" fill="#b99750"/>
+    <text x="1280" y="361" text-anchor="middle" fill="#15160f" font-size="19" font-weight="700">读取最近备份</text>
+    <rect x="1055" y="415" width="451" height="76" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1280" y="461" text-anchor="middle" fill="#e8dfc9" font-size="19">打开存档目录</text>
+    <rect x="1055" y="515" width="451" height="76" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1280" y="561" text-anchor="middle" fill="#e8dfc9" font-size="19">导出诊断信息</text>
+    <rect x="1055" y="615" width="451" height="76" rx="7" fill="#242119" stroke="#4b463b"/>
+    <text x="1280" y="661" text-anchor="middle" fill="#e8dfc9" font-size="19">返回标题</text>
+    <text x="1055" y="720" fill="#788079" font-size="13">危险操作如“删除原档”不在首版提供。</text>
+
+    <rect x="64" y="800" width="1472" height="46" rx="6" fill="#2d1919" stroke="#7a2828"/>
+    <text x="92" y="830" fill="#e8dfc9" font-size="15">其他错误：内容加载失败 / 迁移失败 / 非法命令 / 视图中状态不可用。都必须提供原因、影响、保留数据说明和至少一个安全出口。</text>
+  </g>
+</svg>

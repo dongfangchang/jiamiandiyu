@@ -1,0 +1,592 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.2.0",
+  "status": "draft_for_pm_review",
+  "notes": [
+    "All values are prototype targets and require gameplay and product approval.",
+    "The battle simulation is an aggregate budget check, not a final combat model.",
+    "Names and display text are not stable identifiers.",
+    "Enemy pressure starts on round 7 and stacks after each completed enemy round."
+  ],
+  "targets": {
+    "run_minutes": {
+      "min": 10,
+      "max": 20
+    },
+    "first_sequence_advance_minutes": {
+      "min": 20,
+      "max": 30
+    },
+    "run_win_rate": {
+      "min": 0.6,
+      "max": 0.85
+    },
+    "normal_battle_minutes": {
+      "min": 1.5,
+      "max": 3
+    },
+    "elite_battle_minutes": {
+      "min": 3,
+      "max": 5
+    },
+    "boss_battle_minutes": {
+      "min": 4,
+      "max": 7
+    }
+  },
+  "run_structure": {
+    "day_choices": 2,
+    "normal_encounters": 3,
+    "rest_nodes": 1,
+    "elite_encounters": 1,
+    "boss_encounters": 1,
+    "route_order": [
+      "normal",
+      "normal",
+      "normal",
+      "rest",
+      "elite",
+      "boss"
+    ],
+    "rest_heal": 8
+  },
+  "player": {
+    "max_health": 54,
+    "starting_health": 54,
+    "spirit_per_turn": 3,
+    "spirit_carryover": false,
+    "starting_hand": 5,
+    "turn_draw_to_hand_size": 5,
+    "max_hand_size": 8,
+    "corruption": {
+      "min": 0,
+      "max": 10,
+      "warning_at": 4,
+      "penalty_at": 7,
+      "run_end_at": 10,
+      "penalty_damage_per_round": 1
+    },
+    "attention": {
+      "min": 0,
+      "max": 10,
+      "warning_at": 4,
+      "hunter_at": 7,
+      "forced_hunter_at": 10,
+      "default_run_end_decay": 1
+    }
+  },
+  "combat": {
+    "damage_formula": "max(1, potency + potency_bonus - guard)",
+    "guard_expiration": "owner_turn_start",
+    "heal_cap": "max_health",
+    "max_rounds": 10,
+    "random_damage_variance": 0.1,
+    "enemy_pressure": {
+      "start_round": 7,
+      "attack_bonus_per_completed_enemy_round": 1,
+      "reset_each_battle": true
+    },
+    "target_rounds": {
+      "normal": {
+        "min": 2,
+        "max": 3
+      },
+      "elite": {
+        "min": 4,
+        "max": 5
+      },
+      "boss": {
+        "min": 6,
+        "max": 8
+      }
+    },
+    "effect_budget_by_cost": {
+      "0": 1.0,
+      "1": 2.5,
+      "2": 4.0,
+      "3": 6.0
+    },
+    "forbidden_card_budget_bonus": 1.5,
+    "forbidden_card_corruption": 1,
+    "rare_efficiency_bonus": 0.5
+  },
+  "card_cost_distribution": {
+    "0": 2,
+    "1": 7,
+    "2": 8,
+    "3": 3,
+    "total": 20
+  },
+  "card_rarity_distribution": {
+    "common": 10,
+    "uncommon": 6,
+    "rare": 3,
+    "unique": 1,
+    "total": 20
+  },
+  "cards": [
+    {
+      "id": "card.identity.reporter",
+      "display_name_zh": "记者",
+      "category": "identity",
+      "rarity": "common",
+      "cost": 2,
+      "effect_budget": 4.0,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": -1
+      }
+    },
+    {
+      "id": "card.identity.doctor",
+      "display_name_zh": "医生",
+      "category": "identity",
+      "rarity": "uncommon",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": -1,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.identity.gravedigger",
+      "display_name_zh": "守墓人",
+      "category": "identity",
+      "rarity": "uncommon",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.ink_dart",
+      "display_name_zh": "墨刺",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 1,
+      "effect_budget": 2.5,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.paper_guard",
+      "display_name_zh": "纸符护持",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 1,
+      "effect_budget": 2.5,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.calm_breath",
+      "display_name_zh": "静息",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 1,
+      "effect_budget": 2.5,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.focus",
+      "display_name_zh": "凝神",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 0,
+      "effect_budget": 1.0,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.insight",
+      "display_name_zh": "洞察",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 0,
+      "effect_budget": 1.0,
+      "acquisition": "starter",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.omen",
+      "display_name_zh": "凶兆",
+      "category": "skill",
+      "rarity": "uncommon",
+      "cost": 1,
+      "effect_budget": 3.0,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 1
+      }
+    },
+    {
+      "id": "card.skill.whisper",
+      "display_name_zh": "低语",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 1,
+      "effect_budget": 2.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.second_look",
+      "display_name_zh": "再看一眼",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 1,
+      "effect_budget": 2.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.cold_reading",
+      "display_name_zh": "冷读",
+      "category": "skill",
+      "rarity": "rare",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "elite_guaranteed",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.rain_step",
+      "display_name_zh": "雨幕步",
+      "category": "skill",
+      "rarity": "uncommon",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.forbidden_name",
+      "display_name_zh": "禁忌之名",
+      "category": "skill",
+      "rarity": "rare",
+      "cost": 3,
+      "effect_budget": 7.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 2,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.artifact.watchers_eye",
+      "display_name_zh": "窥视者之眼",
+      "category": "artifact",
+      "rarity": "unique",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "boss_guaranteed",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 1
+      }
+    },
+    {
+      "id": "card.artifact.faceless_testament",
+      "display_name_zh": "无面遗嘱",
+      "category": "artifact",
+      "rarity": "uncommon",
+      "cost": 1,
+      "effect_budget": 3.0,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 1,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.artifact.rain_ledger",
+      "display_name_zh": "雨幕账册",
+      "category": "artifact",
+      "rarity": "uncommon",
+      "cost": 2,
+      "effect_budget": 4.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.artifact.black_candle",
+      "display_name_zh": "黑蜡烛",
+      "category": "artifact",
+      "rarity": "rare",
+      "cost": 3,
+      "effect_budget": 6.5,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 1,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.artifact.broken_compass",
+      "display_name_zh": "破损罗盘",
+      "category": "artifact",
+      "rarity": "common",
+      "cost": 3,
+      "effect_budget": 6.0,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    },
+    {
+      "id": "card.skill.night_watch",
+      "display_name_zh": "守夜",
+      "category": "skill",
+      "rarity": "common",
+      "cost": 2,
+      "effect_budget": 4.0,
+      "acquisition": "random",
+      "risk_delta": {
+        "corruption": 0,
+        "attention": 0
+      }
+    }
+  ],
+  "encounters": [
+    {
+      "id": "enemy.weeping_tenant",
+      "display_name_zh": "哭泣的房客",
+      "tier": "normal",
+      "health": 12,
+      "attack_per_round": {
+        "min": 6,
+        "max": 7
+      },
+      "threat": "corruption"
+    },
+    {
+      "id": "enemy.candle_moth",
+      "display_name_zh": "烛焰飞蛾",
+      "tier": "normal",
+      "health": 10,
+      "attack_per_round": {
+        "min": 5,
+        "max": 6
+      },
+      "threat": "attention"
+    },
+    {
+      "id": "enemy.mirror_hound",
+      "display_name_zh": "镜中猎犬",
+      "tier": "normal",
+      "health": 14,
+      "attack_per_round": {
+        "min": 6,
+        "max": 8
+      },
+      "threat": "damage"
+    },
+    {
+      "id": "enemy.chained_choir",
+      "display_name_zh": "锁链唱诗班",
+      "tier": "elite",
+      "health": 18,
+      "attack_per_round": {
+        "min": 6,
+        "max": 8
+      },
+      "threat": "corruption"
+    },
+    {
+      "id": "enemy.lantern_pursuer",
+      "display_name_zh": "提灯追猎者",
+      "tier": "elite",
+      "health": 26,
+      "attack_per_round": {
+        "min": 8,
+        "max": 10
+      },
+      "threat": "attention"
+    },
+    {
+      "id": "enemy.faceless_broker",
+      "display_name_zh": "无面掮客",
+      "tier": "boss",
+      "health": 40,
+      "attack_per_round": {
+        "min": 10,
+        "max": 12
+      },
+      "threat": "corruption_attention"
+    }
+  ],
+  "rewards": {
+    "normal": {
+      "echo_dust": 2,
+      "divination_tickets": 1,
+      "characteristic_fragments": 0
+    },
+    "elite": {
+      "echo_dust": 4,
+      "divination_tickets": 2,
+      "characteristic_fragments": 1,
+      "guaranteed_card_id": "card.skill.cold_reading"
+    },
+    "boss": {
+      "echo_dust": 8,
+      "divination_tickets": 3,
+      "characteristic_fragments": 1,
+      "guaranteed_card_id": "card.artifact.watchers_eye"
+    },
+    "first_clear_bonus": {
+      "echo_dust": 0,
+      "divination_tickets": 3,
+      "characteristic_fragments": 1
+    },
+    "day_reward_options": [
+      {
+        "id": "day.easy_work",
+        "display_name_zh": "完成普通工作",
+        "echo_dust": 2,
+        "divination_tickets": 0,
+        "heal": 0,
+        "attention_delta": 0
+      },
+      {
+        "id": "day.pursue_rumor",
+        "display_name_zh": "追查传闻",
+        "echo_dust": 0,
+        "divination_tickets": 1,
+        "heal": 0,
+        "attention_delta": 1
+      },
+      {
+        "id": "day.keep_low_profile",
+        "display_name_zh": "维持普通身份",
+        "echo_dust": 0,
+        "divination_tickets": 0,
+        "heal": 4,
+        "attention_delta": -2
+      }
+    ]
+  },
+  "gacha": {
+    "ticket_cost_per_draw": 2,
+    "ten_draw_ticket_cost": 20,
+    "pity": {
+      "rare_guarantee_within": 10,
+      "guarantee_applies_to_single_and_ten_draw": true
+    },
+    "rarity_weights": {
+      "common": 0.55,
+      "uncommon": 0.34,
+      "rare": 0.11
+    },
+    "duplicate_dust": {
+      "common": 8,
+      "uncommon": 18,
+      "rare": 42
+    },
+    "deterministic_cards": [
+      "card.skill.cold_reading",
+      "card.artifact.watchers_eye"
+    ],
+    "starter_cards": [
+      "card.identity.reporter",
+      "card.skill.ink_dart",
+      "card.skill.paper_guard",
+      "card.skill.calm_breath",
+      "card.skill.focus",
+      "card.skill.insight"
+    ]
+  },
+  "upgrades": {
+    "card_level_cap": 2,
+    "effect_multiplier_per_level": 0.1,
+    "dust_cost_by_rarity": {
+      "common": [
+        8,
+        16
+      ],
+      "uncommon": [
+        16,
+        32
+      ],
+      "rare": [
+        30,
+        60
+      ]
+    },
+    "sequence_advance": {
+      "from_sequence": 9,
+      "to_sequence": 8,
+      "characteristic_fragments": 5,
+      "echo_dust": 24,
+      "completed_acting_actions": 2,
+      "max_health_bonus": 6,
+      "target_run_count": 2,
+      "ritual_failure_does_not_consume_materials": true,
+      "ritual_failure_corruption": 2
+    }
+  },
+  "simulation": {
+    "fixed_seed": 20261108,
+    "sample_runs": 5000,
+    "sample_draw_sequences": 10000,
+    "draw_sequence_length": 20,
+    "profiles": [
+      {
+        "id": "profile.cautious",
+        "potency_per_round": 5.5,
+        "guard_per_round": 6.0,
+        "rest_heal": 8
+      },
+      {
+        "id": "profile.balanced",
+        "potency_per_round": 6.5,
+        "guard_per_round": 4.5,
+        "rest_heal": 8
+      },
+      {
+        "id": "profile.aggressive",
+        "potency_per_round": 7.5,
+        "guard_per_round": 3.0,
+        "rest_heal": 8
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dp3i1utmrbpem"
+
+[deps]
+
+files=["res://tools/simulation/out/v0.2.0_battle_profiles.win.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.max.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.round.translation"]
+
+source_file="res://tools/simulation/out/v0.2.0_battle_profiles.csv"
+dest_files=["res://tools/simulation/out/v0.2.0_battle_profiles.win.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.average.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.max.translation", "res://tools/simulation/out/v0.2.0_battle_profiles.round.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
