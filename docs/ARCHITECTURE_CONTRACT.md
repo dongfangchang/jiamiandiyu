@@ -13,11 +13,14 @@ G:\guimizhizhu\
   project.godot
   AGENTS.md
   art\                    # 美术源文件、生成脚本和预生产资产管理
-  assets\                 # 游戏实际引用的稳定资源，尚未迁移
+  assets\                 # 游戏实际引用的稳定资源，按内容版本迁移
   data\
     schema\               # 数据 schema 和版本
     cards\                # 卡牌定义，按稳定 ID 建文件
     enemies\              # 敌人定义
+    encounters\           # 战斗遭遇
+    routes\               # 短路线节点与路线状态配置
+    rituals\              # 晋升仪式步骤与选项
     balance\              # 数值表
     localization\         # 中文文本（需要时）
   scenes\
@@ -140,8 +143,8 @@ src/app/bootstrap   -> src/ui, src/gameplay, src/infrastructure
 
 ```json
 {
-  "save_version": 1,
-  "content_version": "v0.1.0",
+  "save_version": 3,
+  "content_version": "v0.5.0",
   "created_at": "ISO-8601",
   "rng_seed": 0,
   "profile": {},
@@ -153,6 +156,8 @@ src/app/bootstrap   -> src/ui, src/gameplay, src/infrastructure
 - 保存采用临时文件 + 校验 + 原子替换，避免中途失败破坏旧档。
 - 读取顺序：解析 -> schema 校验 -> 迁移 -> 不变量检查 -> 进入游戏。
 - 迁移失败时保留原文件，显示错误，不自动覆盖。
+- 当前版本目标使用 `save_version: 3`；历史 v1/v2 必须通过显式迁移读取。
+- 路线只在节点边界建立检查点，不保存战斗中间状态。
 - UI 和玩法层不能直接写文件。
 
 ## 9. 资源与路径
@@ -161,7 +166,7 @@ src/app/bootstrap   -> src/ui, src/gameplay, src/infrastructure
 - 不得使用操作系统绝对路径。
 - 文件名小写 `snake_case`；内容 ID 点分。
 - 资源实际引用路径由集中资源注册表或数据文件保存，不允许 UI 用字符串随意拼接。
-- `art/` 是美术源与预生产区；进入游戏引用的资源在 v0.2.0 或之后通过一次受控迁移进入 `assets/`，禁止长期双份维护。
+- `art/` 是美术源与预生产区；正式资产由主协调者一次性迁移到 `assets/game/<version>/**`，禁止长期维护同名双份。
 - 第三方资源必须记录来源、授权和用途到 `art/ASSET_MANIFEST.md` 或后续统一资产清单。
 
 ## 10. 测试与质量门

@@ -16,6 +16,15 @@ const PARAMETER_PATHS: Dictionary = {
 	&"risk.attention_thresholds": ["player", "attention"],
 	&"progression.sequence_9_to_8_requirements": ["upgrades", "sequence_advance"],
 	&"gacha.rules": ["gacha"],
+	&"progression.starting_divination_tickets": ["progression", "starting_divination_tickets"],
+	&"gacha.single_cost": ["gacha", "single_cost"],
+	&"gacha.triple_cost": ["gacha", "triple_cost"],
+	&"gacha.pulls_per_triple": ["gacha", "pulls_per_triple"],
+	&"gacha.rarity_weights": ["gacha", "rarity_weights"],
+	&"gacha.rare_pity": ["gacha", "rare_pity"],
+	&"gacha.duplicate_fragments": ["gacha", "duplicate_fragments"],
+	&"upgrade.cost_by_next_level": ["upgrade", "cost_by_next_level"],
+	&"reward.amounts": ["reward", "amounts"],
 }
 
 var _document: Dictionary

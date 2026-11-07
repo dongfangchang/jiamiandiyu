@@ -6,7 +6,9 @@
 - `ASSET_MANIFEST.md`：当前资产、计划资产与来源记录。
 - `assets/svg/`：可编辑矢量源文件。
 - `assets/svg/v0.3.0/`：战斗场景、三敌人、八卡面与状态图标的 v0.3.0 矢量源。
-- `assets/game/v0.3.0/`：等待主线程迁移到 `assets/game/` 的正式 PNG 候选。
+- `../assets/game/v0.3.0/`：已由主线程迁移的 v0.3.0 正式 PNG。
+- `assets/svg/v0.4.0/`：身份、祈愿、奖励、升级图标与卡背的 v0.4.0 矢量源。
+- `assets/game/v0.4.0/`：等待主线程迁移到 `../assets/game/v0.4.0/` 的 PNG 候选。
 - `../assets/game/`：已经渲染的 1:1 PNG，是 Godot 运行时唯一的正式 PNG 来源。
 - `preview/contact-sheet.html`：在浏览器中查看整套样张。
 - `tools/generate_art.mjs`：重新生成占位资产的脚本。
@@ -28,6 +30,14 @@ node art/tools/generate_v030_art.mjs
 ```
 
 生成清单见 `assets/game/v0.3.0/render-manifest.json`，其中路径以 `art/` 为基准。
+
+v0.4.0 短循环候选：
+
+```powershell
+node art/tools/generate_v040_art.mjs
+```
+
+脚本只使用 Node.js 内置模块和本机 Edge 无头渲染，不安装额外依赖。生成清单为 `assets/game/v0.4.0/render-manifest.json`，审稿拼图为 `assets/game/v0.4.0/contact-sheet.png`。
 
 ## PNG 导出
 

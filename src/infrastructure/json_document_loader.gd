@@ -1,7 +1,7 @@
 class_name JsonDocumentLoader
 extends RefCounted
 
-const SUPPORTED_SCHEMA_VERSION := 1
+const SUPPORTED_SCHEMA_VERSION := 2
 const SchemaValidatorScript := preload("res://src/infrastructure/schema_validator.gd")
 
 

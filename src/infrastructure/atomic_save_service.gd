@@ -3,19 +3,25 @@ extends RefCounted
 
 const DEFAULT_DIRECTORY := "user://saves"
 const DEFAULT_SAVE_VERSION := 1
+const DEFAULT_SAVE_SCHEMA_PATH := "res://data/schema/v0.2.0/save.schema.json"
 const _SLOT_PATTERN := "^[a-z0-9_]{1,64}$"
-const SAVE_SCHEMA_PATH := "res://data/schema/v0.2.0/save.schema.json"
 const SchemaValidatorScript := preload("res://src/infrastructure/schema_validator.gd")
 
 var directory: String
 var current_save_version: int
+var save_schema_path: String
 
 var _migrations: Dictionary = {}
 
 
-func _init(save_directory: String = DEFAULT_DIRECTORY, supported_version: int = DEFAULT_SAVE_VERSION) -> void:
+func _init(
+	save_directory: String = DEFAULT_DIRECTORY,
+	supported_version: int = DEFAULT_SAVE_VERSION,
+	schema_path: String = DEFAULT_SAVE_SCHEMA_PATH
+) -> void:
 	directory = save_directory.trim_suffix("/")
 	current_save_version = supported_version
+	save_schema_path = schema_path
 
 
 func register_migration(from_version: int, migrator: Callable) -> InfrastructureResult:
@@ -188,7 +194,7 @@ func validate_envelope(envelope: Dictionary, expected_version: int = -1) -> Infr
 			"Save version does not match the version being written.",
 			{"expected": expected_version, "actual": int(save_version)}
 		)
-	var schema_result = SchemaValidatorScript.new().validate_document(envelope, SAVE_SCHEMA_PATH)
+	var schema_result = SchemaValidatorScript.new().validate_document(envelope, save_schema_path)
 	if not schema_result.ok:
 		return InfrastructureResult.failure(
 			&"invalid_save_schema",

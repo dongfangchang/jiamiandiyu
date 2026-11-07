@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.4.0 local save envelope",
+  "type": "object",
+  "required": [
+    "save_version",
+    "content_version",
+    "created_at",
+    "rng_seed",
+    "profile",
+    "run",
+    "collection",
+    "progression"
+  ],
+  "properties": {
+    "save_version": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T"
+    },
+    "rng_seed": {
+      "type": "integer"
+    },
+    "profile": {
+      "type": "object"
+    },
+    "run": {
+      "type": "object"
+    },
+    "collection": {
+      "type": "object"
+    },
+    "progression": {
+      "type": "object",
+      "required": [
+        "phase",
+        "identity_id",
+        "divination_tickets",
+        "collection",
+        "pity_counter",
+        "reward_option_ids",
+        "last_battle_outcome",
+        "last_gacha_results",
+        "revision"
+      ],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "identity_selection",
+            "hub",
+            "reward"
+          ]
+        },
+        "identity_id": {
+          "type": "string"
+        },
+        "divination_tickets": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "collection": {
+          "type": "object"
+        },
+        "pity_counter": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reward_option_ids": {
+          "type": "array"
+        },
+        "last_battle_outcome": {
+          "type": "string"
+        },
+        "last_gacha_results": {
+          "type": "array"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

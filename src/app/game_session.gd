@@ -21,6 +21,8 @@ var _deck_definition_ids: Array[String] = []
 var _last_saved_key: String = ""
 var _starting_sequence: int = 9
 var _pathway_id: String = "seer"
+var _progression: RefCounted
+var _auto_save_on_end: bool
 
 
 func _init(
@@ -31,14 +33,23 @@ func _init(
 	random: BattleRandomPort,
 	run_seed: int,
 	selected_encounter_id: StringName,
-	save_slot: String
+	save_slot: String,
+	progression: RefCounted = null,
+	content_version_override: String = "",
+	auto_save_on_end: bool = true
 ) -> void:
 	services = app_services
 	catalog = content_catalog
+	_progression = progression
+	_auto_save_on_end = auto_save_on_end
 	root_seed = run_seed
 	encounter_id = selected_encounter_id
 	checkpoint_slot = save_slot
-	_content_version = content_catalog.content_version
+	_content_version = (
+		content_version_override
+		if not content_version_override.is_empty()
+		else content_catalog.content_version
+	)
 	var advancement: Variant = balance.get_value(&"progression.sequence_9_to_8_requirements")
 	if advancement is Dictionary:
 		_starting_sequence = int(advancement.get("from_sequence", _starting_sequence))
@@ -48,8 +59,15 @@ func _init(
 		return
 	encounter_name = String(resolved.data.get("display_name_zh", String(encounter_id)))
 	_deck_definition_ids.assign(resolved.data.get("deck_definition_ids", []))
+	if _progression != null:
+		_deck_definition_ids.assign(
+			_progression.build_owned_battle_deck(_deck_definition_ids)
+		)
+		content = _progression.create_upgraded_content(content)
 	battle_id = StringName("%s.%d" % [String(encounter_id), run_seed])
 	var player_state := _build_player_state(balance)
+	if _progression != null:
+		player_state = _progression.apply_battle_modifiers(player_state)
 	_engine.initialize(
 		content,
 		balance,
@@ -79,11 +97,15 @@ func query_card_play(
 
 func submit(command: BattleCommand) -> BattleCommandResult:
 	var result = _engine.submit(command)
-	if result.accepted and result.snapshot != null:
+	if _auto_save_on_end and result.accepted and result.snapshot != null:
 		var outcome := String(result.snapshot.data.get("outcome", ""))
 		if outcome in ENDED_OUTCOMES:
 			last_checkpoint_result = save_checkpoint(result.snapshot)
 	return result
+
+
+func get_deck_definition_ids() -> Array[String]:
+	return _deck_definition_ids.duplicate()
 
 
 func save_checkpoint(snapshot: BattleSnapshot = null) -> InfrastructureResult:

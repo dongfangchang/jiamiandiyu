@@ -3,7 +3,12 @@ extends Node
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const ResultScreenScene := preload("res://scenes/ui/result_screen.tscn")
+const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
+const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
+const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
+const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
+const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 
 const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
@@ -13,6 +18,10 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIRECTORY))
 	await get_tree().process_frame
 	await _capture_start()
+	await _capture_identity()
+	await _capture_reward()
+	await _capture_gacha()
+	await _capture_upgrade()
 	await _capture_battle()
 	await _capture_result()
 	get_tree().quit(0)
@@ -22,15 +31,96 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.3.0",
+		"content_version": "v0.4.0",
 		"sequence": 9,
-		"deck_size": 8,
+		"deck_size": 12,
+		"identity_id": "identity.reporter",
+		"divination_tickets": 7,
+		"collection_count": 6,
+		"pity_counter": 2,
+		"rare_pity": 4,
 		"created_at": "2026-11-08T02:30:00Z",
 		"last_battle": {"outcome": "victory", "round_number": 5},
 	})
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("start_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_identity() -> void:
+	var screen = IdentityScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_progression_snapshot({
+		"phase": "identity_selection",
+		"identity_id": "",
+		"identity_options": _identity_options(""),
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("identity_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_reward() -> void:
+	var screen = RewardScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_progression_snapshot({
+		"phase": "reward",
+		"identity_options": _identity_options("identity.reporter"),
+		"reward_options": [
+			{"id": "reward.divination_tickets", "display_name_zh": "灵界占卜券", "kind": "divination_tickets", "amount": 3},
+			{"id": "reward.ink_dart_fragments", "display_name_zh": "墨刺残页", "kind": "card_fragments", "amount": 6},
+		],
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("reward_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_gacha() -> void:
+	var screen = GachaScreenScene.instantiate()
+	add_child(screen)
+	screen.configure(_card_names())
+	screen.apply_snapshot(_progression_snapshot({
+		"last_gacha_results": [
+			{"definition_id": "card.skill.paper_guard", "rarity": "common", "duplicate": true, "fragments": 6},
+			{"definition_id": "card.skill.omen", "rarity": "rare", "duplicate": false, "fragments": 0},
+			{"definition_id": "card.skill.insight", "rarity": "common", "duplicate": false, "fragments": 0},
+		],
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("gacha_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_upgrade() -> void:
+	var screen = UpgradeScreenScene.instantiate()
+	add_child(screen)
+	screen.configure(_card_names(), {
+		"card.skill.ink_dart": ["造成 4 点伤害", "造成 5 点伤害", "造成 6 点伤害", "造成 7 点伤害"],
+		"card.skill.paper_guard": ["获得 5 点护盾", "获得 6 点护盾", "获得 7 点护盾", "获得 8 点护盾"],
+		"card.skill.calm_breath": ["恢复 4 点生命", "恢复 5 点生命", "恢复 6 点生命", "恢复 7 点生命"],
+		"card.skill.focus": ["获得 1 点灵性", "获得 2 点灵性", "获得 3 点灵性", "获得 4 点灵性"],
+	})
+	screen.apply_snapshot(_progression_snapshot({
+		"divination_tickets": 4,
+		"collection": [
+			{"definition_id": "card.skill.ink_dart", "copies": 3, "level": 1, "fragments": 8, "max_level": 3, "next_upgrade_cost": 12},
+			{"definition_id": "card.skill.paper_guard", "copies": 2, "level": 0, "fragments": 6, "max_level": 3, "next_upgrade_cost": 6},
+			{"definition_id": "card.skill.calm_breath", "copies": 2, "level": 2, "fragments": 24, "max_level": 3, "next_upgrade_cost": 24},
+			{"definition_id": "card.skill.focus", "copies": 1, "level": 0, "fragments": 2, "max_level": 3, "next_upgrade_cost": 6},
+		],
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("upgrade_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -78,6 +168,51 @@ func _save_capture(file_name: String) -> void:
 	var path := ProjectSettings.globalize_path(OUTPUT_DIRECTORY.path_join(file_name))
 	var error := image.save_png(path)
 	print("CAPTURE=%s RESULT=%s" % [path, error])
+
+
+func _progression_snapshot(overrides: Dictionary) -> ProgressionSnapshot:
+	var data := {
+		"revision": 8,
+		"phase": "hub",
+		"identity_id": "identity.reporter",
+		"identity_options": _identity_options("identity.reporter"),
+		"battle_modifiers": {"starting_attention": -1},
+		"divination_tickets": 7,
+		"collection": [
+			{"definition_id": "card.skill.ink_dart", "copies": 2, "level": 0, "fragments": 4, "max_level": 3, "next_upgrade_cost": 6},
+		],
+		"pity_counter": 2,
+		"rare_pity": 4,
+		"gacha_costs": {"single": 2, "triple": 5},
+		"rarity_weights": {"common": 85, "rare": 15},
+		"reward_options": [],
+		"last_battle_outcome": "victory",
+		"last_gacha_results": [],
+	}
+	for key in overrides:
+		data[key] = overrides[key]
+	return ProgressionSnapshotScript.new(data)
+
+
+func _identity_options(selected_id: String) -> Array:
+	return [
+		{"id": "identity.reporter", "display_name_zh": "记者", "description_zh": "维持调查网络，以一篇报道换取更多线索。", "battle_modifiers": {"starting_attention": -1}, "selected": selected_id == "identity.reporter"},
+		{"id": "identity.doctor", "display_name_zh": "医生", "description_zh": "熟悉身体与污染的边界，以更好的体魄进入战斗。", "battle_modifiers": {"max_hp_bonus": 4}, "selected": selected_id == "identity.doctor"},
+		{"id": "identity.gravedigger", "display_name_zh": "守墓人", "description_zh": "替遗忘的名字收殓，能从重复的命运中拾取更多残片。", "battle_modifiers": {}, "selected": selected_id == "identity.gravedigger"},
+	]
+
+
+func _card_names() -> Dictionary:
+	return {
+		"card.skill.ink_dart": "墨刺",
+		"card.skill.paper_guard": "纸符护持",
+		"card.skill.calm_breath": "静息",
+		"card.skill.focus": "凝神",
+		"card.skill.insight": "洞察",
+		"card.skill.omen": "凶兆",
+		"card.skill.whisper": "低语",
+		"card.skill.second_look": "再看一眼",
+	}
 
 
 func _battle_snapshot() -> BattleSnapshot:

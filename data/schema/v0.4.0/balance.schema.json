@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.4.0 global balance",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "status",
+    "player",
+    "combat",
+    "progression",
+    "gacha",
+    "upgrade",
+    "reward"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "player": {
+      "type": "object",
+      "required": [
+        "max_health",
+        "starting_health",
+        "spirit_per_turn",
+        "starting_hand",
+        "turn_draw_to_hand_size",
+        "max_hand_size",
+        "corruption",
+        "attention"
+      ]
+    },
+    "combat": {
+      "type": "object",
+      "required": [
+        "max_rounds",
+        "enemy_pressure"
+      ]
+    },
+    "progression": {
+      "type": "object",
+      "required": [
+        "starting_divination_tickets"
+      ],
+      "properties": {
+        "starting_divination_tickets": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "gacha": {
+      "type": "object",
+      "required": [
+        "single_cost",
+        "triple_cost",
+        "pulls_per_triple",
+        "rare_pity",
+        "rarity_weights",
+        "duplicate_fragments"
+      ],
+      "properties": {
+        "single_cost": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "triple_cost": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pulls_per_triple": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rare_pity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rarity_weights": {
+          "type": "object"
+        },
+        "duplicate_fragments": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "upgrade": {
+      "type": "object",
+      "required": [
+        "cost_by_next_level"
+      ],
+      "properties": {
+        "cost_by_next_level": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "reward": {
+      "type": "object",
+      "required": [
+        "amounts"
+      ],
+      "properties": {
+        "amounts": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

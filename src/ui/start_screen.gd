@@ -11,6 +11,7 @@ var _continue_button: Button
 var _new_game_button: Button
 var _status_label: Label
 var _summary_label: Label
+var _version_label: Label
 var _busy := false
 var _checkpoint_status := "none"
 
@@ -32,16 +33,36 @@ func show_checkpoint_status(
 	_busy = false
 	_continue_button.disabled = status != "loaded"
 	_new_game_button.disabled = false
+	_version_label.text = "本地原型  /  WHISPERS BENEATH THE MASK"
 	match status:
 		"loaded":
 			_continue_button.disabled = false
-			_status_label.text = "检测到战后检查点"
+			_status_label.text = "检测到可继续的检查点"
 			var last_battle: Dictionary = summary.get("last_battle", {})
-			_summary_label.text = "内容 %s  ·  序列 %d  ·  牌组 %d 张\n上一场：%s / 第 %d 回合\n保存于 %s" % [
-				String(summary.get("content_version", "未知")),
+			var identity_name := _identity_name(String(summary.get("identity_id", "")))
+			var tickets := _optional_int(summary, ["divination_tickets"])
+			var collection_count := _optional_int(
+				summary,
+				["collection_count", "owned_card_count", "unique_owned_count"]
+			)
+			var pity_current := _optional_int(summary, ["pity_counter", "rare_pity_counter"])
+			var pity_limit := _optional_int(summary, ["rare_pity", "pity_limit"])
+			var content_version := String(summary.get("content_version", ""))
+			if not content_version.is_empty():
+				_version_label.text = content_version + "  /  WHISPERS BENEATH THE MASK"
+			_summary_label.text = (
+				"身份：%s  ·  序列 %d  ·  牌组 %d 张\n"
+				+ "占卜券：%s  ·  稀有保底：%s\n"
+				+ "收藏：%s\n"
+				+ "上一场：%s / 第 %d 回合  ·  保存于 %s"
+			) % [
+				identity_name,
 				int(summary.get("sequence", 0)),
 				int(summary.get("deck_size", 0)),
-				String(last_battle.get("outcome", "未知")),
+				_format_value(tickets),
+				_format_pity(pity_current, pity_limit),
+				_format_value(collection_count),
+				_outcome_text(String(last_battle.get("outcome", ""))),
 				int(last_battle.get("round_number", 0)),
 				String(summary.get("created_at", "未知")),
 			]
@@ -54,7 +75,18 @@ func show_checkpoint_status(
 		_:
 			_continue_button.disabled = true
 			_status_label.text = "尚未建立检查点"
-			_summary_label.text = "开始新游戏以进入第一场战斗。战斗中退出会回到最近检查点。"
+			_summary_label.text = (
+				"身份：未选择  ·  占卜券：3（新游戏初始）\n"
+				+ "开始新游戏以选择白昼身份。战斗中退出会回到最近检查点。"
+			)
+
+
+func get_summary_text() -> String:
+	return _summary_label.text if is_instance_valid(_summary_label) else ""
+
+
+func get_version_text() -> String:
+	return _version_label.text if is_instance_valid(_version_label) else ""
 
 
 func set_busy(busy: bool) -> void:
@@ -116,11 +148,12 @@ func _build() -> void:
 	var footer_spacer := Control.new()
 	footer_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(footer_spacer)
-	footer.add_child(UiTheme.label(
-		"v0.3.0  /  WHISPERS BENEATH THE MASK",
+	_version_label = UiTheme.label(
+		"本地原型  /  WHISPERS BENEATH THE MASK",
 		12,
 		UiTheme.C_GOLD
-	))
+	)
+	footer.add_child(_version_label)
 
 
 func _build_panel_content() -> VBoxContainer:
@@ -145,7 +178,7 @@ func _build_panel_content() -> VBoxContainer:
 	_status_label = UiTheme.label("正在检查本地进度……", 16, UiTheme.C_TEXT)
 	content.add_child(_status_label)
 	_summary_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
-	_summary_label.custom_minimum_size = Vector2(0, 66)
+	_summary_label.custom_minimum_size = Vector2(0, 112)
 	content.add_child(_summary_label)
 
 	var actions := HBoxContainer.new()
@@ -184,3 +217,50 @@ func _on_quit() -> void:
 	if _busy:
 		return
 	quit_requested.emit()
+
+
+func _identity_name(identity_id: String) -> String:
+	match identity_id:
+		"identity.reporter":
+			return "记者"
+		"identity.doctor":
+			return "医生"
+		"identity.gravedigger":
+			return "守墓人"
+		"":
+			return "未选择"
+		_:
+			return identity_id
+
+
+func _outcome_text(outcome: String) -> String:
+	match outcome:
+		"victory":
+			return "胜利"
+		"defeat":
+			return "失败"
+		"":
+			return "暂无战斗记录"
+		_:
+			return outcome
+
+
+func _optional_int(summary: Dictionary, keys: Array[String]) -> int:
+	for key in keys:
+		if summary.has(key):
+			return int(summary[key])
+	return -1
+
+
+func _format_value(value: int) -> String:
+	return str(value) if value >= 0 else "摘要未提供"
+
+
+func _format_pity(current: int, limit: int) -> String:
+	if current >= 0 and limit > 0:
+		return "%d/%d" % [current, limit]
+	if current >= 0:
+		return str(current)
+	if limit > 0:
+		return "上限 %d" % limit
+	return "摘要未提供"

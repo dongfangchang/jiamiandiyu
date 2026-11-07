@@ -25,15 +25,46 @@ func _test_start_screen() -> void:
 	add_child(screen)
 	await get_tree().process_frame
 	_expect(not screen.is_continue_enabled(), "continue disabled with no checkpoint")
+	_expect(
+		screen.get_version_text().contains("本地原型"),
+		"start screen avoids a stale version label without a checkpoint"
+	)
+	_expect(
+		not screen.get_version_text().contains("v0.3.0"),
+		"start screen no longer shows the stale v0.3 version"
+	)
+	_expect(
+		screen.get_summary_text().contains("未选择"),
+		"no-checkpoint summary avoids inventing an identity"
+	)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.3.0",
+		"content_version": "v0.4.0",
 		"sequence": 9,
 		"deck_size": 8,
+		"identity_id": "identity.reporter",
+		"divination_tickets": 7,
+		"collection_count": 6,
+		"pity_counter": 2,
+		"rare_pity": 4,
 		"created_at": "2026-11-08T00:00:00Z",
 		"last_battle": {"outcome": "victory", "round_number": 4},
 	})
 	_expect(screen.is_continue_enabled(), "continue enabled with loaded checkpoint")
 	_expect(screen.get_status_text().contains("检查点"), "start screen shows checkpoint status")
+	_expect(
+		screen.get_version_text().contains("v0.4.0"),
+		"loaded summary drives the displayed content version"
+	)
+	_expect(screen.get_summary_text().contains("记者"), "summary shows resolved identity")
+	_expect(screen.get_summary_text().contains("占卜券：7"), "summary shows ticket count")
+	_expect(screen.get_summary_text().contains("2/4"), "summary shows pity progress")
+	_expect(screen.get_summary_text().contains("收藏：6"), "summary shows collection count")
+	screen.show_checkpoint_status("corrupt", {}, "checksum mismatch")
+	_expect(not screen.is_continue_enabled(), "corrupt checkpoint disables continue")
+	_expect(
+		screen.get_summary_text().contains("原始存档已保留"),
+		"corrupt checkpoint explains the safe state"
+	)
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -129,6 +160,14 @@ func _test_result_screen() -> void:
 	_expect(screen.get_result_text() == "胜利", "result screen displays victory")
 	_expect(screen.get_save_text().contains("已保存"), "result screen displays save confirmation")
 	_expect(screen.is_return_enabled(), "result screen enables return")
+	snapshot.data["outcome"] = "defeat"
+	snapshot.data["outcome_reason"] = "player_died"
+	screen.show_result(snapshot, "廷根旧宅", "saved")
+	_expect(screen.get_result_text() == "失败", "result screen displays defeat")
+	_expect(
+		screen.get_retry_text() == "返回白昼档案",
+		"defeat navigation matches the actual hub destination"
+	)
 	screen.queue_free()
 	await get_tree().process_frame
 

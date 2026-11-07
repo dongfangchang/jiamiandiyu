@@ -1,0 +1,81 @@
+{
+	"assumption": "teaching_battle_victory",
+	"balance_source": "res://data/balance/v0.4.0/balance.json",
+	"base_cards_source": "res://data/cards/v0.3.0/cards.json",
+	"model": "deterministic_economy",
+	"progression_source": "res://data/cards/v0.4.0/progression.json",
+	"root_seed": 20261108,
+	"samples_per_strategy": 1000,
+	"strategies": [
+		{
+			"averages": {
+				"active_loop_rate": 1.0,
+				"active_loops": 1.0,
+				"duplicates": 2.935,
+				"fragments_earned": 17.61,
+				"fragments_remaining": 11.634,
+				"fragments_spent": 5.976,
+				"loops_with_pulls": 1.0,
+				"loops_with_upgrade": 0.996,
+				"new_cards": 1.065,
+				"pity_forced": 0.608,
+				"pulls": 4.0,
+				"tickets_earned": 7.0,
+				"tickets_remaining": 0.0,
+				"tickets_spent": 7.0,
+				"upgrades_completed": 0.996
+			},
+			"id": "ticket_route_reporter",
+			"identity_id": "identity.reporter",
+			"reward_id": "reward.divination_tickets",
+			"valid_loops": 1000
+		},
+		{
+			"averages": {
+				"active_loop_rate": 1.0,
+				"active_loops": 1.0,
+				"duplicates": 0.0,
+				"fragments_earned": 6.0,
+				"fragments_remaining": 0.0,
+				"fragments_spent": 6.0,
+				"loops_with_pulls": 0.0,
+				"loops_with_upgrade": 1.0,
+				"new_cards": 0.0,
+				"pity_forced": 0.0,
+				"pulls": 0.0,
+				"tickets_earned": 3.0,
+				"tickets_remaining": 3.0,
+				"tickets_spent": 0.0,
+				"upgrades_completed": 1.0
+			},
+			"id": "upgrade_route_doctor",
+			"identity_id": "identity.doctor",
+			"reward_id": "reward.ink_dart_fragments",
+			"valid_loops": 1000
+		},
+		{
+			"averages": {
+				"active_loop_rate": 1.0,
+				"active_loops": 1.0,
+				"duplicates": 2.578,
+				"fragments_earned": 20.624,
+				"fragments_remaining": 14.714,
+				"fragments_spent": 5.91,
+				"loops_with_pulls": 1.0,
+				"loops_with_upgrade": 0.985,
+				"new_cards": 0.422,
+				"pity_forced": 0.0,
+				"pulls": 3.0,
+				"tickets_earned": 6.0,
+				"tickets_remaining": 1.0,
+				"tickets_spent": 5.0,
+				"upgrades_completed": 0.985
+			},
+			"id": "fragment_route_gravedigger",
+			"identity_id": "identity.gravedigger",
+			"reward_id": "reward.divination_tickets",
+			"valid_loops": 1000
+		}
+	],
+	"version": "v0.4.0"
+}

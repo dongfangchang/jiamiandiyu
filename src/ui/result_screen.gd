@@ -43,6 +43,7 @@ func show_result(
 		_reason_text(String(data.get("outcome_reason", ""))),
 	]
 	_apply_save_status(save_status, save_message)
+	_retry_button.text = "返回白昼档案"
 	_retry_button.disabled = false
 	_return_button.disabled = false
 
@@ -58,6 +59,10 @@ func get_result_text() -> String:
 
 func get_save_text() -> String:
 	return _save_label.text if is_instance_valid(_save_label) else ""
+
+
+func get_retry_text() -> String:
+	return _retry_button.text if is_instance_valid(_retry_button) else ""
 
 
 func is_return_enabled() -> bool:

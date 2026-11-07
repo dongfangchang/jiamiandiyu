@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="640" viewBox="0 0 512 640">
+  <defs>
+    <radialGradient id="paperWash" cx="43%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F0E3C5"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10140f"/>
+      <stop offset=".52" stop-color="#29302a"/>
+      <stop offset="1" stop-color="#0a0d0b"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6CF8F"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5F4927"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="3" seed="41" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    <clipPath id="portraitClip"><rect x="43" y="102" width="426" height="389"/></clipPath>
+  </defs>
+
+
+    <rect width="512" height="640" fill="url(#paperWash)" filter="url(#grain)"/>
+    <rect width="512" height="640" fill="url(#hatch)"/>
+    <circle cx="92.16" cy="102.4" r="143.36" fill="#E8DFC9" opacity=".11"/>
+    <path d="M0 537.6 C117.76 486.4, 209.92 582.4, 307.2 524.8 S430.08 492.8, 512 550.4"
+      fill="none" stroke="#211D18" stroke-width="1.2" opacity=".12"/>
+
+    <rect x="43" y="102" width="426" height="389" fill="#3A3731" opacity=".075" stroke="#211D18" stroke-width="1.5"/>
+    <g clip-path="url(#portraitClip)">
+    <circle cx="256" cy="275" r="169" fill="none" stroke="#788079" stroke-width="1.2" opacity=".35"/>
+    <path d="M66 450 C143 381 204 420 256 367 S369 339 451 407" fill="none" stroke="#788079" stroke-width="17" opacity=".2"/>
+    <path d="M186 173 C211 140 287 139 316 178 L298 210 H204Z" fill="#211D18"/>
+    <ellipse cx="256" cy="268" rx="57" ry="70" fill="#3A3731"/>
+    <path d="M201 258 C219 220 245 208 271 214 C302 221 319 247 322 269 C293 251 274 253 250 262 C229 269 214 268 201 258Z"
+      fill="#AF9165" opacity=".34"/>
+    <path d="M124 502 C138 397 188 325 256 322 C327 324 374 398 388 502Z" fill="#D8C29A" stroke="#211D18" stroke-width="3"/>
+    <path d="M205 327 C224 360 289 360 307 327" fill="none" stroke="#211D18" stroke-width="2"/>
+    <path d="M256 331 V501" stroke="#211D18" stroke-width="1.6" opacity=".58"/>
+    <path d="M206 347 L188 502 M306 347 L326 502" stroke="#211D18" stroke-width="4"/>
+    <path d="M324 388 C373 402 409 430 432 468" fill="none" stroke="#B99750" stroke-width="3"/>
+    <circle cx="432" cy="468" r="34" fill="none" stroke="#B99750" stroke-width="5"/>
+    <circle cx="432" cy="468" r="20" fill="#211D18" opacity=".7"/>
+    <path d="M105 383 C117 355 139 345 161 359 L167 388 C151 410 127 411 108 395Z" fill="#788079" opacity=".45" stroke="#211D18" stroke-width="2"/>
+    <path d="M121 383 H154 V417 H121Z" fill="#AF9165" stroke="#211D18" stroke-width="2"/>
+    <path d="M137 417 V448" stroke="#7A2828" stroke-width="4"/>
+    <circle cx="137" cy="454" r="6" fill="#7A2828"/>
+    <path d="M286 180 C308 151 342 151 361 178" fill="none" stroke="#B99750" stroke-width="2" opacity=".6"/>
+    <path d="M84 522 C185 491 334 496 430 524" fill="none" stroke="#211D18" stroke-width="1.2" opacity=".35"/>
+  </g>
+
+    <rect x="18" y="18" width="476" height="604" rx="4" fill="none" stroke="#211D18" stroke-width="5"/>
+    <rect x="28" y="28" width="456" height="584" rx="3" fill="none" stroke="#B99750" stroke-width="2"/>
+    <path d="M18 62 L62 18 M450 18 L494 62 M18 578 L62 622 M450 622 L494 578"
+      fill="none" stroke="url(#brass)" stroke-width="5"/>
+    <circle cx="256" cy="16" r="6" fill="#7A2828" stroke="#211D18" stroke-width="1"/>
+    <path d="M208 584 H304" stroke="#7A2828" stroke-width="4"/>
+
+
+</svg>

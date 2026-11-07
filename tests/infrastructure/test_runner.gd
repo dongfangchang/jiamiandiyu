@@ -10,6 +10,8 @@ const BattleRandomAdapterScript := preload("res://src/infrastructure/battle_rand
 const BattleBalanceAdapterScript := preload("res://src/infrastructure/battle_balance_adapter.gd")
 const BattleContentAdapterScript := preload("res://src/infrastructure/battle_content_adapter.gd")
 const CampaignContentCatalogScript := preload("res://src/infrastructure/campaign_content_catalog.gd")
+const ProgressionContentAdapterScript := preload("res://src/infrastructure/progression_content_adapter.gd")
+const SaveMigrationsScript := preload("res://src/infrastructure/save_migrations.gd")
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
 
 const TEST_ROOT := "user://mask_whispers_infrastructure_tests"
@@ -37,6 +39,8 @@ func _initialize() -> void:
 	_test_campaign_catalog_and_cross_references()
 	_test_formal_v03_content_startup()
 	_test_game_session_and_checkpoint()
+	_test_v04_schemas_adapters_and_campaign()
+	_test_v1_to_v2_campaign_migration()
 	_remove_tree(TEST_ROOT)
 
 	if _failures.is_empty():
@@ -506,7 +510,10 @@ func _test_game_session_and_checkpoint() -> void:
 	)
 	if inspected.ok and inspected.data.status == "loaded":
 		var checkpoint: Dictionary = inspected.data.checkpoint
-		_expect(checkpoint.content_version == "v0.3.0-test", "checkpoint should store content version")
+		_expect(
+			checkpoint.content_version == "v0.4.0",
+			"migrated checkpoint should report the current content version"
+		)
 		_expect(checkpoint.rng_seed == 20261108, "checkpoint should store root seed")
 		_expect(checkpoint.deck_size == 8, "checkpoint should store deck summary")
 		_expect(
@@ -568,6 +575,326 @@ func _test_formal_v03_content_startup() -> void:
 		session.enemy_display_name(&"enemy.weeping_tenant") == "哭泣的房客",
 		"session should expose formal enemy display names"
 	)
+
+
+func _test_v04_schemas_adapters_and_campaign() -> void:
+	var loader = JsonDocumentLoaderScript.new()
+	var balance_result = loader.load_document(
+		"res://data/balance/v0.4.0/balance.json",
+		"res://data/schema/v0.4.0/balance.schema.json"
+	)
+	_expect(balance_result.ok, "v0.4 balance should pass its schema")
+	var progression_result = loader.load_document(
+		"res://data/cards/v0.4.0/progression.json",
+		"res://data/schema/v0.4.0/progression.schema.json"
+	)
+	_expect(progression_result.ok, "v0.4 progression should pass its schema")
+	if not balance_result.ok or not progression_result.ok:
+		return
+	_expect(
+		int(balance_result.data.schema_version) == 2,
+		"v0.4 balance should use schema version two"
+	)
+	var invalid_balance: Dictionary = balance_result.data.duplicate(true)
+	invalid_balance.erase("progression")
+	_expect(
+		not SchemaValidatorScript.new().validate_document(
+			invalid_balance,
+			"res://data/schema/v0.4.0/balance.schema.json"
+		).ok,
+		"v0.4 balance schema should reject missing progression parameters"
+	)
+	var invalid_progression: Dictionary = progression_result.data.duplicate(true)
+	invalid_progression.gacha_pool[0].rarity = "legendary"
+	_expect(
+		not SchemaValidatorScript.new().validate_document(
+			invalid_progression,
+			"res://data/schema/v0.4.0/progression.schema.json"
+		).ok,
+		"v0.4 progression schema should reject unsupported rarities"
+	)
+
+	var cards_result = loader.load_document(
+		"res://data/cards/v0.3.0/cards.json",
+		"res://data/schema/v0.3.0/cards.schema.json"
+	)
+	_expect(cards_result.ok, "base cards should load for progression adapter")
+	if not cards_result.ok:
+		return
+	var base_content = BattleContentAdapterScript.new(cards_result.data.get("cards", []))
+	var balance = BattleBalanceAdapterScript.new(balance_result.data)
+	_expect(
+		balance.get_value(&"progression.starting_divination_tickets") == 3,
+		"balance adapter should map starting divination tickets"
+	)
+	_expect(
+		balance.get_value(&"gacha.single_cost") == 2,
+		"balance adapter should map gacha single cost"
+	)
+	_expect(
+		balance.get_value(&"gacha.rare_pity") == 4,
+		"balance adapter should map rare pity"
+	)
+	_expect(
+		balance.get_value(&"upgrade.cost_by_next_level").get("1", -1) == 6,
+		"balance adapter should map upgrade costs"
+	)
+
+	var progression_content = ProgressionContentAdapterScript.new(
+		progression_result.data,
+		base_content
+	)
+	_expect(
+		progression_content.get_identity_options().size() == 3,
+		"progression adapter should expose three identities"
+	)
+	_expect(
+		progression_content.get_starter_card_ids().size() == 6,
+		"progression adapter should expose six starter cards"
+	)
+	_expect(
+		progression_content.has_card_definition(&"card.skill.ink_dart"),
+		"progression adapter should resolve formal base card references"
+	)
+	_expect(
+		not progression_content.has_card_definition(&"card.missing"),
+		"progression adapter should reject missing base card references"
+	)
+
+	var campaign_directory := TEST_SAVE_DIRECTORY.path_join("campaign")
+	var campaign_paths := _v04_paths(campaign_directory)
+	var started = AppBootstrapScript.start_campaign(
+		20261108,
+		&"encounter.first_hunt",
+		campaign_paths,
+		"campaign_checkpoint"
+	)
+	if not started.ok:
+		print("CAMPAIGN_START_FAILED code=%s details=%s" % [started.code, started.details])
+	_expect(started.ok, "v0.4 campaign should start from formal content")
+	if not started.ok:
+		return
+	var campaign = started.data
+	_expect(campaign.is_ready(), "v0.4 campaign session should be ready")
+	_expect(
+		campaign.get_progression_snapshot().data.phase == "identity_selection",
+		"new campaign should begin at identity selection"
+	)
+	var selected = campaign.submit_progression(
+		ProgressionCommand.select_identity(&"identity.doctor")
+	)
+	_expect(selected.accepted, "campaign should accept identity selection")
+	_expect(
+		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
+		"identity selection should persist a checkpoint"
+	)
+	var began = campaign.begin_battle()
+	_expect(began.ok, "campaign should begin a battle after identity selection")
+	if not began.ok:
+		return
+	_expect(
+		campaign.get_battle_snapshot().data.player.max_hp == 58,
+		"doctor identity modifier should reach the real battle"
+	)
+	var battle_deck: Array = campaign.get_battle_session().get_deck_definition_ids()
+	_expect(battle_deck.size() > 0, "campaign battle should have an owned deck")
+	_expect(
+		not "card.skill.omen" in battle_deck and not "card.skill.whisper" in battle_deck,
+		"unowned gacha cards must be filtered from the first battle"
+	)
+
+	var outcome := _play_campaign_battle_to_end(campaign)
+	_expect(outcome == "victory", "formal first hunt should be won by normal card play")
+	_expect(
+		campaign.get_progression_snapshot().data.phase == "reward",
+		"battle victory should enter reward selection"
+	)
+	var claimed = campaign.submit_progression(
+		ProgressionCommand.claim_reward(&"reward.ink_dart_fragments")
+	)
+	_expect(claimed.accepted, "campaign should claim fragment reward")
+	var upgraded = campaign.submit_progression(
+		ProgressionCommand.upgrade_card(&"card.skill.ink_dart")
+	)
+	_expect(upgraded.accepted, "campaign reward should fund one visible upgrade")
+	var upgraded_state := _progression_collection_item(
+		upgraded.snapshot,
+		&"card.skill.ink_dart"
+	)
+	_expect(int(upgraded_state.get("level", 0)) == 1, "campaign upgrade should persist level one")
+	_expect(
+		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
+		"upgrade should persist a v0.4 checkpoint"
+	)
+	var drawn = campaign.submit_progression(
+		ProgressionCommand.draw_gacha(1)
+	)
+	_expect(drawn.accepted, "campaign should run a single gacha draw")
+	_expect(
+		drawn.snapshot.data.last_gacha_results.size() == 1,
+		"campaign should expose one gacha result"
+	)
+	_expect(
+		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
+		"gacha should persist currency, collection and pity"
+	)
+
+	var inspected = AppBootstrapScript.inspect_checkpoint(
+		"campaign_checkpoint",
+		campaign_directory
+	)
+	_expect(inspected.ok, "v0.4 checkpoint should be inspectable")
+	if inspected.ok:
+		_expect(
+			inspected.data.status == "loaded",
+			"v0.4 checkpoint should report loaded"
+		)
+		_expect(
+			inspected.data.checkpoint.identity_id == "identity.doctor",
+			"checkpoint summary should include selected identity"
+		)
+		_expect(
+			int(inspected.data.checkpoint.divination_tickets) >= 0,
+			"checkpoint summary should include divination tickets"
+		)
+
+	var resumed = AppBootstrapScript.start_campaign(
+		0,
+		&"",
+		campaign_paths,
+		"campaign_checkpoint",
+		true
+	)
+	_expect(resumed.ok, "v0.4 campaign should resume from checkpoint")
+	if resumed.ok:
+		var resumed_campaign = resumed.data
+		_expect(
+			resumed_campaign.get_progression_snapshot().data.identity_id == "identity.doctor",
+			"resume should restore the selected identity"
+		)
+		var resumed_ink := _progression_collection_item(
+			resumed_campaign.get_progression_snapshot(),
+			&"card.skill.ink_dart"
+		)
+		_expect(
+			int(resumed_ink.get("level", 0)) == 1,
+			"resume should restore card level"
+		)
+		var next_battle = resumed_campaign.start_next_battle()
+		_expect(next_battle.ok, "resumed campaign should begin another battle")
+
+
+func _test_v1_to_v2_campaign_migration() -> void:
+	var migration_directory := TEST_SAVE_DIRECTORY.path_join("campaign_migration")
+	var slot := "legacy_campaign"
+	var save_service = SaveMigrationsScript.create_v04_service(migration_directory)
+	var legacy := {
+		"save_version": 1,
+		"content_version": "v0.3.0",
+		"created_at": "2026-11-08T00:00:00Z",
+		"rng_seed": 771,
+		"profile": {"pathway": "seer", "sequence": 9},
+		"run": {"checkpoint_kind": "post_battle", "encounter_id": "encounter.first_hunt"},
+		"collection": {},
+	}
+	DirAccess.make_dir_recursive_absolute(
+		ProjectSettings.globalize_path(migration_directory)
+	)
+	var path := save_service.get_slot_path(slot)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(legacy, "  ", true, true))
+	file.close()
+	var loaded = save_service.load_slot(slot)
+	_expect(loaded.ok, "v1 save should migrate through the v0.4 service")
+	if loaded.ok:
+		_expect(
+			int(loaded.data.save_version) == 2,
+			"migrated save should use version two"
+		)
+		_expect(
+			bool(loaded.data.progression.get("migrated_from_v1", false)),
+			"migrated save should mark the progression reset"
+		)
+
+	var resumed = AppBootstrapScript.start_campaign(
+		0,
+		&"",
+		_v04_paths(migration_directory),
+		slot,
+		true
+	)
+	_expect(resumed.ok, "migrated v1 checkpoint should open a v0.4 campaign")
+	if resumed.ok:
+		var snapshot = resumed.data.get_progression_snapshot()
+		_expect(
+			snapshot.data.phase == "identity_selection",
+			"migrated v1 campaign should restart at identity selection"
+		)
+		_expect(
+			int(snapshot.data.divination_tickets) == 3,
+			"migrated campaign should seed v0.4 starter progression"
+		)
+
+
+func _v04_paths(save_directory: String) -> Dictionary:
+	return {
+		"cards": "res://data/cards/v0.3.0/cards.json",
+		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
+		"enemies": "res://data/enemies/v0.3.0/enemies.json",
+		"enemies_schema": "res://data/schema/v0.3.0/enemies.schema.json",
+		"encounters": "res://data/encounters/v0.3.0/encounters.json",
+		"encounters_schema": "res://data/schema/v0.3.0/encounters.schema.json",
+		"balance": "res://data/balance/v0.4.0/balance.json",
+		"balance_schema": "res://data/schema/v0.4.0/balance.schema.json",
+		"progression": "res://data/cards/v0.4.0/progression.json",
+		"progression_schema": "res://data/schema/v0.4.0/progression.schema.json",
+		"save_directory": save_directory,
+	}
+
+
+func _play_campaign_battle_to_end(campaign) -> String:
+	for _turn_index in range(30):
+		var snapshot: BattleSnapshot = campaign.get_battle_snapshot()
+		var outcome := String(snapshot.data.get("outcome", ""))
+		if not outcome.is_empty():
+			return outcome
+		var acted := false
+		var enemies: Array = snapshot.data.get("enemies", [])
+		var target_id: StringName = &""
+		for enemy in enemies:
+			if int(enemy.get("hp", 0)) > 0:
+				target_id = StringName(enemy.get("actor_id", ""))
+				break
+		for card in snapshot.data.get("hand", []):
+			var instance_id := StringName(card.get("instance_id", ""))
+			var card_target: StringName = (
+				target_id
+				if String(card.get("target_type", "none")) == "enemy"
+				else &""
+			)
+			if not campaign.query_card_play(instance_id, card_target).playable:
+				continue
+			var played = campaign.submit_battle(
+				BattleCommand.play_card(instance_id, card_target)
+			)
+			if played.accepted:
+				acted = true
+				break
+		if not acted:
+			var ended = campaign.submit_battle(BattleCommand.end_turn())
+			if not ended.accepted:
+				return "command_rejected"
+	return "turn_limit_test_loop"
+
+
+func _progression_collection_item(
+	snapshot: ProgressionSnapshot,
+	definition_id: StringName
+) -> Dictionary:
+	for item in snapshot.data.get("collection", []):
+		if StringName(item.get("definition_id", "")) == definition_id:
+			return item
+	return {}
 
 
 func _save_envelope(save_version: int, seed_value: int, marker: String) -> Dictionary:

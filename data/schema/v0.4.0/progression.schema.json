@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.4.0 progression content",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "base_cards_version",
+    "identities",
+    "starter_card_ids",
+    "gacha_pool",
+    "reward_options",
+    "upgrade_definitions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base_cards_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identities": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name_zh",
+          "description_zh",
+          "battle_modifiers",
+          "victory_resources"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^identity\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description_zh": {
+            "type": "string"
+          },
+          "battle_modifiers": {
+            "type": "object"
+          },
+          "victory_resources": {
+            "type": "object"
+          },
+          "duplicate_fragment_bonus": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "starter_card_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^card\\."
+      }
+    },
+    "gacha_pool": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "definition_id",
+      "items": {
+        "type": "object",
+        "required": [
+          "definition_id",
+          "rarity"
+        ],
+        "properties": {
+          "definition_id": {
+            "type": "string",
+            "pattern": "^card\\."
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "common",
+              "rare"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "reward_options": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name_zh",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^reward\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "divination_tickets",
+              "card_fragments"
+            ]
+          },
+          "target_definition_id": {
+            "type": "string",
+            "pattern": "^card\\."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "upgrade_definitions": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

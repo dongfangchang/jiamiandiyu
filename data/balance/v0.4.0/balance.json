@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "content_version": "v0.4.0",
+  "status": "draft",
+  "player": {
+    "max_health": 54,
+    "starting_health": 54,
+    "spirit_per_turn": 3,
+    "starting_hand": 5,
+    "turn_draw_to_hand_size": 5,
+    "max_hand_size": 8,
+    "corruption": {
+      "min": 0,
+      "max": 10,
+      "warning_at": 4,
+      "penalty_at": 7,
+      "run_end_at": 10
+    },
+    "attention": {
+      "min": 0,
+      "max": 10,
+      "warning_at": 4,
+      "hunter_at": 7,
+      "forced_hunter_at": 10
+    }
+  },
+  "combat": {
+    "max_rounds": 10,
+    "enemy_pressure": {
+      "start_round": 5
+    }
+  },
+  "progression": {
+    "starting_divination_tickets": 3
+  },
+  "gacha": {
+    "single_cost": 2,
+    "triple_cost": 5,
+    "pulls_per_triple": 3,
+    "rare_pity": 4,
+    "rarity_weights": {
+      "common": 85,
+      "rare": 15
+    },
+    "duplicate_fragments": 6
+  },
+  "upgrade": {
+    "cost_by_next_level": {
+      "1": 6,
+      "2": 12,
+      "3": 24
+    }
+  },
+  "reward": {
+    "amounts": {
+      "reward.divination_tickets": 3,
+      "reward.ink_dart_fragments": 6
+    }
+  }
+}

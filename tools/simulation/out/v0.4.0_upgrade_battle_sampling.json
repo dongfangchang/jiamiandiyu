@@ -1,0 +1,32 @@
+{
+	"baseline": {
+		"average_damage_per_ink_dart_hit": 4.0,
+		"average_remaining_health": 56.672,
+		"average_rounds": 3.234,
+		"ink_dart_damage": 10000,
+		"ink_dart_hits": 2500,
+		"valid_samples": 500,
+		"win_rate": 1.0
+	},
+	"engine": "BattleEngine",
+	"identity_health_bonus": 4,
+	"identity_id": "identity.doctor",
+	"root_seed": 20261108,
+	"sample_pairs": 500,
+	"upgrade_model": {
+		"card_id": "card.skill.ink_dart",
+		"note": "Simulation-only projected card copy; production upgrade rules must apply the same data rule.",
+		"numeric_effect_bonus_per_level": 1,
+		"target_level": 2
+	},
+	"upgraded": {
+		"average_damage_per_ink_dart_hit": 5.0,
+		"average_remaining_health": 56.672,
+		"average_rounds": 3.234,
+		"ink_dart_damage": 12500,
+		"ink_dart_hits": 2500,
+		"valid_samples": 500,
+		"win_rate": 1.0
+	},
+	"version": "v0.4.0"
+}

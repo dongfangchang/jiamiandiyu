@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="paperWash" cx="43%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F0E3C5"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10140f"/>
+      <stop offset=".52" stop-color="#29302a"/>
+      <stop offset="1" stop-color="#0a0d0b"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6CF8F"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5F4927"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="3" seed="41" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+
+  </defs>
+
+    <rect width="128" height="128" rx="16" fill="#181c17" stroke="#B99750" stroke-width="2"/>
+    <rect x="8" y="8" width="112" height="112" rx="10" fill="none" stroke="#AF9165" stroke-width="1" opacity=".4"/>
+
+    <circle cx="64" cy="63" r="21" fill="none" stroke="#B99750" stroke-width="1.4" opacity="0.48"/><circle cx="64" cy="63" r="31" fill="none" stroke="#B99750" stroke-width="1.4" opacity="0.48"/><circle cx="64" cy="63" r="41" fill="none" stroke="#B99750" stroke-width="3" opacity="0.9"/>
+    <path d="M64 29 L78 42 L94 43 L88 58 L97 72 L81 78 L72 94 L58 85 L42 94 L35 78 L19 71 L29 57 L22 42 L39 41Z"
+      fill="#7A2828" stroke="#B99750" stroke-width="2" opacity=".9"/>
+    <path d="M64 43 L73 55 L67 71 L55 71 L49 55Z" fill="#E8DFC9" opacity="0.9"/>
+    <path d="M64 94 V111" stroke="#B99750" stroke-width="3" opacity=".6"/>
+
+
+</svg>

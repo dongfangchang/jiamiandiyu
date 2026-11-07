@@ -44,6 +44,26 @@
 
 迁移约定：主协调者应将正式候选 PNG 一次性迁入 `assets/game/**`，然后删除候选副本或把它们明确视为导出缓存；不得让 `assets/game/` 与正式引用同时保留两套长期可编辑副本。
 
+## v0.4.0 短循环候选
+
+以下资产根据 `docs/versions/v0.4.0.md` 制作，状态为“等待 UI 实际界面审稿”。美术只提交候选，不自行标记界面通过。
+
+| 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
+|---|---|---|---:|---|
+| `identity.reporter` | `art/assets/svg/v0.4.0/identities/card-identity-reporter.svg` | `assets/game/v0.4.0/identities/card-identity-reporter.png` | 512×640 | 白昼身份：记者 |
+| `identity.doctor` | `art/assets/svg/v0.4.0/identities/card-identity-doctor.svg` | `assets/game/v0.4.0/identities/card-identity-doctor.png` | 512×640 | 白昼身份：医生 |
+| `identity.gravedigger` | `art/assets/svg/v0.4.0/identities/card-identity-gravedigger.svg` | `assets/game/v0.4.0/identities/card-identity-gravedigger.png` | 512×640 | 白昼身份：守墓人 |
+| `scene.gacha.altar` | `art/assets/svg/v0.4.0/scenes/gacha-altar.svg` | `assets/game/v0.4.0/scenes/gacha-altar.png` | 1600×900 | 灵界祈愿背景 |
+| `scene.reward.archive` | `art/assets/svg/v0.4.0/scenes/reward-archive.svg` | `assets/game/v0.4.0/scenes/reward-archive.png` | 1600×900 | 战后奖励三选一背景 |
+| `status.upgrade_1` | `art/assets/svg/v0.4.0/icons/upgrade-1.svg` | `assets/game/v0.4.0/icons/upgrade-1.png` | 128×128 | 一级升级印章 |
+| `status.upgrade_2` | `art/assets/svg/v0.4.0/icons/upgrade-2.svg` | `assets/game/v0.4.0/icons/upgrade-2.png` | 128×128 | 二级升级印章 |
+| `status.upgrade_3` | `art/assets/svg/v0.4.0/icons/upgrade-3.svg` | `assets/game/v0.4.0/icons/upgrade-3.png` | 128×128 | 三级升级印章 |
+| `resource.card_shard` | `art/assets/svg/v0.4.0/icons/card-shard.svg` | `assets/game/v0.4.0/icons/card-shard.png` | 128×128 | 重复卡碎片 |
+| `resource.divination_ticket` | `art/assets/svg/v0.4.0/icons/divination-ticket.svg` | `assets/game/v0.4.0/icons/divination-ticket.png` | 128×128 | 占卜券 |
+| `card.back.sealed_omen` | `art/assets/svg/v0.4.0/cards/card-back-sealed-omen.svg` | `assets/game/v0.4.0/cards/card-back-sealed-omen.png` | 512×720 | 抽卡卡背 |
+
+审稿拼图：`assets/game/v0.4.0/contact-sheet.png`。正文和资源数字必须由 Godot 渲染，不能烘焙进这些图像。
+
 ## 计划资产
 
 | 批次 | 内容 | 优先级 |
