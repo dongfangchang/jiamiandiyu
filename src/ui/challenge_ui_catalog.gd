@@ -1,0 +1,73 @@
+extends RefCounted
+
+const SELECTION_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-selection.png"
+const RESULT_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-result.png"
+const ICON_BASE := "res://assets/game/v0.6.0/icons/"
+const EMBLEM := "res://assets/game/v0.6.0/icons/challenge-emblem.png"
+
+const MODIFIER_ICONS := {
+	"modifier.rushed_reflection": "modifier-pressure-advance.png",
+	"modifier.tainted_margins": "modifier-mirror-echo.png",
+	"modifier.fractured_deck": "modifier-compact-deck.png",
+}
+
+const REWARD_NAMES := {
+	"reward.divination_tickets": "灵界占卜券",
+	"reward.ink_dart_fragments": "墨刺残页",
+}
+
+
+static func modifier_icon(modifier_id: String) -> String:
+	var file_name := String(
+		MODIFIER_ICONS.get(modifier_id, "modifier-restricted-reward.png")
+	)
+	return ICON_BASE + file_name
+
+
+static func outcome_icon(completed: bool) -> String:
+	return ICON_BASE + (
+		"challenge-success.png" if completed else "challenge-failure.png"
+	)
+
+
+static func reward_text(
+	reward_value: Variant,
+	labels: Dictionary = {}
+) -> String:
+	if not reward_value is Dictionary:
+		return "奖励由挑战规则结算。"
+	var reward: Dictionary = reward_value
+	var lines: Array[String] = []
+	for reward_id in reward:
+		var label := String(labels.get(reward_id, REWARD_NAMES.get(
+			reward_id,
+			String(reward_id).replace("reward.", "").replace("_", " ")
+		)))
+		lines.append("%s +%d" % [label, int(reward[reward_id])])
+	return " · ".join(lines) if not lines.is_empty() else "无额外奖励"
+
+
+static func reason_text(reason_code: String) -> String:
+	match reason_code:
+		"challenge_locked":
+			return "挑战尚未解锁：请先完成占卜家序列 8 晋升。"
+		"wrong_phase":
+			return "当前挑战阶段不能执行这个操作。"
+		"unknown_modifier":
+			return "这个挑战修饰不存在。"
+		"modifier_required":
+			return "请先选择一个挑战修饰。"
+		"route_not_initialized":
+			return "挑战路线尚未准备完成。"
+		"invalid_route_command", "invalid_command":
+			return "挑战操作无效，请重新选择。"
+		"state_invalid", "content_invalid":
+			return "挑战档案不完整；原有收藏不会被覆盖。"
+		"insufficient_spirit":
+			return "灵性不足，无法执行该操作。"
+		"hint_already_used":
+			return "本步骤的仪式提示已经使用。"
+		"":
+			return ""
+		_:
+			return "挑战操作未通过：%s" % reason_code

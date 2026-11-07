@@ -6,8 +6,10 @@ const InfrastructureResultScript := preload("res://src/infrastructure/infrastruc
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
 const RouteEngineScript := preload("res://src/gameplay/route_engine.gd")
+const CheckpointEnvelopeBuilderScript := preload("res://src/app/checkpoint_envelope_builder.gd")
 
-const CONTENT_VERSION := "v0.5.0"
+const CONTENT_VERSION := "v0.6.0"
+const SAVE_VERSION := 4
 const BATTLE_NODE_TYPES: Array[String] = ["normal", "elite", "boss"]
 
 var services: AppServices
@@ -346,14 +348,6 @@ func _build_checkpoint_envelope(kind: String) -> Dictionary:
 	var progression_snapshot := progression.get_snapshot()
 	var route_snapshot := get_route_snapshot().data
 	var sequence := get_sequence_state().data
-	var collection: Dictionary = {}
-	for item in progression_snapshot.data.get("collection", []):
-		if int(item.get("copies", 0)) > 0 or int(item.get("fragments", 0)) > 0:
-			collection[String(item.get("definition_id", ""))] = {
-				"copies": int(item.get("copies", 0)),
-				"level": int(item.get("level", 0)),
-				"fragments": int(item.get("fragments", 0)),
-			}
 	var route_state := (
 		_route_engine.export_persistent_state()
 		if _route_engine != null
@@ -368,39 +362,20 @@ func _build_checkpoint_envelope(kind: String) -> Dictionary:
 		)
 		for definition_id in owned_deck:
 			deck_summary[definition_id] = int(deck_summary.get(definition_id, 0)) + 1
-	return {
-		"save_version": 3,
-		"content_version": CONTENT_VERSION,
-		"created_at": Time.get_datetime_string_from_system(true, false) + "Z",
-		"rng_seed": root_seed,
-		"profile": {
-			"pathway": String(sequence.get("pathway_id", "seer")),
-			"sequence": int(sequence.get("current_sequence", 9)),
-			"identity_id": String(progression_state.get("identity_id", "")),
-		},
-		"run": {
-			"checkpoint_kind": kind,
-			"encounter_id": (
-				String(encounter.data.get("id", ""))
-				if encounter.ok
-				else ""
-			),
-			"current_node_id": current_node_id,
-			"deck_summary": deck_summary,
-			"last_battle": _last_battle.duplicate(true),
-		},
-		"collection": collection,
-		"progression": progression_state,
-		"route": {
-			"initialized": _route_engine != null,
-			"route_id": String(route_state.get("route_id", "")),
-			"phase": String(route_state.get("phase", "")),
-			"run_state": route_state.get("run_state", {}).duplicate(true),
-			"completed_node_ids": route_state.get("completed_node_ids", []).duplicate(),
-			"sequence_state": String(route_state.get("sequence_state", "locked")),
-			"state": route_state,
-		},
-	}
+	return CheckpointEnvelopeBuilderScript.build(
+		progression_state,
+		progression_snapshot,
+		route_state,
+		sequence,
+		root_seed,
+		CONTENT_VERSION,
+		SAVE_VERSION,
+		kind,
+		_last_battle,
+		String(encounter.data.get("id", "")) if encounter.ok else "",
+		current_node_id,
+		deck_summary
+	)
 
 
 func _node_by_id(snapshot: Dictionary, node_id: StringName) -> Dictionary:

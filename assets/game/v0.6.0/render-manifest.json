@@ -1,0 +1,102 @@
+{
+  "version": "v0.6.0",
+  "assets": [
+    {
+      "id": "scene.challenge.selection",
+      "type": "scene",
+      "svg": "assets/svg/v0.6.0/scenes/challenge-selection.svg",
+      "png": "assets/game/v0.6.0/scenes/challenge-selection.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "scene.challenge.result",
+      "type": "scene",
+      "svg": "assets/svg/v0.6.0/scenes/challenge-result.svg",
+      "png": "assets/game/v0.6.0/scenes/challenge-result.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "challenge.modifier.pressure_advance",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-pressure-advance.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-pressure-advance.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.mirror_echo",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-mirror-echo.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-mirror-echo.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.restricted_reward",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-restricted-reward.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-restricted-reward.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.compact_deck",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-compact-deck.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-compact-deck.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.reinforced_guard",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-reinforced-guard.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-reinforced-guard.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.early_phase",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/modifier-early-phase.svg",
+      "png": "assets/game/v0.6.0/icons/modifier-early-phase.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "status.challenge.success",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/challenge-success.svg",
+      "png": "assets/game/v0.6.0/icons/challenge-success.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "status.challenge.failure",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/challenge-failure.svg",
+      "png": "assets/game/v0.6.0/icons/challenge-failure.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.mode.emblem",
+      "type": "emblem",
+      "svg": "assets/svg/v0.6.0/icons/challenge-emblem.svg",
+      "png": "assets/game/v0.6.0/icons/challenge-emblem.png",
+      "width": 256,
+      "height": 256
+    },
+    {
+      "id": "challenge.deck.restricted",
+      "type": "icon",
+      "svg": "assets/svg/v0.6.0/icons/deck-restricted.svg",
+      "png": "assets/game/v0.6.0/icons/deck-restricted.png",
+      "width": 128,
+      "height": 128
+    }
+  ]
+}
+

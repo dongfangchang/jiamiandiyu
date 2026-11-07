@@ -168,6 +168,65 @@ func export_persistent_state() -> Dictionary:
 	return _state.duplicate(true)
 
 
+func apply_reward_bundle(reward_amounts: Dictionary) -> ProgressionCommandResult:
+	if StringName(_state.get("phase", PHASE_INIT_ERROR)) == PHASE_INIT_ERROR:
+		return _rejected(&"not_initialized")
+	if reward_amounts.is_empty():
+		return _rejected(&"reward_bundle_empty")
+	_pending_events.clear()
+
+	# Validate the entire bundle before touching resources so an invalid entry
+	# cannot leave a partially applied challenge reward.
+	var planned: Array[Dictionary] = []
+	for reward_id_value in reward_amounts:
+		var reward_id := String(reward_id_value)
+		var amount_value: Variant = _finite_integer(
+			reward_amounts[reward_id_value]
+		)
+		if amount_value == null or int(amount_value) < 0:
+			return _rejected(&"reward_amount_invalid")
+		var reward := _reward_by_id(reward_id)
+		if reward.is_empty():
+			return _rejected(&"reward_not_supported")
+		var kind := String(reward.get("kind", ""))
+		var target_id := String(reward.get("target_definition_id", ""))
+		if kind == "card_fragments":
+			if (
+				target_id.is_empty()
+				or not _content.has_card_definition(StringName(target_id))
+			):
+				return _rejected(&"content_invalid")
+		elif kind != "divination_tickets":
+			return _rejected(&"reward_not_supported")
+		planned.append({
+			"reward_id": reward_id,
+			"kind": kind,
+			"target_definition_id": target_id,
+			"amount": int(amount_value),
+		})
+
+	for entry in planned:
+		var amount: int = int(entry["amount"])
+		if amount <= 0:
+			continue
+		if String(entry["kind"]) == "divination_tickets":
+			_state["divination_tickets"] = (
+				int(_state.get("divination_tickets", 0)) + amount
+			)
+		else:
+			_add_fragments(String(entry["target_definition_id"]), amount)
+		_emit(&"RewardBundleApplied", {
+			"reward_id": String(entry["reward_id"]),
+			"kind": String(entry["kind"]),
+			"target_definition_id": String(entry["target_definition_id"]),
+			"amount": amount,
+		})
+
+	_revision += 1
+	_state["revision"] = _revision
+	return _success()
+
+
 func get_card_levels() -> Dictionary:
 	var levels: Dictionary = {}
 	var collection: Dictionary = _state.get("collection", {})
@@ -696,6 +755,14 @@ func _restore_error(reason: StringName) -> ProgressionCommandResult:
 func _value_or(fallback: Variant, parameter_id: StringName) -> Variant:
 	var value: Variant = _balance.get_value(parameter_id)
 	return fallback if value == null else value
+
+
+func _finite_integer(value: Variant) -> Variant:
+	if value is int:
+		return value
+	if value is float and is_finite(value) and is_equal_approx(value, round(value)):
+		return int(value)
+	return null
 
 
 func _emit(event_type: StringName, event_data: Dictionary) -> void:

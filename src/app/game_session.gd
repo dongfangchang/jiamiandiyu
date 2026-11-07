@@ -23,6 +23,7 @@ var _starting_sequence: int = 9
 var _pathway_id: String = "seer"
 var _progression: RefCounted
 var _auto_save_on_end: bool
+var _challenge_engine: RefCounted
 
 
 func _init(
@@ -38,12 +39,14 @@ func _init(
 	content_version_override: String = "",
 	auto_save_on_end: bool = true,
 	player_state_override: Dictionary = {},
-	apply_progression_modifiers: bool = true
+	apply_progression_modifiers: bool = true,
+	challenge_engine: RefCounted = null
 ) -> void:
 	services = app_services
 	catalog = content_catalog
 	_progression = progression
 	_auto_save_on_end = auto_save_on_end
+	_challenge_engine = challenge_engine
 	root_seed = run_seed
 	encounter_id = selected_encounter_id
 	checkpoint_slot = save_slot
@@ -66,6 +69,10 @@ func _init(
 			_progression.build_owned_battle_deck(_deck_definition_ids)
 		)
 		content = _progression.create_upgraded_content(content)
+	if _challenge_engine != null:
+		_deck_definition_ids.assign(
+			_challenge_engine.build_battle_deck(_deck_definition_ids)
+		)
 	battle_id = StringName("%s.%d" % [String(encounter_id), run_seed])
 	var player_state: Dictionary = (
 		player_state_override.duplicate(true)
@@ -74,6 +81,9 @@ func _init(
 	)
 	if _progression != null and apply_progression_modifiers:
 		player_state = _progression.apply_battle_modifiers(player_state)
+	var enemy_configs: Array = resolved.data.get("enemy_configs", [])
+	if _challenge_engine != null:
+		enemy_configs = _challenge_engine.prepare_enemy_configs(enemy_configs)
 	_engine.initialize(
 		content,
 		balance,
@@ -81,7 +91,7 @@ func _init(
 		battle_id,
 		player_state,
 		_deck_definition_ids,
-		resolved.data.get("enemy_configs", [])
+		enemy_configs
 	)
 
 

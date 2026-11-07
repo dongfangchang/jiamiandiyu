@@ -2,6 +2,7 @@ extends Control
 
 signal new_game_requested
 signal continue_requested
+signal challenge_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
@@ -12,8 +13,11 @@ var _new_game_button: Button
 var _status_label: Label
 var _summary_label: Label
 var _version_label: Label
+var _challenge_button: Button
+var _challenge_hint: Label
 var _busy := false
 var _checkpoint_status := "none"
+var _challenge_available := false
 
 
 func _ready() -> void:
@@ -50,6 +54,10 @@ func show_checkpoint_status(
 			var content_version := String(summary.get("content_version", ""))
 			if not content_version.is_empty():
 				_version_label.text = content_version + "  /  WHISPERS BENEATH THE MASK"
+			set_challenge_available(
+				bool(summary.get("challenge_available", false)),
+				String(summary.get("challenge_reason", ""))
+			)
 			_summary_label.text = (
 				"身份：%s  ·  序列 %d  ·  牌组 %d 张\n"
 				+ "占卜券：%s  ·  稀有保底：%s\n"
@@ -68,12 +76,14 @@ func show_checkpoint_status(
 			]
 		"corrupt":
 			_continue_button.disabled = true
+			set_challenge_available(false, "检查点不可读取")
 			_status_label.text = "检查点无法读取"
 			_summary_label.text = "原始存档已保留。" + (
 				"\n" + error_message if not error_message.is_empty() else ""
 			)
 		_:
 			_continue_button.disabled = true
+			set_challenge_available(false, "完成序列 8 晋升后开放")
 			_status_label.text = "尚未建立检查点"
 			_summary_label.text = (
 				"身份：未选择  ·  占卜券：3（新游戏初始）\n"
@@ -95,10 +105,36 @@ func set_busy(busy: bool) -> void:
 		_continue_button.disabled = _busy or _checkpoint_status != "loaded"
 	if is_instance_valid(_new_game_button):
 		_new_game_button.disabled = _busy
+	if is_instance_valid(_challenge_button):
+		_challenge_button.disabled = _busy or not _challenge_available
 
 
 func is_continue_enabled() -> bool:
 	return is_instance_valid(_continue_button) and not _continue_button.disabled
+
+
+func set_challenge_available(available: bool, reason: String = "") -> void:
+	_challenge_available = available
+	if is_instance_valid(_challenge_button):
+		_challenge_button.disabled = _busy or not available
+	if is_instance_valid(_challenge_hint):
+		_challenge_hint.text = (
+			"可重复挑战已解锁。"
+			if available
+			else (
+				reason
+				if not reason.is_empty()
+				else "完成序列 8 晋升后开放"
+			)
+		)
+
+
+func is_challenge_enabled() -> bool:
+	return is_instance_valid(_challenge_button) and not _challenge_button.disabled
+
+
+func get_challenge_hint_text() -> String:
+	return _challenge_hint.text if is_instance_valid(_challenge_hint) else ""
 
 
 func get_status_text() -> String:
@@ -191,6 +227,21 @@ func _build_panel_content() -> VBoxContainer:
 	actions.add_child(_new_game_button)
 	actions.add_child(quit_button)
 
+	var challenge_row := HBoxContainer.new()
+	challenge_row.add_theme_constant_override("separation", 12)
+	content.add_child(challenge_row)
+	_challenge_button = UiTheme.button(
+		"进入挑战 · 镜厅余响",
+		_on_challenge,
+		false,
+		0
+	)
+	_challenge_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	challenge_row.add_child(_challenge_button)
+	_challenge_hint = UiTheme.label("", 12, UiTheme.C_MUTED)
+	_challenge_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	challenge_row.add_child(_challenge_hint)
+
 	content.add_child(UiTheme.wrapped_label(
 		"提示：战斗不支持中途恢复；退出后会回到最近一次已确认的战后检查点。",
 		13,
@@ -211,6 +262,13 @@ func _on_continue() -> void:
 		return
 	set_busy(true)
 	continue_requested.emit()
+
+
+func _on_challenge() -> void:
+	if _busy or not _challenge_available:
+		return
+	set_busy(true)
+	challenge_requested.emit()
 
 
 func _on_quit() -> void:

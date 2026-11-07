@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="paperWash" cx="42%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F1E4C8"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#090D09"/>
+      <stop offset=".52" stop-color="#293029"/>
+      <stop offset="1" stop-color="#070A07"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E8D091"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5D4726"/>
+    </linearGradient>
+    <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V9" stroke="#211D18" stroke-width=".7" opacity=".13"/>
+    </pattern>
+    <pattern id="crosshatch" width="11" height="11" patternUnits="userSpaceOnUse">
+      <path d="M0 0L11 11M11 0L0 11" stroke="#E8DFC9" stroke-width=".45" opacity=".055"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="3" seed="61" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .09"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    
+  </defs>
+  
+    <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+    <rect width="1600" height="900" fill="url(#crosshatch)"/>
+    <path d="M0 714 C214 653 359 721 558 672 S909 671 1119 706 S1429 663 1600 687 V900H0Z" fill="#070A07"/>
+    <path d="M0 792 C218 744 391 807 610 765 S980 746 1189 783 S1455 744 1600 770 V900H0Z" fill="#788079" opacity=".08"/>
+    <g transform="translate(800 316)" opacity=".58">
+      <circle r="174" fill="none" stroke="#B99750" stroke-width="2"/>
+      <circle r="132" fill="none" stroke="#B99750" stroke-width="1" stroke-dasharray="5 13"/>
+      <path d="M0-164V164M-164 0H164M-116-116L116 116M116-116L-116 116"
+        stroke="#B99750" stroke-width="1" opacity=".34"/>
+      <path d="M0-108 C-76-108-102-42-91 26 C-79 97-31 129 0 149 C31 129 79 97 91 26 C102-42 76-108 0-108Z"
+        fill="#E8DFC9" opacity=".08" stroke="#E8DFC9" stroke-width="2"/>
+      <path d="M-61-23C-36-43-15-38 0-16C-23 0-45-2-61-23Z" fill="#211D18"/>
+      <path d="M61-23C36-43 15-38 0-16C23 0 45-2 61-23Z" fill="#211D18"/>
+      <path d="M0-108C14-54-12-23 9 18C24 49-18 87 0 149" fill="none" stroke="#7A2828" stroke-width="3"/>
+    </g>
+    <g stroke="#E8DFC9" stroke-width="1.2" opacity=".18" fill="none">
+      <path d="M92 142L312 71L444 177L332 336Z"/>
+      <path d="M1150 93L1361 71L1470 203L1322 350Z"/>
+      <path d="M78 574L232 515L276 688L112 728Z"/>
+      <path d="M1328 536L1488 501L1488 686L1348 723Z"/>
+    </g>
+    <g fill="#3A3731" stroke="#B99750" stroke-width="2">
+      <rect x="250" y="571" width="300" height="166" rx="7"/>
+      <rect x="650" y="571" width="300" height="166" rx="7"/>
+      <rect x="1050" y="571" width="300" height="166" rx="7"/>
+    </g>
+    <g fill="none" stroke="#788079" stroke-width="1.4" opacity=".45">
+      <circle cx="400" cy="654" r="42"/>
+      <path d="M800 612V696M762 654H838"/>
+      <path d="M1162 630L1200 692H1124Z"/>
+    </g>
+    <path d="M199 789H1401" stroke="#B99750" stroke-width="1.3" opacity=".36"/>
+    <rect x="30" y="30" width="1540" height="840" fill="none" stroke="#B99750" stroke-width="1.6" opacity=".52"/>
+    <path d="M30 70H74M30 70V30M1570 70H1526M1570 70V30
+      M30 830H74M30 830V870
+      M1570 830H1526M1570 830V870"
+      fill="none" stroke="#B99750" stroke-width="3" opacity=".62"/>
+  
+</svg>

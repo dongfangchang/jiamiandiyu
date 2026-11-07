@@ -46,7 +46,7 @@
 
 ## v0.4.0 短循环候选
 
-以下资产根据 `docs/versions/v0.4.0.md` 制作，状态为“等待 UI 实际界面审稿”。美术只提交候选，不自行标记界面通过。
+以下资产根据 `docs/versions/v0.4.0.md` 制作，已迁移到正式目录并通过 UI 实际界面审稿。美术只提交候选，不自行标记界面通过。
 
 | 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
 |---|---|---|---:|---|
@@ -66,7 +66,7 @@
 
 ## v0.5.0 短路线与晋升候选
 
-以下资产根据 `docs/versions/v0.5.0.md` 制作，美术只提交候选。UI 必须在路线、休息、首领和晋升界面接入后实际审稿。
+以下资产根据 `docs/versions/v0.5.0.md` 制作，已在路线、休息、首领和晋升界面通过 UI 实际审稿。
 
 | 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
 |---|---|---|---:|---|
@@ -84,6 +84,27 @@
 | `status.ritual.failure` | `art/assets/svg/v0.5.0/icons/ritual-failure.svg` | `assets/game/v0.5.0/icons/ritual-failure.png` | 128×128 | 仪式失败/污染 |
 
 审稿拼图：`assets/game/v0.5.0/contact-sheet.png`。HTML 预览：`art/preview/v0.5.0/index.html`。
+
+## v0.6.0 挑战候选
+
+以下资产根据 `docs/versions/v0.6.0.md` 制作，已迁移到 `assets/game/v0.6.0/**` 并在实际挑战选择、路线与结算界面通过 UI 审稿。
+
+| 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
+|---|---|---|---:|---|
+| `scene.challenge.selection` | `art/assets/svg/v0.6.0/scenes/challenge-selection.svg` | `assets/game/v0.6.0/scenes/challenge-selection.png` | 1600×900 | 挑战选择背景，预留三个修饰卡区域 |
+| `scene.challenge.result` | `art/assets/svg/v0.6.0/scenes/challenge-result.svg` | `assets/game/v0.6.0/scenes/challenge-result.png` | 1600×900 | 挑战结算背景，预留中央印章和结算信息 |
+| `challenge.modifier.pressure_advance` | `art/assets/svg/v0.6.0/icons/modifier-pressure-advance.svg` | `assets/game/v0.6.0/icons/modifier-pressure-advance.png` | 128×128 | 敌人压力提前 |
+| `challenge.modifier.mirror_echo` | `art/assets/svg/v0.6.0/icons/modifier-mirror-echo.svg` | `assets/game/v0.6.0/icons/modifier-mirror-echo.png` | 128×128 | 镜厅回响/污染压力 |
+| `challenge.modifier.restricted_reward` | `art/assets/svg/v0.6.0/icons/modifier-restricted-reward.svg` | `assets/game/v0.6.0/icons/modifier-restricted-reward.png` | 128×128 | 奖励限制 |
+| `challenge.modifier.compact_deck` | `art/assets/svg/v0.6.0/icons/modifier-compact-deck.svg` | `assets/game/v0.6.0/icons/modifier-compact-deck.png` | 128×128 | 紧凑牌组 |
+| `challenge.modifier.reinforced_guard` | `art/assets/svg/v0.6.0/icons/modifier-reinforced-guard.svg` | `assets/game/v0.6.0/icons/modifier-reinforced-guard.png` | 128×128 | 敌人强化护盾 |
+| `challenge.modifier.early_phase` | `art/assets/svg/v0.6.0/icons/modifier-early-phase.svg` | `assets/game/v0.6.0/icons/modifier-early-phase.png` | 128×128 | 首领阶段提前 |
+| `status.challenge.success` | `art/assets/svg/v0.6.0/icons/challenge-success.svg` | `assets/game/v0.6.0/icons/challenge-success.png` | 128×128 | 挑战成功印章 |
+| `status.challenge.failure` | `art/assets/svg/v0.6.0/icons/challenge-failure.svg` | `assets/game/v0.6.0/icons/challenge-failure.png` | 128×128 | 挑战失败印章 |
+| `challenge.mode.emblem` | `art/assets/svg/v0.6.0/icons/challenge-emblem.svg` | `assets/game/v0.6.0/icons/challenge-emblem.png` | 256×256 | 挑战模式徽记 |
+| `challenge.deck.restricted` | `art/assets/svg/v0.6.0/icons/deck-restricted.svg` | `assets/game/v0.6.0/icons/deck-restricted.png` | 128×128 | 牌组受限标识 |
+
+审稿拼图：`assets/game/v0.6.0/contact-sheet.png`。HTML 预览：`art/preview/v0.6.0/index.html`。
 
 ## 计划资产
 

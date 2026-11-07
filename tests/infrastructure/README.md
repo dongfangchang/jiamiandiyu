@@ -5,6 +5,7 @@
 ```powershell
 .tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/infrastructure/test_runner.gd
 .tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/infrastructure/route_backend_runner.tscn
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/infrastructure/challenge_backend_runner.tscn
 ```
 
 测试覆盖：
@@ -25,6 +26,7 @@
 - v0.5 路线/仪式 schema、跨版本基础卡包与敌人阶段
 - 身份到五节点路线、节点边界恢复、首领与晋升持久化
 - v1 -> v2 -> v3 连续存档迁移
+- v0.6 挑战定义/schema、修饰引用、挑战会话语义和 v3 -> v4 迁移
 
 测试使用 `user://mask_whispers_infrastructure_tests`，运行前后自动清理。
 
@@ -32,6 +34,7 @@
 
 - 基础设施主测试：`150 passed, 0 failed`
 - v0.5 路线后端测试：`67 passed, 0 failed`
+- v0.6 挑战后端测试：`32 passed, 0 failed`
 
 v0.3.0 新增覆盖：
 

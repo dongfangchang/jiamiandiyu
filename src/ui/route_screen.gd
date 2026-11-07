@@ -14,6 +14,7 @@ var _nodes_row: HBoxContainer
 var _status_label: Label
 var _resource_label: Label
 var _route_label: Label
+var _challenge_label: Label
 var _result_button: Button
 var _hub_button: Button
 var _buttons_by_node: Dictionary = {}
@@ -109,6 +110,28 @@ func get_background_path() -> String:
 	return RouteCatalog.ROUTE_BACKGROUND
 
 
+func set_challenge_context(
+	challenge_name: String,
+	modifier_name: String
+) -> void:
+	if not is_instance_valid(_challenge_label):
+		return
+	_challenge_label.text = (
+		"挑战 · %s  ·  修饰：%s" % [challenge_name, modifier_name]
+	)
+	_challenge_label.visible = true
+
+
+func clear_challenge_context() -> void:
+	if is_instance_valid(_challenge_label):
+		_challenge_label.text = ""
+		_challenge_label.visible = false
+
+
+func get_challenge_context_text() -> String:
+	return _challenge_label.text if is_instance_valid(_challenge_label) else ""
+
+
 func _build() -> void:
 	UiTheme.add_background(self, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.46)
 	var safe := MarginContainer.new()
@@ -138,6 +161,9 @@ func _build() -> void:
 		14,
 		UiTheme.C_MUTED
 	))
+	_challenge_label = UiTheme.label("", 13, UiTheme.C_GOLD)
+	_challenge_label.visible = false
+	heading.add_child(_challenge_label)
 	_resource_label = UiTheme.label("", 15, UiTheme.C_PAPER)
 	_resource_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_resource_label)

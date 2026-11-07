@@ -12,6 +12,7 @@ func _ready() -> void:
 	_test_formal_balance_contract()
 	_test_identity_selection_and_modifiers()
 	_test_reward_flow_and_fragments()
+	_test_reward_bundle_atomic_application()
 	_test_gacha_cost_duplicate_and_replay()
 	_test_gacha_rare_pity()
 	_test_insufficient_tickets()
@@ -169,6 +170,87 @@ func _test_reward_flow_and_fragments() -> void:
 		not duplicate_claim.accepted
 		and duplicate_claim.reason_code == &"wrong_phase",
 		"reward should not be claimable twice"
+	)
+
+
+func _test_reward_bundle_atomic_application() -> void:
+	var pair := _make_engine(22)
+	var engine: ProgressionEngine = pair[0]
+	engine.submit(ProgressionCommand.select_identity(&"identity.doctor"))
+	var before := engine.get_snapshot().to_dictionary()
+	var applied := engine.apply_reward_bundle({
+		"reward.divination_tickets": 2.0,
+		"reward.ink_dart_fragments": 4.0,
+	})
+	_check(applied.accepted, "valid challenge reward bundle should be accepted")
+	_check(
+		int(applied.snapshot.data["divination_tickets"])
+		== int(before["divination_tickets"]) + 2,
+		"reward bundle should grant every ticket in one batch"
+	)
+	var ink_state: Dictionary = _collection_item(
+		applied.snapshot,
+		&"card.skill.ink_dart"
+	)
+	_check(
+		int(ink_state["fragments"]) == 4,
+		"reward bundle should grant card fragments to the referenced card"
+	)
+	_check(
+		int(applied.snapshot.data["revision"]) == int(before["revision"]) + 1,
+		"one reward bundle should advance progression by one revision"
+	)
+	var applied_event_count := 0
+	for event in applied.events:
+		if event.type == &"RewardBundleApplied":
+			applied_event_count += 1
+	_check(
+		applied_event_count == 2,
+		"reward bundle should emit one event per positive reward"
+	)
+
+	var atomic_pair := _make_engine(23)
+	var atomic_engine: ProgressionEngine = atomic_pair[0]
+	atomic_engine.submit(ProgressionCommand.select_identity(&"identity.doctor"))
+	var atomic_before := atomic_engine.get_snapshot().to_dictionary()
+	var unknown := atomic_engine.apply_reward_bundle({
+		"reward.divination_tickets": 5,
+		"reward.missing": 1,
+	})
+	_check(
+		not unknown.accepted
+		and unknown.reason_code == &"reward_not_supported",
+		"unknown reward id should reject the entire bundle"
+	)
+	_check(
+		atomic_engine.get_snapshot().to_dictionary() == atomic_before,
+		"unknown reward must not partially apply valid siblings"
+	)
+
+	var negative := atomic_engine.apply_reward_bundle({
+		"reward.divination_tickets": -1,
+	})
+	_check(
+		not negative.accepted
+		and negative.reason_code == &"reward_amount_invalid",
+		"negative reward amount should be rejected"
+	)
+	var fractional := atomic_engine.apply_reward_bundle({
+		"reward.divination_tickets": 1.5,
+	})
+	_check(
+		not fractional.accepted
+		and fractional.reason_code == &"reward_amount_invalid",
+		"non-integral reward amount should be rejected"
+	)
+	var empty := atomic_engine.apply_reward_bundle({})
+	_check(
+		not empty.accepted and empty.reason_code == &"reward_bundle_empty",
+		"empty reward bundle should be rejected"
+	)
+	_check(
+		atomic_engine.get_snapshot().to_dictionary() == atomic_before,
+		"all rejected bundles should preserve progression exactly"
 	)
 
 

@@ -8,9 +8,9 @@
 - `assets/svg/v0.3.0/`：战斗场景、三敌人、八卡面与状态图标的 v0.3.0 矢量源。
 - `../assets/game/v0.3.0/`：已由主线程迁移的 v0.3.0 正式 PNG。
 - `assets/svg/v0.4.0/`：身份、祈愿、奖励、升级图标与卡背的 v0.4.0 矢量源。
-- `assets/game/v0.4.0/`：等待主线程迁移到 `../assets/game/v0.4.0/` 的 PNG 候选。
+- `../assets/game/v0.4.0/`：已迁移的 v0.4.0 正式 PNG，已通过 UI 实际界面审稿。
 - `assets/svg/v0.5.0/`：路线地图、休息、首领、晋升仪式与路线图标的矢量源。
-- `assets/svg/v0.5.0/` 的 PNG 候选位于 `assets/game/v0.5.0/`，等待主线程一次性迁移。
+- `../assets/game/v0.5.0/`：已迁移的 v0.5.0 正式 PNG，已通过 UI 实际界面审稿。
 - `../assets/game/`：已经渲染的 1:1 PNG，是 Godot 运行时唯一的正式 PNG 来源。
 - `preview/contact-sheet.html`：在浏览器中查看整套样张。
 - `tools/generate_art.mjs`：重新生成占位资产的脚本。
@@ -48,6 +48,14 @@ node art/tools/generate_v050_art.mjs
 ```
 
 生成清单为 `assets/game/v0.5.0/render-manifest.json`，审稿拼图为 `assets/game/v0.5.0/contact-sheet.png`。正式资产迁移后仍应由 UI 在实际游戏界面复审。
+
+v0.6.0 挑战与修饰候选：
+
+```powershell
+node art/tools/generate_v060_art.mjs
+```
+
+正式 PNG、渲染清单和审稿拼图位于 `../assets/game/v0.6.0/`。资源已迁移并在实际挑战选择、路线与结算界面通过 UI 审稿。
 
 ## PNG 导出
 

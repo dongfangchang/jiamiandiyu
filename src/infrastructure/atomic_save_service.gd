@@ -109,21 +109,16 @@ func save_slot(slot: String, envelope: Dictionary) -> InfrastructureResult:
 				"Existing save could not be backed up.",
 				{"path": backup_path, "error": copy_error}
 			)
-		var backup_document := _read_json_object(backup_path)
+		var backup_document := _load_with_migration(backup_path)
 		if not backup_document.ok:
 			_remove_if_exists(temp_path)
 			return InfrastructureResult.failure(
 				&"backup_validation_failed",
 				"Backup copy is not a valid save; current save was preserved.",
-				{"path": backup_path}
-			)
-		var backup_validation := validate_envelope(backup_document.data)
-		if not backup_validation.ok:
-			_remove_if_exists(temp_path)
-			return InfrastructureResult.failure(
-				&"backup_validation_failed",
-				"Backup copy failed validation; current save was preserved.",
-				{"path": backup_path, "cause": String(backup_validation.code)}
+				{
+					"path": backup_path,
+					"cause": String(backup_document.code),
+				}
 			)
 
 		var remove_error := DirAccess.remove_absolute(ProjectSettings.globalize_path(main_path))

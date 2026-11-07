@@ -11,10 +11,15 @@ const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
+const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
+const ChallengeResultScreenScene := preload(
+	"res://scenes/ui/challenge_result_screen.tscn"
+)
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
+const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
 
 const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
@@ -32,6 +37,9 @@ func _ready() -> void:
 	await _capture_rest()
 	await _capture_ritual()
 	await _capture_route_result()
+	await _capture_challenge_route()
+	await _capture_challenge()
+	await _capture_challenge_result()
 	await _capture_battle()
 	await _capture_boss_battle()
 	await _capture_result()
@@ -42,14 +50,15 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.5.0",
-		"sequence": 9,
+		"content_version": "v0.6.0",
+		"sequence": 8,
 		"deck_size": 12,
 		"identity_id": "identity.reporter",
 		"divination_tickets": 7,
 		"collection_count": 6,
 		"pity_counter": 2,
 		"rare_pity": 4,
+		"challenge_available": true,
 		"created_at": "2026-11-08T02:30:00Z",
 		"last_battle": {"outcome": "victory", "round_number": 5},
 	})
@@ -234,6 +243,80 @@ func _capture_route_result() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("route_result_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_challenge_route() -> void:
+	var screen = RouteScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_route_snapshot({
+		"phase": "map",
+		"available_node_id": "route.v050.node.mirror_pursuit",
+		"completed_node_ids": ["route.v050.node.first_hunt"],
+		"nodes": _route_nodes("route.v050.node.mirror_pursuit"),
+	}))
+	screen.set_challenge_context("镜厅余响", "染墨页边")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("challenge_route_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_challenge() -> void:
+	var screen = ChallengeScreenScene.instantiate()
+	add_child(screen)
+	screen.set_reward_labels({
+		"reward.divination_tickets": "灵界占卜券",
+	})
+	screen.apply_snapshot(_challenge_snapshot({
+		"phase": "modifier_selection",
+		"unlocked": true,
+		"selected_modifier_id": "modifier.tainted_margins",
+		"selected_modifier": _challenge_modifiers()[1],
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("challenge_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_challenge_result() -> void:
+	var screen = ChallengeResultScreenScene.instantiate()
+	add_child(screen)
+	screen.set_reward_labels({
+		"reward.divination_tickets": "灵界占卜券",
+	})
+	screen.show_result(_challenge_snapshot({
+		"phase": "completed",
+		"challenge_outcome": "completed",
+		"selected_modifier_id": "modifier.fractured_deck",
+		"selected_modifier": _challenge_modifiers()[2],
+		"route": _route_snapshot({
+			"phase": "completed",
+			"route_outcome": "completed",
+			"completed_node_ids": [
+				"route.v050.node.first_hunt",
+				"route.v050.node.mirror_pursuit",
+				"route.v050.node.old_house_rest",
+				"route.v050.node.mirror_baron",
+				"route.v050.node.ascension",
+			],
+			"sequence": {
+				"pathway_id": "seer",
+				"pathway_name_zh": "占卜家",
+				"current_sequence": 8,
+				"next_sequence": 8,
+				"next_sequence_name_zh": "小丑",
+				"advancement_state": "completed",
+			},
+		}).to_dictionary(),
+	}), "saved")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("challenge_result_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -553,6 +636,69 @@ func _ritual_snapshot(overrides: Dictionary) -> RitualSnapshot:
 	for key in overrides:
 		data[key] = overrides[key]
 	return RitualSnapshotScript.new(data)
+
+
+func _challenge_snapshot(overrides: Dictionary) -> ChallengeSnapshot:
+	var data := {
+		"revision": 7,
+		"challenge_id": "challenge.v060.mirror_echoes",
+		"display_name_zh": "镜厅余响",
+		"description_zh": "再次进入廷根旧宅，以一条修饰和已有收藏挑战镜厅男爵。",
+		"phase": "modifier_selection",
+		"unlocked": true,
+		"required_sequence": 8,
+		"selected_modifier_id": "",
+		"selected_modifier": {},
+		"modifiers": _challenge_modifiers(),
+		"completion_reward": {
+			"reward.divination_tickets": 2,
+			"reward.ink_dart_fragments": 4,
+		},
+		"challenge_outcome": "",
+		"route": _route_snapshot({}).to_dictionary(),
+		"ritual": {"status": "inactive"},
+		"sequence": {
+			"pathway_id": "seer",
+			"pathway_name_zh": "占卜家",
+			"current_sequence": 8,
+			"next_sequence": 8,
+			"next_sequence_name_zh": "小丑",
+			"advancement_state": "completed",
+		},
+		"available_commands": ["select_modifier"],
+	}
+	for key in overrides:
+		data[key] = overrides[key]
+	return ChallengeSnapshotScript.new(data)
+
+
+func _challenge_modifiers() -> Array:
+	return [
+		{
+			"id": "modifier.rushed_reflection",
+			"display_name_zh": "倒影提前",
+			"description_zh": "敌人阶段提前两回合出现，快速构筑会更早承受首领压力。",
+			"effects": {"phase_round_delta": -2},
+		},
+		{
+			"id": "modifier.tainted_margins",
+			"display_name_zh": "染墨页边",
+			"description_zh": "带着三点污染与一点被注视进入路线，封锁回声更有价值。",
+			"effects": {
+				"starting_corruption_delta": 3,
+				"starting_attention_delta": 1,
+			},
+		},
+		{
+			"id": "modifier.fractured_deck",
+			"display_name_zh": "残缺牌组",
+			"description_zh": "所有纸符护持被移出牌组，但完成挑战会额外获得占卜券。",
+			"effects": {
+				"remove_definition_ids": ["card.skill.paper_guard"],
+				"completion_reward": {"reward.divination_tickets": 1},
+			},
+		},
+	]
 
 
 func _rest_options() -> Array:

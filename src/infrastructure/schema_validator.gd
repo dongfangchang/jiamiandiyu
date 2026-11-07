@@ -89,10 +89,20 @@ func _validate_object(value: Dictionary, schema: Dictionary, path: String, error
 				errors
 			)
 
-	if schema.get("additionalProperties", true) == false:
+	var additional_properties: Variant = schema.get("additionalProperties", true)
+	if additional_properties is bool and not additional_properties:
 		for key in value:
 			if not properties.has(String(key)):
 				_add_error(errors, path, "unexpected property '%s'" % key)
+	elif additional_properties is Dictionary:
+		for key in value:
+			if not properties.has(String(key)):
+				_validate_value(
+					value[key],
+					additional_properties,
+					"%s.%s" % [path, key],
+					errors
+				)
 
 	var minimum_properties: Variant = schema.get("minProperties")
 	if _is_integer_number(minimum_properties) and value.size() < int(minimum_properties):

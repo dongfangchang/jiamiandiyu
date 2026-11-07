@@ -10,6 +10,7 @@ const ELITE_NODE := "route.v050.node.mirror_pursuit"
 const REST_NODE := "route.v050.node.old_house_rest"
 const BOSS_NODE := "route.v050.node.mirror_baron"
 const RITUAL_NODE := "route.v050.node.ascension"
+const CHALLENGE_MODIFIER := "modifier.fractured_deck"
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -36,6 +37,7 @@ func _ready() -> void:
 	await _claim_reward("reward.divination_tickets")
 	await _test_ritual_and_sequence()
 	await _test_completed_checkpoint_continue()
+	await _test_challenge_flow()
 	await _test_corrupt_checkpoint_state()
 
 	_remove_tree(TEST_ROOT)
@@ -47,6 +49,7 @@ func _test_start_state() -> void:
 	var start = _app.get_current_screen()
 	_expect(start != null, "start screen is mounted")
 	_expect(not start.is_continue_enabled(), "continue disabled without checkpoint")
+	_expect(not start.is_challenge_enabled(), "challenge disabled before sequence eight")
 	_expect(start.get_status_text().contains("尚未"), "start reports no local checkpoint")
 	await _wait_frames(1)
 
@@ -85,13 +88,20 @@ func _advance_battle(node_id: String, encounter_fragment: String) -> void:
 	_expect(_app.get_current_route() == &"reward", "victory from %s enters reward phase" % node_id)
 
 
-func _claim_reward(reward_id: String) -> void:
+func _claim_reward(
+	reward_id: String,
+	expected_route: StringName = &"map"
+) -> void:
 	_expect(_app.get_current_route() == &"reward", "reward screen active before claim")
 	var screen = _app.get_current_screen()
 	_expect(screen.get_option_count() == 2, "reward screen exposes two choices")
 	screen.claim_reward(reward_id)
 	await _wait_frames(3)
-	_expect(_app.get_current_route() == &"map", "claimed reward returns to route map")
+	if not expected_route.is_empty():
+		_expect(
+			_app.get_current_route() == expected_route,
+			"claimed reward returns to %s" % String(expected_route)
+		)
 
 
 func _test_growth_between_nodes() -> void:
@@ -154,7 +164,7 @@ func _test_rest_boundary_restore() -> void:
 	await _wait_frames(4)
 	_expect(_app.get_current_route() == &"rest", "continue restores the rest screen")
 	_expect(_app.get_current_screen().get_option_count() == 2, "restored rest screen keeps choices")
-	_app.get_current_screen().select_rest("rest.bandage")
+	_app.get_current_screen().select_rest("rest.seal_echo")
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"map", "rest selection advances to boss route map")
 	_expect(
@@ -219,6 +229,130 @@ func _test_completed_checkpoint_continue() -> void:
 	_expect(_app.get_current_route() == &"route_result", "continue restores completed route result")
 	var sequence = _app.get_session().get_sequence_state().data
 	_expect(int(sequence.get("current_sequence", 0)) == 8, "continued session keeps sequence eight")
+
+
+func _test_challenge_flow() -> void:
+	_app.show_start_screen()
+	await _wait_frames(2)
+	var start = _app.get_current_screen()
+	_expect(start.is_challenge_enabled(), "sequence eight unlocks the challenge entry")
+	_expect(start.get_challenge_hint_text().contains("已解锁"), "challenge entry reports unlocked")
+	start.challenge_requested.emit()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"challenge_select", "challenge opens modifier selection")
+	var challenge_screen = _app.get_current_screen()
+	_expect(challenge_screen.get_modifier_count() == 3, "challenge exposes three modifiers")
+	_expect(challenge_screen.get_requirement_text().contains("已解锁"), "challenge selection confirms unlock")
+	challenge_screen.request_modifier(CHALLENGE_MODIFIER)
+	await _wait_frames(3)
+	_expect(
+		challenge_screen.get_selected_modifier_id() == CHALLENGE_MODIFIER,
+		"selected challenge modifier is retained"
+	)
+	var tickets_before := int(
+		_app.get_progression_snapshot().data.get("divination_tickets", 0)
+	)
+	challenge_screen.request_start()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"map", "starting challenge enters its route map")
+	_expect(
+		_app.get_current_screen().get_challenge_context_text().contains("镜厅余响"),
+		"challenge route displays challenge context"
+	)
+	_expect(
+		String(_app.get_route_snapshot().data.get("available_node_id", ""))
+		== FIRST_NODE,
+		"challenge starts at the first route node"
+	)
+
+	await _advance_battle(FIRST_NODE, "first_hunt")
+	await _claim_reward("reward.ink_dart_fragments")
+	await _advance_battle(ELITE_NODE, "mirror_pursuit")
+	await _claim_reward("reward.divination_tickets")
+	var route_screen = _app.get_current_screen()
+	route_screen.request_node(REST_NODE)
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"rest", "challenge reaches rest node")
+	_app.get_current_screen().select_rest("rest.bandage")
+	await _wait_frames(3)
+	await _advance_battle(BOSS_NODE, "mirror_baron")
+	await _claim_reward("reward.divination_tickets")
+	route_screen = _app.get_current_screen()
+	route_screen.request_node(RITUAL_NODE)
+	await _wait_frames(3)
+	await _submit_ritual(["name.elin_ward", "name.thomas_ward"])
+	await _submit_ritual(["event.birth", "event.death", "event.burial"])
+	await _submit_ritual(["seal.inverted_eye"])
+	_expect(_app.get_current_route() == &"challenge_result", "challenge completion opens challenge result")
+	var challenge = _app.get_session().get_challenge_snapshot()
+	_expect(
+		challenge.data.get("challenge_outcome", "") == "completed",
+		"challenge outcome is completed"
+	)
+	_expect(
+		bool(challenge.data.get("unlocked", false)),
+		"completed challenge remains unlocked"
+	)
+	_expect(
+		int(_app.get_progression_snapshot().data.get("divination_tickets", 0))
+		>= tickets_before + 2,
+		"challenge completion reward is applied once"
+	)
+	_expect(
+		_app.get_current_screen().get_title_text() == "挑战完成",
+		"challenge result displays success"
+	)
+
+	_app.show_start_screen()
+	await _wait_frames(2)
+	start = _app.get_current_screen()
+	_expect(start.is_continue_enabled(), "completed challenge checkpoint can continue")
+	start.continue_requested.emit()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"challenge_result", "continue restores challenge result")
+	_app.get_current_screen().retry_requested.emit()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"challenge_select", "retry starts fresh challenge selection")
+	_expect(
+		String(_app.get_session().get_challenge_snapshot().data.get("phase", ""))
+		== "modifier_selection",
+		"retry does not resume completed challenge"
+	)
+	challenge_screen = _app.get_current_screen()
+	challenge_screen.request_modifier("modifier.tainted_margins")
+	await _wait_frames(3)
+	challenge_screen.request_start()
+	await _wait_frames(4)
+	await _advance_battle(FIRST_NODE, "first_hunt")
+	await _claim_reward("reward.ink_dart_fragments")
+	await _advance_battle(ELITE_NODE, "mirror_pursuit")
+	await _claim_reward("reward.divination_tickets")
+	route_screen = _app.get_current_screen()
+	route_screen.request_node(REST_NODE)
+	await _wait_frames(3)
+	_app.get_current_screen().select_rest("rest.bandage")
+	await _wait_frames(3)
+	await _advance_battle(BOSS_NODE, "mirror_baron")
+	await _claim_reward("reward.divination_tickets", &"challenge_result")
+	_expect(
+		_app.get_current_route() == &"challenge_result",
+		"tainted challenge failure after reward routes to challenge result"
+	)
+	challenge = _app.get_session().get_challenge_snapshot()
+	_expect(
+		challenge.data.get("challenge_outcome", "") == "failed",
+		"tainted challenge records failure"
+	)
+	_expect(
+		_app.get_current_screen().get_title_text() == "挑战中断",
+		"challenge result displays failure"
+	)
+	_app.get_current_screen().retry_requested.emit()
+	await _wait_frames(4)
+	_expect(_app.get_current_route() == &"challenge_select", "failed challenge can retry")
+	_app.get_current_screen().exit_requested.emit()
+	await _wait_frames(2)
+	_expect(_app.get_current_route() == &"start", "challenge selection can return to start")
 
 
 func _fight_until_finished() -> void:
@@ -315,12 +449,12 @@ func _expect(condition: bool, message: String) -> void:
 
 func _finish() -> void:
 	if _failures.is_empty():
-		print("APP_V05_INTEGRATION_OK checks=%d" % _checks)
+		print("APP_V06_INTEGRATION_OK checks=%d" % _checks)
 		get_tree().quit(0)
 		return
 	for failure in _failures:
 		printerr("APP_V05_INTEGRATION_FAIL %s" % failure)
-	print("APP_V05_INTEGRATION_FAIL checks=%d failures=%d" % [_checks, _failures.size()])
+	print("APP_V06_INTEGRATION_FAIL checks=%d failures=%d" % [_checks, _failures.size()])
 	get_tree().quit(1)
 
 

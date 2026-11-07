@@ -45,7 +45,7 @@
 | 产品经理 | 需求、版本、验收、路线、跨角色裁决 | `docs/**`、根目录协作文档 | 未经明确派工直接实现游戏功能 |
 | UI 设计 | 信息架构、线框、交互、视觉状态、UI 实现 | `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`、UI 报告 | 修改战斗规则、数值公式、存档格式 |
 | 美术 | 卡面、场景、敌人、图标、源文件与资产生成 | `art/**`、`docs/reports/<version>/art*.md` | 修改 UI 业务逻辑、正式 `assets/game/**`、规则或存档 |
-| 玩法设计 | 核心循环、状态机、规则语义、边界条件 | `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、v0.2.0 期间的 `src/core/**`、玩法报告 | 直接读写 UI、文件系统或在全局参数中硬编码平衡值 |
+| 玩法设计 | 核心循环、状态机、规则语义、边界条件 | `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/challenges/**`、`data/decks/**`、v0.2.0 期间的 `src/core/**`、玩法报告 | 直接读写 UI、文件系统或在全局参数中硬编码平衡值 |
 | 数值设计 | 成长曲线、经济、抽卡概率、战斗公式、模拟 | `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`、数值报告 | 修改 UI、规则流程、存档实现或共享 schema |
 | 本地数据层开发 | 离线持久化、内容加载、RNG、日志、适配器 | `src/infrastructure/**`、`src/app/**`、`data/schema/**`、`tests/infrastructure/**`、对应报告 | 创建服务器、修改 UI、代替玩法层制定规则 |
 | 主协调者 | 派工、并发、集成、最终验收 | 协调所需最小范围 | 绕过产品经理静默改变范围 |
@@ -93,10 +93,10 @@ v0.5.0 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.5.0/<role>.md` 记录本版本工作。
 - UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
 
-v0.6.0 当前所有权：
+v0.6.0 已关闭所有权（保留历史）：
 
 - `src/core/**`：玩法设计唯一负责人。
-- `src/gameplay/**`、`tests/gameplay/**`、正式内容目录：玩法设计。
+- `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计。
 - `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
 - `data/schema/**`：本地数据层唯一负责人。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
@@ -104,6 +104,19 @@ v0.6.0 当前所有权：
 - `art/**`：美术独占；正式资产由主协调者迁移到 `assets/game/v0.6.0/**`。
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.6.0/<role>.md` 记录本版本工作。
+- UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
+
+v0.7.0 当前所有权：
+
+- `src/core/**`：玩法设计唯一负责人。
+- `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`、`data/decks/**`：玩法设计。
+- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
+- `data/schema/**`：本地数据层唯一负责人。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
+- `art/**`：美术独占；正式资产由主协调者迁移到 `assets/game/v0.7.0/**`。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.7.0/<role>.md` 记录本版本工作。
 - UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
 
 ## 5. 协作与同步

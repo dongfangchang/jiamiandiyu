@@ -291,6 +291,11 @@ func _resolve_node(
 		_state["route_outcome"] = String(ROUTE_OUTCOME_FAILED)
 		_emit(&"RouteFailed", {"reason_code": "battle_defeat"})
 		return _success()
+	if _corruption_limit_reached():
+		_state["phase"] = String(PHASE_FAILED)
+		_state["route_outcome"] = String(ROUTE_OUTCOME_FAILED)
+		_emit(&"RouteFailed", {"reason_code": "corruption_limit"})
+		return _success()
 	_complete_node(String(node_id))
 	_advance_after_completed_node()
 	return _success()
@@ -561,6 +566,13 @@ func _apply_battle_player_state(player_state: Dictionary) -> void:
 		int(run_state.get("max_attention", 10))
 	)
 	_state["run_state"] = run_state
+
+
+func _corruption_limit_reached() -> bool:
+	var run_state: Dictionary = _state.get("run_state", {})
+	return int(run_state.get("corruption", 0)) >= int(
+		run_state.get("max_corruption", 1)
+	)
 
 
 func _apply_corruption(amount: int) -> void:

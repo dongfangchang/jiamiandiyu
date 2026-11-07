@@ -3,9 +3,13 @@ extends Control
 signal route_changed(route_name: StringName)
 
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
+const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
+const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
 const UpgradedBattleContentPortScript := preload("res://src/gameplay/upgraded_battle_content_port.gd")
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
+const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
+const ChallengeResultScreenScene := preload("res://scenes/ui/challenge_result_screen.tscn")
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
@@ -17,6 +21,8 @@ const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 
 const ROUTE_START: StringName = &"start"
+const ROUTE_CHALLENGE_SELECT: StringName = &"challenge_select"
+const ROUTE_CHALLENGE_RESULT: StringName = &"challenge_result"
 const ROUTE_IDENTITY: StringName = &"identity"
 const ROUTE_HUB: StringName = &"hub"
 const ROUTE_MAP: StringName = &"map"
@@ -58,6 +64,7 @@ func show_start_screen() -> void:
 	var screen := _replace_screen(StartScreenScene)
 	screen.new_game_requested.connect(_on_new_game_requested)
 	screen.continue_requested.connect(_on_continue_requested)
+	screen.challenge_requested.connect(_on_challenge_requested)
 	screen.quit_requested.connect(_on_quit_requested)
 	_set_route(ROUTE_START)
 	_refresh_checkpoint_summary(screen)
@@ -82,6 +89,25 @@ func start_new_game(
 	return result
 
 
+func start_new_challenge(
+	seed_value: int = -1
+) -> InfrastructureResult:
+	var resolved_seed := _resolve_seed(seed_value)
+	var result = AppBootstrapScript.start_challenge(
+		resolved_seed,
+		{"save_directory": save_directory},
+		checkpoint_slot,
+		false,
+		true
+	)
+	if not result.ok:
+		_show_start_error(result)
+		return result
+	_session = result.data
+	_show_current_state()
+	return result
+
+
 func continue_saved_checkpoint() -> InfrastructureResult:
 	var inspected = AppBootstrapScript.inspect_route_checkpoint(
 		checkpoint_slot,
@@ -96,12 +122,25 @@ func continue_saved_checkpoint() -> InfrastructureResult:
 		return failed
 	_last_checkpoint_summary = inspected.data.get("checkpoint", {}).duplicate(true)
 	var seed_value := int(_last_checkpoint_summary.get("rng_seed", _resolve_seed(-1)))
-	var result = AppBootstrapScript.start_route(
-		seed_value,
-		{"save_directory": save_directory},
-		checkpoint_slot,
-		true
+	var challenge_phase := String(
+		_last_checkpoint_summary.get("challenge_phase", "inactive")
 	)
+	var result
+	if challenge_phase != "inactive":
+		result = AppBootstrapScript.start_challenge(
+			seed_value,
+			{"save_directory": save_directory},
+			checkpoint_slot,
+			true,
+			false
+		)
+	else:
+		result = AppBootstrapScript.start_route(
+			seed_value,
+			{"save_directory": save_directory},
+			checkpoint_slot,
+			true
+		)
 	if not result.ok:
 		_show_start_error(result)
 		return result
@@ -181,6 +220,9 @@ func _show_current_state() -> void:
 			"Campaign session was not created."
 		))
 		return
+	if _is_challenge_session():
+		_show_challenge_current_state()
+		return
 	var progression: ProgressionSnapshot = _session.get_progression_snapshot()
 	if progression == null:
 		_show_start_error(InfrastructureResult.failure(
@@ -221,6 +263,117 @@ func _show_current_state() -> void:
 						"route_phase": route_phase,
 					}
 				))
+
+
+func _show_challenge_current_state() -> void:
+	var challenge = _session.get_challenge_snapshot()
+	var challenge_phase := (
+		String(challenge.data.get("phase", ""))
+		if challenge != null
+		else "init_error"
+	)
+	if challenge_phase in ["locked", "modifier_selection"]:
+		_show_challenge_selection()
+		return
+	if challenge_phase in ["completed", "failed"]:
+		_show_challenge_result()
+		return
+	if challenge_phase == "init_error":
+		_show_start_error(InfrastructureResult.failure(
+			&"challenge_state_invalid",
+			"Challenge state could not be restored."
+		))
+		return
+	var progression: ProgressionSnapshot = _session.get_progression_snapshot()
+	var progression_phase := String(progression.data.get("phase", ""))
+	if progression_phase == "reward":
+		_show_reward()
+		return
+	var route: RouteSnapshot = _session.get_route_snapshot()
+	var route_phase := String(route.data.get("phase", ""))
+	match route_phase:
+		"map", "battle_pending":
+			_show_route_screen()
+		"rest_pending":
+			_show_rest_screen()
+		"ritual":
+			_show_ritual_screen()
+		"completed", "failed":
+			_show_challenge_result()
+		_:
+			if progression_phase == "hub":
+				_show_hub()
+			else:
+				_show_start_error(InfrastructureResult.failure(
+					&"challenge_state_invalid",
+					"The saved challenge is in an unsupported state.",
+					{
+						"progression_phase": progression_phase,
+						"route_phase": route_phase,
+						"challenge_phase": challenge_phase,
+					}
+				))
+
+
+func _is_challenge_session() -> bool:
+	return (
+		_session != null
+		and _session.get_script() == ChallengeSessionScript
+	)
+
+
+func _show_challenge_selection() -> void:
+	if _session == null:
+		return
+	var screen := _replace_screen(ChallengeScreenScene)
+	screen.challenge_command_requested.connect(_on_challenge_command_requested)
+	screen.exit_requested.connect(show_start_screen)
+	screen.apply_snapshot(_session.get_challenge_snapshot())
+	_set_route(ROUTE_CHALLENGE_SELECT)
+
+
+func _on_challenge_command_requested(command: ChallengeCommand) -> void:
+	if (
+		_session == null
+		or _screen == null
+		or _route != ROUTE_CHALLENGE_SELECT
+		or command == null
+	):
+		return
+	var result: ChallengeCommandResult = _session.submit_challenge(command)
+	_screen.apply_command_result(result)
+	if not result.accepted:
+		return
+	var challenge = _session.get_challenge_snapshot()
+	if String(challenge.data.get("phase", "")) == "active":
+		_show_route_screen()
+
+
+func _show_challenge_result() -> void:
+	if _session == null:
+		show_start_screen()
+		return
+	var save_state := _checkpoint_save_state()
+	var screen := _replace_screen(ChallengeResultScreenScene)
+	screen.show_result(_session.get_challenge_snapshot(), save_state)
+	screen.hub_requested.connect(_show_hub)
+	screen.retry_requested.connect(_on_challenge_retry_requested)
+	_set_route(ROUTE_CHALLENGE_RESULT)
+
+
+func _on_challenge_retry_requested() -> void:
+	start_new_challenge()
+
+
+func _checkpoint_save_state() -> String:
+	if _session == null or _session.last_checkpoint_result == null:
+		return "failed"
+	var save_result: InfrastructureResult = _session.last_checkpoint_result
+	if save_result.ok:
+		return "saved"
+	if bool(save_result.details.get("backup_available", false)):
+		return "backup"
+	return "failed"
 
 
 func _show_identity_selection() -> void:
@@ -267,7 +420,16 @@ func _show_route_screen() -> void:
 		return
 	var screen := _replace_screen(RouteScreenScene)
 	screen.route_command_requested.connect(_on_route_command_requested)
-	screen.result_requested.connect(_show_route_result)
+	if _is_challenge_session():
+		var challenge = _session.get_challenge_snapshot()
+		var selected: Dictionary = challenge.data.get("selected_modifier", {})
+		screen.set_challenge_context(
+			String(challenge.data.get("display_name_zh", "挑战")),
+			String(selected.get("display_name_zh", ""))
+		)
+		screen.result_requested.connect(_show_challenge_result)
+	else:
+		screen.result_requested.connect(_show_route_result)
 	screen.hub_requested.connect(_show_hub)
 	screen.apply_snapshot(_session.get_route_snapshot())
 	_set_route(ROUTE_MAP)
@@ -300,7 +462,7 @@ func _on_route_command_requested(command: RouteCommand) -> void:
 		var node := _route_node(command.node_id)
 		var node_type := String(node.get("type", ""))
 		if node_type in ["normal", "elite", "boss"]:
-			var started: InfrastructureResult = _session.begin_route_battle()
+			var started: InfrastructureResult = _begin_current_battle()
 			if not started.ok:
 				if _screen != null:
 					_screen.apply_command_result(RouteCommandResult.new(
@@ -310,13 +472,13 @@ func _on_route_command_requested(command: RouteCommand) -> void:
 				return
 			_show_battle()
 			return
-		var selected: RouteCommandResult = _session.submit_route(command)
+		var selected: RouteCommandResult = _submit_route_command(command)
 		_screen.apply_command_result(selected)
 		if selected.accepted:
 			if String(selected.snapshot.data.get("phase", "")) == "rest_pending":
 				_show_rest_screen()
 		return
-	var result: RouteCommandResult = _session.submit_route(command)
+	var result: RouteCommandResult = _submit_route_command(command)
 	_screen.apply_command_result(result)
 	if not result.accepted:
 		return
@@ -328,11 +490,41 @@ func _on_route_command_requested(command: RouteCommand) -> void:
 			_show_ritual_screen()
 		RouteCommand.SUBMIT_RITUAL_STEP, RouteCommand.REQUEST_RITUAL_HINT:
 			if phase in ["completed", "failed"]:
-				_show_route_result()
+				if _is_challenge_session():
+					_show_challenge_result()
+				else:
+					_show_route_result()
 			else:
 				_show_ritual_screen()
 		RouteCommand.CANCEL_RITUAL:
 			_show_route_screen()
+
+
+func _submit_route_command(command: RouteCommand) -> RouteCommandResult:
+	if _session == null:
+		return RouteCommandResult.new(false, &"campaign_missing")
+	if _is_challenge_session():
+		var challenge_result: ChallengeCommandResult = _session.submit_route(
+			command
+		)
+		if challenge_result.route_result != null:
+			return challenge_result.route_result
+		return RouteCommandResult.new(
+			false,
+			challenge_result.reason_code
+		)
+	return _session.submit_route(command)
+
+
+func _begin_current_battle() -> InfrastructureResult:
+	if _session == null:
+		return InfrastructureResult.failure(
+			&"campaign_missing",
+			"Campaign session is unavailable."
+		)
+	if _is_challenge_session():
+		return _session.begin_challenge_battle()
+	return _session.begin_route_battle()
 
 
 func _route_node(node_id: StringName) -> Dictionary:
@@ -395,7 +587,10 @@ func _route_after_battle(snapshot: BattleSnapshot) -> void:
 		return
 	var route: RouteSnapshot = _session.get_route_snapshot()
 	if String(route.data.get("phase", "")) in ["completed", "failed"]:
-		_show_route_result()
+		if _is_challenge_session():
+			_show_challenge_result()
+		else:
+			_show_route_result()
 		return
 	_show_route_screen()
 
@@ -416,7 +611,7 @@ func _on_reward_claimed(reward_id: StringName) -> void:
 	)
 	_screen.apply_command_result(result)
 	if result.accepted:
-		_show_route_screen()
+		_show_current_state()
 
 
 func _on_gacha_requested() -> void:
@@ -597,6 +792,10 @@ func _status_label(status_id: StringName) -> String:
 
 func _on_new_game_requested() -> void:
 	start_new_game(_resolve_seed(-1))
+
+
+func _on_challenge_requested() -> void:
+	start_new_challenge(_resolve_seed(-1))
 
 
 func _on_continue_requested() -> void:
