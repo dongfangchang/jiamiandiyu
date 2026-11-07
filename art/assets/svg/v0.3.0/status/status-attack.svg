@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="paperWash" cx="45%" cy="38%" r="72%">
+      <stop offset="0" stop-color="#EFE1C0"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111612"/>
+      <stop offset=".55" stop-color="#28302a"/>
+      <stop offset="1" stop-color="#0d110f"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E4CA84"/>
+      <stop offset=".5" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#69532D"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".15"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".07"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="31" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    
+  </defs>
+  
+    <rect width="64" height="64" rx="10" fill="#1b1f1a" stroke="#B99750" stroke-width="1" opacity=".98"/>
+    <g color="#7A2828"><path d="M12 52 L44 20 M39 12 L52 12 L52 25" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 47 L17 55 M18 44 L10 56 L21 58Z" fill="currentColor"/></g>
+  
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="400" viewBox="0 0 512 400">
+  <defs>
+    <radialGradient id="paperWash" cx="45%" cy="38%" r="72%">
+      <stop offset="0" stop-color="#EFE1C0"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111612"/>
+      <stop offset=".55" stop-color="#28302a"/>
+      <stop offset="1" stop-color="#0d110f"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E4CA84"/>
+      <stop offset=".5" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#69532D"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".15"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".07"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="31" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    
+  </defs>
+  
+    
+    <rect width="512" height="400" fill="url(#paperWash)" filter="url(#grain)"/>
+    <rect width="512" height="400" fill="url(#hatch)"/>
+    <circle cx="143.36" cy="88" r="92.16" fill="#E8DFC9" opacity=".11"/>
+    <path d="M0 352 C102.4 320, 194.56 372, 286.72 336 S419.84 312, 512 344"
+      fill="none" stroke="#211D18" stroke-width="1" opacity=".13"/>
+  
+    <rect x="8" y="8" width="496" height="384" fill="none" stroke="#211D18" stroke-width="1" opacity=".2"/>
+    
+      <circle cx="256" cy="183" r="123" fill="#E8DFC9" opacity=".12" stroke="#B99750" stroke-width="1.2" stroke-dasharray="3 9"/>
+      <path d="M167 194 C177 125 218 87 271 83 C330 78 370 118 380 181 C342 158 310 170 286 203 C258 241 220 252 177 231 C168 219 164 207 167 194Z" fill="#211D18"/>
+      <path d="M379 144 C421 127 443 86 430 50 C399 61 378 87 369 116Z" fill="#211D18"/>
+      <path d="M181 219 C219 215 241 226 254 250 C231 266 203 268 177 250Z" fill="#211D18"/>
+      <circle cx="337" cy="164" r="7" fill="#7A2828"/>
+      <path d="M334 166 L356 178 L343 187Z" fill="#7A2828"/>
+      <g fill="#7A2828" opacity=".72">
+        <path d="M118 303 L144 272 L166 310Z"/>
+        <circle cx="396" cy="268" r="8"/>
+        <circle cx="349" cy="322" r="5"/>
+        <circle cx="89" cy="145" r="4"/>
+      </g>
+      <path d="M91 320 C150 300 207 312 256 288 S359 279 424 303" fill="none" stroke="#211D18" stroke-width="2" opacity=".35"/>
+    
+  
+</svg>

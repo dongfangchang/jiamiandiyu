@@ -5,7 +5,9 @@
 - `ART_DIRECTION.md`：视觉方向、色板、资产规格与正式插画提示词。
 - `ASSET_MANIFEST.md`：当前资产、计划资产与来源记录。
 - `assets/svg/`：可编辑矢量源文件。
-- `assets/png/`：已经渲染的 1:1 PNG，可直接导入 Godot。
+- `assets/svg/v0.3.0/`：战斗场景、三敌人、八卡面与状态图标的 v0.3.0 矢量源。
+- `assets/game/v0.3.0/`：等待主线程迁移到 `assets/game/` 的正式 PNG 候选。
+- `../assets/game/`：已经渲染的 1:1 PNG，是 Godot 运行时唯一的正式 PNG 来源。
 - `preview/contact-sheet.html`：在浏览器中查看整套样张。
 - `tools/generate_art.mjs`：重新生成占位资产的脚本。
 
@@ -19,9 +21,17 @@ node art/tools/generate_art.mjs
 
 脚本只使用 Node.js 内置模块，不需要安装依赖。
 
+v0.3.0 返工资产：
+
+```powershell
+node art/tools/generate_v030_art.mjs
+```
+
+生成清单见 `assets/game/v0.3.0/render-manifest.json`，其中路径以 `art/` 为基准。
+
 ## PNG 导出
 
-当前环境使用 Microsoft Edge 的无头模式把 SVG 渲染为 PNG。卡牌为 600 x 840，敌人为 900 x 900，标题与仪式为 1600 x 900。
+当前环境使用 Microsoft Edge 的无头模式把 SVG 渲染为 PNG。正式 PNG 输出到项目级 `assets/game/`；卡牌为 600 x 840，敌人为 900 x 900，标题与仪式为 1600 x 900。
 
 如果后续修改 SVG，建议优先直接在 Godot 中使用 SVG 作为临时资产；只有在导入滤镜出现差异时再重新导出 PNG。
 

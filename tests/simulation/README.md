@@ -1,17 +1,15 @@
 # 数值模拟测试
 
-在项目根目录运行：
+先运行真实战斗采样：
 
 ```powershell
-node --test tests/simulation/*.test.mjs
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tools/simulation/battle_sampling_runner.tscn
 ```
 
-测试覆盖：
+再运行合同检查：
 
-- `corruption` / `attention` 唯一字段命名。
-- 20 张卡的稳定 ID 和费用、稀有度分布。
-- 敌方压力参数与每场战斗重置语义。
-- 抽卡成本、保底、确定性获取和晋升材料规则。
-- 固定种子连续两次模拟输出哈希一致。
+```powershell
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/simulation/balance_contract_runner.tscn
+```
 
-模拟本身是聚合资源预算，不代替逐张出牌的真实战斗测试。
+采样器直接读取正式 `data/cards`、`data/enemies`、`data/encounters` 和 `data/balance/v0.3.0/balance.json`，不会复制卡牌或敌人定义。

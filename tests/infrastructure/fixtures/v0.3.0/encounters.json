@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.3.0-test",
+  "encounters": [
+    {
+      "id": "encounter.test.first_battle",
+      "display_name_zh": "测试首战",
+      "deck_definition_ids": [
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution",
+        "card.test.execution"
+      ],
+      "enemy_slots": [
+        {
+          "enemy_id": "enemy.test.dummy",
+          "lane_index": 0
+        }
+      ]
+    }
+  ]
+}

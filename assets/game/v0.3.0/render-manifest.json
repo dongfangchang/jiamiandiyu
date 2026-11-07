@@ -1,0 +1,198 @@
+{
+  "version": "v0.3.0",
+  "assets": [
+    {
+      "id": "enemy.weeping_tenant",
+      "type": "enemy",
+      "svg": "assets/svg/v0.3.0/enemies/enemy-weeping-tenant.svg",
+      "png": "assets/game/v0.3.0/enemies/enemy-weeping-tenant.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "id": "enemy.candle_moth",
+      "type": "enemy",
+      "svg": "assets/svg/v0.3.0/enemies/enemy-candle-moth.svg",
+      "png": "assets/game/v0.3.0/enemies/enemy-candle-moth.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "id": "enemy.mirror_hound",
+      "type": "enemy",
+      "svg": "assets/svg/v0.3.0/enemies/enemy-mirror-hound.svg",
+      "png": "assets/game/v0.3.0/enemies/enemy-mirror-hound.png",
+      "width": 900,
+      "height": 900
+    },
+    {
+      "id": "scene.battle.tingen_old_house",
+      "type": "scene",
+      "svg": "assets/svg/v0.3.0/scenes/battle-tingen-old-house.svg",
+      "png": "assets/game/v0.3.0/scenes/battle-tingen-old-house.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "card.skill.ink_dart",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-ink-dart.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-ink-dart.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.paper_guard",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-paper-guard.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-paper-guard.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.calm_breath",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-calm-breath.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-calm-breath.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.focus",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-focus.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-focus.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.insight",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-insight.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-insight.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.omen",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-omen.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-omen.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.whisper",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-whisper.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-whisper.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "card.skill.second_look",
+      "type": "card",
+      "svg": "assets/svg/v0.3.0/cards/card-skill-second-look.svg",
+      "png": "assets/game/v0.3.0/cards/card-skill-second-look.png",
+      "width": 512,
+      "height": 400
+    },
+    {
+      "id": "status.spirit",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-spirit.svg",
+      "png": "assets/game/v0.3.0/status/status-spirit.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.corruption",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-corruption.svg",
+      "png": "assets/game/v0.3.0/status/status-corruption.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.attention",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-attention.svg",
+      "png": "assets/game/v0.3.0/status/status-attention.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.health",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-health.svg",
+      "png": "assets/game/v0.3.0/status/status-health.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.block",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-block.svg",
+      "png": "assets/game/v0.3.0/status/status-block.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.attack",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-attack.svg",
+      "png": "assets/game/v0.3.0/status/status-attack.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.draw",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-draw.svg",
+      "png": "assets/game/v0.3.0/status/status-draw.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.relic",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-relic.svg",
+      "png": "assets/game/v0.3.0/status/status-relic.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.persona",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-persona.svg",
+      "png": "assets/game/v0.3.0/status/status-persona.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.rite",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-rite.svg",
+      "png": "assets/game/v0.3.0/status/status-rite.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.ascension",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-ascension.svg",
+      "png": "assets/game/v0.3.0/status/status-ascension.png",
+      "width": 64,
+      "height": 64
+    },
+    {
+      "id": "status.madness",
+      "type": "status",
+      "svg": "assets/svg/v0.3.0/status/status-madness.svg",
+      "png": "assets/game/v0.3.0/status/status-madness.png",
+      "width": 64,
+      "height": 64
+    }
+  ]
+}
+

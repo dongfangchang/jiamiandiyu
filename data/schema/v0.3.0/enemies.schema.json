@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.3.0 enemy definitions",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "enemies"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enemies": {
+      "type": "array",
+      "minItems": 1,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name_zh",
+          "tier",
+          "base_health",
+          "base_attack"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^enemy\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "elite",
+              "boss"
+            ]
+          },
+          "base_health": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "base_attack": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "threat": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

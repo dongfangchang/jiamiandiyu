@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.3.0-test",
+  "enemies": [
+    {
+      "id": "enemy.test.dummy",
+      "display_name_zh": "测试假人",
+      "tier": "normal",
+      "base_health": 10,
+      "base_attack": 1,
+      "threat": "damage"
+    }
+  ]
+}

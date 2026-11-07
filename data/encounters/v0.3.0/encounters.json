@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.3.0",
+  "encounters": [
+    {
+      "id": "encounter.first_hunt",
+      "display_name_zh": "雨夜双影",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.ink_dart",
+        "card.skill.ink_dart",
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "enemy_slots": [
+        {
+          "enemy_id": "enemy.weeping_tenant",
+          "lane_index": 0
+        },
+        {
+          "enemy_id": "enemy.candle_moth",
+          "lane_index": 2
+        }
+      ]
+    }
+  ]
+}

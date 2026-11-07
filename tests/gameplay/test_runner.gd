@@ -7,6 +7,10 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	_test_formal_starter_cards()
+	_test_formal_enemy_and_encounter_content()
+	_test_formal_first_battle_initializes()
+	_test_formal_starter_card_effects()
 	_test_valid_play_and_duplicate_rejection()
 	_test_insufficient_spirit_and_invalid_target()
 	_test_block_absorbs_enemy_damage()
@@ -26,6 +30,284 @@ func _ready() -> void:
 		printerr("GAMEPLAY_TEST_FAILURE: %s" % failure)
 	printerr("GAMEPLAY_TESTS_FAILED checks=%d failures=%d" % [_checks, _failures.size()])
 	get_tree().quit(1)
+
+
+func _test_formal_starter_cards() -> void:
+	var cards: Dictionary = _load_formal_cards()
+	_check(cards.size() == 8, "formal starter content should contain 8 unique cards")
+	var expected_ids: Array[StringName] = [
+		&"card.skill.ink_dart",
+		&"card.skill.paper_guard",
+		&"card.skill.calm_breath",
+		&"card.skill.focus",
+		&"card.skill.insight",
+		&"card.skill.omen",
+		&"card.skill.whisper",
+		&"card.skill.second_look",
+	]
+	for definition_id in expected_ids:
+		_check(cards.has(definition_id), "formal card missing: %s" % definition_id)
+
+	var effect_ids: Dictionary = {}
+	for definition_id in expected_ids:
+		var definition: Dictionary = cards.get(definition_id, {})
+		_check(
+			StringName(definition.get("id", "")) == definition_id,
+			"formal card definition id should match lookup key"
+		)
+		for effect in definition.get("effects", []):
+			effect_ids[StringName(effect.get("effect_id", ""))] = true
+	var expected_effects: Array[StringName] = [
+		&"damage",
+		&"block",
+		&"heal",
+		&"spirit",
+		&"draw",
+		&"apply_status",
+		&"reveal_intent",
+		&"risk",
+	]
+	for effect_id in expected_effects:
+		_check(effect_ids.has(effect_id), "formal effect missing: %s" % effect_id)
+
+
+func _test_formal_enemy_and_encounter_content() -> void:
+	var cards: Dictionary = _load_formal_cards()
+	var enemies_document: Dictionary = _load_json_document(
+		"res://data/enemies/v0.3.0/enemies.json"
+	)
+	var encounters_document: Dictionary = _load_json_document(
+		"res://data/encounters/v0.3.0/encounters.json"
+	)
+	_check(
+		String(enemies_document.get("content_version", "")) == "v0.3.0",
+		"enemy content should use v0.3.0 content version"
+	)
+	_check(
+		String(encounters_document.get("content_version", "")) == "v0.3.0",
+		"encounter content should use v0.3.0 content version"
+	)
+	var enemy_by_id: Dictionary = {}
+	for enemy in enemies_document.get("enemies", []):
+		enemy_by_id[StringName(enemy.get("id", ""))] = enemy.duplicate(true)
+	_check(enemy_by_id.size() == 3, "formal enemy content should contain 3 unique enemies")
+
+	var encounters: Array = encounters_document.get("encounters", [])
+	_check(encounters.size() == 1, "formal content should define one first encounter")
+	if encounters.is_empty():
+		return
+	var encounter: Dictionary = encounters[0]
+	_check(
+		String(encounter.get("id", "")) == "encounter.first_hunt",
+		"first encounter should use stable id encounter.first_hunt"
+	)
+	var enemy_slots: Array = encounter.get("enemy_slots", [])
+	_check(enemy_slots.size() == 2, "first encounter should contain two enemies")
+	var lanes: Dictionary = {}
+	for slot in enemy_slots:
+		var enemy_id: StringName = StringName(slot.get("enemy_id", ""))
+		var lane_index: int = int(slot.get("lane_index", -1))
+		_check(enemy_by_id.has(enemy_id), "encounter should reference a formal enemy")
+		_check(not lanes.has(lane_index), "encounter enemy lanes should be unique")
+		lanes[lane_index] = true
+	for definition_id in encounter.get("deck_definition_ids", []):
+		_check(
+			cards.has(StringName(definition_id)),
+			"encounter should reference a formal card: %s" % definition_id
+		)
+
+
+func _test_formal_first_battle_initializes() -> void:
+	var cards: Dictionary = _load_formal_cards()
+	var enemies_document: Dictionary = _load_json_document(
+		"res://data/enemies/v0.3.0/enemies.json"
+	)
+	var encounters_document: Dictionary = _load_json_document(
+		"res://data/encounters/v0.3.0/encounters.json"
+	)
+	var enemy_by_id: Dictionary = {}
+	for enemy in enemies_document.get("enemies", []):
+		enemy_by_id[StringName(enemy.get("id", ""))] = enemy
+	var encounters: Array = encounters_document.get("encounters", [])
+	if encounters.is_empty():
+		_check(false, "formal first battle requires an encounter")
+		return
+	var encounter: Dictionary = encounters[0]
+	var enemy_configs: Array[Dictionary] = []
+	for slot in encounter.get("enemy_slots", []):
+		var enemy_id: StringName = StringName(slot.get("enemy_id", ""))
+		var definition: Dictionary = enemy_by_id.get(enemy_id, {})
+		enemy_configs.append({
+			"id": "%s.%s" % [encounter.get("id", ""), enemy_id],
+			"definition_id": enemy_id,
+			"lane_index": int(slot.get("lane_index", -1)),
+			"hp": int(definition.get("base_health", 0)),
+			"max_hp": int(definition.get("base_health", 0)),
+			"base_attack": int(definition.get("base_attack", 0)),
+		})
+	var engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		encounter.get("deck_definition_ids", []),
+		enemy_configs
+	)
+	var snapshot: Dictionary = engine.get_snapshot().to_dictionary()
+	_check(
+		String(snapshot.get("phase", "")) == "player_action",
+		"formal first battle should initialize into player_action"
+	)
+	_check(
+		Array(snapshot.get("enemies", [])).size() == 2,
+		"formal first battle snapshot should expose two enemy lanes"
+	)
+
+
+func _test_formal_starter_card_effects() -> void:
+	var cards: Dictionary = _load_formal_cards()
+
+	var guard_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.paper_guard", &"card.skill.ink_dart"],
+		[_enemy(&"enemy.a", 0, 20, 1)]
+	)
+	var guard_id: StringName = _hand_instance(
+		guard_engine,
+		&"card.skill.paper_guard"
+	)
+	var guard_result: BattleCommandResult = guard_engine.submit(
+		BattleCommand.play_card(guard_id)
+	)
+	_check(
+		int(guard_result.snapshot.data["player"]["block"]) == 5,
+		"formal paper guard should add 5 block"
+	)
+	var ink_id: StringName = _hand_instance(guard_engine, &"card.skill.ink_dart")
+	var ink_result: BattleCommandResult = guard_engine.submit(
+		BattleCommand.play_card(ink_id, &"enemy.a")
+	)
+	_check(
+		_enemy_hp(ink_result.snapshot, &"enemy.a") == 16,
+		"formal ink dart should deal 4 damage"
+	)
+
+	var calm_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.calm_breath"],
+		[_enemy(&"enemy.a", 0, 20, 1)],
+		{"hp": 10, "corruption": 2}
+	)
+	var calm_id: StringName = _hand_instance(
+		calm_engine,
+		&"card.skill.calm_breath"
+	)
+	var calm_result: BattleCommandResult = calm_engine.submit(
+		BattleCommand.play_card(calm_id)
+	)
+	_check(
+		int(calm_result.snapshot.data["player"]["hp"]) == 14,
+		"formal calm breath should heal 4"
+	)
+	_check(
+		int(calm_result.snapshot.data["player"]["corruption"]) == 1,
+		"formal calm breath should reduce corruption by 1"
+	)
+
+	var focus_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.focus"],
+		[_enemy(&"enemy.a", 0, 20, 1)]
+	)
+	var focus_id: StringName = _hand_instance(focus_engine, &"card.skill.focus")
+	var focus_result: BattleCommandResult = focus_engine.submit(
+		BattleCommand.play_card(focus_id)
+	)
+	_check(
+		int(focus_result.snapshot.data["player"]["spirit"]) == 4,
+		"formal focus should add 1 spirit"
+	)
+
+	var insight_deck: Array[StringName] = []
+	for _copy_index in range(8):
+		insight_deck.append(&"card.skill.insight")
+	var insight_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		insight_deck,
+		[_enemy(&"enemy.a", 0, 20, 1)]
+	)
+	var insight_id: StringName = _hand_instance(
+		insight_engine,
+		&"card.skill.insight"
+	)
+	var insight_result: BattleCommandResult = insight_engine.submit(
+		BattleCommand.play_card(insight_id)
+	)
+	_check(
+		insight_result.snapshot.data["hand"].size() == 5,
+		"formal insight should replace itself by drawing one card"
+	)
+	_check(
+		_has_event(insight_result, &"CardDrawn"),
+		"formal insight should emit CardDrawn"
+	)
+
+	var mark_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.omen", &"card.skill.ink_dart"],
+		[_enemy(&"enemy.a", 0, 20, 1)]
+	)
+	var omen_id: StringName = _hand_instance(mark_engine, &"card.skill.omen")
+	mark_engine.submit(BattleCommand.play_card(omen_id, &"enemy.a"))
+	var marked_ink_id: StringName = _hand_instance(
+		mark_engine,
+		&"card.skill.ink_dart"
+	)
+	var mark_result: BattleCommandResult = mark_engine.submit(
+		BattleCommand.play_card(marked_ink_id, &"enemy.a")
+	)
+	_check(
+		_enemy_hp(mark_result.snapshot, &"enemy.a") == 14,
+		"formal omen should add 2 to the next ink dart"
+	)
+
+	var weaken_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.whisper"],
+		[_enemy(&"enemy.a", 0, 20, 5)]
+	)
+	var whisper_id: StringName = _hand_instance(
+		weaken_engine,
+		&"card.skill.whisper"
+	)
+	weaken_engine.submit(BattleCommand.play_card(whisper_id, &"enemy.a"))
+	var weaken_result: BattleCommandResult = weaken_engine.submit(
+		BattleCommand.end_turn()
+	)
+	_check(
+		int(weaken_result.snapshot.data["player"]["hp"]) == 17,
+		"formal whisper should reduce 5 damage to 3"
+	)
+
+	var reveal_engine: BattleEngine = _make_engine_with_definitions(
+		cards,
+		[&"card.skill.second_look"],
+		[_enemy(&"enemy.a", 0, 20, 5)]
+	)
+	var reveal_id: StringName = _hand_instance(
+		reveal_engine,
+		&"card.skill.second_look"
+	)
+	var reveal_result: BattleCommandResult = reveal_engine.submit(
+		BattleCommand.play_card(reveal_id, &"enemy.a")
+	)
+	_check(
+		bool(_enemy_view(reveal_result.snapshot, &"enemy.a")["intent"]["revealed"]),
+		"formal second look should reveal enemy intent"
+	)
+	_check(
+		int(
+			_enemy_view(reveal_result.snapshot, &"enemy.a")["intent"]["visible_fields"]["damage"]
+		) == 5,
+		"formal second look should expose the intent damage"
+	)
 
 
 func _test_valid_play_and_duplicate_rejection() -> void:
@@ -183,20 +465,45 @@ func _test_enemy_pressure() -> void:
 	var engine: BattleEngine = _make_engine(
 		[&"card.test.paper_guard"],
 		[_enemy(&"enemy.a", 0, 200, 1)],
-		{"hp": 200, "max_hp": 200}
+		{"hp": 200, "max_hp": 200},
+		{"battle.enemy_pressure_start_round": 5}
 	)
-	var result: BattleCommandResult
-	for _round_index in range(7):
+	var pressure_event_count: int = 0
+	var result: BattleCommandResult = engine.submit(BattleCommand.end_turn())
+	for _round_index in range(2, 10):
 		result = engine.submit(BattleCommand.end_turn())
 		_check(result.accepted, "end turn should remain accepted during pressure test")
+		for event in result.events:
+			if event.type == &"EnemyPressureChanged":
+				pressure_event_count += 1
+		var round_number: int = int(result.snapshot.data["round_number"])
+		var bonus: int = int(result.snapshot.data["enemy_pressure_bonus"])
+		var intent_damage: int = int(
+			_enemy_view(result.snapshot, &"enemy.a")["intent"]["damage"]
+		)
+		match round_number:
+			4:
+				_check(bonus == 0, "round four should have no enemy pressure")
+				_check(intent_damage == 1, "round four intent should keep base damage")
+			5:
+				_check(bonus == 1, "round five should gain first pressure point")
+				_check(intent_damage == 2, "round five intent should include pressure")
+			7:
+				_check(bonus == 2, "round seven should gain second pressure point")
+				_check(intent_damage == 3, "round seven intent should include pressure")
+			9:
+				_check(bonus == 3, "round nine should gain third pressure point")
+				_check(intent_damage == 4, "round nine intent should include pressure")
+	_check(int(result.snapshot.data["round_number"]) == 10, "pressure test should reach round ten")
 	_check(
-		int(result.snapshot.data["enemy_pressure_bonus"]) == 1,
-		"enemy pressure should increase by one after round seven"
+		int(result.snapshot.data["enemy_pressure_bonus"]) == 3,
+		"enemy pressure should stop increasing after round nine"
 	)
-	var intent_damage: int = int(
-		_enemy_view(result.snapshot, &"enemy.a")["intent"]["damage"]
+	_check(
+		int(_enemy_view(result.snapshot, &"enemy.a")["intent"]["damage"]) == 4,
+		"round ten should retain three pressure points"
 	)
-	_check(intent_damage == 2, "pressure should raise the next intent from one to two")
+	_check(pressure_event_count == 3, "pressure should trigger exactly on rounds five, seven and nine")
 
 
 func _test_deterministic_replay() -> void:
@@ -265,6 +572,44 @@ func _make_engine(
 	seed: int = 7
 ) -> BattleEngine:
 	var content: FakeContent = FakeContent.new()
+	return _make_engine_with_content(
+		content,
+		deck,
+		enemies,
+		player_overrides,
+		balance_overrides,
+		seed
+	)
+
+
+func _make_engine_with_definitions(
+	definitions: Dictionary,
+	deck: Array,
+	enemies: Array,
+	player_overrides: Dictionary = {},
+	balance_overrides: Dictionary = {},
+	seed: int = 7
+) -> BattleEngine:
+	var content: FakeContent = FakeContent.new()
+	content.cards = definitions.duplicate(true)
+	return _make_engine_with_content(
+		content,
+		deck,
+		enemies,
+		player_overrides,
+		balance_overrides,
+		seed
+	)
+
+
+func _make_engine_with_content(
+	content: FakeContent,
+	deck: Array,
+	enemies: Array,
+	player_overrides: Dictionary = {},
+	balance_overrides: Dictionary = {},
+	seed: int = 7
+) -> BattleEngine:
 	var balance: FakeBalance = FakeBalance.new()
 	for key in balance_overrides:
 		balance.values[StringName(key)] = balance_overrides[key]
@@ -284,6 +629,37 @@ func _make_engine(
 	)
 	_check(result.accepted, "test engine should initialize: %s" % result.reason_code)
 	return engine
+
+
+func _load_formal_cards() -> Dictionary:
+	var document: Dictionary = _load_json_document(
+		"res://data/cards/v0.3.0/cards.json"
+	)
+	var result: Dictionary = {}
+	for definition in document.get("cards", []):
+		if definition is Dictionary:
+			result[StringName(definition.get("id", ""))] = definition.duplicate(true)
+	return result
+
+
+func _load_json_document(path: String) -> Dictionary:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		_check(false, "formal content file should be readable: %s" % path)
+		return {}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not parsed is Dictionary:
+		_check(false, "formal content file should contain a JSON object: %s" % path)
+		return {}
+	return parsed
+
+
+func _has_event(result: BattleCommandResult, event_type: StringName) -> bool:
+	for event in result.events:
+		if event.type == event_type:
+			return true
+	return false
 
 
 func _player_state() -> Dictionary:

@@ -3,10 +3,13 @@ extends BattleBalancePort
 
 const PARAMETER_PATHS: Dictionary = {
 	&"player.base_max_hp": ["player", "max_health"],
+	&"player.starting_health": ["player", "starting_health"],
 	&"player.base_max_spirit": ["player", "spirit_per_turn"],
 	&"player.starting_hand": ["player", "starting_hand"],
 	&"player.turn_draw_to_hand_size": ["player", "turn_draw_to_hand_size"],
 	&"player.max_hand_size": ["player", "max_hand_size"],
+	&"player.max_corruption": ["player", "corruption", "max"],
+	&"player.max_attention": ["player", "attention", "max"],
 	&"battle.max_rounds": ["combat", "max_rounds"],
 	&"battle.enemy_pressure_start_round": ["combat", "enemy_pressure", "start_round"],
 	&"risk.corruption_thresholds": ["player", "corruption"],

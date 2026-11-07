@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.3.0-test",
+  "cards": [
+    {
+      "id": "card.test.execution",
+      "display_name_zh": "终局墨刺",
+      "category": "skill",
+      "rarity": "common",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "target": "enemy",
+          "amount": 99
+        }
+      ]
+    }
+  ]
+}

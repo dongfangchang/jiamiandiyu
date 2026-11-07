@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.3.0",
+  "enemies": [
+    {
+      "id": "enemy.weeping_tenant",
+      "display_name_zh": "哭泣的房客",
+      "tier": "normal",
+      "base_health": 12,
+      "base_attack": 4,
+      "threat": "corruption"
+    },
+    {
+      "id": "enemy.candle_moth",
+      "display_name_zh": "烛焰飞蛾",
+      "tier": "normal",
+      "base_health": 8,
+      "base_attack": 2,
+      "threat": "attention"
+    },
+    {
+      "id": "enemy.mirror_hound",
+      "display_name_zh": "镜中猎犬",
+      "tier": "normal",
+      "base_health": 14,
+      "base_attack": 5,
+      "threat": "damage"
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.3.0 global battle balance",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "content_version",
+    "status",
+    "player",
+    "combat"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "player": {
+      "type": "object",
+      "required": [
+        "max_health",
+        "starting_health",
+        "spirit_per_turn",
+        "starting_hand",
+        "turn_draw_to_hand_size",
+        "max_hand_size",
+        "corruption",
+        "attention"
+      ],
+      "properties": {
+        "max_health": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "starting_health": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spirit_per_turn": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "starting_hand": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "turn_draw_to_hand_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_hand_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "corruption": {
+          "type": "object",
+          "required": [
+            "min",
+            "max",
+            "warning_at",
+            "penalty_at",
+            "run_end_at"
+          ]
+        },
+        "attention": {
+          "type": "object",
+          "required": [
+            "min",
+            "max",
+            "warning_at",
+            "hunter_at",
+            "forced_hunter_at"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "combat": {
+      "type": "object",
+      "required": [
+        "max_rounds",
+        "enemy_pressure"
+      ],
+      "properties": {
+        "max_rounds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "enemy_pressure": {
+          "type": "object",
+          "required": [
+            "start_round"
+          ],
+          "properties": {
+            "start_round": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -7,6 +7,7 @@ var random: SeededRandomService
 var saves: AtomicSaveService
 var logger: StructuredLogger
 var content: JsonDocumentLoader
+var catalog: RefCounted
 
 
 func _init(random_service: SeededRandomService) -> void:

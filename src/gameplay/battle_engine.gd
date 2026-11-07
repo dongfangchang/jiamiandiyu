@@ -11,6 +11,9 @@ const OUTCOME_NONE: StringName = &""
 const OUTCOME_VICTORY: StringName = &"victory"
 const OUTCOME_DEFEAT: StringName = &"defeat"
 
+const ENEMY_PRESSURE_INTERVAL_ROUNDS: int = 2
+const ENEMY_PRESSURE_TRIGGER_COUNT: int = 3
+
 const SUPPORTED_EFFECTS: Array[StringName] = [
 	&"damage",
 	&"block",
@@ -311,9 +314,6 @@ func _end_turn() -> BattleCommandResult:
 		_revision += 1
 		return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
 
-	if _round_number >= _enemy_pressure_start_round:
-		_apply_enemy_pressure()
-
 	_round_number += 1
 	if _round_number > _max_rounds:
 		_finish_battle(OUTCOME_DEFEAT, &"round_limit")
@@ -330,6 +330,7 @@ func _begin_round(draw_target: int) -> void:
 	_player["block"] = 0
 	_player["spirit"] = int(_player["max_spirit"])
 	_emit(&"RoundStarted", {"round_number": _round_number})
+	_apply_enemy_pressure_if_due()
 	_generate_enemy_intents()
 	_draw_to_hand(draw_target)
 	_phase = PHASE_PLAYER_ACTION
@@ -353,21 +354,33 @@ func _generate_enemy_intents() -> void:
 		})
 
 
-func _apply_enemy_pressure() -> void:
+func _apply_enemy_pressure_if_due() -> bool:
+	var offset: int = _round_number - _enemy_pressure_start_round
+	var last_offset: int = (
+		ENEMY_PRESSURE_INTERVAL_ROUNDS * (ENEMY_PRESSURE_TRIGGER_COUNT - 1)
+	)
+	if (
+		offset < 0
+		or offset > last_offset
+		or offset % ENEMY_PRESSURE_INTERVAL_ROUNDS != 0
+	):
+		return false
+
 	var living_count: int = 0
+	var current_bonus: int = 0
 	for enemy in _enemies:
 		if _is_alive(enemy):
 			enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0)) + 1
+			current_bonus = maxi(current_bonus, int(enemy["pressure_bonus"]))
 			living_count += 1
 	if living_count > 0:
-		var current_bonus: int = int(_enemies[0].get("pressure_bonus", 0))
-		for enemy in _enemies:
-			if _is_alive(enemy):
-				current_bonus = mini(current_bonus, int(enemy["pressure_bonus"]))
 		_emit(&"EnemyPressureChanged", {
 			"bonus": current_bonus,
 			"living_enemy_count": living_count,
+			"round_number": _round_number,
 		})
+		return true
+	return false
 
 
 func _apply_effect(
@@ -841,19 +854,19 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 		return false
 	match effect_id:
 		&"damage", &"block", &"heal", &"spirit":
-			return effect.get("amount") is int and int(effect["amount"]) >= 0
+			return _is_non_negative_integer(effect.get("amount"))
 		&"draw", &"discard":
-			return effect.get("count") is int and int(effect["count"]) >= 0
+			return _is_non_negative_integer(effect.get("count"))
 		&"apply_status":
 			if not (effect.get("status_id") is String):
 				return false
 			if String(effect["status_id"]) not in ["mark", "weaken"]:
 				return false
-			if not (effect.get("stacks") is int) or int(effect["stacks"]) <= 0:
+			if not _is_positive_integer(effect.get("stacks")):
 				return false
-			if not (effect.get("duration") is int) or int(effect["duration"]) <= 0:
+			if not _is_positive_integer(effect.get("duration")):
 				return false
-			return effect.get("max_stacks", 999) is int and int(effect.get("max_stacks", 999)) > 0
+			return _is_positive_integer(effect.get("max_stacks", 999))
 		&"remove_status":
 			return (
 				effect.get("status_id") is String
@@ -865,9 +878,25 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 			return (
 				effect.get("risk_id") is String
 				and String(effect["risk_id"]) in ["corruption", "attention"]
-				and effect.get("amount") is int
+				and _is_integer_number(effect.get("amount"))
 			)
 	return false
+
+
+func _is_integer_number(value: Variant) -> bool:
+	if value is int:
+		return true
+	if value is float:
+		return is_finite(value) and is_equal_approx(value, round(value))
+	return false
+
+
+func _is_non_negative_integer(value: Variant) -> bool:
+	return _is_integer_number(value) and int(value) >= 0
+
+
+func _is_positive_integer(value: Variant) -> bool:
+	return _is_integer_number(value) and int(value) > 0
 
 
 func _get_card_definition(card: Dictionary) -> Dictionary:

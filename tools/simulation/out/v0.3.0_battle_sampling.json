@@ -1,0 +1,126 @@
+{
+	"balance_source": "res://data/balance/v0.3.0/balance.json",
+	"cards_source": "res://data/cards/v0.3.0/cards.json",
+	"encounters_source": "res://data/encounters/v0.3.0/encounters.json",
+	"enemies_source": "res://data/enemies/v0.3.0/enemies.json",
+	"engine": "BattleEngine",
+	"policies": [
+		{
+			"average_pressure_events_per_battle": 0.007,
+			"average_remaining_health_on_win": 51.435,
+			"average_rounds": 3.368,
+			"battles_with_pressure": 7,
+			"description": "增伤和直接伤害优先，护甲与治疗只作为资源余量。",
+			"fallback_allowed": true,
+			"id": "aggressive_damage",
+			"invalid_runs": 0,
+			"max_applied_pressure_bonus": 1,
+			"pressure_activations_by_round": {
+				"5": 7,
+				"7": 0,
+				"9": 0
+			},
+			"priority": [
+				"card.skill.focus",
+				"card.skill.omen",
+				"card.skill.ink_dart",
+				"card.skill.whisper",
+				"card.skill.insight",
+				"card.skill.second_look",
+				"card.skill.paper_guard",
+				"card.skill.calm_breath"
+			],
+			"samples": 1000,
+			"total_pressure_events": 7,
+			"win_rate": 1.0
+		},
+		{
+			"average_pressure_events_per_battle": 0.009,
+			"average_remaining_health_on_win": 51.137,
+			"average_rounds": 3.39,
+			"battles_with_pressure": 9,
+			"description": "先建立标记与低语，再以护甲控制损耗并用墨刺收尾。",
+			"fallback_allowed": true,
+			"id": "balanced_mark",
+			"invalid_runs": 0,
+			"max_applied_pressure_bonus": 1,
+			"pressure_activations_by_round": {
+				"5": 9,
+				"7": 0,
+				"9": 0
+			},
+			"priority": [
+				"card.skill.focus",
+				"card.skill.insight",
+				"card.skill.omen",
+				"card.skill.whisper",
+				"card.skill.ink_dart",
+				"card.skill.paper_guard",
+				"card.skill.calm_breath",
+				"card.skill.second_look"
+			],
+			"samples": 1000,
+			"total_pressure_events": 9,
+			"win_rate": 1.0
+		},
+		{
+			"average_pressure_events_per_battle": 0.301,
+			"average_remaining_health_on_win": 52.508,
+			"average_rounds": 4.142,
+			"battles_with_pressure": 301,
+			"description": "优先护甲、治疗和削弱，在确认安全后逐步输出。",
+			"fallback_allowed": true,
+			"id": "defense_first",
+			"invalid_runs": 0,
+			"max_applied_pressure_bonus": 1,
+			"pressure_activations_by_round": {
+				"5": 301,
+				"7": 0,
+				"9": 0
+			},
+			"priority": [
+				"card.skill.paper_guard",
+				"card.skill.calm_breath",
+				"card.skill.whisper",
+				"card.skill.focus",
+				"card.skill.insight",
+				"card.skill.omen",
+				"card.skill.ink_dart",
+				"card.skill.second_look"
+			],
+			"samples": 1000,
+			"total_pressure_events": 301,
+			"win_rate": 1.0
+		},
+		{
+			"average_pressure_events_per_battle": 2.744,
+			"average_remaining_health_on_win": 0.0,
+			"average_rounds": 8.744,
+			"battles_with_pressure": 1000,
+			"description": "压力诊断策略，刻意不主动伤害，以验证第 5/7/9 回合实际生效。",
+			"fallback_allowed": false,
+			"id": "pressure_probe",
+			"invalid_runs": 0,
+			"max_applied_pressure_bonus": 3,
+			"pressure_activations_by_round": {
+				"5": 1000,
+				"7": 1000,
+				"9": 744
+			},
+			"priority": [
+				"card.skill.paper_guard",
+				"card.skill.calm_breath",
+				"card.skill.whisper",
+				"card.skill.focus",
+				"card.skill.insight",
+				"card.skill.second_look"
+			],
+			"samples": 1000,
+			"total_pressure_events": 2744,
+			"win_rate": 0.0
+		}
+	],
+	"root_seed": 20261108,
+	"samples_per_policy": 1000,
+	"version": "v0.3.0"
+}

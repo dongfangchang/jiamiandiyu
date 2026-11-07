@@ -9,6 +9,7 @@ const SchemaValidatorScript := preload("res://src/infrastructure/schema_validato
 const BattleRandomAdapterScript := preload("res://src/infrastructure/battle_random_adapter.gd")
 const BattleBalanceAdapterScript := preload("res://src/infrastructure/battle_balance_adapter.gd")
 const BattleContentAdapterScript := preload("res://src/infrastructure/battle_content_adapter.gd")
+const CampaignContentCatalogScript := preload("res://src/infrastructure/campaign_content_catalog.gd")
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
 
 const TEST_ROOT := "user://mask_whispers_infrastructure_tests"
@@ -24,6 +25,7 @@ func _initialize() -> void:
 	_test_json_loader_success()
 	_test_json_loader_failures()
 	_test_balance_schema()
+	_test_v03_balance_schema()
 	_test_random_reproducibility_and_isolation()
 	_test_save_round_trip_and_backup()
 	_test_invalid_save_preserves_current()
@@ -32,6 +34,9 @@ func _initialize() -> void:
 	_test_logger_writes_structured_event()
 	_test_app_bootstrap()
 	_test_battle_ports_and_adapters()
+	_test_campaign_catalog_and_cross_references()
+	_test_formal_v03_content_startup()
+	_test_game_session_and_checkpoint()
 	_remove_tree(TEST_ROOT)
 
 	if _failures.is_empty():
@@ -92,6 +97,24 @@ func _test_balance_schema() -> void:
 				has_duplicate_error = true
 				break
 		_expect(has_duplicate_error, "schema errors should report duplicate ID")
+
+
+func _test_v03_balance_schema() -> void:
+	var loader = JsonDocumentLoaderScript.new()
+	var result = loader.load_document(
+		"res://data/balance/v0.3.0/balance.json",
+		"res://data/schema/v0.3.0/balance.schema.json"
+	)
+	_expect(result.ok, "v0.3 global balance should pass its schema")
+	if result.ok:
+		_expect(
+			int(result.data.combat.enemy_pressure.start_round) == 5,
+			"v0.3 enemy pressure should start on round five"
+		)
+		_expect(
+			not result.data.has("cards") and not result.data.has("encounters"),
+			"v0.3 balance must not duplicate card or enemy content"
+		)
 
 
 func _test_random_reproducibility_and_isolation() -> void:
@@ -311,6 +334,240 @@ func _test_battle_ports_and_adapters() -> void:
 			bundle_result.data.random.stream_name() == &"battle.shuffle",
 			"bundle should expose named battle random port"
 		)
+
+
+func _test_campaign_catalog_and_cross_references() -> void:
+	var loader = JsonDocumentLoaderScript.new()
+	var cards = loader.load_document(
+		"res://tests/infrastructure/fixtures/v0.3.0/cards.json",
+		"res://data/schema/v0.3.0/cards.schema.json"
+	)
+	var enemies = loader.load_document(
+		"res://tests/infrastructure/fixtures/v0.3.0/enemies.json",
+		"res://data/schema/v0.3.0/enemies.schema.json"
+	)
+	var encounters = loader.load_document(
+		"res://tests/infrastructure/fixtures/v0.3.0/encounters.json",
+		"res://data/schema/v0.3.0/encounters.schema.json"
+	)
+	_expect(cards.ok, "v0.3 cards fixture should pass schema")
+	_expect(enemies.ok, "v0.3 enemies fixture should pass schema")
+	_expect(encounters.ok, "v0.3 encounters fixture should pass schema")
+	if not cards.ok or not enemies.ok or not encounters.ok:
+		return
+
+	var catalog = CampaignContentCatalogScript.new()
+	var catalog_result = catalog.load_from_documents(
+		cards.data,
+		enemies.data,
+		encounters.data
+	)
+	_expect(catalog_result.ok, "campaign catalog should load linked content")
+	_expect(
+		catalog.default_encounter_id() == "encounter.test.first_battle",
+		"catalog should retain deterministic encounter order"
+	)
+	var resolved = catalog.resolve_encounter(&"encounter.test.first_battle")
+	_expect(resolved.ok, "catalog should resolve an encounter")
+	if resolved.ok:
+		_expect(
+			resolved.data.deck_definition_ids.size() == 8,
+			"encounter should resolve its fixed deck"
+		)
+		_expect(
+			resolved.data.enemy_configs.size() == 1,
+			"encounter should resolve enemy slots into engine configs"
+		)
+		_expect(
+			resolved.data.enemy_configs[0].id == "encounter.test.first_battle.enemy.0",
+			"runtime enemy ID should be deterministic"
+		)
+
+	var version_mismatch: Dictionary = enemies.data.duplicate(true)
+	version_mismatch.content_version = "v0.3.0-other"
+	var version_result = CampaignContentCatalogScript.new().load_from_documents(
+		cards.data,
+		version_mismatch,
+		encounters.data
+	)
+	_expect(
+		not version_result.ok and version_result.code == &"content_version_mismatch",
+		"catalog should reject mismatched content versions"
+	)
+
+	var bad_encounters: Dictionary = encounters.data.duplicate(true)
+	bad_encounters.encounters[0].enemy_slots[0].enemy_id = "enemy.test.missing"
+	var reference_result = CampaignContentCatalogScript.new().load_from_documents(
+		cards.data,
+		enemies.data,
+		bad_encounters
+	)
+	_expect(
+		not reference_result.ok and reference_result.code == &"encounter_enemy_missing",
+		"catalog should reject missing enemy references"
+	)
+
+	var lane_encounters: Dictionary = encounters.data.duplicate(true)
+	lane_encounters.encounters[0].enemy_slots = [
+		{"enemy_id": "enemy.test.dummy", "lane_index": 0},
+		{"enemy_id": "enemy.test.dummy", "lane_index": 0},
+	]
+	var lane_result = CampaignContentCatalogScript.new().load_from_documents(
+		cards.data,
+		enemies.data,
+		lane_encounters
+	)
+	_expect(
+		not lane_result.ok and lane_result.code == &"encounter_lane_invalid",
+		"catalog should reject duplicate enemy lanes"
+	)
+
+
+func _test_game_session_and_checkpoint() -> void:
+	var session_directory := TEST_SAVE_DIRECTORY.path_join("session")
+	var initial_inspection = AppBootstrapScript.inspect_checkpoint(
+		"session_checkpoint",
+		session_directory
+	)
+	_expect(
+		initial_inspection.ok and initial_inspection.data.status == "none",
+		"checkpoint inspection should report a missing checkpoint explicitly"
+	)
+	var paths := {
+		"cards": "res://tests/infrastructure/fixtures/v0.3.0/cards.json",
+		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
+		"enemies": "res://tests/infrastructure/fixtures/v0.3.0/enemies.json",
+		"enemies_schema": "res://data/schema/v0.3.0/enemies.schema.json",
+		"encounters": "res://tests/infrastructure/fixtures/v0.3.0/encounters.json",
+		"encounters_schema": "res://data/schema/v0.3.0/encounters.schema.json",
+		"balance": "res://tests/infrastructure/fixtures/v0.3.0/balance.json",
+		"balance_schema": "res://data/schema/v0.3.0/balance.schema.json",
+		"save_directory": session_directory,
+	}
+	var started = AppBootstrapScript.start_new_game(
+		20261108,
+		&"encounter.test.first_battle",
+		paths,
+		"session_checkpoint"
+	)
+	if not started.ok:
+		print("START_NEW_GAME_FAILED code=%s details=%s" % [started.code, started.details])
+	_expect(started.ok, "new game should initialize from formal content")
+	if not started.ok:
+		return
+	var session = started.data
+	_expect(session.is_ready(), "new game session should be ready")
+	var initial_snapshot = session.get_snapshot()
+	_expect(initial_snapshot.data.player.hp == 54, "session should derive starting health from balance")
+	_expect(initial_snapshot.data.hand.size() == 5, "session should draw the configured starting hand")
+	_expect(initial_snapshot.data.enemies.size() == 1, "session should instantiate encounter enemies")
+	var premature_save = session.save_checkpoint()
+	_expect(
+		not premature_save.ok and premature_save.code == &"battle_not_ended",
+		"checkpoint must not save an active battle"
+	)
+
+	var first_card: Dictionary = initial_snapshot.data.hand[0]
+	var enemy_id := StringName(initial_snapshot.data.enemies[0].actor_id)
+	var playability = session.query_card_play(
+		StringName(first_card.instance_id),
+		enemy_id
+	)
+	_expect(playability.playable, "fixed encounter card should be playable")
+	var result = session.submit(BattleCommand.play_card(
+		StringName(first_card.instance_id),
+		enemy_id
+	))
+	_expect(result.accepted, "session should forward accepted battle commands")
+	_expect(
+		String(result.snapshot.data.outcome) == "victory",
+		"fixture card should finish the battle deterministically"
+	)
+	_expect(
+		session.last_checkpoint_result != null and session.last_checkpoint_result.ok,
+		"battle end should save one post-battle checkpoint"
+	)
+
+	var duplicate = session.save_checkpoint(result.snapshot)
+	_expect(duplicate.ok, "duplicate checkpoint save should be harmless")
+	_expect(
+		duplicate.details.get("already_saved", false),
+		"duplicate checkpoint save should not write twice"
+	)
+
+	var inspected = AppBootstrapScript.inspect_checkpoint(
+		"session_checkpoint",
+		session_directory
+	)
+	_expect(inspected.ok, "checkpoint inspection should succeed")
+	_expect(
+		inspected.ok and inspected.data.status == "loaded",
+		"checkpoint inspection should report loaded state"
+	)
+	if inspected.ok and inspected.data.status == "loaded":
+		var checkpoint: Dictionary = inspected.data.checkpoint
+		_expect(checkpoint.content_version == "v0.3.0-test", "checkpoint should store content version")
+		_expect(checkpoint.rng_seed == 20261108, "checkpoint should store root seed")
+		_expect(checkpoint.deck_size == 8, "checkpoint should store deck summary")
+		_expect(
+			checkpoint.last_battle.outcome == "victory",
+			"checkpoint should store the previous battle result"
+		)
+
+	var second_snapshot_data: Dictionary = result.snapshot.data.duplicate(true)
+	second_snapshot_data.revision = int(second_snapshot_data.revision) + 1
+	var second_snapshot = BattleSnapshot.new(second_snapshot_data)
+	_expect(
+		session.save_checkpoint(second_snapshot).ok,
+		"a later checkpoint revision should create a backup"
+	)
+	var save_service = AtomicSaveServiceScript.new(session_directory)
+	var main_path := save_service.get_slot_path("session_checkpoint")
+	var file := FileAccess.open(main_path, FileAccess.WRITE)
+	file.store_string("{broken")
+	file.close()
+	var corrupt_inspection = AppBootstrapScript.inspect_checkpoint(
+		"session_checkpoint",
+		session_directory
+	)
+	_expect(
+		corrupt_inspection.ok and corrupt_inspection.data.status == "corrupt",
+		"checkpoint inspection should report a corrupt main save"
+	)
+	_expect(
+		corrupt_inspection.ok and corrupt_inspection.data.backup_available,
+		"corrupt checkpoint summary should expose backup availability"
+	)
+
+
+func _test_formal_v03_content_startup() -> void:
+	var formal_save_directory := TEST_SAVE_DIRECTORY.path_join("formal")
+	var started = AppBootstrapScript.start_new_game(
+		20261108,
+		&"",
+		{"save_directory": formal_save_directory},
+		"formal_checkpoint"
+	)
+	if not started.ok:
+		print("FORMAL_START_FAILED code=%s details=%s" % [started.code, started.details])
+	_expect(started.ok, "formal v0.3 content should start a new game")
+	if not started.ok:
+		return
+	var session = started.data
+	_expect(session.is_ready(), "formal v0.3 session should be ready")
+	_expect(session.encounter_id == &"encounter.first_hunt", "formal default encounter should load")
+	_expect(session.catalog.content_version == "v0.3.0", "formal content version should be v0.3.0")
+	var snapshot = session.get_snapshot()
+	_expect(snapshot.data.enemies.size() == 2, "formal first hunt should instantiate two enemies")
+	_expect(snapshot.data.hand.size() == 5, "formal first hunt should draw five cards")
+	_expect(
+		session.card_display_name(&"card.skill.ink_dart") == "墨刺",
+		"session should expose formal card display names"
+	)
+	_expect(
+		session.enemy_display_name(&"enemy.weeping_tenant") == "哭泣的房客",
+		"session should expose formal enemy display names"
+	)
 
 
 func _save_envelope(save_version: int, seed_value: int, marker: String) -> Dictionary:
