@@ -349,6 +349,7 @@ func _build() -> void:
 
 	var middle := HBoxContainer.new()
 	middle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	middle.custom_minimum_size = Vector2(0, 330)
 	middle.add_theme_constant_override("separation", 12)
 	root.add_child(middle)
 
@@ -365,7 +366,8 @@ func _build() -> void:
 	_build_side_panel(side)
 
 	var hand := UiTheme.panel(UiTheme.C_SURFACE, UiTheme.C_GOLD)
-	hand.custom_minimum_size = Vector2(0, 292)
+	hand.custom_minimum_size = Vector2(0, 252)
+	hand.size_flags_vertical = Control.SIZE_SHRINK_END
 	root.add_child(hand)
 	_build_hand_panel(hand)
 
@@ -601,7 +603,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 	var panel := UiTheme.panel(Color("#201e18"), border)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.custom_minimum_size = Vector2(0, 350)
+	panel.custom_minimum_size = Vector2(0, 300)
 
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 7)
@@ -712,7 +714,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.set_meta("battle_instance_id", String(instance_id))
-	panel.custom_minimum_size = Vector2(242, 212)
+	panel.custom_minimum_size = Vector2(242, 190)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var column := VBoxContainer.new()
@@ -726,7 +728,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 		var art := TextureRect.new()
 		art.name = "CardArt"
 		art.texture = load(art_path) as Texture2D
-		art.custom_minimum_size = Vector2(0, 58)
+		art.custom_minimum_size = Vector2(0, 46)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -739,7 +741,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 			Color("#171711"),
 			UiTheme.C_LINE
 		)
-		placeholder.custom_minimum_size = Vector2(0, 58)
+		placeholder.custom_minimum_size = Vector2(0, 46)
 		column.add_child(placeholder)
 
 	var name_label := UiTheme.label(
@@ -778,7 +780,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 			12,
 			UiTheme.C_PAPER
 		)
-		effect_label.custom_minimum_size = Vector2(0, 34)
+		effect_label.custom_minimum_size = Vector2(0, 26)
 		column.add_child(effect_label)
 	panel.tooltip_text = "点击整张卡牌选择；再选择目标并打出"
 
