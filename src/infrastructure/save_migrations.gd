@@ -7,6 +7,8 @@ const V05_SAVE_VERSION := 3
 const V05_SAVE_SCHEMA_PATH := "res://data/schema/v0.5.0/save.schema.json"
 const V06_SAVE_VERSION := 4
 const V06_SAVE_SCHEMA_PATH := "res://data/schema/v0.6.0/save.schema.json"
+const V07_SAVE_VERSION := 5
+const V07_SAVE_SCHEMA_PATH := "res://data/schema/v0.7.0/save.schema.json"
 
 
 static func create_v04_service(save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY) -> AtomicSaveService:
@@ -163,5 +165,72 @@ static func migrate_v3_to_v4(document: Dictionary) -> Dictionary:
 		"challenge_outcome": "",
 		"state": {},
 		"migrated_from_v3": true,
+	}
+	return migrated
+
+
+static func create_v07_service(
+	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
+) -> AtomicSaveService:
+	var service := AtomicSaveService.new(
+		save_directory,
+		V07_SAVE_VERSION,
+		V07_SAVE_SCHEMA_PATH
+	)
+	var migration_v1 := service.register_migration(
+		1,
+		func(document: Dictionary) -> Dictionary:
+			return migrate_v1_to_v2(document),
+		V04_SAVE_SCHEMA_PATH
+	)
+	if not migration_v1.ok:
+		push_error("Failed to register v1 to v2 save migration: %s" % migration_v1.message)
+	var migration_v2 := service.register_migration(
+		2,
+		func(document: Dictionary) -> Dictionary:
+			return migrate_v2_to_v3(document),
+		V05_SAVE_SCHEMA_PATH
+	)
+	if not migration_v2.ok:
+		push_error("Failed to register v2 to v3 save migration: %s" % migration_v2.message)
+	var migration_v3 := service.register_migration(
+		3,
+		func(document: Dictionary) -> Dictionary:
+			return migrate_v3_to_v4(document),
+		V06_SAVE_SCHEMA_PATH
+	)
+	if not migration_v3.ok:
+		push_error("Failed to register v3 to v4 save migration: %s" % migration_v3.message)
+	var migration_v4 := service.register_migration(
+		4,
+		func(document: Dictionary) -> Dictionary:
+			return migrate_v4_to_v5(document),
+		V07_SAVE_SCHEMA_PATH
+	)
+	if not migration_v4.ok:
+		push_error("Failed to register v4 to v5 save migration: %s" % migration_v4.message)
+	return service
+
+
+static func migrate_v4_to_v5(document: Dictionary) -> Dictionary:
+	var migrated := document.duplicate(true)
+	migrated["save_version"] = V07_SAVE_VERSION
+	migrated["content_version"] = "v0.7.0"
+	if not migrated.get("profile") is Dictionary:
+		migrated["profile"] = {}
+	if not migrated.get("run") is Dictionary:
+		migrated["run"] = {}
+	if not migrated.get("collection") is Dictionary:
+		migrated["collection"] = {}
+	if not migrated.get("progression") is Dictionary:
+		migrated["progression"] = {}
+	if not migrated.get("route") is Dictionary:
+		migrated["route"] = {}
+	if not migrated.get("challenge") is Dictionary:
+		migrated["challenge"] = {}
+	migrated["deck"] = {
+		"initialized": false,
+		"state": {},
+		"migrated_from_v4": true,
 	}
 	return migrated

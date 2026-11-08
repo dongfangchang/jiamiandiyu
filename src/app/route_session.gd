@@ -6,10 +6,11 @@ const InfrastructureResultScript := preload("res://src/infrastructure/infrastruc
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
 const RouteEngineScript := preload("res://src/gameplay/route_engine.gd")
+const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
 const CheckpointEnvelopeBuilderScript := preload("res://src/app/checkpoint_envelope_builder.gd")
 
-const CONTENT_VERSION := "v0.6.0"
-const SAVE_VERSION := 4
+const DEFAULT_CONTENT_VERSION := "v0.6.0"
+const DEFAULT_SAVE_VERSION := 4
 const BATTLE_NODE_TYPES: Array[String] = ["normal", "elite", "boss"]
 
 var services: AppServices
@@ -19,6 +20,9 @@ var balance: BattleBalancePort
 var progression_content: ProgressionContentPort
 var progression: ProgressionEngine
 var route_content: RouteContentAdapter
+var deck_engine: DeckEngine = null
+var content_version: String = DEFAULT_CONTENT_VERSION
+var save_version: int = DEFAULT_SAVE_VERSION
 var root_seed: int
 var checkpoint_slot: String
 var last_checkpoint_result: InfrastructureResult = null
@@ -38,7 +42,10 @@ func _init(
 	progression_engine: ProgressionEngine,
 	route_content_port: RouteContentAdapter,
 	run_seed: int,
-	save_slot: String
+	save_slot: String,
+	deck_engine_value: DeckEngine = null,
+	content_version_value: String = DEFAULT_CONTENT_VERSION,
+	save_version_value: int = DEFAULT_SAVE_VERSION
 ) -> void:
 	services = app_services
 	catalog = content_catalog
@@ -47,6 +54,9 @@ func _init(
 	progression_content = progression_content_port
 	progression = progression_engine
 	route_content = route_content_port
+	deck_engine = deck_engine_value
+	content_version = content_version_value
+	save_version = save_version_value
 	root_seed = run_seed
 	checkpoint_slot = save_slot
 
@@ -131,6 +141,43 @@ func get_sequence_state() -> SequenceState:
 			"advancement_state": "locked",
 		})
 	return _route_engine.get_sequence_state()
+
+
+func get_deck_snapshot() -> DeckSnapshot:
+	if deck_engine == null:
+		return DeckSnapshot.new({
+			"phase": "unavailable",
+			"required_deck_size": 0,
+			"current_card_ids": [],
+			"current_deck_size": 0,
+			"legal": false,
+			"reason_code": "deck_unavailable",
+			"confirmed": false,
+			"cards": [],
+			"presets": [],
+			"available_commands": [],
+		})
+	return deck_engine.get_snapshot()
+
+
+func submit_deck(command: DeckCommand) -> DeckCommandResult:
+	if deck_engine == null:
+		return DeckCommandResult.new(
+			false,
+			&"deck_unavailable",
+			[],
+			get_deck_snapshot()
+		)
+	var result := deck_engine.submit(command)
+	if result.accepted:
+		save_checkpoint("deck")
+	return result
+
+
+func get_confirmed_deck_ids() -> Array[String]:
+	if deck_engine == null:
+		return []
+	return deck_engine.get_confirmed_deck_ids()
 
 
 func get_battle_session() -> GameSession:
@@ -221,6 +268,17 @@ func begin_route_battle() -> InfrastructureResult:
 		return resolved
 	var random: BattleRandomPort = services.create_battle_random(&"battle.shuffle")
 	var route_player_state := _route_engine.get_battle_player_state()
+	var confirmed_deck: Array[String] = []
+	if deck_engine != null:
+		confirmed_deck = deck_engine.get_confirmed_deck_ids()
+		if confirmed_deck.size() != deck_engine.get_snapshot().data.get(
+			"required_deck_size",
+			0
+		):
+			return InfrastructureResultScript.failure(
+				&"deck_not_confirmed",
+				"Confirm an eight-card deck before entering battle."
+			)
 	_battle_session = GameSessionScript.new(
 		services,
 		catalog,
@@ -231,10 +289,12 @@ func begin_route_battle() -> InfrastructureResult:
 		encounter_id,
 		checkpoint_slot,
 		progression,
-		CONTENT_VERSION,
+		content_version,
 		false,
 		route_player_state,
-		false
+		false,
+		null,
+		confirmed_deck
 	)
 	if not _battle_session.is_ready():
 		var failed_snapshot: Dictionary = _battle_session.get_snapshot().to_dictionary()
@@ -356,25 +416,34 @@ func _build_checkpoint_envelope(kind: String) -> Dictionary:
 	var current_node_id := String(route_snapshot.get("current_node_id", ""))
 	var encounter := resolve_current_encounter()
 	var deck_summary: Dictionary = {}
-	if encounter.ok:
-		var owned_deck: Array[String] = progression.build_owned_battle_deck(
+	var active_deck: Array[String] = []
+	if deck_engine != null:
+		active_deck = deck_engine.get_confirmed_deck_ids()
+	if active_deck.is_empty() and encounter.ok:
+		active_deck = progression.build_owned_battle_deck(
 			encounter.data.get("deck_definition_ids", [])
 		)
-		for definition_id in owned_deck:
-			deck_summary[definition_id] = int(deck_summary.get(definition_id, 0)) + 1
+	for definition_id in active_deck:
+		deck_summary[definition_id] = int(deck_summary.get(definition_id, 0)) + 1
 	return CheckpointEnvelopeBuilderScript.build(
 		progression_state,
 		progression_snapshot,
 		route_state,
 		sequence,
 		root_seed,
-		CONTENT_VERSION,
-		SAVE_VERSION,
+		content_version,
+		save_version,
 		kind,
 		_last_battle,
 		String(encounter.data.get("id", "")) if encounter.ok else "",
 		current_node_id,
-		deck_summary
+		deck_summary,
+		{},
+		(
+			deck_engine.export_persistent_state()
+			if deck_engine != null
+			else {}
+		)
 	)
 
 

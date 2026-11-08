@@ -57,6 +57,14 @@ node art/tools/generate_v060_art.mjs
 
 正式 PNG、渲染清单和审稿拼图位于 `../assets/game/v0.6.0/`。资源已迁移并在实际挑战选择、路线与结算界面通过 UI 审稿。
 
+v0.7.0 卡组构筑与第二挑战候选：
+
+```powershell
+node art/tools/generate_v070_art.mjs
+```
+
+候选 SVG 位于 `assets/svg/v0.7.0/`，候选 PNG、渲染清单和审稿拼图位于 `assets/game/v0.7.0/`。正式资产尚未迁移，必须由主协调者完成迁移后交给 UI 实机审稿。
+
 ## PNG 导出
 
 当前环境使用 Microsoft Edge 的无头模式把 SVG 渲染为 PNG。正式 PNG 输出到项目级 `assets/game/`；卡牌为 600 x 840，敌人为 900 x 900，标题与仪式为 1600 x 900。

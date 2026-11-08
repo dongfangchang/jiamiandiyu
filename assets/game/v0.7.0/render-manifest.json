@@ -1,0 +1,126 @@
+{
+  "version": "v0.7.0",
+  "assets": [
+    {
+      "id": "card.skill.warding_circle",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_warding_circle.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_warding_circle.png",
+      "width": 512,
+      "height": 400,
+      "role": "守夜圆环 · 防御"
+    },
+    {
+      "id": "card.skill.lantern_step",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_lantern_step.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_lantern_step.png",
+      "width": 512,
+      "height": 400,
+      "role": "提灯步 · 防御/抽牌"
+    },
+    {
+      "id": "card.skill.whispered_hunch",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_whispered_hunch.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_whispered_hunch.png",
+      "width": 512,
+      "height": 400,
+      "role": "灵性预感 · 抽牌"
+    },
+    {
+      "id": "card.skill.mirrored_memory",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_mirrored_memory.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_mirrored_memory.png",
+      "width": 512,
+      "height": 400,
+      "role": "镜中记忆 · 灵性/抽牌"
+    },
+    {
+      "id": "card.skill.fated_echo",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_fated_echo.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_fated_echo.png",
+      "width": 512,
+      "height": 400,
+      "role": "命运回声 · 标记"
+    },
+    {
+      "id": "card.skill.piercing_omen",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_piercing_omen.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_piercing_omen.png",
+      "width": 512,
+      "height": 400,
+      "role": "穿刺凶兆 · 标记爆发"
+    },
+    {
+      "id": "card.skill.coffin_nail",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_coffin_nail.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_coffin_nail.png",
+      "width": 512,
+      "height": 400,
+      "role": "棺钉 · 高风险爆发"
+    },
+    {
+      "id": "card.skill.second_sight",
+      "type": "card",
+      "svg": "assets/svg/v0.7.0/cards/card_skill_second_sight.svg",
+      "png": "assets/game/v0.7.0/cards/card_skill_second_sight.png",
+      "width": 512,
+      "height": 400,
+      "role": "第二视觉 · 灵性/揭示"
+    },
+    {
+      "id": "scene.deck.archive",
+      "type": "scene",
+      "svg": "assets/svg/v0.7.0/scenes/deck_archive.svg",
+      "png": "assets/game/v0.7.0/scenes/deck_archive.png",
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "id": "challenge.mode.broken_procession",
+      "type": "emblem",
+      "svg": "assets/svg/v0.7.0/icons/challenge_broken_procession.svg",
+      "png": "assets/game/v0.7.0/icons/challenge_broken_procession.png",
+      "width": 256,
+      "height": 256
+    },
+    {
+      "id": "challenge.modifier.obituary_echo",
+      "type": "icon",
+      "svg": "assets/svg/v0.7.0/icons/modifier_obituary_echo.svg",
+      "png": "assets/game/v0.7.0/icons/modifier_obituary_echo.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.twin_shadow",
+      "type": "icon",
+      "svg": "assets/svg/v0.7.0/icons/modifier_twin_shadow.svg",
+      "png": "assets/game/v0.7.0/icons/modifier_twin_shadow.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "challenge.modifier.ritual_vigil",
+      "type": "icon",
+      "svg": "assets/svg/v0.7.0/icons/modifier_ritual_vigil.svg",
+      "png": "assets/game/v0.7.0/icons/modifier_ritual_vigil.png",
+      "width": 128,
+      "height": 128
+    },
+    {
+      "id": "route.variant.overridden_node",
+      "type": "icon",
+      "svg": "assets/svg/v0.7.0/icons/route_overridden_node.svg",
+      "png": "assets/game/v0.7.0/icons/route_overridden_node.png",
+      "width": 128,
+      "height": 128
+    }
+  ]
+}
+

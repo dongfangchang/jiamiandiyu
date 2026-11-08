@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.7.0",
+  "base_cards_version": "v0.7.0",
+  "enemies": [
+    {
+      "id": "enemy.weeping_tenant",
+      "display_name_zh": "哭泣的房客",
+      "tier": "normal",
+      "base_health": 12,
+      "base_attack": 4,
+      "threat": "corruption",
+      "phases": []
+    },
+    {
+      "id": "enemy.candle_moth",
+      "display_name_zh": "烛焰飞蛾",
+      "tier": "normal",
+      "base_health": 8,
+      "base_attack": 2,
+      "threat": "attention",
+      "phases": []
+    },
+    {
+      "id": "enemy.mirror_hound",
+      "display_name_zh": "镜中猎犬",
+      "tier": "normal",
+      "base_health": 14,
+      "base_attack": 5,
+      "threat": "damage",
+      "phases": []
+    },
+    {
+      "id": "enemy.mirror_hound_echo",
+      "display_name_zh": "回声猎犬",
+      "tier": "elite",
+      "base_health": 24,
+      "base_attack": 6,
+      "threat": "damage",
+      "phases": [
+        {
+          "id": "phase.echo_howl",
+          "display_name_zh": "回声嚎叫",
+          "at_round": 3,
+          "base_attack_bonus": 1,
+          "block_bonus": 3,
+          "heal": 0
+        }
+      ]
+    },
+    {
+      "id": "enemy.mirror_baron",
+      "display_name_zh": "镜厅男爵",
+      "tier": "boss",
+      "base_health": 38,
+      "base_attack": 5,
+      "threat": "mirror",
+      "phases": [
+        {
+          "id": "phase.polished_mirror",
+          "display_name_zh": "磨亮的镜面",
+          "at_round": 3,
+          "base_attack_bonus": 1,
+          "block_bonus": 5,
+          "heal": 0
+        },
+        {
+          "id": "phase.broken_reflection",
+          "display_name_zh": "破碎倒影",
+          "at_round": 6,
+          "base_attack_bonus": 2,
+          "block_bonus": 3,
+          "heal": 4
+        }
+      ]
+    }
+  ]
+}

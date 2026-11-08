@@ -4,12 +4,16 @@ signal route_changed(route_name: StringName)
 
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
 const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
+const ChallengeEngineScript := preload("res://src/gameplay/challenge_engine.gd")
 const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
+const DeckCommandScript := preload("res://src/core/deck_command.gd")
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
 const UpgradedBattleContentPortScript := preload("res://src/gameplay/upgraded_battle_content_port.gd")
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
 const ChallengeResultScreenScene := preload("res://scenes/ui/challenge_result_screen.tscn")
+const ChallengeHubScreenScene := preload("res://scenes/ui/challenge_hub_screen.tscn")
+const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
@@ -21,8 +25,10 @@ const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 
 const ROUTE_START: StringName = &"start"
+const ROUTE_CHALLENGE_HUB: StringName = &"challenge_hub"
 const ROUTE_CHALLENGE_SELECT: StringName = &"challenge_select"
 const ROUTE_CHALLENGE_RESULT: StringName = &"challenge_result"
+const ROUTE_DECK: StringName = &"deck"
 const ROUTE_IDENTITY: StringName = &"identity"
 const ROUTE_HUB: StringName = &"hub"
 const ROUTE_MAP: StringName = &"map"
@@ -42,6 +48,9 @@ var _screen: Control = null
 var _session: RefCounted = null
 var _last_checkpoint_summary: Dictionary = {}
 var _seed_override: int = -1
+var _deck_return_route: StringName = ROUTE_HUB
+var _deck_after_confirm_route: StringName = ROUTE_HUB
+var _challenge_sequence_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -75,7 +84,7 @@ func start_new_game(
 	_encounter_id: StringName = &""
 ) -> InfrastructureResult:
 	var resolved_seed := _resolve_seed(seed_value)
-	var result = AppBootstrapScript.start_route(
+	var result = AppBootstrapScript.start_route_v07(
 		resolved_seed,
 		{"save_directory": save_directory},
 		checkpoint_slot,
@@ -90,12 +99,19 @@ func start_new_game(
 
 
 func start_new_challenge(
-	seed_value: int = -1
+	seed_value: int = -1,
+	challenge_id: StringName = &"",
+	sequence_state: Dictionary = {}
 ) -> InfrastructureResult:
 	var resolved_seed := _resolve_seed(seed_value)
-	var result = AppBootstrapScript.start_challenge(
+	var paths := {"save_directory": save_directory}
+	if not challenge_id.is_empty():
+		paths["challenge_id"] = String(challenge_id)
+	if not sequence_state.is_empty():
+		paths["sequence_state"] = sequence_state.duplicate(true)
+	var result = AppBootstrapScript.start_challenge_v07(
 		resolved_seed,
-		{"save_directory": save_directory},
+		paths,
 		checkpoint_slot,
 		false,
 		true
@@ -109,7 +125,7 @@ func start_new_challenge(
 
 
 func continue_saved_checkpoint() -> InfrastructureResult:
-	var inspected = AppBootstrapScript.inspect_route_checkpoint(
+	var inspected = AppBootstrapScript.inspect_route_checkpoint_v07(
 		checkpoint_slot,
 		save_directory
 	)
@@ -125,17 +141,23 @@ func continue_saved_checkpoint() -> InfrastructureResult:
 	var challenge_phase := String(
 		_last_checkpoint_summary.get("challenge_phase", "inactive")
 	)
+	var challenge_id := StringName(
+		_last_checkpoint_summary.get("challenge_id", "")
+	)
 	var result
 	if challenge_phase != "inactive":
-		result = AppBootstrapScript.start_challenge(
+		result = AppBootstrapScript.start_challenge_v07(
 			seed_value,
-			{"save_directory": save_directory},
+			{
+				"save_directory": save_directory,
+				"challenge_id": String(challenge_id),
+			},
 			checkpoint_slot,
 			true,
 			false
 		)
 	else:
-		result = AppBootstrapScript.start_route(
+		result = AppBootstrapScript.start_route_v07(
 			seed_value,
 			{"save_directory": save_directory},
 			checkpoint_slot,
@@ -179,12 +201,24 @@ func get_ritual_snapshot() -> RitualSnapshot:
 	return _session.get_ritual_snapshot()
 
 
+func get_deck_snapshot() -> DeckSnapshot:
+	if _session == null or not _session.has_method("get_deck_snapshot"):
+		return null
+	return _session.get_deck_snapshot()
+
+
+func get_challenge_snapshot() -> ChallengeSnapshot:
+	if _session == null or not _session.has_method("get_challenge_snapshot"):
+		return null
+	return _session.get_challenge_snapshot()
+
+
 func get_last_checkpoint_summary() -> Dictionary:
 	return _last_checkpoint_summary.duplicate(true)
 
 
 func _refresh_checkpoint_summary(start_screen: Control) -> void:
-	var inspected = AppBootstrapScript.inspect_route_checkpoint(
+	var inspected = AppBootstrapScript.inspect_route_checkpoint_v07(
 		checkpoint_slot,
 		save_directory
 	)
@@ -200,6 +234,9 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 	var status := String(inspected.data.get("status", "none"))
 	if status == "loaded":
 		_last_checkpoint_summary = inspected.data.get("checkpoint", {}).duplicate(true)
+		if not bool(_last_checkpoint_summary.get("deck_confirmed", false)):
+			_last_checkpoint_summary["challenge_available"] = false
+			_last_checkpoint_summary["challenge_reason"] = "请先通过继续游戏确认出战牌组"
 		start_screen.show_checkpoint_status("loaded", _last_checkpoint_summary)
 		return
 	_last_checkpoint_summary = {}
@@ -236,6 +273,14 @@ func _show_current_state() -> void:
 		return
 	if progression_phase == "reward":
 		_show_reward()
+		return
+	var deck_snapshot = _session.get_deck_snapshot()
+	if (
+		deck_snapshot != null
+		and String(deck_snapshot.data.get("phase", "")) != "unavailable"
+		and not bool(deck_snapshot.data.get("confirmed", false))
+	):
+		_show_deck_screen(ROUTE_HUB, ROUTE_HUB)
 		return
 	var route: RouteSnapshot = _session.get_route_snapshot()
 	var route_data := route.data if route != null else {}
@@ -283,6 +328,14 @@ func _show_challenge_current_state() -> void:
 			&"challenge_state_invalid",
 			"Challenge state could not be restored."
 		))
+		return
+	var deck_snapshot = _session.get_deck_snapshot()
+	if (
+		deck_snapshot != null
+		and String(deck_snapshot.data.get("phase", "")) != "unavailable"
+		and not bool(deck_snapshot.data.get("confirmed", false))
+	):
+		_show_deck_screen(ROUTE_CHALLENGE_HUB, ROUTE_CHALLENGE_HUB)
 		return
 	var progression: ProgressionSnapshot = _session.get_progression_snapshot()
 	var progression_phase := String(progression.data.get("phase", ""))
@@ -332,6 +385,116 @@ func _show_challenge_selection() -> void:
 	_set_route(ROUTE_CHALLENGE_SELECT)
 
 
+func _show_challenge_hub() -> void:
+	var probe = _load_challenge_hub_probe()
+	if not probe.ok:
+		_show_start_error(probe)
+		return
+	var probe_session = probe.data.session
+	var snapshots: Array = []
+	for challenge_id_value in probe.data.challenge_ids:
+		var engine = ChallengeEngineScript.new(
+			probe_session.route_content,
+			probe_session.challenge_content,
+			StringName(challenge_id_value)
+		)
+		var initialized = engine.initialize(
+			probe.data.sequence_state,
+			{}
+		)
+		if initialized.accepted:
+			snapshots.append(engine.get_snapshot())
+	var screen := _replace_screen(ChallengeHubScreenScene)
+	screen.challenge_selected.connect(_on_challenge_hub_selected)
+	screen.exit_requested.connect(show_start_screen)
+	screen.set_reward_labels(
+		_build_reward_labels(probe_session.progression_content)
+	)
+	screen.apply_snapshots(snapshots)
+	_challenge_sequence_state = probe.data.sequence_state.duplicate(true)
+	_set_route(ROUTE_CHALLENGE_HUB)
+
+
+func _load_challenge_hub_probe() -> InfrastructureResult:
+	var inspected = AppBootstrapScript.inspect_route_checkpoint_v07(
+		checkpoint_slot,
+		save_directory
+	)
+	if not inspected.ok or String(inspected.data.get("status", "")) != "loaded":
+		return InfrastructureResult.failure(
+			&"challenge_checkpoint_unavailable",
+			"A completed sequence-eight checkpoint is required to inspect challenges."
+		)
+	var summary: Dictionary = inspected.data.get("checkpoint", {})
+	var seed_value := int(summary.get("rng_seed", _resolve_seed(-1)))
+	var saved_challenge_id := String(summary.get("challenge_id", ""))
+	var paths := {"save_directory": save_directory}
+	if not saved_challenge_id.is_empty():
+		paths["challenge_id"] = saved_challenge_id
+	var result = AppBootstrapScript.start_challenge_v07(
+		seed_value,
+		paths,
+		checkpoint_slot,
+		false,
+		false
+	)
+	if not result.ok and not saved_challenge_id.is_empty():
+		paths.erase("challenge_id")
+		result = AppBootstrapScript.start_challenge_v07(
+			seed_value,
+			paths,
+			checkpoint_slot,
+			false,
+			false
+		)
+	if not result.ok:
+		return result
+	var session = result.data
+	var sequence_state: Dictionary = session.get_sequence_state().to_dictionary()
+	var persisted_sequence := int(summary.get("sequence", 9))
+	if persisted_sequence > 0:
+		sequence_state["current_sequence"] = persisted_sequence
+		if persisted_sequence <= 8:
+			sequence_state["advancement_state"] = "completed"
+	var completed_challenges: Variant = summary.get(
+		"completed_challenge_ids",
+		[]
+	)
+	if completed_challenges is Array:
+		sequence_state["completed_challenge_ids"] = (
+			completed_challenges.duplicate()
+		)
+	var challenge_ids: Array = session.challenge_content.get_challenge_ids()
+	return InfrastructureResult.success({
+		"session": session,
+		"sequence_state": sequence_state,
+		"challenge_ids": challenge_ids,
+	})
+
+
+func _build_reward_labels(content) -> Dictionary:
+	var labels := {}
+	if content == null:
+		return labels
+	for reward_value in content.get_reward_options():
+		if not reward_value is Dictionary:
+			continue
+		var reward_id := String(reward_value.get("id", ""))
+		if not reward_id.is_empty():
+			labels[reward_id] = String(
+				reward_value.get("display_name_zh", reward_id)
+			)
+	return labels
+
+
+func _on_challenge_hub_selected(challenge_id: StringName) -> void:
+	start_new_challenge(
+		_resolve_seed(-1),
+		challenge_id,
+		_challenge_sequence_state
+	)
+
+
 func _on_challenge_command_requested(command: ChallengeCommand) -> void:
 	if (
 		_session == null
@@ -362,7 +525,20 @@ func _show_challenge_result() -> void:
 
 
 func _on_challenge_retry_requested() -> void:
-	start_new_challenge()
+	var challenge_id: StringName = &""
+	var sequence_state: Dictionary = _challenge_sequence_state.duplicate(true)
+	if _session != null and _session.has_method("get_challenge_snapshot"):
+		var snapshot = _session.get_challenge_snapshot()
+		if snapshot != null:
+			challenge_id = StringName(
+				snapshot.data.get("challenge_id", "")
+			)
+			sequence_state = _session.get_sequence_state().to_dictionary()
+	start_new_challenge(
+		_resolve_seed(-1),
+		challenge_id,
+		sequence_state
+	)
 
 
 func _checkpoint_save_state() -> String:
@@ -380,6 +556,7 @@ func _show_identity_selection() -> void:
 	var screen := _replace_screen(IdentityScreenScene)
 	_connect_identity_screen(screen)
 	screen.apply_snapshot(_session.get_progression_snapshot())
+	screen.set_deck_snapshot(_session.get_deck_snapshot())
 	_set_route(ROUTE_IDENTITY)
 
 
@@ -387,6 +564,7 @@ func _show_hub() -> void:
 	var screen := _replace_screen(IdentityScreenScene)
 	_connect_identity_screen(screen)
 	screen.apply_snapshot(_session.get_progression_snapshot())
+	screen.set_deck_snapshot(_session.get_deck_snapshot())
 	_set_route(ROUTE_HUB)
 
 
@@ -395,6 +573,7 @@ func _connect_identity_screen(screen: Control) -> void:
 	screen.battle_requested.connect(_on_battle_requested)
 	screen.gacha_requested.connect(_on_gacha_requested)
 	screen.upgrade_requested.connect(_on_upgrade_requested)
+	screen.deck_requested.connect(_on_deck_requested)
 
 
 func _on_identity_selected(identity_id: StringName) -> void:
@@ -406,13 +585,70 @@ func _on_identity_selected(identity_id: StringName) -> void:
 	if _screen != null:
 		_screen.apply_command_result(result)
 	if result.accepted:
-		_show_route_screen()
+		_show_deck_screen(ROUTE_HUB, ROUTE_HUB)
 
 
 func _on_battle_requested() -> void:
 	if _session == null or _route != ROUTE_HUB:
 		return
+	var deck = _session.get_deck_snapshot()
+	if deck != null and not bool(deck.data.get("confirmed", false)):
+		_show_deck_screen(ROUTE_HUB, ROUTE_HUB)
+		return
 	_show_route_screen()
+
+
+func _on_deck_requested() -> void:
+	if _session == null or _route != ROUTE_HUB:
+		return
+	_show_deck_screen(ROUTE_HUB, ROUTE_HUB)
+
+
+func _show_deck_screen(
+	return_route: StringName,
+	after_confirm_route: StringName
+) -> void:
+	if _session == null:
+		return
+	var screen := _replace_screen(DeckScreenScene)
+	screen.deck_command_requested.connect(_on_deck_command_requested)
+	screen.back_requested.connect(_on_deck_back_requested)
+	screen.apply_snapshot(_session.get_deck_snapshot())
+	screen.set_progression_snapshot(_session.get_progression_snapshot())
+	_deck_return_route = return_route
+	_deck_after_confirm_route = after_confirm_route
+	_set_route(ROUTE_DECK)
+
+
+func _on_deck_command_requested(command: DeckCommand) -> void:
+	if (
+		_session == null
+		or _screen == null
+		or _route != ROUTE_DECK
+		or command == null
+	):
+		return
+	var result: DeckCommandResult = _session.submit_deck(command)
+	_screen.apply_command_result(result)
+	if not result.accepted:
+		return
+	if command.type == DeckCommand.CONFIRM_DECK:
+		if _deck_after_confirm_route == ROUTE_HUB:
+			_show_hub()
+		elif _deck_after_confirm_route == ROUTE_CHALLENGE_HUB:
+			_show_challenge_hub()
+		else:
+			_show_current_state()
+
+
+func _on_deck_back_requested() -> void:
+	match _deck_return_route:
+		ROUTE_HUB:
+			_show_hub()
+		ROUTE_CHALLENGE_HUB:
+			_show_challenge_hub()
+		_:
+			_show_current_state()
 
 
 func _show_route_screen() -> void:
@@ -795,7 +1031,7 @@ func _on_new_game_requested() -> void:
 
 
 func _on_challenge_requested() -> void:
-	start_new_challenge(_resolve_seed(-1))
+	_show_challenge_hub()
 
 
 func _on_continue_requested() -> void:

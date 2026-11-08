@@ -30,14 +30,14 @@
 | `enemy.weeping_tenant` | `art/assets/svg/v0.3.0/enemies/enemy-weeping-tenant.svg` | `assets/game/v0.3.0/enemies/enemy-weeping-tenant.png` | 900×900 | 哭泣的房客 |
 | `enemy.candle_moth` | `art/assets/svg/v0.3.0/enemies/enemy-candle-moth.svg` | `assets/game/v0.3.0/enemies/enemy-candle-moth.png` | 900×900 | 烛焰飞蛾 |
 | `enemy.mirror_hound` | `art/assets/svg/v0.3.0/enemies/enemy-mirror-hound.svg` | `assets/game/v0.3.0/enemies/enemy-mirror-hound.png` | 900×900 | 镜中猎犬 |
-| `card.skill.ink_dart` | `art/assets/svg/v0.3.0/cards/card-skill-ink-dart.svg` | `assets/game/v0.3.0/cards/card-skill-ink-dart.png` | 512×400 | 无文字卡面 |
-| `card.skill.paper_guard` | `art/assets/svg/v0.3.0/cards/card-skill-paper-guard.svg` | `assets/game/v0.3.0/cards/card-skill-paper-guard.png` | 512×400 | 无文字卡面 |
-| `card.skill.calm_breath` | `art/assets/svg/v0.3.0/cards/card-skill-calm-breath.svg` | `assets/game/v0.3.0/cards/card-skill-calm-breath.png` | 512×400 | 无文字卡面 |
-| `card.skill.focus` | `art/assets/svg/v0.3.0/cards/card-skill-focus.svg` | `assets/game/v0.3.0/cards/card-skill-focus.png` | 512×400 | 无文字卡面 |
-| `card.skill.insight` | `art/assets/svg/v0.3.0/cards/card-skill-insight.svg` | `assets/game/v0.3.0/cards/card-skill-insight.png` | 512×400 | 无文字卡面 |
-| `card.skill.omen` | `art/assets/svg/v0.3.0/cards/card-skill-omen.svg` | `assets/game/v0.3.0/cards/card-skill-omen.png` | 512×400 | 无文字卡面 |
-| `card.skill.whisper` | `art/assets/svg/v0.3.0/cards/card-skill-whisper.svg` | `assets/game/v0.3.0/cards/card-skill-whisper.png` | 512×400 | 无文字卡面 |
-| `card.skill.second_look` | `art/assets/svg/v0.3.0/cards/card-skill-second-look.svg` | `assets/game/v0.3.0/cards/card-skill-second-look.png` | 512×400 | 无文字卡面 |
+| `card.skill.ink_dart` | `art/assets/svg/v0.3.0/cards/card_skill_ink-dart.svg` | `assets/game/v0.3.0/cards/card_skill_ink-dart.png` | 512×400 | 无文字卡面 |
+| `card.skill.paper_guard` | `art/assets/svg/v0.3.0/cards/card_skill_paper-guard.svg` | `assets/game/v0.3.0/cards/card_skill_paper-guard.png` | 512×400 | 无文字卡面 |
+| `card.skill.calm_breath` | `art/assets/svg/v0.3.0/cards/card_skill_calm-breath.svg` | `assets/game/v0.3.0/cards/card_skill_calm-breath.png` | 512×400 | 无文字卡面 |
+| `card.skill.focus` | `art/assets/svg/v0.3.0/cards/card_skill_focus.svg` | `assets/game/v0.3.0/cards/card_skill_focus.png` | 512×400 | 无文字卡面 |
+| `card.skill.insight` | `art/assets/svg/v0.3.0/cards/card_skill_insight.svg` | `assets/game/v0.3.0/cards/card_skill_insight.png` | 512×400 | 无文字卡面 |
+| `card.skill.omen` | `art/assets/svg/v0.3.0/cards/card_skill_omen.svg` | `assets/game/v0.3.0/cards/card_skill_omen.png` | 512×400 | 无文字卡面 |
+| `card.skill.whisper` | `art/assets/svg/v0.3.0/cards/card_skill_whisper.svg` | `assets/game/v0.3.0/cards/card_skill_whisper.png` | 512×400 | 无文字卡面 |
+| `card.skill.second_look` | `art/assets/svg/v0.3.0/cards/card_skill_second-look.svg` | `assets/game/v0.3.0/cards/card_skill_second-look.png` | 512×400 | 无文字卡面 |
 | `status.*` | `art/assets/svg/v0.3.0/status/status-*.svg` | `assets/game/v0.3.0/status/status-*.png` | 64×64 | 12 个状态图标 |
 
 评审拼图：`assets/game/v0.3.0/contact-sheet.png`。
@@ -105,6 +105,29 @@
 | `challenge.deck.restricted` | `art/assets/svg/v0.6.0/icons/deck-restricted.svg` | `assets/game/v0.6.0/icons/deck-restricted.png` | 128×128 | 牌组受限标识 |
 
 审稿拼图：`assets/game/v0.6.0/contact-sheet.png`。HTML 预览：`art/preview/v0.6.0/index.html`。
+
+## v0.7.0 卡组构筑与第二挑战候选
+
+以下资产根据 `docs/versions/v0.7.0.md` 与正式 v0.7 卡牌/挑战数据制作。美术完成 XML、尺寸和实际拼图检查，等待 UI 在卡组编辑、收藏、第二挑战和结算界面实机审稿；美术不得自行标记界面通过。
+
+| 稳定 ID | SVG 源 | PNG 候选 | 尺寸 | 用途 |
+|---|---|---|---:|---|
+| `card.skill.warding_circle` | `art/assets/svg/v0.7.0/cards/card_skill_warding_circle.svg` | `assets/game/v0.7.0/cards/card_skill_warding_circle.png` | 512×400 | 守夜圆环 |
+| `card.skill.lantern_step` | `art/assets/svg/v0.7.0/cards/card_skill_lantern_step.svg` | `assets/game/v0.7.0/cards/card_skill_lantern_step.png` | 512×400 | 提灯步 |
+| `card.skill.whispered_hunch` | `art/assets/svg/v0.7.0/cards/card_skill_whispered_hunch.svg` | `assets/game/v0.7.0/cards/card_skill_whispered_hunch.png` | 512×400 | 灵性预感 |
+| `card.skill.mirrored_memory` | `art/assets/svg/v0.7.0/cards/card_skill_mirrored_memory.svg` | `assets/game/v0.7.0/cards/card_skill_mirrored_memory.png` | 512×400 | 镜中记忆 |
+| `card.skill.fated_echo` | `art/assets/svg/v0.7.0/cards/card_skill_fated_echo.svg` | `assets/game/v0.7.0/cards/card_skill_fated_echo.png` | 512×400 | 命运回声 |
+| `card.skill.piercing_omen` | `art/assets/svg/v0.7.0/cards/card_skill_piercing_omen.svg` | `assets/game/v0.7.0/cards/card_skill_piercing_omen.png` | 512×400 | 穿刺凶兆 |
+| `card.skill.coffin_nail` | `art/assets/svg/v0.7.0/cards/card_skill_coffin_nail.svg` | `assets/game/v0.7.0/cards/card_skill_coffin_nail.png` | 512×400 | 棺钉 |
+| `card.skill.second_sight` | `art/assets/svg/v0.7.0/cards/card_skill_second_sight.svg` | `assets/game/v0.7.0/cards/card_skill_second_sight.png` | 512×400 | 第二视觉 |
+| `scene.deck.archive` | `art/assets/svg/v0.7.0/scenes/deck_archive.svg` | `assets/game/v0.7.0/scenes/deck_archive.png` | 1600×900 | 卡组编辑与收藏背景 |
+| `challenge.mode.broken_procession` | `art/assets/svg/v0.7.0/icons/challenge_broken_procession.svg` | `assets/game/v0.7.0/icons/challenge_broken_procession.png` | 256×256 | 第二挑战徽记 |
+| `challenge.modifier.obituary_echo` | `art/assets/svg/v0.7.0/icons/modifier_obituary_echo.svg` | `assets/game/v0.7.0/icons/modifier_obituary_echo.png` | 128×128 | 讣告回声 |
+| `challenge.modifier.twin_shadow` | `art/assets/svg/v0.7.0/icons/modifier_twin_shadow.svg` | `assets/game/v0.7.0/icons/modifier_twin_shadow.png` | 128×128 | 双影同行 |
+| `challenge.modifier.ritual_vigil` | `art/assets/svg/v0.7.0/icons/modifier_ritual_vigil.svg` | `assets/game/v0.7.0/icons/modifier_ritual_vigil.png` | 128×128 | 通宵守仪 |
+| `route.variant.overridden_node` | `art/assets/svg/v0.7.0/icons/route_overridden_node.svg` | `assets/game/v0.7.0/icons/route_overridden_node.png` | 128×128 | 数据覆盖路线节点 |
+
+审稿拼图：`assets/game/v0.7.0/contact-sheet.png`。HTML 预览：`art/preview/v0.7.0/index.html`。
 
 ## 计划资产
 

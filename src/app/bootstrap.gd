@@ -9,11 +9,14 @@ const CampaignContentCatalogScript := preload("res://src/infrastructure/campaign
 const ProgressionContentAdapterScript := preload("res://src/infrastructure/progression_content_adapter.gd")
 const RouteContentAdapterScript := preload("res://src/infrastructure/route_content_adapter.gd")
 const ChallengeContentAdapterScript := preload("res://src/infrastructure/challenge_content_adapter.gd")
+const DeckContentAdapterScript := preload("res://src/infrastructure/deck_content_adapter.gd")
 const SaveMigrationsScript := preload("res://src/infrastructure/save_migrations.gd")
 const GameSessionScript := preload("res://src/app/game_session.gd")
 const CampaignSessionScript := preload("res://src/app/campaign_session.gd")
 const RouteSessionScript := preload("res://src/app/route_session.gd")
 const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
+const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
+const DeckCommandScript := preload("res://src/core/deck_command.gd")
 
 const DEFAULT_CARDS_PATH := "res://data/cards/v0.3.0/cards.json"
 const DEFAULT_CARDS_SCHEMA_PATH := "res://data/schema/v0.3.0/cards.schema.json"
@@ -39,6 +42,24 @@ const DEFAULT_V05_BALANCE_PATH := "res://data/balance/v0.5.0/balance.json"
 const DEFAULT_V05_BALANCE_SCHEMA_PATH := "res://data/schema/v0.5.0/balance.schema.json"
 const DEFAULT_CHALLENGE_PATH := "res://data/challenges/v0.6.0/challenges.json"
 const DEFAULT_CHALLENGE_SCHEMA_PATH := "res://data/schema/v0.6.0/challenges.schema.json"
+const DEFAULT_V07_CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
+const DEFAULT_V07_CARDS_SCHEMA_PATH := "res://data/schema/v0.7.0/cards.schema.json"
+const DEFAULT_V07_ENEMIES_PATH := "res://data/enemies/v0.7.0/enemies.json"
+const DEFAULT_V07_ENEMIES_SCHEMA_PATH := "res://data/schema/v0.7.0/enemies.schema.json"
+const DEFAULT_V07_ENCOUNTERS_PATH := "res://data/encounters/v0.7.0/encounters.json"
+const DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH := "res://data/schema/v0.7.0/encounters.schema.json"
+const DEFAULT_V07_ROUTES_PATH := "res://data/routes/v0.7.0/routes.json"
+const DEFAULT_V07_ROUTES_SCHEMA_PATH := "res://data/schema/v0.7.0/routes.schema.json"
+const DEFAULT_V07_RITUALS_PATH := "res://data/rituals/v0.7.0/rituals.json"
+const DEFAULT_V07_RITUALS_SCHEMA_PATH := "res://data/schema/v0.7.0/rituals.schema.json"
+const DEFAULT_V07_BALANCE_PATH := "res://data/balance/v0.7.0/balance.json"
+const DEFAULT_V07_BALANCE_SCHEMA_PATH := "res://data/schema/v0.7.0/balance.schema.json"
+const DEFAULT_V07_PROGRESSION_PATH := "res://data/cards/v0.7.0/progression.json"
+const DEFAULT_V07_PROGRESSION_SCHEMA_PATH := "res://data/schema/v0.7.0/progression.schema.json"
+const DEFAULT_V07_CHALLENGE_PATH := "res://data/challenges/v0.7.0/challenges.json"
+const DEFAULT_V07_CHALLENGE_SCHEMA_PATH := "res://data/schema/v0.7.0/challenges.schema.json"
+const DEFAULT_DECK_PATH := "res://data/decks/v0.7.0/decks.json"
+const DEFAULT_DECK_SCHEMA_PATH := "res://data/schema/v0.7.0/decks.schema.json"
 
 
 static func create_services(run_seed: int) -> AppServices:
@@ -501,8 +522,10 @@ static func start_route(
 		if saved_progression is Dictionary:
 			progression_state = saved_progression.duplicate(true)
 		var saved_route: Variant = envelope.get("route", {})
-		if saved_route is Dictionary and bool(
-			saved_route.get("initialized", false)
+		if (
+			bool(paths.get("restore_route_state", true))
+			and saved_route is Dictionary
+			and bool(saved_route.get("initialized", false))
 		):
 			var stored_state: Variant = saved_route.get("state", {})
 			if stored_state is Dictionary:
@@ -546,6 +569,251 @@ static func start_route(
 			"resumed": resume_from_checkpoint,
 			"route_id": String(route_content.get_default_route_id()),
 			"content_version": "v0.6.0",
+		}
+	)
+
+
+static func start_route_v07(
+	run_seed: int,
+	paths: Dictionary = {},
+	checkpoint_slot: String = "checkpoint",
+	resume_from_checkpoint: bool = false
+) -> InfrastructureResult:
+	var loader := JsonDocumentLoaderScript.new()
+	var cards_result := loader.load_document(
+		String(paths.get("cards", DEFAULT_V07_CARDS_PATH)),
+		String(paths.get("cards_schema", DEFAULT_V07_CARDS_SCHEMA_PATH))
+	)
+	if not cards_result.ok:
+		return _with_stage(cards_result, &"cards")
+	var enemies_result := loader.load_document(
+		String(paths.get("enemies", DEFAULT_V07_ENEMIES_PATH)),
+		String(paths.get("enemies_schema", DEFAULT_V07_ENEMIES_SCHEMA_PATH))
+	)
+	if not enemies_result.ok:
+		return _with_stage(enemies_result, &"enemies")
+	var encounters_result := loader.load_document(
+		String(paths.get("encounters", DEFAULT_V07_ENCOUNTERS_PATH)),
+		String(paths.get("encounters_schema", DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH))
+	)
+	if not encounters_result.ok:
+		return _with_stage(encounters_result, &"encounters")
+	var routes_result := loader.load_document(
+		String(paths.get("routes", DEFAULT_V07_ROUTES_PATH)),
+		String(paths.get("routes_schema", DEFAULT_V07_ROUTES_SCHEMA_PATH))
+	)
+	if not routes_result.ok:
+		return _with_stage(routes_result, &"routes")
+	var rituals_result := loader.load_document(
+		String(paths.get("rituals", DEFAULT_V07_RITUALS_PATH)),
+		String(paths.get("rituals_schema", DEFAULT_V07_RITUALS_SCHEMA_PATH))
+	)
+	if not rituals_result.ok:
+		return _with_stage(rituals_result, &"rituals")
+	var balance_result := loader.load_document(
+		String(paths.get("balance", DEFAULT_V07_BALANCE_PATH)),
+		String(paths.get("balance_schema", DEFAULT_V07_BALANCE_SCHEMA_PATH))
+	)
+	if not balance_result.ok:
+		return _with_stage(balance_result, &"balance")
+	var progression_result := loader.load_document(
+		String(paths.get("progression", DEFAULT_V07_PROGRESSION_PATH)),
+		String(paths.get("progression_schema", DEFAULT_V07_PROGRESSION_SCHEMA_PATH))
+	)
+	if not progression_result.ok:
+		return _with_stage(progression_result, &"progression")
+	var deck_result := loader.load_document(
+		String(paths.get("decks", DEFAULT_DECK_PATH)),
+		String(paths.get("decks_schema", DEFAULT_DECK_SCHEMA_PATH))
+	)
+	if not deck_result.ok:
+		return _with_stage(deck_result, &"decks")
+
+	var catalog := CampaignContentCatalogScript.new()
+	var catalog_result := catalog.load_from_documents(
+		cards_result.data,
+		enemies_result.data,
+		encounters_result.data
+	)
+	if not catalog_result.ok:
+		return _with_stage(catalog_result, &"catalog")
+	if String(catalog.content_version) != "v0.7.0":
+		return InfrastructureResultScript.failure(
+			&"v07_content_version_mismatch",
+			"v0.7 route startup requires the complete v0.7 content package."
+		)
+
+	var route_content := RouteContentAdapterScript.new(
+		routes_result.data,
+		rituals_result.data,
+		catalog
+	)
+	if not route_content.is_valid():
+		return InfrastructureResultScript.failure(
+			&"route_content_invalid",
+			"Route and ritual content references are invalid.",
+			{"errors": route_content.validation_errors()}
+		)
+	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
+		cards_result.data.get("cards", [])
+	)
+	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
+		balance_result.data
+	)
+	var progression_content: ProgressionContentPort = (
+		ProgressionContentAdapterScript.new(
+			progression_result.data,
+			battle_content
+		)
+	)
+	if progression_content.base_cards_version != catalog.cards_content_version:
+		return InfrastructureResultScript.failure(
+			&"progression_base_cards_version_mismatch",
+			"Progression content must reference the loaded v0.7 cards.",
+			{
+				"progression": progression_content.base_cards_version,
+				"cards": catalog.cards_content_version,
+			}
+		)
+	if deck_result.data.get("content_version", "") != "v0.7.0":
+		return InfrastructureResultScript.failure(
+			&"deck_content_version_mismatch",
+			"Deck content must use v0.7.0."
+		)
+	var deck_content := DeckContentAdapterScript.new(
+		deck_result.data,
+		battle_content
+	)
+	if not deck_content.is_valid():
+		return InfrastructureResultScript.failure(
+			&"deck_content_invalid",
+			"Deck catalog or presets are invalid.",
+			{"errors": deck_content.validation_errors()}
+		)
+
+	var save_directory := String(
+		paths.get("save_directory", AtomicSaveService.DEFAULT_DIRECTORY)
+	)
+	var save_service := SaveMigrationsScript.create_v07_service(save_directory)
+	var selected_seed := run_seed
+	var progression_state: Dictionary = {}
+	var route_state: Dictionary = {}
+	var deck_state: Dictionary = {}
+	var resumed_sequence: Dictionary = {}
+	if resume_from_checkpoint:
+		var loaded := save_service.load_slot(checkpoint_slot)
+		if not loaded.ok:
+			return InfrastructureResultScript.failure(
+				&"route_checkpoint_unavailable",
+				"v0.7 checkpoint could not be loaded.",
+				{
+					"cause": String(loaded.code),
+					"cause_message": loaded.message,
+					"cause_details": loaded.details,
+				}
+			)
+		var envelope: Dictionary = loaded.data
+		selected_seed = int(envelope.get("rng_seed", run_seed))
+		var saved_progression: Variant = envelope.get("progression", {})
+		if saved_progression is Dictionary:
+			progression_state = saved_progression.duplicate(true)
+		var saved_route: Variant = envelope.get("route", {})
+		if (
+			bool(paths.get("restore_route_state", true))
+			and saved_route is Dictionary
+			and bool(saved_route.get("initialized", false))
+		):
+			var stored_state: Variant = saved_route.get("state", {})
+			if stored_state is Dictionary:
+				route_state = stored_state.duplicate(true)
+		var saved_sequence: Variant = saved_route.get("sequence_state", {})
+		if saved_sequence is Dictionary:
+			resumed_sequence = saved_sequence.duplicate(true)
+		var saved_deck: Variant = envelope.get("deck", {})
+		if saved_deck is Dictionary and bool(
+			saved_deck.get("initialized", false)
+		):
+			var saved_deck_state: Variant = saved_deck.get("state", {})
+			if saved_deck_state is Dictionary:
+				deck_state = saved_deck_state.duplicate(true)
+
+	var services := create_services(selected_seed)
+	services.saves = save_service
+	services.catalog = catalog
+	var progression_engine := ProgressionEngine.new(
+		progression_content,
+		global_balance,
+		services.create_battle_random(&"gacha.draw")
+	)
+	var initialized_progression := progression_engine.initialize(
+		progression_state
+	)
+	if not initialized_progression.accepted:
+		return InfrastructureResultScript.failure(
+			&"progression_initialization_failed",
+			"Persistent progression could not be initialized.",
+			{
+				"reason_code": String(initialized_progression.reason_code),
+				"snapshot": initialized_progression.snapshot.to_dictionary(),
+			}
+		)
+	var owned_ids: Array[String] = []
+	for card_value in initialized_progression.snapshot.data.get(
+		"collection",
+		[]
+	):
+		if (
+			card_value is Dictionary
+			and int(card_value.get("copies", 0)) > 0
+		):
+			owned_ids.append(String(card_value.get("definition_id", "")))
+	var deck_engine := DeckEngineScript.new(deck_content, battle_content)
+	var initialized_deck := deck_engine.initialize(owned_ids, deck_state)
+	if not initialized_deck.accepted:
+		return InfrastructureResultScript.failure(
+			&"deck_initialization_failed",
+			"Persistent deck state could not be initialized.",
+			{
+				"reason_code": String(initialized_deck.reason_code),
+				"snapshot": initialized_deck.snapshot.to_dictionary(),
+			}
+		)
+	if (
+		deck_state.is_empty()
+		and not bool(initialized_deck.snapshot.data.get("confirmed", false))
+	):
+		var confirmed := deck_engine.submit(DeckCommandScript.confirm_deck())
+		if not confirmed.accepted:
+			return InfrastructureResultScript.failure(
+				&"default_deck_invalid",
+				"The default v0.7 deck could not be confirmed.",
+				{"reason_code": String(confirmed.reason_code)}
+			)
+
+	var session := RouteSessionScript.new(
+		services,
+		catalog,
+		battle_content,
+		global_balance,
+		progression_content,
+		progression_engine,
+		route_content,
+		selected_seed,
+		checkpoint_slot,
+		deck_engine,
+		"v0.7.0",
+		5
+	)
+	var initialized_route := session.initialize(route_state)
+	if not initialized_route.ok:
+		return initialized_route
+	return InfrastructureResultScript.success(
+		session,
+		{
+			"resumed": resume_from_checkpoint,
+			"route_id": String(route_content.get_default_route_id()),
+			"content_version": "v0.7.0",
+			"sequence_state": resumed_sequence,
 		}
 	)
 
@@ -657,6 +925,9 @@ static func start_challenge(
 		if not saved_sequence_state.is_empty()
 		else base_session.get_sequence_state().to_dictionary()
 	)
+	var explicit_sequence: Variant = paths.get("sequence_state", {})
+	if explicit_sequence is Dictionary and not explicit_sequence.is_empty():
+		sequence_data = explicit_sequence.duplicate(true)
 	var session := ChallengeSessionScript.new(
 		base_session.services,
 		base_session.catalog,
@@ -723,6 +994,187 @@ static func inspect_route_checkpoint(
 	})
 
 
+static func inspect_route_checkpoint_v07(
+	save_slot: String = "checkpoint",
+	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
+) -> InfrastructureResult:
+	var service := SaveMigrationsScript.create_v07_service(save_directory)
+	var slot_info := service.inspect_slot(save_slot)
+	if not slot_info.ok:
+		return slot_info
+	if not bool(slot_info.data.get("has_save", false)):
+		return InfrastructureResultScript.success({
+			"status": "none",
+			"checkpoint": null,
+			"backup_available": bool(slot_info.data.get("has_backup", false)),
+		})
+	var loaded := service.load_slot(save_slot)
+	if not loaded.ok:
+		return InfrastructureResultScript.success({
+			"status": "corrupt",
+			"checkpoint": null,
+			"error_code": String(loaded.code),
+			"message": loaded.message,
+			"backup_available": bool(loaded.details.get("backup_available", false)),
+		})
+	return InfrastructureResultScript.success({
+		"status": "loaded",
+		"checkpoint": _checkpoint_summary(loaded.data),
+		"backup_available": bool(slot_info.data.get("has_backup", false)),
+	})
+
+
+static func start_challenge_v07(
+	run_seed: int,
+	paths: Dictionary = {},
+	checkpoint_slot: String = "checkpoint",
+	resume_from_checkpoint: bool = false,
+	start_fresh_challenge: bool = false
+) -> InfrastructureResult:
+	var base_paths: Dictionary = paths.duplicate(true)
+	base_paths["restore_route_state"] = false
+	var base_result := start_route_v07(
+		run_seed,
+		base_paths,
+		checkpoint_slot,
+		true
+	)
+	if not base_result.ok and not resume_from_checkpoint:
+		base_result = start_route_v07(
+			run_seed,
+			base_paths,
+			checkpoint_slot,
+			false
+		)
+	if not base_result.ok:
+		return _with_stage(base_result, &"challenge_base_route")
+	var base_session: RouteSession = base_result.data
+	var loader := JsonDocumentLoaderScript.new()
+	var challenge_result := loader.load_document(
+		String(paths.get("challenges", DEFAULT_V07_CHALLENGE_PATH)),
+		String(
+			paths.get(
+				"challenges_schema",
+				DEFAULT_V07_CHALLENGE_SCHEMA_PATH
+			)
+		)
+	)
+	if not challenge_result.ok:
+		return _with_stage(challenge_result, &"challenges")
+	var challenge_content := ChallengeContentAdapterScript.new(
+		challenge_result.data,
+		base_session.catalog,
+		base_session.route_content,
+		base_session.progression_content
+	)
+	if not challenge_content.is_valid():
+		return InfrastructureResultScript.failure(
+			&"challenge_content_invalid",
+			"v0.7 challenge content failed reference validation.",
+			{"errors": challenge_content.validation_errors()}
+		)
+	var selected_challenge_id := StringName(
+		paths.get(
+			"challenge_id",
+			String(challenge_content.get_default_challenge_id())
+		)
+	)
+	if not challenge_content.has_challenge(selected_challenge_id):
+		return InfrastructureResultScript.failure(
+			&"challenge_not_found",
+			"Requested challenge does not exist.",
+			{"challenge_id": String(selected_challenge_id)}
+		)
+
+	var save_service := SaveMigrationsScript.create_v07_service(
+		String(
+			paths.get(
+				"save_directory",
+				AtomicSaveService.DEFAULT_DIRECTORY
+			)
+		)
+	)
+	var saved := save_service.load_slot(checkpoint_slot)
+	var challenge_state: Dictionary = {}
+	var reward_applied := false
+	var saved_sequence_state: Dictionary = {}
+	if resume_from_checkpoint:
+		if not saved.ok:
+			return InfrastructureResultScript.failure(
+				&"challenge_checkpoint_unavailable",
+				"v0.7 challenge checkpoint could not be loaded.",
+				{
+					"cause": String(saved.code),
+					"cause_message": saved.message,
+					"cause_details": saved.details,
+				}
+			)
+	elif not saved.ok:
+		saved = InfrastructureResultScript.success({})
+	if not start_fresh_challenge and saved.ok and saved.data is Dictionary:
+		var envelope: Dictionary = saved.data
+		var saved_challenge: Variant = envelope.get("challenge", {})
+		if saved_challenge is Dictionary:
+			var state_value: Variant = saved_challenge.get("state", {})
+			if state_value is Dictionary:
+				challenge_state = state_value.duplicate(true)
+			reward_applied = bool(
+				saved_challenge.get("reward_applied", false)
+			)
+			var sequence_value: Variant = saved_challenge.get(
+				"sequence_state",
+				{}
+			)
+			if sequence_value is Dictionary:
+				saved_sequence_state = sequence_value.duplicate(true)
+
+	var sequence_data := (
+		saved_sequence_state
+		if not saved_sequence_state.is_empty()
+		else base_session.get_sequence_state().to_dictionary()
+	)
+	var explicit_sequence: Variant = paths.get("sequence_state", {})
+	if explicit_sequence is Dictionary and not explicit_sequence.is_empty():
+		sequence_data = explicit_sequence.duplicate(true)
+	var session := ChallengeSessionScript.new(
+		base_session.services,
+		base_session.catalog,
+		base_session.base_content,
+		base_session.balance,
+		base_session.progression_content,
+		base_session.progression,
+		base_session.route_content,
+		challenge_content,
+		selected_challenge_id,
+		sequence_data,
+		int(base_session.root_seed),
+		checkpoint_slot,
+		base_session.deck_engine,
+		"v0.7.0",
+		5
+	)
+	var initialized := session.initialize(
+		challenge_state,
+		reward_applied
+	)
+	if not initialized.ok:
+		return initialized
+	return InfrastructureResultScript.success(
+		session,
+		{
+			"resumed": resume_from_checkpoint,
+			"challenge_id": String(selected_challenge_id),
+			"content_version": "v0.7.0",
+			"unlocked": bool(
+				session.get_challenge_snapshot().data.get(
+					"unlocked",
+					false
+				)
+			),
+		}
+	)
+
+
 static func checkpoint_summary(envelope: Dictionary) -> Dictionary:
 	return _checkpoint_summary(envelope)
 
@@ -733,6 +1185,7 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 	var progression: Dictionary = envelope.get("progression", {})
 	var route: Dictionary = envelope.get("route", {})
 	var challenge: Dictionary = envelope.get("challenge", {})
+	var deck: Dictionary = envelope.get("deck", {})
 	var last_battle: Dictionary = run.get("last_battle", {})
 	var deck_summary: Dictionary = run.get("deck_summary", {})
 	var sequence_value := int(profile.get("sequence", 0))
@@ -746,6 +1199,29 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 		for card_state in collection_value.values():
 			if card_state is Dictionary and int(card_state.get("copies", 0)) > 0:
 				collection_size += 1
+	var deck_state_value: Variant = deck.get("state", {})
+	var deck_state: Dictionary = (
+		deck_state_value if deck_state_value is Dictionary else {}
+	)
+	var current_deck: Array = (
+		deck_state.get("current_card_ids", [])
+		if deck_state.get("current_card_ids", []) is Array
+		else []
+	)
+	var challenge_sequence_value: Variant = challenge.get(
+		"sequence_state",
+		{}
+	)
+	var challenge_sequence: Dictionary = (
+		challenge_sequence_value
+		if challenge_sequence_value is Dictionary
+		else {}
+	)
+	var completed_challenges: Array = (
+		challenge_sequence.get("completed_challenge_ids", [])
+		if challenge_sequence.get("completed_challenge_ids", []) is Array
+		else []
+	)
 	return {
 		"content_version": String(envelope.get("content_version", "")),
 		"created_at": String(envelope.get("created_at", "")),
@@ -772,6 +1248,8 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 			else 0
 		),
 		"deck_size": deck_size,
+		"deck_confirmed": bool(deck_state.get("confirmed", false)),
+		"current_deck_card_ids": current_deck.duplicate(),
 		"challenge_id": String(challenge.get("challenge_id", "")),
 		"challenge_phase": challenge_phase,
 		"challenge_available": sequence_value >= 8,
@@ -789,6 +1267,7 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 		"challenge_reward_applied": bool(
 			challenge.get("reward_applied", false)
 		),
+		"completed_challenge_ids": completed_challenges.duplicate(),
 		"last_battle": last_battle.duplicate(true),
 	}
 

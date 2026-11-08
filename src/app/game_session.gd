@@ -40,7 +40,8 @@ func _init(
 	auto_save_on_end: bool = true,
 	player_state_override: Dictionary = {},
 	apply_progression_modifiers: bool = true,
-	challenge_engine: RefCounted = null
+	challenge_engine: RefCounted = null,
+	deck_override_ids: Array = []
 ) -> void:
 	services = app_services
 	catalog = content_catalog
@@ -63,7 +64,11 @@ func _init(
 	if not resolved.ok:
 		return
 	encounter_name = String(resolved.data.get("display_name_zh", String(encounter_id)))
-	_deck_definition_ids.assign(resolved.data.get("deck_definition_ids", []))
+	_deck_definition_ids.assign(
+		deck_override_ids
+		if not deck_override_ids.is_empty()
+		else resolved.data.get("deck_definition_ids", [])
+	)
 	if _progression != null:
 		_deck_definition_ids.assign(
 			_progression.build_owned_battle_deck(_deck_definition_ids)

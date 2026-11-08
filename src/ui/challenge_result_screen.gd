@@ -10,6 +10,7 @@ const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
 var _snapshot_data: Dictionary = {}
 var _reward_labels: Dictionary = {}
 var _save_state := "pending"
+var _eyebrow_label: Label
 var _title_label: Label
 var _detail_label: Label
 var _reward_label: Label
@@ -63,6 +64,12 @@ func get_background_path() -> String:
 	return ChallengeCatalog.RESULT_BACKGROUND
 
 
+func get_emblem_path() -> String:
+	return ChallengeCatalog.challenge_emblem(
+		String(_snapshot_data.get("challenge_id", ""))
+	)
+
+
 func _build() -> void:
 	UiTheme.add_background(
 		self,
@@ -89,11 +96,12 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)
 	pad.add_child(column)
-	column.add_child(UiTheme.label(
+	_eyebrow_label = UiTheme.label(
 		"MIRROR ECHOES // INHERITANCE",
 		12,
 		UiTheme.C_GOLD
-	))
+	)
+	column.add_child(_eyebrow_label)
 	var hero := HBoxContainer.new()
 	hero.add_theme_constant_override("separation", 24)
 	column.add_child(hero)
@@ -146,6 +154,12 @@ func _render() -> void:
 		UiTheme.C_GOLD if completed else UiTheme.C_DANGER_TEXT
 	)
 	_result_icon.texture = load(ChallengeCatalog.outcome_icon(completed))
+	var challenge_id := String(_snapshot_data.get("challenge_id", ""))
+	_eyebrow_label.text = (
+		"BROKEN PROCESSION // INHERITANCE"
+		if challenge_id == "challenge.v070.broken_procession"
+		else "MIRROR ECHOES // INHERITANCE"
+	)
 	var route: Dictionary = _snapshot_data.get("route", {})
 	var run_state: Dictionary = route.get("run_state", {})
 	var sequence: Dictionary = _snapshot_data.get("sequence", {})
@@ -154,6 +168,7 @@ func _render() -> void:
 	var nodes: Array = route.get("nodes", [])
 	_detail_label.text = (
 		"挑战：%s\n修饰：%s\n路线节点：%d / %d\n"
+		+ "路线：%s\n"
 		+ "序列：占卜家 · %d「%s」\n"
 		+ "剩余生命：%d / %d  ·  污染：%d / %d  ·  被注视：%d / %d"
 	) % [
@@ -161,6 +176,7 @@ func _render() -> void:
 		String(selected.get("display_name_zh", "未记录")),
 		completed_ids.size(),
 		nodes.size(),
+		ChallengeCatalog.route_name(String(_snapshot_data.get("route_id", ""))),
 		int(sequence.get("current_sequence", 8)),
 		String(sequence.get("next_sequence_name_zh", "小丑")),
 		int(run_state.get("hp", 0)),

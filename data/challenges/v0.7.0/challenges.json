@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.7.0",
+  "base_route_version": "v0.7.0",
+  "default_challenge_id": "challenge.v060.mirror_echoes",
+  "challenges": [
+    {
+      "id": "challenge.v060.mirror_echoes",
+      "display_name_zh": "镜厅余响",
+      "description_zh": "再次进入廷根旧宅，以一条修饰和已有收藏挑战镜厅男爵。",
+      "route_id": "route.v070.first_case",
+      "required_sequence": 8,
+      "required_challenge_ids": [],
+      "completion_reward": {
+        "reward.divination_tickets": 2,
+        "reward.ink_dart_fragments": 4
+      },
+      "modifiers": [
+        {
+          "id": "modifier.rushed_reflection",
+          "display_name_zh": "倒影提前",
+          "description_zh": "敌人阶段提前两回合出现，快速构筑会在更早承受首领压力。",
+          "effects": {"phase_round_delta": -2}
+        },
+        {
+          "id": "modifier.tainted_margins",
+          "display_name_zh": "染墨页边",
+          "description_zh": "带着四点污染与一点被注视进入路线；每场战斗胜利后污染再增加两点，必须用封锁回声控制失控。",
+          "effects": {
+            "starting_corruption_delta": 4,
+            "starting_attention_delta": 1,
+            "battle_corruption_delta": 2
+          }
+        },
+        {
+          "id": "modifier.fractured_deck",
+          "display_name_zh": "残缺牌组",
+          "description_zh": "所有纸符护持被移出战斗牌组，但完成挑战会额外获得一张占卜券。",
+          "effects": {
+            "remove_definition_ids": ["card.skill.paper_guard"],
+            "completion_reward": {"reward.divination_tickets": 1}
+          }
+        }
+      ]
+    },
+    {
+      "id": "challenge.v070.broken_procession",
+      "display_name_zh": "破碎游行",
+      "description_zh": "镜厅的第二场游行把精英与首领同时拖入同一倒影，只有完整构筑能穿过破碎讣告。",
+      "route_id": "route.v070.broken_procession",
+      "required_sequence": 8,
+      "required_challenge_ids": ["challenge.v060.mirror_echoes"],
+      "completion_reward": {
+        "reward.divination_tickets": 3,
+        "reward.ink_dart_fragments": 6
+      },
+      "modifiers": [
+        {
+          "id": "modifier.obituary_echo",
+          "display_name_zh": "讣告回声",
+          "description_zh": "带着两点额外污染进入破碎游行；错误仪式代价更重，但完成后多获得一张占卜券。",
+          "effects": {
+            "starting_corruption_delta": 2,
+            "completion_reward": {"reward.divination_tickets": 1}
+          }
+        },
+        {
+          "id": "modifier.twin_shadow",
+          "display_name_zh": "双影同行",
+          "description_zh": "两枚倒影始终跟随你的脚步，初始被注视增加两点，但完成奖励额外增加两块墨刺残页。",
+          "effects": {
+            "starting_attention_delta": 2,
+            "completion_reward": {"reward.ink_dart_fragments": 2}
+          }
+        },
+        {
+          "id": "modifier.ritual_vigil",
+          "display_name_zh": "通宵守仪",
+          "description_zh": "提前进入敌人阶段，换取下一场战斗更高的灵性上限。",
+          "effects": {
+            "phase_round_delta": -1,
+            "starting_max_spirit_delta": 1
+          }
+        }
+      ]
+    }
+  ]
+}

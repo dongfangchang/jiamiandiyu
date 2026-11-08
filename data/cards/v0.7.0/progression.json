@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.7.0",
+  "base_cards_version": "v0.7.0",
+  "identities": [
+    {
+      "id": "identity.reporter",
+      "display_name_zh": "记者",
+      "description_zh": "维持调查网络，以一篇报道换取更多线索。",
+      "battle_modifiers": {"starting_attention": -1},
+      "victory_resources": {"divination_tickets": 1}
+    },
+    {
+      "id": "identity.doctor",
+      "display_name_zh": "医生",
+      "description_zh": "熟悉身体与污染的边界，以更好的体魄进入战斗。",
+      "battle_modifiers": {"max_hp_bonus": 4},
+      "victory_resources": {}
+    },
+    {
+      "id": "identity.gravedigger",
+      "display_name_zh": "守墓人",
+      "description_zh": "替遗忘的名字收殓，能从重复的命运中拾取更多残片。",
+      "battle_modifiers": {},
+      "duplicate_fragment_bonus": 2,
+      "victory_resources": {}
+    }
+  ],
+  "starter_card_ids": [
+    "card.skill.ink_dart",
+    "card.skill.paper_guard",
+    "card.skill.calm_breath",
+    "card.skill.focus",
+    "card.skill.insight",
+    "card.skill.second_look",
+    "card.skill.omen",
+    "card.skill.warding_circle",
+    "card.skill.lantern_step",
+    "card.skill.coffin_nail"
+  ],
+  "gacha_pool": [
+    {"definition_id": "card.skill.ink_dart", "rarity": "common"},
+    {"definition_id": "card.skill.paper_guard", "rarity": "common"},
+    {"definition_id": "card.skill.calm_breath", "rarity": "common"},
+    {"definition_id": "card.skill.focus", "rarity": "common"},
+    {"definition_id": "card.skill.insight", "rarity": "common"},
+    {"definition_id": "card.skill.warding_circle", "rarity": "common"},
+    {"definition_id": "card.skill.lantern_step", "rarity": "common"},
+    {"definition_id": "card.skill.whispered_hunch", "rarity": "common"},
+    {"definition_id": "card.skill.mirrored_memory", "rarity": "common"},
+    {"definition_id": "card.skill.omen", "rarity": "rare"},
+    {"definition_id": "card.skill.whisper", "rarity": "rare"},
+    {"definition_id": "card.skill.fated_echo", "rarity": "rare"},
+    {"definition_id": "card.skill.piercing_omen", "rarity": "rare"},
+    {"definition_id": "card.skill.coffin_nail", "rarity": "rare"},
+    {"definition_id": "card.skill.second_sight", "rarity": "rare"}
+  ],
+  "reward_options": [
+    {
+      "id": "reward.divination_tickets",
+      "display_name_zh": "灵界占卜券",
+      "kind": "divination_tickets"
+    },
+    {
+      "id": "reward.ink_dart_fragments",
+      "display_name_zh": "墨刺残页",
+      "kind": "card_fragments",
+      "target_definition_id": "card.skill.ink_dart"
+    }
+  ],
+  "upgrade_definitions": {
+    "card.skill.ink_dart": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.paper_guard": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.calm_breath": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.focus": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.insight": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "count", "amount_per_level": 1}]},
+    "card.skill.omen": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
+    "card.skill.whisper": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
+    "card.skill.warding_circle": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.lantern_step": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.whispered_hunch": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "count", "amount_per_level": 1}]},
+    "card.skill.mirrored_memory": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.fated_echo": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
+    "card.skill.piercing_omen": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.coffin_nail": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.second_sight": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "amount", "amount_per_level": 1}]}
+  }
+}

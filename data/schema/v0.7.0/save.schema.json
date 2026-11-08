@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.7.0 save with deck state",
+  "type": "object",
+  "required": ["save_version", "content_version", "created_at", "rng_seed", "profile", "run", "collection", "progression", "route", "challenge", "deck"],
+  "properties": {
+    "save_version": {"type": "integer", "const": 5},
+    "content_version": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T"},
+    "rng_seed": {"type": "integer"},
+    "profile": {"type": "object", "required": ["pathway", "sequence"]},
+    "run": {"type": "object", "required": ["checkpoint_kind"]},
+    "collection": {"type": "object"},
+    "progression": {"type": "object"},
+    "route": {"type": "object"},
+    "challenge": {"type": "object"},
+    "deck": {
+      "type": "object",
+      "required": ["initialized", "state"],
+      "properties": {
+        "initialized": {"type": "boolean"},
+        "state": {"type": "object"},
+        "migrated_from_v4": {"type": "boolean"}
+      }
+    }
+  },
+  "additionalProperties": true
+}

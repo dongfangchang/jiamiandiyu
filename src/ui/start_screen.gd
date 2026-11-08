@@ -231,7 +231,7 @@ func _build_panel_content() -> VBoxContainer:
 	challenge_row.add_theme_constant_override("separation", 12)
 	content.add_child(challenge_row)
 	_challenge_button = UiTheme.button(
-		"进入挑战 · 镜厅余响",
+		"进入挑战档案",
 		_on_challenge,
 		false,
 		0

@@ -119,10 +119,21 @@ func is_unlocked() -> bool:
 	var advancement_state := String(
 		_sequence_state.get("advancement_state", "locked")
 	)
-	return (
+	if not (
 		current_sequence <= required_sequence
 		and advancement_state == "completed"
+	):
+		return false
+	var completed_ids := _completed_challenge_ids()
+	var required_value: Variant = _challenge.get(
+		"required_challenge_ids",
+		[]
 	)
+	if required_value is Array:
+		for challenge_id in required_value:
+			if not String(challenge_id) in completed_ids:
+				return false
+	return true
 
 
 func get_selected_modifier_id() -> StringName:
@@ -152,9 +163,11 @@ func get_ritual_snapshot() -> RitualSnapshot:
 
 
 func get_sequence_state() -> SequenceState:
+	var sequence_data := _sequence_state.duplicate(true)
 	if _route_engine != null:
-		return _route_engine.get_sequence_state()
-	return SequenceState.new(_sequence_state)
+		sequence_data = _route_engine.get_sequence_state().to_dictionary()
+	sequence_data["completed_challenge_ids"] = _completed_challenge_ids()
+	return SequenceState.new(sequence_data)
 
 
 func get_battle_player_state() -> Dictionary:
@@ -250,6 +263,13 @@ func get_snapshot() -> ChallengeSnapshot:
 		"phase": String(_state.get("phase", PHASE_INIT_ERROR)),
 		"unlocked": is_unlocked(),
 		"required_sequence": int(_challenge.get("required_sequence", 8)),
+		"required_challenge_ids": (
+			_challenge.get("required_challenge_ids", []).duplicate()
+			if _challenge.get("required_challenge_ids", []) is Array
+			else []
+		),
+		"completed_challenge_ids": _completed_challenge_ids(),
+		"route_id": String(_challenge.get("route_id", "")),
 		"selected_modifier_id": String(
 			_state.get("selected_modifier_id", "")
 		),
@@ -277,6 +297,7 @@ func export_persistent_state() -> Dictionary:
 			if _route_engine != null
 			else {}
 		),
+		"sequence_state": get_sequence_state().to_dictionary(),
 		"revision": _revision,
 	}
 
@@ -354,6 +375,7 @@ func _submit_route(command: RouteCommand) -> ChallengeCommandResult:
 	if route_outcome == String(OUTCOME_COMPLETED):
 		_state["phase"] = String(PHASE_COMPLETED)
 		_state["challenge_outcome"] = String(OUTCOME_COMPLETED)
+		_record_challenge_completion(String(_challenge_id))
 		_emit(&"ChallengeCompleted", {
 			"challenge_id": String(_challenge_id),
 			"modifier_id": String(_state.get("selected_modifier_id", "")),
@@ -671,6 +693,28 @@ func _available_commands() -> Array[String]:
 					if not String(command) in result:
 						result.append(String(command))
 	return result
+
+
+func _completed_challenge_ids() -> Array[String]:
+	var result: Array[String] = []
+	var value: Variant = _sequence_state.get(
+		"completed_challenge_ids",
+		[]
+	)
+	if value is Array:
+		for challenge_id in value:
+			var challenge_key := String(challenge_id)
+			if not challenge_key.is_empty() and not challenge_key in result:
+				result.append(challenge_key)
+	return result
+
+
+func _record_challenge_completion(challenge_id: String) -> void:
+	var completed_ids := _completed_challenge_ids()
+	if challenge_id.is_empty() or challenge_id in completed_ids:
+		return
+	completed_ids.append(challenge_id)
+	_sequence_state["completed_challenge_ids"] = completed_ids
 
 
 func _emit(event_type: StringName, event_data: Dictionary) -> void:

@@ -15,7 +15,8 @@ static func build(
 	encounter_id: String,
 	current_node_id: String,
 	deck_summary: Dictionary,
-	challenge_state: Dictionary = {}
+	challenge_state: Dictionary = {},
+	deck_state: Dictionary = {}
 ) -> Dictionary:
 	var collection: Dictionary = {}
 	for item in progression_snapshot.data.get("collection", []):
@@ -54,7 +55,7 @@ static func build(
 			).duplicate(true),
 			"state": challenge_state.duplicate(true),
 		}
-	return {
+	var envelope := {
 		"save_version": save_version,
 		"content_version": content_version,
 		"created_at": Time.get_datetime_string_from_system(true, false) + "Z",
@@ -92,3 +93,8 @@ static func build(
 		},
 		"challenge": challenge,
 	}
+	envelope["deck"] = {
+		"initialized": not deck_state.is_empty(),
+		"state": deck_state.duplicate(true),
+	}
+	return envelope

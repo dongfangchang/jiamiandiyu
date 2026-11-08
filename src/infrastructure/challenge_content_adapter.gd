@@ -175,6 +175,39 @@ func _validate(
 		_challenges_by_id[challenge_id] = challenge.duplicate(true)
 		_challenge_order.append(challenge_id)
 
+	for challenge_id in _challenge_order:
+		var challenge: Dictionary = _challenges_by_id[challenge_id]
+		var requirements_value: Variant = challenge.get(
+			"required_challenge_ids",
+			[]
+		)
+		if not requirements_value is Array:
+			_errors.append(
+				"challenge %s required_challenge_ids must be an array"
+				% challenge_id
+			)
+			continue
+		var seen_requirements := {}
+		for required_value in requirements_value:
+			var required_id := String(required_value)
+			if (
+				required_id.is_empty()
+				or required_id == challenge_id
+				or seen_requirements.has(required_id)
+			):
+				_errors.append(
+					"challenge %s has an invalid required challenge ID"
+					% challenge_id
+				)
+			elif not _challenges_by_id.has(required_id):
+				_errors.append(
+					"challenge %s requires missing challenge %s"
+					% [challenge_id, required_id]
+				)
+			seen_requirements[required_id] = true
+	if _errors.is_empty() and _has_requirement_cycle():
+		_errors.append("challenge required_challenge_ids contain a cycle")
+
 	var default_id := String(document.get("default_challenge_id", ""))
 	if default_id.is_empty() or not _challenges_by_id.has(default_id):
 		_errors.append(
@@ -182,6 +215,34 @@ func _validate(
 		)
 	else:
 		_default_challenge_id = StringName(default_id)
+
+
+func _has_requirement_cycle() -> bool:
+	var visiting := {}
+	var visited := {}
+	for challenge_id in _challenge_order:
+		if _visit_requirement(challenge_id, visiting, visited):
+			return true
+	return false
+
+
+func _visit_requirement(
+	challenge_id: String,
+	visiting: Dictionary,
+	visited: Dictionary
+) -> bool:
+	if visiting.has(challenge_id):
+		return true
+	if visited.has(challenge_id):
+		return false
+	visiting[challenge_id] = true
+	var challenge: Dictionary = _challenges_by_id.get(challenge_id, {})
+	for required_value in challenge.get("required_challenge_ids", []):
+		if _visit_requirement(String(required_value), visiting, visited):
+			return true
+	visiting.erase(challenge_id)
+	visited[challenge_id] = true
+	return false
 
 
 func _validate_effects(

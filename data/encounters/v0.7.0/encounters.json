@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.7.0",
+  "base_cards_version": "v0.7.0",
+  "encounters": [
+    {
+      "id": "encounter.first_hunt",
+      "display_name_zh": "雨夜双影",
+      "tier": "normal",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "enemy_slots": [
+        {"enemy_id": "enemy.weeping_tenant", "lane_index": 0},
+        {"enemy_id": "enemy.candle_moth", "lane_index": 2}
+      ]
+    },
+    {
+      "id": "encounter.mirror_pursuit",
+      "display_name_zh": "回声追猎",
+      "tier": "elite",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "enemy_slots": [
+        {"enemy_id": "enemy.candle_moth", "lane_index": 0},
+        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 1}
+      ]
+    },
+    {
+      "id": "encounter.mirror_baron",
+      "display_name_zh": "镜厅男爵",
+      "tier": "boss",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "enemy_slots": [
+        {"enemy_id": "enemy.mirror_baron", "lane_index": 1}
+      ]
+    },
+    {
+      "id": "encounter.v070.twin_pursuit",
+      "display_name_zh": "双影追猎",
+      "tier": "elite",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.warding_circle",
+        "card.skill.lantern_step",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.fated_echo",
+        "card.skill.second_sight"
+      ],
+      "enemy_slots": [
+        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 0},
+        {"enemy_id": "enemy.mirror_hound", "lane_index": 2}
+      ]
+    },
+    {
+      "id": "encounter.v070.broken_baron",
+      "display_name_zh": "破碎游行",
+      "tier": "boss",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.warding_circle",
+        "card.skill.lantern_step",
+        "card.skill.focus",
+        "card.skill.piercing_omen",
+        "card.skill.coffin_nail",
+        "card.skill.mirrored_memory",
+        "card.skill.whispered_hunch"
+      ],
+      "enemy_slots": [
+        {"enemy_id": "enemy.mirror_baron", "lane_index": 1},
+        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 2}
+      ]
+    }
+  ]
+}

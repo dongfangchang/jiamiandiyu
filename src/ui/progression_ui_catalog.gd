@@ -15,6 +15,14 @@ const CARD_ART := {
 	"card.skill.omen": "res://assets/game/v0.3.0/cards/card-skill-omen.png",
 	"card.skill.whisper": "res://assets/game/v0.3.0/cards/card-skill-whisper.png",
 	"card.skill.second_look": "res://assets/game/v0.3.0/cards/card-skill-second-look.png",
+	"card.skill.warding_circle": "res://assets/game/v0.7.0/cards/card_skill_warding_circle.png",
+	"card.skill.lantern_step": "res://assets/game/v0.7.0/cards/card_skill_lantern_step.png",
+	"card.skill.whispered_hunch": "res://assets/game/v0.7.0/cards/card_skill_whispered_hunch.png",
+	"card.skill.mirrored_memory": "res://assets/game/v0.7.0/cards/card_skill_mirrored_memory.png",
+	"card.skill.fated_echo": "res://assets/game/v0.7.0/cards/card_skill_fated_echo.png",
+	"card.skill.piercing_omen": "res://assets/game/v0.7.0/cards/card_skill_piercing_omen.png",
+	"card.skill.coffin_nail": "res://assets/game/v0.7.0/cards/card_skill_coffin_nail.png",
+	"card.skill.second_sight": "res://assets/game/v0.7.0/cards/card_skill_second_sight.png",
 }
 
 const CARD_BACK := "res://assets/game/v0.4.0/cards/card-back-sealed-omen.png"

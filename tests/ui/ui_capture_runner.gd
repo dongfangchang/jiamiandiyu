@@ -15,11 +15,14 @@ const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
 const ChallengeResultScreenScene := preload(
 	"res://scenes/ui/challenge_result_screen.tscn"
 )
+const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
+const ChallengeHubScene := preload("res://scenes/ui/challenge_hub_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
 const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
+const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
 
 const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
@@ -29,7 +32,9 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIRECTORY))
 	await get_tree().process_frame
 	await _capture_start()
+	await _capture_deck()
 	await _capture_identity()
+	await _capture_identity_hub()
 	await _capture_reward()
 	await _capture_gacha()
 	await _capture_upgrade()
@@ -38,7 +43,9 @@ func _ready() -> void:
 	await _capture_ritual()
 	await _capture_route_result()
 	await _capture_challenge_route()
+	await _capture_challenge_hub()
 	await _capture_challenge()
+	await _capture_second_challenge()
 	await _capture_challenge_result()
 	await _capture_battle()
 	await _capture_boss_battle()
@@ -69,6 +76,18 @@ func _capture_start() -> void:
 	await get_tree().process_frame
 
 
+func _capture_deck() -> void:
+	var screen = DeckScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_deck_snapshot())
+	screen.set_progression_snapshot(_progression_snapshot({}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("deck_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
 func _capture_identity() -> void:
 	var screen = IdentityScreenScene.instantiate()
 	add_child(screen)
@@ -80,6 +99,22 @@ func _capture_identity() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("identity_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_identity_hub() -> void:
+	var screen = IdentityScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_progression_snapshot({
+		"phase": "hub",
+		"identity_id": "identity.reporter",
+		"identity_options": _identity_options("identity.reporter"),
+	}))
+	screen.set_deck_snapshot(_deck_snapshot())
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("identity_hub_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -279,6 +314,62 @@ func _capture_challenge() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("challenge_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_challenge_hub() -> void:
+	var screen = ChallengeHubScene.instantiate()
+	add_child(screen)
+	screen.set_reward_labels({
+		"reward.divination_tickets": "灵界占卜券",
+		"reward.ink_dart_fragments": "墨刺残页",
+	})
+	screen.apply_snapshots([
+		_challenge_snapshot({}),
+		_challenge_snapshot({
+			"challenge_id": "challenge.v070.broken_procession",
+			"display_name_zh": "破碎游行",
+			"description_zh": "镜厅的第二场游行把精英与首领同时拖入同一倒影。",
+			"phase": "locked",
+			"unlocked": false,
+			"required_challenge_ids": ["challenge.v060.mirror_echoes"],
+			"route_id": "route.v070.broken_procession",
+			"modifiers": _v07_challenge_modifiers(),
+			"completion_reward": {
+				"reward.divination_tickets": 3,
+				"reward.ink_dart_fragments": 6,
+			},
+		}),
+	])
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("challenge_hub_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_second_challenge() -> void:
+	var screen = ChallengeScreenScene.instantiate()
+	add_child(screen)
+	screen.apply_snapshot(_challenge_snapshot({
+		"challenge_id": "challenge.v070.broken_procession",
+		"display_name_zh": "破碎游行",
+		"description_zh": "双影精英与双首领共同把破碎讣告拖入镜厅。",
+		"route_id": "route.v070.broken_procession",
+		"required_challenge_ids": ["challenge.v060.mirror_echoes"],
+		"unlocked": true,
+		"modifiers": _v07_challenge_modifiers(),
+		"completion_reward": {
+			"reward.divination_tickets": 3,
+			"reward.ink_dart_fragments": 6,
+		},
+		"selected_modifier_id": "modifier.ritual_vigil",
+		"selected_modifier": _v07_challenge_modifiers()[2],
+	}))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("challenge_second_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -647,6 +738,7 @@ func _challenge_snapshot(overrides: Dictionary) -> ChallengeSnapshot:
 		"phase": "modifier_selection",
 		"unlocked": true,
 		"required_sequence": 8,
+		"route_id": "route.v050.first_case",
 		"selected_modifier_id": "",
 		"selected_modifier": {},
 		"modifiers": _challenge_modifiers(),
@@ -699,6 +791,90 @@ func _challenge_modifiers() -> Array:
 			},
 		},
 	]
+
+
+func _v07_challenge_modifiers() -> Array:
+	return [
+		{
+			"id": "modifier.obituary_echo",
+			"display_name_zh": "讣告回声",
+			"description_zh": "带着两点额外污染进入破碎游行，完成后额外获得占卜券。",
+			"effects": {"starting_corruption_delta": 2},
+		},
+		{
+			"id": "modifier.twin_shadow",
+			"display_name_zh": "双影同行",
+			"description_zh": "初始被注视增加两点，完成奖励增加墨刺残页。",
+			"effects": {"starting_attention_delta": 2},
+		},
+		{
+			"id": "modifier.ritual_vigil",
+			"display_name_zh": "通宵守仪",
+			"description_zh": "提前进入敌人阶段，换取下一场更高的灵性上限。",
+			"effects": {"phase_round_delta": -1, "starting_max_spirit_delta": 1},
+		},
+	]
+
+
+func _deck_snapshot() -> DeckSnapshot:
+	var deck_content: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/decks/v0.7.0/decks.json")
+	)
+	var card_content: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/cards/v0.7.0/cards.json")
+	)
+	var definitions := {}
+	for card_value in card_content.get("cards", []):
+		if card_value is Dictionary:
+			definitions[String(card_value.get("id", ""))] = card_value
+	var current: Array = deck_content.get("presets", [])[0].get(
+		"card_definition_ids",
+		[]
+	)
+	var owned := {}
+	for index in range(8):
+		owned[String(deck_content.get("card_catalog_definition_ids", [])[index])] = true
+	var cards: Array = []
+	for definition_id in deck_content.get("card_catalog_definition_ids", []):
+		var definition: Dictionary = definitions.get(String(definition_id), {})
+		cards.append({
+			"definition_id": String(definition_id),
+			"display_name_zh": String(definition.get("display_name_zh", definition_id)),
+			"description_zh": String(definition.get("description_zh", "")),
+			"category": String(definition.get("category", "skill")),
+			"cost_spirit": int(definition.get("cost_spirit", 0)),
+			"target_type": String(definition.get("target_type", "none")),
+			"owned": owned.has(String(definition_id)),
+			"in_deck": String(definition_id) in current,
+		})
+	var presets: Array = []
+	for preset_value in deck_content.get("presets", []):
+		if preset_value is Dictionary:
+			var preset: Dictionary = preset_value
+			presets.append({
+				"id": String(preset.get("id", "")),
+				"display_name_zh": String(preset.get("display_name_zh", "")),
+				"description_zh": String(preset.get("description_zh", "")),
+				"card_definition_ids": preset.get("card_definition_ids", []),
+				"legal": true,
+				"reason_code": "playable",
+				"selected": String(preset.get("id", "")) == String(deck_content.get("default_preset_id", "")),
+			})
+	return DeckSnapshotScript.new({
+		"revision": 4,
+		"phase": "ready",
+		"required_deck_size": int(deck_content.get("required_deck_size", 8)),
+		"current_card_ids": current,
+		"current_deck_size": current.size(),
+		"legal": current.size() == int(deck_content.get("required_deck_size", 8)),
+		"reason_code": "playable",
+		"selected_preset_id": String(deck_content.get("default_preset_id", "")),
+		"default_preset_id": String(deck_content.get("default_preset_id", "")),
+		"confirmed": true,
+		"cards": cards,
+		"presets": presets,
+		"available_commands": ["confirm_deck"],
+	})
 
 
 func _rest_options() -> Array:

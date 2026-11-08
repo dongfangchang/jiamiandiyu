@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.7.0",
+  "cards": [
+    {
+      "id": "card.skill.ink_dart",
+      "display_name_zh": "墨刺",
+      "description_zh": "以凝成墨线的灵性刺向一个敌人。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [{"effect_id": "damage", "amount": 4, "target": "enemy"}]
+    },
+    {
+      "id": "card.skill.paper_guard",
+      "display_name_zh": "纸符护持",
+      "description_zh": "叠起一张纸符，抵挡即将到来的伤害。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [{"effect_id": "block", "amount": 5, "target": "self"}]
+    },
+    {
+      "id": "card.skill.calm_breath",
+      "display_name_zh": "静息",
+      "description_zh": "让急促的呼吸恢复平稳，压住一次污染。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {"effect_id": "heal", "amount": 4, "target": "self"},
+        {"effect_id": "risk", "risk_id": "corruption", "amount": -1, "target": "self"}
+      ]
+    },
+    {
+      "id": "card.skill.focus",
+      "display_name_zh": "凝神",
+      "description_zh": "短暂集中精神，为接下来的牌术腾出灵性。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [{"effect_id": "spirit", "amount": 1, "target": "self"}]
+    },
+    {
+      "id": "card.skill.insight",
+      "display_name_zh": "洞察",
+      "description_zh": "从杂乱的线索中抓住下一张有用的牌。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "none",
+      "effects": [{"effect_id": "draw", "count": 1, "target": "none"}]
+    },
+    {
+      "id": "card.skill.omen",
+      "display_name_zh": "凶兆",
+      "description_zh": "在敌人身上留下不祥的记号，强化下一次伤害。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "apply_status", "status_id": "mark", "stacks": 2, "duration": 2, "max_stacks": 4, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.whisper",
+      "display_name_zh": "低语",
+      "description_zh": "让敌意短暂迟疑，削弱下一次攻击。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "apply_status", "status_id": "weaken", "stacks": 2, "duration": 1, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.second_look",
+      "display_name_zh": "再看一眼",
+      "description_zh": "预视敌人的下一步，让隐藏的意图显露。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [{"effect_id": "reveal_intent", "target": "enemy"}]
+    },
+    {
+      "id": "card.skill.warding_circle",
+      "display_name_zh": "守夜圆环",
+      "description_zh": "以一圈盐与旧墨封闭立足之地，承受扑面而来的恶意。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [{"effect_id": "block", "amount": 4, "target": "self"}]
+    },
+    {
+      "id": "card.skill.lantern_step",
+      "display_name_zh": "提灯步",
+      "description_zh": "在昏暗走廊里侧身避开攻击，同时抓住下一件证物。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {"effect_id": "block", "amount": 3, "target": "self"},
+        {"effect_id": "draw", "count": 1, "target": "none"}
+      ]
+    },
+    {
+      "id": "card.skill.whispered_hunch",
+      "display_name_zh": "灵性预感",
+      "description_zh": "尚未发生的答案先一步掠过脑海。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [{"effect_id": "draw", "count": 2, "target": "none"}]
+    },
+    {
+      "id": "card.skill.mirrored_memory",
+      "display_name_zh": "镜中记忆",
+      "description_zh": "从倒影里借来短暂的灵性，并看清一条新的线索。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [
+        {"effect_id": "spirit", "amount": 1, "target": "self"},
+        {"effect_id": "draw", "count": 1, "target": "none"}
+      ]
+    },
+    {
+      "id": "card.skill.fated_echo",
+      "display_name_zh": "命运回声",
+      "description_zh": "让敌人被自己的未来反复标记。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "apply_status", "status_id": "mark", "stacks": 3, "duration": 2, "max_stacks": 6, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.piercing_omen",
+      "display_name_zh": "穿刺凶兆",
+      "description_zh": "短促的一击沿着预视中的裂隙刺入，并留下危险记号。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "damage", "amount": 2, "target": "enemy"},
+        {"effect_id": "apply_status", "status_id": "mark", "stacks": 2, "duration": 2, "max_stacks": 6, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.coffin_nail",
+      "display_name_zh": "棺钉",
+      "description_zh": "把灵性凝成一枚沉重的棺钉，钉穿敌人的防线。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "damage", "amount": 6, "target": "enemy"},
+        {"effect_id": "risk", "risk_id": "corruption", "amount": 1, "target": "self"}
+      ]
+    },
+    {
+      "id": "card.skill.second_sight",
+      "display_name_zh": "第二视觉",
+      "description_zh": "让另一双眼睛接过凝视，换取下一步行动与额外灵性。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "reveal_intent", "target": "enemy"},
+        {"effect_id": "spirit", "amount": 1, "target": "self"}
+      ]
+    }
+  ]
+}

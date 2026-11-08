@@ -88,3 +88,19 @@ CHALLENGE_SAMPLING_SHA256=69C3627CD6CF01208DD8DDF66638B219CAD872BB38D3995DEDA5C8
 ```
 
 采样用于验证修饰决策压力：`tainted_margins` 在忽视污染、始终包扎的策略下 200/200 失败，正确选择封锁回声仍可完成；失败样本保留局外卡牌收藏和等级。全局数值位于 `data/balance/v0.6.0/balance.json`；挑战修饰和奖励仍只在 `data/challenges/v0.6.0/challenges.json` 定义。
+
+## v0.7.0 牌组构筑与第二挑战
+
+生成真实牌组/身份/路线/挑战采样：
+
+```powershell
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tools/simulation/deck_sampling_runner.tscn
+```
+
+再运行合同检查：
+
+```powershell
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/simulation/v07_deck_contract_runner.tscn
+```
+
+采样器直接驱动 `DeckEngine + ChallengeEngine + RouteEngine + BattleEngine + ProgressionEngine`。三套正式牌组、记者/医生、首次路线以及两个挑战的全部挑战修饰组成 42 个案例，每个案例 30 条固定种子运行。采样假设“后期收藏已拥有全部 16 张卡”，用于比较构筑，不用于计算首次获取速度。

@@ -14,6 +14,11 @@ var _modifier_row: HBoxContainer
 var _status_label: Label
 var _requirement_label: Label
 var _reward_label: Label
+var _route_label: Label
+var _heading_label: Label
+var _description_label: Label
+var _eyebrow_label: Label
+var _emblem: TextureRect
 var _start_button: Button
 var _exit_button: Button
 var _buttons_by_modifier: Dictionary = {}
@@ -141,6 +146,20 @@ func get_background_path() -> String:
 	return ChallengeCatalog.SELECTION_BACKGROUND
 
 
+func get_challenge_title() -> String:
+	return _heading_label.text if is_instance_valid(_heading_label) else ""
+
+
+func get_route_text() -> String:
+	return _route_label.text if is_instance_valid(_route_label) else ""
+
+
+func get_emblem_path() -> String:
+	return ChallengeCatalog.challenge_emblem(
+		String(_snapshot_data.get("challenge_id", ""))
+	)
+
+
 func _build() -> void:
 	UiTheme.add_background(
 		self,
@@ -162,27 +181,30 @@ func _build() -> void:
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 20)
 	column.add_child(header)
-	var emblem := TextureRect.new()
-	emblem.texture = load(ChallengeCatalog.EMBLEM)
-	emblem.custom_minimum_size = Vector2(100, 100)
-	emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	header.add_child(emblem)
+	_emblem = TextureRect.new()
+	_emblem.texture = load(ChallengeCatalog.challenge_emblem(""))
+	_emblem.custom_minimum_size = Vector2(100, 100)
+	_emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	header.add_child(_emblem)
 	var heading := VBoxContainer.new()
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 3)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label(
+	_eyebrow_label = UiTheme.label(
 		"MIRROR ECHOES // REPEATABLE CHALLENGE",
 		12,
 		UiTheme.C_GOLD
-	))
-	heading.add_child(UiTheme.label("镜厅余响", 42, UiTheme.C_TEXT))
-	heading.add_child(UiTheme.wrapped_label(
+	)
+	heading.add_child(_eyebrow_label)
+	_heading_label = UiTheme.label("镜厅余响", 42, UiTheme.C_TEXT)
+	heading.add_child(_heading_label)
+	_description_label = UiTheme.wrapped_label(
 		"晋升之后，旧宅仍在记录你的脚步。选择一条修饰，用既有收藏再次挑战镜厅男爵。",
 		15,
 		UiTheme.C_PAPER
-	))
+	)
+	heading.add_child(_description_label)
 	_requirement_label = UiTheme.label("", 14, UiTheme.C_MUTED)
 	_requirement_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_requirement_label)
@@ -232,6 +254,8 @@ func _build_premise() -> HBoxContainer:
 		13,
 		UiTheme.C_MUTED
 	))
+	_route_label = UiTheme.wrapped_label("路线：等待载入", 12, UiTheme.C_GOLD)
+	text_column.add_child(_route_label)
 	_reward_label = UiTheme.label("", 15, UiTheme.C_GOLD)
 	_reward_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(_reward_label)
@@ -263,10 +287,35 @@ func _render() -> void:
 	var required_sequence := int(
 		_snapshot_data.get("required_sequence", 8)
 	)
+	var challenge_id := String(_snapshot_data.get("challenge_id", ""))
+	var challenge_name := String(_snapshot_data.get(
+		"display_name_zh",
+		ChallengeCatalog.challenge_name(challenge_id)
+	))
+	if challenge_id == "challenge.v070.broken_procession":
+		_eyebrow_label.text = "BROKEN PROCESSION // SECOND CHALLENGE"
+	else:
+		_eyebrow_label.text = "MIRROR ECHOES // REPEATABLE CHALLENGE"
+	_heading_label.text = challenge_name
+	_description_label.text = String(_snapshot_data.get(
+		"description_zh",
+		"选择一条修饰，用既有收藏再次进入镜厅。"
+	))
+	_emblem.texture = load(ChallengeCatalog.challenge_emblem(challenge_id))
+	_route_label.text = "路线：" + ChallengeCatalog.route_name(
+		String(_snapshot_data.get("route_id", ""))
+	)
+	var required_challenges := ChallengeCatalog.required_challenge_names(
+		_snapshot_data.get("required_challenge_ids", [])
+	)
 	_requirement_label.text = (
 		"已解锁 · 要求序列 %d" % required_sequence
 		if unlocked
-		else "锁定 · 完成序列 %d 晋升后开放" % required_sequence
+		else (
+			"锁定 · 需先完成：%s" % required_challenges
+			if not required_challenges.is_empty()
+			else "锁定 · 完成序列 %d 晋升后开放" % required_sequence
+		)
 	)
 	_requirement_label.add_theme_color_override(
 		"font_color",
@@ -276,7 +325,10 @@ func _render() -> void:
 	_render_modifier_states()
 	_refresh_buttons()
 	if not unlocked:
-		_set_status("挑战尚未解锁；返回白昼档案完成首次晋升。", true)
+		_set_status(
+			"挑战尚未解锁；请先完成前置路线或晋升。",
+			true
+		)
 	elif String(_selected_modifier_id).is_empty():
 		_set_status("选择一项修饰后开始挑战。")
 	else:

@@ -4,11 +4,34 @@ const SELECTION_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-selecti
 const RESULT_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-result.png"
 const ICON_BASE := "res://assets/game/v0.6.0/icons/"
 const EMBLEM := "res://assets/game/v0.6.0/icons/challenge-emblem.png"
+const ICON_BASE_V07 := "res://assets/game/v0.7.0/icons/"
+const EMBLEM_V07 := "res://assets/game/v0.7.0/icons/challenge_broken_procession.png"
 
 const MODIFIER_ICONS := {
 	"modifier.rushed_reflection": "modifier-pressure-advance.png",
 	"modifier.tainted_margins": "modifier-mirror-echo.png",
 	"modifier.fractured_deck": "modifier-compact-deck.png",
+}
+
+const MODIFIER_ICONS_V07 := {
+	"modifier.obituary_echo": "modifier_obituary_echo.png",
+	"modifier.twin_shadow": "modifier_twin_shadow.png",
+	"modifier.ritual_vigil": "modifier_ritual_vigil.png",
+}
+
+const CHALLENGE_NAMES := {
+	"challenge.v060.mirror_echoes": "镜厅余响",
+	"challenge.v070.broken_procession": "破碎游行",
+}
+
+const REQUIRED_CHALLENGE_NAMES := {
+	"challenge.v060.mirror_echoes": "镜厅余响",
+}
+
+const ROUTE_NAMES := {
+	"route.v070.first_case": "廷根旧宅·第一路线",
+	"route.v070.broken_procession": "破碎游行·双影路线",
+	"route.v050.first_case": "廷根旧宅·第一路线",
 }
 
 const REWARD_NAMES := {
@@ -18,10 +41,39 @@ const REWARD_NAMES := {
 
 
 static func modifier_icon(modifier_id: String) -> String:
+	if MODIFIER_ICONS_V07.has(modifier_id):
+		return ICON_BASE_V07 + String(MODIFIER_ICONS_V07[modifier_id])
 	var file_name := String(
 		MODIFIER_ICONS.get(modifier_id, "modifier-restricted-reward.png")
 	)
 	return ICON_BASE + file_name
+
+
+static func challenge_emblem(challenge_id: String) -> String:
+	if challenge_id == "challenge.v070.broken_procession":
+		return EMBLEM_V07
+	return EMBLEM
+
+
+static func challenge_name(challenge_id: String) -> String:
+	return String(CHALLENGE_NAMES.get(challenge_id, challenge_id))
+
+
+static func required_challenge_names(ids: Variant) -> String:
+	if not ids is Array or ids.is_empty():
+		return ""
+	var names: Array[String] = []
+	for value in ids:
+		var challenge_id := String(value)
+		names.append(String(REQUIRED_CHALLENGE_NAMES.get(
+			challenge_id,
+			challenge_id
+		)))
+	return "、".join(names)
+
+
+static func route_name(route_id: String) -> String:
+	return String(ROUTE_NAMES.get(route_id, route_id))
 
 
 static func outcome_icon(completed: bool) -> String:
@@ -51,6 +103,8 @@ static func reason_text(reason_code: String) -> String:
 	match reason_code:
 		"challenge_locked":
 			return "挑战尚未解锁：请先完成占卜家序列 8 晋升。"
+		"required_challenge_incomplete":
+			return "挑战尚未解锁：请先完成前置挑战。"
 		"wrong_phase":
 			return "当前挑战阶段不能执行这个操作。"
 		"unknown_modifier":

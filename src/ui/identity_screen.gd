@@ -4,11 +4,13 @@ signal identity_selected(identity_id: StringName)
 signal battle_requested
 signal gacha_requested
 signal upgrade_requested
+signal deck_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
+const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
 
 var _snapshot: ProgressionSnapshot
 var _mode_container: VBoxContainer
@@ -18,6 +20,9 @@ var _busy := false
 var _identity_id := ""
 var _action_buttons: Array[Button] = []
 var _has_hub_actions := false
+var _deck_data: Dictionary = {}
+var _deck_summary_label: Label
+var _deck_button: Button
 
 
 func _ready() -> void:
@@ -73,6 +78,23 @@ func is_pending() -> bool:
 
 func choose_identity(identity_id: String) -> void:
 	_request_identity(identity_id)
+
+
+func set_deck_snapshot(snapshot: DeckSnapshot) -> void:
+	_deck_data = snapshot.to_dictionary() if snapshot != null else {}
+	_update_deck_summary()
+
+
+func has_deck_action() -> bool:
+	return is_instance_valid(_deck_button)
+
+
+func get_deck_summary_text() -> String:
+	return (
+		_deck_summary_label.text
+		if is_instance_valid(_deck_summary_label)
+		else ""
+	)
 
 
 func has_hub_actions() -> bool:
@@ -268,6 +290,18 @@ func _build_hub_actions(data: Dictionary, selected: Dictionary) -> VBoxContainer
 		15,
 		UiTheme.C_MUTED
 	))
+	_deck_summary_label = UiTheme.wrapped_label("", 14, UiTheme.C_GOLD)
+	content.add_child(_deck_summary_label)
+	_deck_button = UiTheme.button(
+		"调整出战牌组",
+		_on_deck,
+		true,
+		0
+	)
+	_deck_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(_deck_button)
+	_action_buttons.append(_deck_button)
+	_update_deck_summary()
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(spacer)
@@ -345,6 +379,39 @@ func _on_upgrade() -> void:
 	if _busy:
 		return
 	upgrade_requested.emit()
+
+
+func _on_deck() -> void:
+	if _busy:
+		return
+	deck_requested.emit()
+
+
+func _update_deck_summary() -> void:
+	if not is_instance_valid(_deck_summary_label):
+		return
+	var current := int(_deck_data.get("current_deck_size", 0))
+	var required := int(_deck_data.get("required_deck_size", 8))
+	var preset_id := String(_deck_data.get("selected_preset_id", ""))
+	var legal := bool(_deck_data.get("legal", false))
+	var confirmed := bool(_deck_data.get("confirmed", false))
+	var preset_name := preset_id.get_slice(".", preset_id.get_slice_count(".") - 1)
+	match preset_name:
+		"ward":
+			preset_name = "守夜档案"
+		"oracle":
+			preset_name = "灵性预感"
+		"burst":
+			preset_name = "棺钉凶兆"
+		"":
+			preset_name = "自定义牌组"
+	_deck_summary_label.text = "出战牌组：%s · %d / %d%s%s" % [
+		preset_name,
+		current,
+		required,
+		" · 合法" if legal else " · 尚未合法",
+		" · 已确认" if confirmed else "",
+	]
 
 
 func _set_status(message: String, danger: bool = false) -> void:

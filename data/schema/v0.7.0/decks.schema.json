@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "v0.7.0 deck presets and catalog",
+  "type": "object",
+  "required": ["schema_version", "content_version", "required_deck_size", "default_preset_id", "card_catalog_definition_ids", "presets"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "content_version": {"type": "string", "minLength": 1},
+    "required_deck_size": {"type": "integer", "minimum": 1, "maximum": 12},
+    "default_preset_id": {"type": "string", "pattern": "^deck\\.preset\\."},
+    "card_catalog_definition_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "pattern": "^card\\."}
+    },
+    "presets": {
+      "type": "array",
+      "minItems": 3,
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": ["id", "display_name_zh", "description_zh", "card_definition_ids"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^deck\\.preset\\."},
+          "display_name_zh": {"type": "string", "minLength": 1},
+          "description_zh": {"type": "string"},
+          "card_definition_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {"type": "string", "pattern": "^card\\."}
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

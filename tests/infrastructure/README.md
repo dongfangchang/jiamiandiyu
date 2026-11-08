@@ -6,6 +6,7 @@
 .tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . --script res://tests/infrastructure/test_runner.gd
 .tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/infrastructure/route_backend_runner.tscn
 .tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/infrastructure/challenge_backend_runner.tscn
+.tools/godot-4.7.2/Godot_v4.7.2-stable_win64.exe --headless --path . res://tests/infrastructure/v07_backend_runner.tscn
 ```
 
 测试覆盖：
@@ -34,7 +35,8 @@
 
 - 基础设施主测试：`150 passed, 0 failed`
 - v0.5 路线后端测试：`67 passed, 0 failed`
-- v0.6 挑战后端测试：`32 passed, 0 failed`
+- v0.6 挑战后端测试：`65 passed, 0 failed`
+- v0.7 牌组/v5 存档后端测试：`43 passed, 0 failed`
 
 v0.3.0 新增覆盖：
 
@@ -53,3 +55,12 @@ v0.4.0 新增覆盖：
 - 真实短循环：身份 -> 战斗 -> 奖励 -> 升级 -> 祈愿 -> 保存 -> 继续。
 - 下一场战斗使用已拥有牌组和升级后的内容端口。
 - v1 存档到 v2 的显式迁移和迁移后的新版本启动。
+
+v0.7.0 新增覆盖：
+
+- 16 张占卜家卡和牌组内容 schema。
+- 三套八卡预设、稳定卡牌引用和非法预设拒绝。
+- 当前牌组、确认状态和预设保存到 v5 存档。
+- 实际路线战斗读取当前确认牌组。
+- 第一挑战完成条件与第二挑战依赖图。
+- v1/v2/v3/v4 -> v5 连续迁移入口。
