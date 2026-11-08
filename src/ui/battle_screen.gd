@@ -94,6 +94,8 @@ var _effects_layer: Control
 var _exit_button: Button
 var _exit_confirmation: ConfirmationDialog
 var _visual_effect_count := 0
+var _screen_scroll: ScrollContainer
+var _content_root: Control
 
 
 func _ready() -> void:
@@ -316,13 +318,27 @@ func _build() -> void:
 	_effects_layer.z_index = 50
 	add_child(_effects_layer)
 
+	_screen_scroll = ScrollContainer.new()
+	_screen_scroll.name = "BattlePageScroll"
+	_screen_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_screen_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_screen_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_screen_scroll.follow_focus = true
+	add_child(_screen_scroll)
+	_content_root = Control.new()
+	_content_root.name = "BattlePageContent"
+	_content_root.custom_minimum_size = Vector2(1600, 900)
+	_content_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_content_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_screen_scroll.add_child(_content_root)
+
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 24)
 	safe.add_theme_constant_override("margin_top", 18)
 	safe.add_theme_constant_override("margin_right", 24)
 	safe.add_theme_constant_override("margin_bottom", 18)
-	add_child(safe)
+	_content_root.add_child(safe)
 
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 12)

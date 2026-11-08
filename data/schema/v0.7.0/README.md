@@ -5,7 +5,7 @@
 - `cards.schema.json`：当前 20 张占卜家战斗卡。
 - `balance.schema.json`：全局战斗、经济与概率参数边界。
 - `progression.schema.json`：身份、初始卡、祈愿池、奖励和升级定义。
-- `decks.schema.json`：牌组大小、卡池、默认预设和三套预设。
+- `decks.schema.json`：牌组大小、卡池、默认预设和四套预设。
 - `enemies.schema.json`、`encounters.schema.json`：敌人阶段与跨版本卡包引用。
 - `routes.schema.json`、`rituals.schema.json`：固定路线与三步晋升仪式。
 - `challenges.schema.json`：第一、第二挑战、稳定修饰与前置完成条件。

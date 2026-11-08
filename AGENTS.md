@@ -202,7 +202,7 @@ v0.12.0 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.12.0/<role>.md` 记录本版本工作。
 - 身份收益的唯一定义仍位于 progression 数据；UI 只显示快照文本和修正。
 
-v0.13.0 当前所有权：
+v0.13.0 已关闭所有权（保留历史）：
 
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
@@ -211,6 +211,16 @@ v0.13.0 当前所有权：
 - `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.13.0/<role>.md` 记录本版本工作。
 - 新卡必须同时具备卡牌定义、抽卡池、牌组目录、升级定义和正式卡图。
+
+v0.14.0 当前所有权：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
+- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
+- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.14.0/<role>.md` 记录本版本工作。
+- 战斗页在 1600×900 使用原布局；较小视口必须提供滚动降级，不能裁掉操作入口。
 
 ## 5. 协作与同步
 

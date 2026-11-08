@@ -58,6 +58,25 @@ func _ready() -> void:
 		"card_catalog_definition_ids",
 		[]
 	)
+	var presets: Array = decks_document.get("presets", [])
+	_expect(presets.size() == 4, "deck content should expose four presets")
+	var echo_preset: Dictionary = {}
+	for preset in presets:
+		if String(preset.get("id", "")) == "deck.preset.echo":
+			echo_preset = preset
+	_expect(not echo_preset.is_empty(), "镜中余响 preset should exist")
+	var echo_ids: Array = echo_preset.get("card_definition_ids", [])
+	_expect(echo_ids.size() == 8, "镜中余响 preset should contain eight unique cards")
+	for card_id in [
+		"card.skill.dream_question",
+		"card.skill.mirror_ward",
+		"card.skill.severed_string",
+		"card.skill.last_rites",
+	]:
+		_expect(
+			card_id in echo_ids,
+			"镜中余响 preset should use new card: %s" % card_id
+		)
 	for card_id in NEW_CARD_IDS:
 		_expect(card_id in gacha_ids, "new card should be in gacha pool: %s" % card_id)
 		_expect(card_id in catalog_ids, "new card should be in deck catalog: %s" % card_id)

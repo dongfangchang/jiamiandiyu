@@ -70,6 +70,21 @@
         "card.skill.paper_guard",
         "card.skill.calm_breath"
       ]
+    },
+    {
+      "id": "deck.preset.echo",
+      "display_name_zh": "镜中余响",
+      "description_zh": "以梦问与标记铺路，用断线控制节奏，并由临终圣礼维持续航。",
+      "card_definition_ids": [
+        "card.skill.dream_question",
+        "card.skill.mirror_ward",
+        "card.skill.severed_string",
+        "card.skill.last_rites",
+        "card.skill.omen",
+        "card.skill.coffin_nail",
+        "card.skill.focus",
+        "card.skill.ink_dart"
+      ]
     }
   ]
 }

@@ -71,8 +71,8 @@ func _test_v07_schemas_and_deck_adapter() -> void:
 		"v0.7 deck size should be eight"
 	)
 	_expect(
-		adapter.get_preset_definitions().size() == 3,
-		"v0.7 should expose three presets"
+		adapter.get_preset_definitions().size() == 4,
+		"expanded deck content should expose four presets"
 	)
 	_expect(
 		String(adapter.get_default_preset_id()) == "deck.preset.ward",

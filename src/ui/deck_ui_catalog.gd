@@ -25,6 +25,7 @@ const PRESET_NAMES := {
 	"deck.preset.ward": "守夜档案",
 	"deck.preset.oracle": "灵性预感",
 	"deck.preset.burst": "棺钉凶兆",
+	"deck.preset.echo": "镜中余响",
 }
 
 

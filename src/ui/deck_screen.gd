@@ -358,7 +358,7 @@ func _build_preset(preset: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(470, 70)
+	panel.custom_minimum_size = Vector2(338, 78)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 12)

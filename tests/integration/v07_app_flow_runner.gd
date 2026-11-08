@@ -70,7 +70,7 @@ func _test_identity_and_deck() -> void:
 	_expect(_app.get_current_route() == &"deck", "identity selection opens the deck editor")
 	var deck = _app.get_current_screen()
 	_expect(deck.get_total_card_count() == 20, "deck editor exposes the twenty-card pool")
-	_expect(deck.get_preset_count() == 3, "deck editor exposes three presets")
+	_expect(deck.get_preset_count() == 4, "deck editor exposes four presets")
 	_expect(deck.get_current_deck_count() == 8, "default deck contains eight unique cards")
 	_expect(deck.is_confirm_enabled(), "default deck is immediately confirmable")
 	var first_id := String(
@@ -158,7 +158,7 @@ func _test_growth_and_upgrade() -> void:
 	_app.get_current_screen().deck_requested.emit()
 	await _wait_frames(2)
 	_expect(_app.get_current_route() == &"deck", "deck editor remains available after growth")
-	_expect(_app.get_current_screen().get_preset_count() == 3, "presets remain available after growth")
+	_expect(_app.get_current_screen().get_preset_count() == 4, "presets remain available after growth")
 	_app.get_current_screen().request_confirm_deck()
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"hub", "deck re-confirmation returns to hub")

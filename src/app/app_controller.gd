@@ -1335,6 +1335,24 @@ func _apply_preferences() -> void:
 			0.85,
 			1.2
 		)
+		if not fullscreen:
+			_clamp_window_to_usable_desktop(window)
+
+
+func _clamp_window_to_usable_desktop(window: Window) -> void:
+	var screen_index := window.current_screen
+	var usable := DisplayServer.screen_get_usable_rect(screen_index)
+	if usable.size.x <= 0 or usable.size.y <= 0:
+		return
+	var target_size := Vector2i(
+		mini(1600, maxi(1, usable.size.x - 24)),
+		mini(900, maxi(1, usable.size.y - 24))
+	)
+	window.size = target_size
+	window.position = Vector2i(
+		usable.position.x + maxi(0, (usable.size.x - target_size.x) / 2),
+		usable.position.y + maxi(0, (usable.size.y - target_size.y) / 2)
+	)
 
 
 func _on_continue_requested() -> void:
@@ -1372,7 +1390,7 @@ func _on_feedback_submitted(feedback: Dictionary) -> void:
 
 func _start_diagnostics() -> void:
 	_diagnostics = DiagnosticsServiceScript.new(_diagnostics_directory)
-	_diagnostics.start_session("v0.13.0", "development")
+	_diagnostics.start_session("v0.14.0", "development")
 
 
 func _record_diagnostic(event_type: String, details: Dictionary = {}) -> void:

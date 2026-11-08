@@ -40,6 +40,7 @@ $checks = @(
     @{ Name = "v0100_chain_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v0100_chain_ui_smoke_runner.tscn") },
     @{ Name = "v011_route_select_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v011_route_select_smoke_runner.tscn") },
     @{ Name = "v011_status_keyword"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v011_status_keyword_smoke_runner.tscn") },
+    @{ Name = "v014_card_layout"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v014_card_layout_runner.tscn") },
     @{ Name = "simulation_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/balance_contract_runner.tscn") },
     @{ Name = "economy"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v04_economy_contract_runner.tscn") },
     @{ Name = "route_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v05_route_contract_runner.tscn") },
@@ -66,4 +67,4 @@ foreach ($check in $checks) {
 if ($failed.Count -gt 0) {
     throw "QA failed: $($failed -join ', ')"
 }
-Write-Host "V0.13.0 QA PASS: $($checks.Count) checks"
+Write-Host "V0.14.0 QA PASS: $($checks.Count) checks"
