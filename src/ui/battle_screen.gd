@@ -70,6 +70,7 @@ var _encounter_label: Label
 var _phase_label: Label
 var _round_label: Label
 var _pressure_label: Label
+var _chain_label: Label
 var _pile_label: Label
 var _status_label: Label
 var _health_meter: VBoxContainer
@@ -215,6 +216,10 @@ func get_card_effect_text(definition_id: StringName) -> String:
 
 func get_visual_effect_count() -> int:
 	return _visual_effect_count
+
+
+func get_chain_text() -> String:
+	return _chain_label.text if is_instance_valid(_chain_label) else ""
 
 
 func is_exit_confirmation_visible() -> bool:
@@ -423,6 +428,15 @@ func _build_side_panel(panel: PanelContainer) -> void:
 	panel.add_child(_pad(column, 12))
 
 	column.add_child(UiTheme.label("战斗记录", 18, UiTheme.C_TEXT))
+	var chain_row := HBoxContainer.new()
+	chain_row.add_theme_constant_override("separation", 8)
+	var chain_hint := UiTheme.label("同回合回响", 13, UiTheme.C_MUTED)
+	chain_hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	chain_row.add_child(chain_hint)
+	_chain_label = UiTheme.badge("连携 —", UiTheme.C_GOLD, UiTheme.C_LINE)
+	_chain_label.tooltip_text = "同一回合打出需要灵性的牌会累积连携"
+	chain_row.add_child(_chain_label)
+	column.add_child(chain_row)
 	_selection_label = UiTheme.wrapped_label("尚未选择手牌。", 14, UiTheme.C_PAPER)
 	_selection_label.custom_minimum_size = Vector2(0, 52)
 	column.add_child(_selection_label)
@@ -481,6 +495,9 @@ func _render_snapshot() -> void:
 	var round_number := int(data.get("round_number", 0))
 	var max_rounds := int(data.get("max_rounds", 0))
 	var pressure := int(data.get("enemy_pressure_bonus", 0))
+	var chain: Dictionary = data.get("chain", {})
+	var chain_count := int(chain.get("count", 0))
+	var chain_threshold := int(chain.get("threshold", 0))
 
 	_encounter_label.text = _encounter_title
 	_phase_label.text = "%s  ·  占卜家 · 序列 9" % PHASE_NAMES.get(phase, phase)
@@ -490,6 +507,20 @@ func _render_snapshot() -> void:
 	]
 	_round_label.text = "回合 %d / %d" % [round_number, max_rounds]
 	_pressure_label.text = "敌方压力 +%d" % pressure
+	_chain_label.visible = chain_threshold > 0
+	_chain_label.text = "连携 %d / %d" % [chain_count, chain_threshold]
+	_chain_label.tooltip_text = (
+		"再打出 %d 张需要灵性的牌触发回响" % maxi(
+			0,
+			chain_threshold - chain_count
+		)
+		if chain_threshold > 0
+		else "本场战斗未启用连携"
+	)
+	_chain_label.add_theme_color_override(
+		"font_color",
+		UiTheme.C_GOLD if chain_count > 0 else UiTheme.C_MUTED
+	)
 	_pile_label.text = "牌堆 %d  ·  弃牌 %d" % [
 		int(data.get("draw_pile_count", 0)),
 		int(data.get("discard_pile_count", 0)),
@@ -916,6 +947,17 @@ func _format_event(event: BattleEvent) -> String:
 				int(data.get("before", 0)),
 				int(data.get("after", 0)),
 			]
+		"ChainChanged":
+			return "连携 %d → %d。" % [
+				int(data.get("before", 0)),
+				int(data.get("after", 0)),
+			]
+		"ChainTriggered":
+			return "灵性回响：对全体敌人造成 %d 伤害，抽 %d 张牌，恢复 %d 灵性。" % [
+				int(data.get("damage", 0)),
+				int(data.get("draw", 0)),
+				int(data.get("spirit", 0)),
+			]
 		"BattleEnded":
 			return "战斗结束：%s。" % (
 				"胜利" if String(data.get("outcome", "")) == "victory" else "失败"
@@ -1084,6 +1126,13 @@ func _play_event_feedback(event: BattleEvent) -> void:
 				),
 				UiTheme.C_DANGER_TEXT
 			)
+		"ChainTriggered":
+			_show_floating_text(
+				_health_meter,
+				"灵性回响！",
+				UiTheme.C_GOLD
+			)
+			_pulse_control(_health_meter, Color(1.18, 1.1, 0.72, 1))
 
 
 func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:

@@ -12,6 +12,7 @@ const PARAMETER_PATHS: Dictionary = {
 	&"player.max_attention": ["player", "attention", "max"],
 	&"battle.max_rounds": ["combat", "max_rounds"],
 	&"battle.enemy_pressure_start_round": ["combat", "enemy_pressure", "start_round"],
+	&"battle.chain": ["combat", "chain"],
 	&"risk.corruption_thresholds": ["player", "corruption"],
 	&"risk.attention_thresholds": ["player", "attention"],
 	&"progression.sequence_9_to_8_requirements": ["upgrades", "sequence_advance"],

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/ui/v0100_chain_ui_smoke_runner.gd" id="1"]
+
+[node name="V0100ChainUISmokeRunner" type="Node"]
+script = ExtResource("1")

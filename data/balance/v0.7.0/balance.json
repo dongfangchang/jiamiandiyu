@@ -28,6 +28,12 @@
     "max_rounds": 10,
     "enemy_pressure": {
       "start_round": 5
+    },
+    "chain": {
+      "threshold": 3,
+      "damage": 1,
+      "draw": 1,
+      "spirit": 1
     }
   },
   "progression": {

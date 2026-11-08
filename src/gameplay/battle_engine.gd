@@ -50,6 +50,11 @@ var _starting_hand: int = 0
 var _turn_draw_to_hand_size: int = 0
 var _max_hand_size: int = 0
 var _enemy_pressure_start_round: int = 0
+var _chain_threshold: int = 0
+var _chain_damage: int = 0
+var _chain_draw: int = 0
+var _chain_spirit: int = 0
+var _chain_count: int = 0
 
 
 func initialize(
@@ -95,12 +100,28 @@ func initialize(
 	_turn_draw_to_hand_size = int(turn_draw_value)
 	_max_hand_size = int(max_hand_value)
 	_enemy_pressure_start_round = int(pressure_value)
+	var chain_value: Variant = _balance.get_value(&"battle.chain")
+	if chain_value != null:
+		if not chain_value is Dictionary:
+			return _initialization_error(&"balance_invalid")
+		var chain: Dictionary = chain_value
+		_chain_threshold = int(chain.get("threshold", 0))
+		_chain_damage = int(chain.get("damage", 0))
+		_chain_draw = int(chain.get("draw", 0))
+		_chain_spirit = int(chain.get("spirit", 0))
 
 	if _max_rounds <= 0 or _starting_hand < 0 or _turn_draw_to_hand_size < 0:
 		return _initialization_error(&"balance_invalid")
 	if _max_hand_size < _starting_hand or _max_hand_size < _turn_draw_to_hand_size:
 		return _initialization_error(&"balance_invalid")
 	if _enemy_pressure_start_round <= 0:
+		return _initialization_error(&"balance_invalid")
+	if (
+		_chain_threshold < 0
+		or _chain_damage < 0
+		or _chain_draw < 0
+		or _chain_spirit < 0
+	):
 		return _initialization_error(&"balance_invalid")
 
 	_player = player_state.duplicate(true)
@@ -150,6 +171,7 @@ func initialize(
 	_shuffle_array(_draw_pile)
 	_revision = 1
 	_round_number = 1
+	_chain_count = 0
 	_pending_events.clear()
 	_emit(&"BattleStarted", {
 		"battle_id": String(_battle_id),
@@ -235,6 +257,13 @@ func get_snapshot() -> BattleSnapshot:
 		"round_number": round_value,
 		"max_rounds": max_rounds_value,
 		"enemy_pressure_bonus": max_pressure,
+		"chain": {
+			"count": _chain_count,
+			"threshold": _chain_threshold,
+			"damage": _chain_damage,
+			"draw": _chain_draw,
+			"spirit": _chain_spirit,
+		},
 		"player": _player.duplicate(true),
 		"hand": hand_views,
 		"draw_pile_count": _draw_pile.size(),
@@ -284,6 +313,8 @@ func _play_card(command: BattleCommand) -> BattleCommandResult:
 		"card_instance_id": String(card["instance_id"]),
 		"reason_code": "played",
 	})
+	if _outcome == OUTCOME_NONE:
+		_advance_chain(int(definition.get("cost_spirit", 0)))
 	_check_outcome_after_player_action()
 	_revision += 1
 	return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
@@ -293,6 +324,7 @@ func _end_turn() -> BattleCommandResult:
 	if _phase != PHASE_PLAYER_ACTION:
 		return _rejected_result(BattlePlayability.WRONG_PHASE)
 	_pending_events.clear()
+	_reset_chain(&"turn_end")
 	_phase = PHASE_ENEMY_ACTION
 
 	for enemy in _enemies:
@@ -346,6 +378,73 @@ func _begin_round(draw_target: int) -> void:
 	_generate_enemy_intents()
 	_draw_to_hand(draw_target)
 	_phase = PHASE_PLAYER_ACTION
+
+
+func _advance_chain(spirit_cost: int) -> void:
+	if _chain_threshold <= 0 or spirit_cost <= 0:
+		return
+	var before := _chain_count
+	_chain_count += 1
+	_emit(&"ChainChanged", {
+		"before": before,
+		"after": _chain_count,
+		"threshold": _chain_threshold,
+		"reason_code": "card_played",
+	})
+	if _chain_count < _chain_threshold:
+		return
+	_emit(&"ChainTriggered", {
+		"count": _chain_threshold,
+		"damage": _chain_damage,
+		"draw": _chain_draw,
+		"spirit": _chain_spirit,
+	})
+	if _chain_damage > 0:
+		for enemy in _enemies:
+			if _is_alive(enemy):
+				_apply_damage(enemy, _chain_damage, "chain.echo")
+	if _all_enemies_defeated():
+		_chain_count = 0
+		_emit(&"ChainChanged", {
+			"before": _chain_threshold,
+			"after": 0,
+			"threshold": _chain_threshold,
+			"reason_code": "triggered",
+		})
+		return
+	if _chain_spirit > 0:
+		var spirit_before := int(_player["spirit"])
+		_player["spirit"] = mini(
+			int(_player["max_spirit"]),
+			spirit_before + _chain_spirit
+		)
+		_emit(&"SpiritChanged", {
+			"before": spirit_before,
+			"after": int(_player["spirit"]),
+			"reason_code": "chain_echo",
+		})
+	for _draw_index in range(_chain_draw):
+		_draw_one()
+	_chain_count = 0
+	_emit(&"ChainChanged", {
+		"before": _chain_threshold,
+		"after": 0,
+		"threshold": _chain_threshold,
+		"reason_code": "triggered",
+	})
+
+
+func _reset_chain(reason_code: StringName) -> void:
+	if _chain_count <= 0:
+		return
+	var before := _chain_count
+	_chain_count = 0
+	_emit(&"ChainChanged", {
+		"before": before,
+		"after": 0,
+		"threshold": _chain_threshold,
+		"reason_code": String(reason_code),
+	})
 
 
 func _trigger_due_enemy_phases() -> void:
@@ -1024,6 +1123,11 @@ func _reset_runtime() -> void:
 	_phase = PHASE_INIT_ERROR
 	_outcome = OUTCOME_NONE
 	_outcome_reason = &""
+	_chain_threshold = 0
+	_chain_damage = 0
+	_chain_draw = 0
+	_chain_spirit = 0
+	_chain_count = 0
 	_player = {}
 	_enemies.clear()
 	_draw_pile.clear()

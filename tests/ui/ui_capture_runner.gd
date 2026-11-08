@@ -59,7 +59,7 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.9.4",
+		"content_version": "v0.10.0",
 		"sequence": 8,
 		"deck_size": 8,
 		"identity_id": "identity.reporter",
@@ -601,6 +601,13 @@ func _battle_snapshot() -> BattleSnapshot:
 		"round_number": 5,
 		"max_rounds": 10,
 		"enemy_pressure_bonus": 1,
+		"chain": {
+			"count": 2,
+			"threshold": 3,
+			"damage": 1,
+			"draw": 1,
+			"spirit": 1,
+		},
 		"player": {
 			"actor_id": "player",
 			"hp": 46,
