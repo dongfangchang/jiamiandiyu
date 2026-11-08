@@ -48,8 +48,8 @@ func _test_v07_schemas_and_deck_adapter() -> void:
 	if not cards.ok:
 		return
 	_expect(
-		cards.data.get("cards", []).size() == 16,
-		"v0.7 should expose exactly sixteen cards"
+		cards.data.get("cards", []).size() == 20,
+		"v0.13 should expose twenty cards"
 	)
 	var battle_content := BattleContentAdapter.new(
 		cards.data.get("cards", [])
@@ -90,7 +90,7 @@ func _test_v07_schemas_and_deck_adapter() -> void:
 			"new games should own a complete starter deck"
 		)
 		_expect(
-			progression.data.get("gacha_pool", []).size() == 15,
+			progression.data.get("gacha_pool", []).size() == 19,
 			"fifteen upgradable cards should remain in the gacha pool"
 		)
 

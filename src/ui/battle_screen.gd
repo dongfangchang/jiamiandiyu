@@ -48,6 +48,10 @@ const CARD_ART_BY_DEFINITION := {
 	&"card.skill.omen": "res://assets/game/v0.3.0/cards/card-skill-omen.png",
 	&"card.skill.whisper": "res://assets/game/v0.3.0/cards/card-skill-whisper.png",
 	&"card.skill.second_look": "res://assets/game/v0.3.0/cards/card-skill-second-look.png",
+	&"card.skill.dream_question": "res://assets/game/v0.13.0/cards/card_skill_dream_question.png",
+	&"card.skill.mirror_ward": "res://assets/game/v0.13.0/cards/card_skill_mirror_ward.png",
+	&"card.skill.severed_string": "res://assets/game/v0.13.0/cards/card_skill_severed_string.png",
+	&"card.skill.last_rites": "res://assets/game/v0.13.0/cards/card_skill_last_rites.png",
 }
 const STATUS_ICON_BASE := "res://assets/game/v0.3.0/status/"
 

@@ -43,6 +43,10 @@ func _test_assets() -> void:
 		"res://assets/game/v0.7.0/cards/card_skill_piercing_omen.png",
 		"res://assets/game/v0.7.0/cards/card_skill_coffin_nail.png",
 		"res://assets/game/v0.7.0/cards/card_skill_second_sight.png",
+		"res://assets/game/v0.13.0/cards/card_skill_dream_question.png",
+		"res://assets/game/v0.13.0/cards/card_skill_mirror_ward.png",
+		"res://assets/game/v0.13.0/cards/card_skill_severed_string.png",
+		"res://assets/game/v0.13.0/cards/card_skill_last_rites.png",
 	]
 	for path in paths:
 		_expect(ResourceLoader.exists(path), "v0.7 UI art exists: %s" % path)
@@ -61,8 +65,8 @@ func _test_deck_screen() -> void:
 	screen.apply_snapshot(deck)
 	screen.set_progression_snapshot(_progression_snapshot())
 	_expect(screen.get_background_path().ends_with("deck_archive.png"), "deck archive art resolves")
-	_expect(screen.get_total_card_count() == 16, "deck screen renders full 16-card pool")
-	_expect(screen.get_card_count() == 16, "all filter shows every card")
+	_expect(screen.get_total_card_count() == 20, "deck screen renders full 20-card pool")
+	_expect(screen.get_card_count() == 20, "all filter shows every card")
 	_expect(screen.get_preset_count() == 3, "deck screen renders three presets")
 	_expect(screen.get_current_deck_count() == 8, "deck screen renders eight current cards")
 	_expect(screen.get_selected_preset_id() == "deck.preset.ward", "deck screen retains selected preset")
@@ -71,7 +75,7 @@ func _test_deck_screen() -> void:
 	screen.set_filter("owned")
 	_expect(screen.get_card_count() == 8, "owned filter reads snapshot ownership")
 	screen.set_filter("unowned")
-	_expect(screen.get_card_count() == 8, "unowned filter reads snapshot ownership")
+	_expect(screen.get_card_count() == 12, "unowned filter reads snapshot ownership")
 	screen.set_filter("deck")
 	_expect(screen.get_card_count() == 8, "deck filter reads current ids")
 	screen.set_filter("all")
@@ -347,6 +351,10 @@ func _card_ids() -> Array[String]:
 		"card.skill.piercing_omen",
 		"card.skill.coffin_nail",
 		"card.skill.second_sight",
+		"card.skill.dream_question",
+		"card.skill.mirror_ward",
+		"card.skill.severed_string",
+		"card.skill.last_rites",
 	]
 
 
@@ -368,6 +376,10 @@ func _card_name(definition_id: String) -> String:
 		"card.skill.piercing_omen": "穿刺凶兆",
 		"card.skill.coffin_nail": "棺钉",
 		"card.skill.second_sight": "第二视觉",
+		"card.skill.dream_question": "梦问",
+		"card.skill.mirror_ward": "镜面替身",
+		"card.skill.severed_string": "断线",
+		"card.skill.last_rites": "临终圣礼",
 	}
 	return String(names.get(definition_id, definition_id))
 

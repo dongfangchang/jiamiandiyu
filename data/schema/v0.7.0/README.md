@@ -2,7 +2,7 @@
 
 本目录固定 `v0.7.0` 的正式内容与存档边界：
 
-- `cards.schema.json`：16 张占卜家战斗卡。
+- `cards.schema.json`：当前 20 张占卜家战斗卡。
 - `balance.schema.json`：全局战斗、经济与概率参数边界。
 - `progression.schema.json`：身份、初始卡、祈愿池、奖励和升级定义。
 - `decks.schema.json`：牌组大小、卡池、默认预设和三套预设。

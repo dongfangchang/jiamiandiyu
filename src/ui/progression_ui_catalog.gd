@@ -23,6 +23,10 @@ const CARD_ART := {
 	"card.skill.piercing_omen": "res://assets/game/v0.7.0/cards/card_skill_piercing_omen.png",
 	"card.skill.coffin_nail": "res://assets/game/v0.7.0/cards/card_skill_coffin_nail.png",
 	"card.skill.second_sight": "res://assets/game/v0.7.0/cards/card_skill_second_sight.png",
+	"card.skill.dream_question": "res://assets/game/v0.13.0/cards/card_skill_dream_question.png",
+	"card.skill.mirror_ward": "res://assets/game/v0.13.0/cards/card_skill_mirror_ward.png",
+	"card.skill.severed_string": "res://assets/game/v0.13.0/cards/card_skill_severed_string.png",
+	"card.skill.last_rites": "res://assets/game/v0.13.0/cards/card_skill_last_rites.png",
 }
 
 const CARD_BACK := "res://assets/game/v0.4.0/cards/card-back-sealed-omen.png"

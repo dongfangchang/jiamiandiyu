@@ -169,6 +169,54 @@
         {"effect_id": "reveal_intent", "target": "enemy"},
         {"effect_id": "spirit", "amount": 1, "target": "self"}
       ]
+    },
+    {
+      "id": "card.skill.dream_question",
+      "display_name_zh": "梦问",
+      "description_zh": "在短暂的梦境里先看见敌人下一步，再留下一个薄弱记号。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "reveal_intent", "target": "enemy"},
+        {"effect_id": "apply_status", "status_id": "mark", "stacks": 1, "duration": 2, "max_stacks": 6, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.mirror_ward",
+      "display_name_zh": "镜面替身",
+      "description_zh": "让倒影替自己承受恶意，并从旁人的注视中暂时消失。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {"effect_id": "block", "amount": 6, "target": "self"},
+        {"effect_id": "risk", "risk_id": "attention", "amount": -1, "target": "self"}
+      ]
+    },
+    {
+      "id": "card.skill.severed_string",
+      "display_name_zh": "断线",
+      "description_zh": "截断敌人与命运的联系，让它的下一击失去力量。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {"effect_id": "damage", "amount": 5, "target": "enemy"},
+        {"effect_id": "apply_status", "status_id": "weaken", "stacks": 2, "duration": 1, "max_stacks": 2, "target": "enemy"}
+      ]
+    },
+    {
+      "id": "card.skill.last_rites",
+      "display_name_zh": "临终圣礼",
+      "description_zh": "为尚未死去的自己完成一场简短的告别，换取继续调查的力气。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {"effect_id": "heal", "amount": 3, "target": "self"},
+        {"effect_id": "draw", "count": 1, "target": "none"}
+      ]
     }
   ]
 }

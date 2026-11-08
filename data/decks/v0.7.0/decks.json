@@ -19,7 +19,11 @@
     "card.skill.fated_echo",
     "card.skill.piercing_omen",
     "card.skill.coffin_nail",
-    "card.skill.second_sight"
+    "card.skill.second_sight",
+    "card.skill.dream_question",
+    "card.skill.mirror_ward",
+    "card.skill.severed_string",
+    "card.skill.last_rites"
   ],
   "presets": [
     {

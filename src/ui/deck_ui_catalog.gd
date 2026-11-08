@@ -3,6 +3,7 @@ extends RefCounted
 const BACKGROUND := "res://assets/game/v0.7.0/scenes/deck_archive.png"
 const CARD_BACK := "res://assets/game/v0.4.0/cards/card-back-sealed-omen.png"
 const V07_CARD_DIR := "res://assets/game/v0.7.0/cards/"
+const V013_CARD_DIR := "res://assets/game/v0.13.0/cards/"
 const V03_CARD_DIR := "res://assets/game/v0.3.0/cards/"
 
 const V07_CARD_IDS: Array[String] = [
@@ -14,6 +15,10 @@ const V07_CARD_IDS: Array[String] = [
 	"card.skill.piercing_omen",
 	"card.skill.coffin_nail",
 	"card.skill.second_sight",
+	"card.skill.dream_question",
+	"card.skill.mirror_ward",
+	"card.skill.severed_string",
+	"card.skill.last_rites",
 ]
 
 const PRESET_NAMES := {
@@ -26,6 +31,13 @@ const PRESET_NAMES := {
 static func card_art(definition_id: String) -> String:
 	var suffix := definition_id.get_slice(".", definition_id.get_slice_count(".") - 1)
 	if not suffix.is_empty():
+		if definition_id in [
+			"card.skill.dream_question",
+			"card.skill.mirror_ward",
+			"card.skill.severed_string",
+			"card.skill.last_rites",
+		]:
+			return V013_CARD_DIR + "card_skill_%s.png" % suffix
 		var v07_path := V07_CARD_DIR + "card_skill_%s.png" % suffix
 		if suffix in V07_CARD_IDS.map(
 			func(value: String) -> String:

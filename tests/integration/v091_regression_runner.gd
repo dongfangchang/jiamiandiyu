@@ -300,7 +300,7 @@ func _test_profile() -> void:
 	for card_value in progression.data.get("collection", []):
 		if int(card_value.get("copies", 0)) > 0:
 			owned_count += 1
-	_expect(owned_count == 16, "test profile should own all sixteen cards")
+	_expect(owned_count == 20, "test profile should own all twenty cards")
 	_expect(
 		int(progression.data.get("divination_tickets", 0)) >= 99,
 		"test profile should provide sufficient tickets"
@@ -343,7 +343,7 @@ func _test_profile() -> void:
 			if int(card_value.get("copies", 0)) > 0:
 				retry_collection += 1
 		_expect(
-			retry_collection == 16,
+			retry_collection == 20,
 			"route retry must preserve collection and upgrades"
 		)
 	var challenge = AppBootstrapScript.start_challenge_v07(

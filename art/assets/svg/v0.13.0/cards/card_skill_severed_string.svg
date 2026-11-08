@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="400" viewBox="0 0 512 400">
+  <defs>
+    <radialGradient id="paper" cx="48%" cy="38%" r="78%">
+      <stop offset="0" stop-color="#F1E4C8"/>
+      <stop offset=".6" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(24)">
+      <path d="M0 0V9" stroke="#211D18" stroke-width=".7" opacity=".11"/>
+    </pattern>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency=".68" numOctaves="3" seed="103" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .07"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="512" height="400" fill="url(#paper)" filter="url(#grain)"/>
+  <rect width="512" height="400" fill="url(#hatch)"/>
+  <rect x="18" y="18" width="476" height="364" fill="none" stroke="#211D18" stroke-width="2" opacity=".66"/>
+  <path d="M18 44H70M442 18H494M18 356H70M442 382H494"
+    stroke="#B99750" stroke-width="2" opacity=".78"/>
+  <circle cx="256" cy="200" r="146" fill="none" stroke="#211D18" stroke-width=".8" stroke-dasharray="2 9" opacity=".24"/>
+  
+    <path d="M92 135 C164 100 212 180 252 198 C292 216 340 286 420 250"
+      fill="none" stroke="#211D18" stroke-width="5"/>
+    <path d="M92 264 C160 300 212 226 246 210 M266 190 C300 174 352 100 420 136"
+      fill="none" stroke="#7A2828" stroke-width="4"/>
+    <path d="M236 184 L276 216 M276 184 L236 216" stroke="#B99750" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="256" cy="200" r="88" fill="none" stroke="#211D18" stroke-width="1" stroke-dasharray="2 9" opacity=".4"/>
+    <path d="M112 200 H150 M362 200 H400" stroke="#B99750" stroke-width="2"/>
+  
+</svg>

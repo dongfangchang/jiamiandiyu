@@ -129,6 +129,17 @@
 
 审稿拼图：`assets/game/v0.7.0/contact-sheet.png`。HTML 预览：`art/preview/v0.7.0/index.html`。
 
+## v0.13.0 卡池扩展
+
+以下资产由 `art/tools/generate_v013_cards.mjs` 生成 SVG，并由 `art/tools/render_v013_cards.gd` 渲染为 512×400 PNG。用于收藏、牌组编辑、抽卡与战斗手牌。
+
+| 稳定 ID | SVG 源 | PNG | 尺寸 | 用途 |
+|---|---|---|---:|---|
+| `card.skill.dream_question` | `art/assets/svg/v0.13.0/cards/card_skill_dream_question.svg` | `assets/game/v0.13.0/cards/card_skill_dream_question.png` | 512×400 | 梦问 |
+| `card.skill.mirror_ward` | `art/assets/svg/v0.13.0/cards/card_skill_mirror_ward.svg` | `assets/game/v0.13.0/cards/card_skill_mirror_ward.png` | 512×400 | 镜面替身 |
+| `card.skill.severed_string` | `art/assets/svg/v0.13.0/cards/card_skill_severed_string.svg` | `assets/game/v0.13.0/cards/card_skill_severed_string.png` | 512×400 | 断线 |
+| `card.skill.last_rites` | `art/assets/svg/v0.13.0/cards/card_skill_last_rites.svg` | `assets/game/v0.13.0/cards/card_skill_last_rites.png` | 512×400 | 临终圣礼 |
+
 ## 计划资产
 
 | 批次 | 内容 | 优先级 |

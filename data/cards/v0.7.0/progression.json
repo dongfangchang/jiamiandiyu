@@ -56,7 +56,11 @@
     {"definition_id": "card.skill.fated_echo", "rarity": "rare"},
     {"definition_id": "card.skill.piercing_omen", "rarity": "rare"},
     {"definition_id": "card.skill.coffin_nail", "rarity": "rare"},
-    {"definition_id": "card.skill.second_sight", "rarity": "rare"}
+    {"definition_id": "card.skill.second_sight", "rarity": "rare"},
+    {"definition_id": "card.skill.dream_question", "rarity": "common"},
+    {"definition_id": "card.skill.mirror_ward", "rarity": "common"},
+    {"definition_id": "card.skill.severed_string", "rarity": "rare"},
+    {"definition_id": "card.skill.last_rites", "rarity": "rare"}
   ],
   "reward_options": [
     {
@@ -86,6 +90,10 @@
     "card.skill.fated_echo": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
     "card.skill.piercing_omen": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
     "card.skill.coffin_nail": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.second_sight": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "amount", "amount_per_level": 1}]}
+    "card.skill.second_sight": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.dream_question": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "stacks", "amount_per_level": 1}]},
+    "card.skill.mirror_ward": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.severed_string": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
+    "card.skill.last_rites": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]}
   }
 }
