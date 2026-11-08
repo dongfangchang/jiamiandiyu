@@ -135,6 +135,8 @@ func _render_result() -> void:
 	var sequence: Dictionary = _snapshot_data.get("sequence", {})
 	var run_state: Dictionary = _snapshot_data.get("run_state", {})
 	var end_reason := String(_snapshot_data.get("end_reason", ""))
+	if completed and end_reason.is_empty():
+		end_reason = "ascension_completed"
 	var sequence_text := "占卜家 · 序列 %d" % int(
 		sequence.get("current_sequence", 9)
 	)

@@ -148,7 +148,14 @@ func _build() -> void:
 
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 18)
-	column.add_child(header)
+	var header_panel := UiTheme.padded_panel(
+		header,
+		14,
+		Color(0.045, 0.049, 0.041, 0.92),
+		UiTheme.C_LINE
+	)
+	header_panel.set_meta("route_header", true)
+	column.add_child(header_panel)
 	var heading := VBoxContainer.new()
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)

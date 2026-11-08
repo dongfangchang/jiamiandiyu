@@ -45,9 +45,10 @@ func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
 		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		empty.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		_options_row.add_child(empty)
+	_hub_button.visible = options.is_empty()
 	_hub_button.disabled = _busy or not options.is_empty()
 	_set_status(
-		"选择一份战利品，或返回白昼档案。"
+		"必须选择一份战利品；确认后会返回白昼档案。"
 		if not options.is_empty()
 		else "没有待领取档案。"
 	)
@@ -234,15 +235,13 @@ func _on_hub() -> void:
 
 
 func _refresh_buttons() -> void:
+	var has_options := get_option_count() > 0
 	for button in _action_buttons:
 		if is_instance_valid(button):
 			button.disabled = _busy
 	if is_instance_valid(_hub_button):
-		_hub_button.disabled = _busy or (
-			is_instance_valid(_options_row)
-			and _options_row.get_child_count() > 0
-			and get_option_count() > 0
-		)
+		_hub_button.visible = not has_options
+		_hub_button.disabled = _busy or has_options
 
 
 func _set_status(message: String, danger: bool = false) -> void:
