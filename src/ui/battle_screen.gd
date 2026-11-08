@@ -140,7 +140,7 @@ func apply_snapshot(snapshot: BattleSnapshot) -> void:
 		_selection_card_id = &""
 		_selection_target_id = &""
 	_render_snapshot()
-	_status_label.text = "战斗已载入。"
+	_status_label.text = _snapshot_hint()
 	_refresh_controls()
 
 
@@ -1003,6 +1003,25 @@ func _reason_text(reason_code: StringName) -> String:
 		String(reason_code),
 		"操作被规则层拒绝；请查看战斗记录。"
 	))
+
+
+func _snapshot_hint() -> String:
+	if _snapshot == null:
+		return "等待战斗状态。"
+	var data := _snapshot.data
+	var outcome := String(data.get("outcome", ""))
+	if outcome == "victory":
+		return "战斗完成。请继续领取奖励。"
+	if outcome == "defeat":
+		return "战斗结束。请查看结果并返回安全边界。"
+	if String(data.get("phase", "")) != "player_action":
+		return "敌方正在行动，请等待本回合结算。"
+	var hand: Variant = data.get("hand", [])
+	if hand is Array and hand.is_empty():
+		return "当前没有可选手牌；请结束回合。"
+	if not _selection_card_id.is_empty():
+		return "已选择手牌；请选择目标或取消选择。"
+	return "请选择一张手牌开始行动。"
 
 
 func _format_event(event: BattleEvent) -> String:
