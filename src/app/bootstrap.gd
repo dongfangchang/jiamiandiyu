@@ -11,6 +11,7 @@ const RouteContentAdapterScript := preload("res://src/infrastructure/route_conte
 const ChallengeContentAdapterScript := preload("res://src/infrastructure/challenge_content_adapter.gd")
 const DeckContentAdapterScript := preload("res://src/infrastructure/deck_content_adapter.gd")
 const SaveMigrationsScript := preload("res://src/infrastructure/save_migrations.gd")
+const PlayerPreferencesServiceScript := preload("res://src/infrastructure/player_preferences_service.gd")
 const GameSessionScript := preload("res://src/app/game_session.gd")
 const CampaignSessionScript := preload("res://src/app/campaign_session.gd")
 const RouteSessionScript := preload("res://src/app/route_session.gd")
@@ -1177,6 +1178,51 @@ static func start_challenge_v07(
 
 static func checkpoint_summary(envelope: Dictionary) -> Dictionary:
 	return _checkpoint_summary(envelope)
+
+
+static func load_player_preferences(
+	path: String = "user://preferences.json"
+) -> InfrastructureResult:
+	return PlayerPreferencesServiceScript.new(path).load_preferences()
+
+
+static func save_player_preferences(
+	preferences: Dictionary,
+	path: String = "user://preferences.json"
+) -> InfrastructureResult:
+	return PlayerPreferencesServiceScript.new(path).save_preferences(preferences)
+
+
+static func restore_checkpoint_backup(
+	save_slot: String = "checkpoint",
+	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
+) -> InfrastructureResult:
+	var service := SaveMigrationsScript.create_v07_service(save_directory)
+	var backup := service.load_backup(save_slot)
+	if not backup.ok:
+		return InfrastructureResultScript.failure(
+			&"checkpoint_backup_unavailable",
+			"Checkpoint backup could not be loaded.",
+			{
+				"cause": String(backup.code),
+				"cause_message": backup.message,
+				"cause_details": backup.details,
+			}
+		)
+	var restored := service.save_slot(save_slot, backup.data)
+	if not restored.ok:
+		return InfrastructureResultScript.failure(
+			&"checkpoint_backup_restore_failed",
+			"Checkpoint backup could not be restored without replacing the current slot.",
+			{
+				"cause": String(restored.code),
+				"cause_message": restored.message,
+			}
+		)
+	return InfrastructureResultScript.success(
+		_checkpoint_summary(backup.data),
+		{"restored": true}
+	)
 
 
 static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:

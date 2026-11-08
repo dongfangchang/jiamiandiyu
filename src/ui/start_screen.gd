@@ -3,6 +3,8 @@ extends Control
 signal new_game_requested
 signal continue_requested
 signal challenge_requested
+signal preferences_changed(preferences: Dictionary)
+signal restore_backup_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
@@ -15,6 +17,16 @@ var _summary_label: Label
 var _version_label: Label
 var _challenge_button: Button
 var _challenge_hint: Label
+var _settings_button: Button
+var _restore_backup_button: Button
+var _preferences_status: Label
+var _preferences: Dictionary = {}
+var _preferences_initialized := false
+var _backup_available := false
+var _confirm_new_game: ConfirmationDialog
+var _system_overlay: Control
+var _tutorial_overlay: Control
+var _tutorial_step := 0
 var _busy := false
 var _checkpoint_status := "none"
 var _challenge_available := false
@@ -29,9 +41,14 @@ func _ready() -> void:
 func show_checkpoint_status(
 	status: String,
 	summary: Dictionary = {},
-	error_message: String = ""
+	error_message: String = "",
+	preferences: Dictionary = {}
 ) -> void:
 	_checkpoint_status = status
+	_backup_available = bool(summary.get("backup_available", false))
+	if not preferences.is_empty():
+		_preferences = preferences.duplicate(true)
+		_preferences_initialized = true
 	if not is_instance_valid(_continue_button):
 		return
 	_busy = false
@@ -89,6 +106,14 @@ func show_checkpoint_status(
 				"身份：未选择  ·  占卜券：3（新游戏初始）\n"
 				+ "开始新游戏以选择白昼身份。战斗中退出会回到最近检查点。"
 			)
+	if is_instance_valid(_restore_backup_button):
+		_restore_backup_button.disabled = _busy or not _backup_available
+	if (
+		_preferences_initialized
+		and not bool(_preferences.get("tutorial_seen", false))
+		and _tutorial_overlay == null
+	):
+		_open_tutorial()
 
 
 func get_summary_text() -> String:
@@ -242,6 +267,28 @@ func _build_panel_content() -> VBoxContainer:
 	_challenge_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	challenge_row.add_child(_challenge_hint)
 
+	var system_row := HBoxContainer.new()
+	system_row.add_theme_constant_override("separation", 12)
+	content.add_child(system_row)
+	_settings_button = UiTheme.button(
+		"设置与玩法说明",
+		_open_system_menu,
+		true,
+		0
+	)
+	_settings_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	system_row.add_child(_settings_button)
+	_restore_backup_button = UiTheme.button(
+		"恢复上次备份",
+		_on_restore_backup,
+		false,
+		180
+	)
+	_restore_backup_button.disabled = true
+	system_row.add_child(_restore_backup_button)
+	_preferences_status = UiTheme.label("", 12, UiTheme.C_MUTED)
+	content.add_child(_preferences_status)
+
 	content.add_child(UiTheme.wrapped_label(
 		"提示：战斗不支持中途恢复；退出后会回到最近一次已确认的战后检查点。",
 		13,
@@ -252,6 +299,9 @@ func _build_panel_content() -> VBoxContainer:
 
 func _on_new_game() -> void:
 	if _busy:
+		return
+	if _checkpoint_status == "loaded":
+		_open_new_game_confirmation()
 		return
 	set_busy(true)
 	new_game_requested.emit()
@@ -275,6 +325,246 @@ func _on_quit() -> void:
 	if _busy:
 		return
 	quit_requested.emit()
+
+
+func _open_new_game_confirmation() -> void:
+	if not is_instance_valid(_confirm_new_game):
+		_confirm_new_game = ConfirmationDialog.new()
+		_confirm_new_game.title = "覆盖当前进度？"
+		_confirm_new_game.dialog_text = (
+			"开始新游戏会从下一检查点起覆盖当前存档。"
+			+ "最近一次备份会保留，但可能不是最新进度。"
+		)
+		_confirm_new_game.ok_button_text = "开始新游戏"
+		_confirm_new_game.cancel_button_text = "取消"
+		_confirm_new_game.confirmed.connect(func() -> void:
+			set_busy(true)
+			new_game_requested.emit()
+		)
+		add_child(_confirm_new_game)
+	_confirm_new_game.popup_centered()
+
+
+func _on_restore_backup() -> void:
+	if _busy or not _backup_available:
+		return
+	restore_backup_requested.emit()
+
+
+func show_backup_restore_result(success: bool, message: String) -> void:
+	if not is_instance_valid(_preferences_status):
+		return
+	_preferences_status.text = (
+		("备份已恢复。" if success else "恢复失败：") + message
+	)
+	_preferences_status.add_theme_color_override(
+		"font_color",
+		UiTheme.C_PAPER if success else UiTheme.C_DANGER_TEXT
+	)
+
+
+func show_preferences_save_state(success: bool, message: String = "") -> void:
+	if not is_instance_valid(_preferences_status):
+		return
+	_preferences_status.text = (
+		"设置已保存。" if success else "设置保存失败：" + message
+	)
+	_preferences_status.add_theme_color_override(
+		"font_color",
+		UiTheme.C_MUTED if success else UiTheme.C_DANGER_TEXT
+	)
+
+
+func _open_system_menu() -> void:
+	if is_instance_valid(_system_overlay):
+		_system_overlay.queue_free()
+		_system_overlay = null
+	var overlay := ColorRect.new()
+	overlay.color = Color(0.015, 0.018, 0.014, 0.84)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(overlay)
+	_system_overlay = overlay
+
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var content := VBoxContainer.new()
+	var panel := UiTheme.padded_panel(
+		content,
+		24,
+		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.C_GOLD
+	)
+	panel.custom_minimum_size = Vector2(760, 0)
+	center.add_child(panel)
+	content.add_theme_constant_override("separation", 14)
+	content.add_child(UiTheme.label("设置与玩法说明", 30, UiTheme.C_TEXT))
+	content.add_child(UiTheme.wrapped_label(
+		"身份决定一项资源或战斗修正；八张牌组决定可用手段。"
+		+ "战斗中会提升污染与被注视，休息和仪式用于控制风险。",
+		15,
+		UiTheme.C_PAPER
+	))
+
+	var fullscreen := CheckButton.new()
+	fullscreen.text = "全屏显示"
+	fullscreen.button_pressed = bool(_preferences.get("fullscreen", false))
+	fullscreen.toggled.connect(func(enabled: bool) -> void:
+		_preferences["fullscreen"] = enabled
+		preferences_changed.emit(_preferences.duplicate(true))
+	)
+	content.add_child(fullscreen)
+
+	var reduce_flash := CheckButton.new()
+	reduce_flash.text = "减少闪烁与高对比反馈"
+	reduce_flash.button_pressed = bool(_preferences.get("reduce_flash", false))
+	reduce_flash.toggled.connect(func(enabled: bool) -> void:
+		_preferences["reduce_flash"] = enabled
+		preferences_changed.emit(_preferences.duplicate(true))
+	)
+	content.add_child(reduce_flash)
+
+	var scale_row := HBoxContainer.new()
+	content.add_child(scale_row)
+	scale_row.add_child(UiTheme.label("界面缩放", 16, UiTheme.C_TEXT))
+	var scale_option := OptionButton.new()
+	scale_option.add_item("90%")
+	scale_option.add_item("100%")
+	scale_option.add_item("110%")
+	var scale_values: Array[float] = [0.9, 1.0, 1.1]
+	var current_scale := float(_preferences.get("ui_scale", 1.0))
+	scale_option.select(_nearest_index(scale_values, current_scale))
+	scale_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_option.item_selected.connect(func(index: int) -> void:
+		_preferences["ui_scale"] = scale_values[clampi(index, 0, 2)]
+		preferences_changed.emit(_preferences.duplicate(true))
+	)
+	scale_row.add_child(scale_option)
+
+	content.add_child(UiTheme.wrapped_label(
+		"操作：鼠标选择手牌与目标；Esc 取消当前选择。"
+		+ "\n检查点：仅在节点或战斗结算后保存，战斗中退出会回到最近检查点。"
+		+ "\n存档位置：Godot 的 user://saves；设置与引导状态保存在 user://preferences.json。",
+		14,
+		UiTheme.C_MUTED
+	))
+	content.add_child(UiTheme.button(
+		"重新查看新手引导",
+		_open_tutorial,
+		false,
+		220
+	))
+	var close := UiTheme.button("关闭", _close_system_menu, true, 120)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_END
+	content.add_child(close)
+
+
+func _close_system_menu() -> void:
+	if is_instance_valid(_system_overlay):
+		_system_overlay.queue_free()
+		_system_overlay = null
+
+
+func _open_tutorial() -> void:
+	if is_instance_valid(_system_overlay):
+		_close_system_menu()
+	if is_instance_valid(_tutorial_overlay):
+		_tutorial_overlay.queue_free()
+	_tutorial_step = 0
+	var overlay := ColorRect.new()
+	overlay.color = Color(0.015, 0.018, 0.014, 0.9)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(overlay)
+	_tutorial_overlay = overlay
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var content := VBoxContainer.new()
+	var panel := UiTheme.padded_panel(
+		content,
+		28,
+		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.C_GOLD
+	)
+	panel.custom_minimum_size = Vector2(780, 360)
+	center.add_child(panel)
+	content.add_theme_constant_override("separation", 16)
+	content.add_child(UiTheme.label("首次游玩指引", 16, UiTheme.C_GOLD))
+	var body := UiTheme.wrapped_label("", 20, UiTheme.C_TEXT)
+	body.custom_minimum_size = Vector2(0, 190)
+	body.set_meta("tutorial_body", true)
+	content.add_child(body)
+	var progress := UiTheme.label("", 13, UiTheme.C_MUTED)
+	progress.set_meta("tutorial_progress", true)
+	content.add_child(progress)
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("separation", 12)
+	content.add_child(actions)
+	actions.add_child(UiTheme.button("跳过", _finish_tutorial, false, 100))
+	actions.add_child(UiTheme.button("下一步", _advance_tutorial, true, 120))
+	_update_tutorial_view()
+
+
+func _advance_tutorial() -> void:
+	_tutorial_step += 1
+	if _tutorial_step >= _tutorial_steps().size():
+		_finish_tutorial()
+		return
+	_update_tutorial_view()
+
+
+func _update_tutorial_view() -> void:
+	if not is_instance_valid(_tutorial_overlay):
+		return
+	var steps := _tutorial_steps()
+	var body := _find_meta_node(_tutorial_overlay, "tutorial_body") as Label
+	var progress := _find_meta_node(_tutorial_overlay, "tutorial_progress") as Label
+	if body != null:
+		body.text = steps[clampi(_tutorial_step, 0, steps.size() - 1)]
+	if progress != null:
+		progress.text = "%d / %d" % [_tutorial_step + 1, steps.size()]
+
+
+func _finish_tutorial() -> void:
+	if is_instance_valid(_tutorial_overlay):
+		_tutorial_overlay.queue_free()
+		_tutorial_overlay = null
+	_preferences["tutorial_seen"] = true
+	preferences_changed.emit(_preferences.duplicate(true))
+
+
+func _tutorial_steps() -> Array[String]:
+	return [
+		"选择一项白昼身份。身份会改变一项战斗或资源倾向。",
+		"从收藏中确认一套八张唯一卡牌。抽到的新卡会进入收藏，升级效果会带入战斗。",
+		"战斗中使用灵性打出卡牌，选择三列中的敌人并结束回合。",
+		"污染与被注视会改变路线风险。休息时在即时生命和下一战资源之间取舍。",
+		"首领战后完成短仪式即可晋升。检查点只在安全边界保存。",
+	]
+
+
+func _find_meta_node(root: Node, key: String) -> Node:
+	for child in root.get_children():
+		if bool(child.get_meta(key, false)):
+			return child
+		var nested := _find_meta_node(child, key)
+		if nested != null:
+			return nested
+	return null
+
+
+func _nearest_index(values: Array[float], target: float) -> int:
+	var best_index := 0
+	var best_distance := absf(values[0] - target)
+	for index in range(1, values.size()):
+		var distance := absf(values[index] - target)
+		if distance < best_distance:
+			best_index = index
+			best_distance = distance
+	return best_index
 
 
 func _identity_name(identity_id: String) -> String:

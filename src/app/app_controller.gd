@@ -51,21 +51,33 @@ var _seed_override: int = -1
 var _deck_return_route: StringName = ROUTE_HUB
 var _deck_after_confirm_route: StringName = ROUTE_HUB
 var _challenge_sequence_state: Dictionary = {}
+var _preferences: Dictionary = {
+	"settings_version": 1,
+	"tutorial_seen": false,
+	"fullscreen": false,
+	"ui_scale": 1.0,
+	"reduce_flash": false,
+}
+var _preferences_path: String = "user://preferences.json"
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_load_preferences()
 	show_start_screen()
 
 
 func configure_for_testing(
 	save_directory_value: String,
 	checkpoint_slot_value: String = "checkpoint",
-	seed_override_value: int = -1
+	seed_override_value: int = -1,
+	preferences_path_value: String = "user://preferences.json"
 ) -> void:
 	save_directory = save_directory_value
 	checkpoint_slot = checkpoint_slot_value
 	_seed_override = seed_override_value
+	_preferences_path = preferences_path_value
+	_load_preferences()
 
 
 func show_start_screen() -> void:
@@ -74,6 +86,8 @@ func show_start_screen() -> void:
 	screen.new_game_requested.connect(_on_new_game_requested)
 	screen.continue_requested.connect(_on_continue_requested)
 	screen.challenge_requested.connect(_on_challenge_requested)
+	screen.preferences_changed.connect(_on_preferences_changed)
+	screen.restore_backup_requested.connect(_on_restore_backup_requested)
 	screen.quit_requested.connect(_on_quit_requested)
 	_set_route(ROUTE_START)
 	_refresh_checkpoint_summary(screen)
@@ -234,20 +248,29 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 	var status := String(inspected.data.get("status", "none"))
 	if status == "loaded":
 		_last_checkpoint_summary = inspected.data.get("checkpoint", {}).duplicate(true)
+		_last_checkpoint_summary["backup_available"] = bool(
+			inspected.data.get("backup_available", false)
+		)
 		if not bool(_last_checkpoint_summary.get("deck_confirmed", false)):
 			_last_checkpoint_summary["challenge_available"] = false
 			_last_checkpoint_summary["challenge_reason"] = "请先通过继续游戏确认出战牌组"
-		start_screen.show_checkpoint_status("loaded", _last_checkpoint_summary)
+		start_screen.show_checkpoint_status(
+			"loaded",
+			_last_checkpoint_summary,
+			"",
+			_preferences
+		)
 		return
 	_last_checkpoint_summary = {}
 	if status == "corrupt":
 		start_screen.show_checkpoint_status(
 			"corrupt",
 			{},
-			String(inspected.data.get("message", "Checkpoint could not be read."))
+			String(inspected.data.get("message", "Checkpoint could not be read.")),
+			_preferences
 		)
 		return
-	start_screen.show_checkpoint_status("none")
+	start_screen.show_checkpoint_status("none", {}, "", _preferences)
 
 
 func _show_current_state() -> void:
@@ -1032,6 +1055,69 @@ func _on_new_game_requested() -> void:
 
 func _on_challenge_requested() -> void:
 	_show_challenge_hub()
+
+
+func _on_preferences_changed(preferences: Dictionary) -> void:
+	_preferences = preferences.duplicate(true)
+	var saved = AppBootstrapScript.save_player_preferences(
+		_preferences,
+		_preferences_path
+	)
+	if saved.ok:
+		_apply_preferences()
+		if _screen != null and _screen.has_method("show_preferences_save_state"):
+			_screen.show_preferences_save_state(true, "")
+	else:
+		if _screen != null and _screen.has_method("show_preferences_save_state"):
+			_screen.show_preferences_save_state(
+				false,
+				String(saved.message)
+			)
+
+
+func _on_restore_backup_requested() -> void:
+	var restored = AppBootstrapScript.restore_checkpoint_backup(
+		checkpoint_slot,
+		save_directory
+	)
+	if not restored.ok:
+		if _screen != null and _screen.has_method("show_backup_restore_result"):
+			_screen.show_backup_restore_result(false, restored.message)
+		return
+	if _screen != null and _screen.has_method("show_backup_restore_result"):
+		_screen.show_backup_restore_result(true, "备份已恢复。")
+	_refresh_checkpoint_summary(_screen)
+
+
+func _load_preferences() -> void:
+	var loaded = AppBootstrapScript.load_player_preferences(_preferences_path)
+	if loaded.ok:
+		_preferences = loaded.data.duplicate(true)
+	else:
+		_preferences = {
+			"settings_version": 1,
+			"tutorial_seen": false,
+			"fullscreen": false,
+			"ui_scale": 1.0,
+			"reduce_flash": false,
+		}
+	_apply_preferences()
+
+
+func _apply_preferences() -> void:
+	var fullscreen := bool(_preferences.get("fullscreen", false))
+	DisplayServer.window_set_mode(
+		DisplayServer.WINDOW_MODE_FULLSCREEN
+		if fullscreen
+		else DisplayServer.WINDOW_MODE_WINDOWED
+	)
+	var window := get_window()
+	if window != null:
+		window.content_scale_factor = clampf(
+			float(_preferences.get("ui_scale", 1.0)),
+			0.85,
+			1.2
+		)
 
 
 func _on_continue_requested() -> void:

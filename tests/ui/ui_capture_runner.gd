@@ -32,6 +32,8 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIRECTORY))
 	await get_tree().process_frame
 	await _capture_start()
+	await _capture_tutorial()
+	await _capture_settings()
 	await _capture_deck()
 	await _capture_identity()
 	await _capture_identity_hub()
@@ -57,21 +59,45 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.6.0",
+		"content_version": "v0.8.0",
 		"sequence": 8,
-		"deck_size": 12,
+		"deck_size": 8,
 		"identity_id": "identity.reporter",
 		"divination_tickets": 7,
-		"collection_count": 6,
+		"collection_count": 10,
 		"pity_counter": 2,
 		"rare_pity": 4,
 		"challenge_available": true,
+		"backup_available": true,
 		"created_at": "2026-11-08T02:30:00Z",
 		"last_battle": {"outcome": "victory", "round_number": 5},
-	})
+	}, "", _preferences(true))
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("start_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_tutorial() -> void:
+	var screen = StartScreenScene.instantiate()
+	add_child(screen)
+	screen.show_checkpoint_status("none", {}, "", _preferences(false))
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("tutorial_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_settings() -> void:
+	var screen = StartScreenScene.instantiate()
+	add_child(screen)
+	screen.show_checkpoint_status("none", {}, "", _preferences(true))
+	screen.call("_open_system_menu")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("settings_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 
@@ -875,6 +901,16 @@ func _deck_snapshot() -> DeckSnapshot:
 		"presets": presets,
 		"available_commands": ["confirm_deck"],
 	})
+
+
+func _preferences(tutorial_seen: bool) -> Dictionary:
+	return {
+		"settings_version": 1,
+		"tutorial_seen": tutorial_seen,
+		"fullscreen": false,
+		"ui_scale": 1.0,
+		"reduce_flash": false,
+	}
 
 
 func _rest_options() -> Array:
