@@ -109,7 +109,7 @@ func _build() -> void:
 func _build_card_content() -> VBoxContainer:
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 16)
-	content.add_child(UiTheme.label("POST-BATTLE ARCHIVE", 13, UiTheme.C_GOLD))
+	content.add_child(UiTheme.label("战后档案", 13, UiTheme.C_GOLD))
 	_result_label = UiTheme.label("等待结算", 56, UiTheme.C_TEXT)
 	content.add_child(_result_label)
 	_detail_label = UiTheme.wrapped_label("", 16, UiTheme.C_PAPER)

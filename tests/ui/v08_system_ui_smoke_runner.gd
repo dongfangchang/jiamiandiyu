@@ -6,6 +6,7 @@ var _screen: Control
 var _preferences_events := 0
 var _restore_events := 0
 var _feedback_events := 0
+var _test_profile_events := 0
 var _passed := 0
 var _failures: Array[String] = []
 
@@ -21,6 +22,9 @@ func _ready() -> void:
 	)
 	_screen.feedback_submitted.connect(func(_feedback: Dictionary) -> void:
 		_feedback_events += 1
+	)
+	_screen.test_game_requested.connect(func() -> void:
+		_test_profile_events += 1
 	)
 	_screen.show_checkpoint_status(
 		"loaded",
@@ -76,6 +80,11 @@ func _run_checks() -> void:
 	_expect(
 		confirmation != null and confirmation.visible,
 		"new game should require confirmation when a checkpoint exists"
+	)
+	_screen.call("_on_test_game")
+	_expect(
+		_test_profile_events == 1,
+		"test profile button should emit once"
 	)
 
 	if _failures.is_empty():

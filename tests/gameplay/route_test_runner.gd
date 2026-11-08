@@ -398,6 +398,10 @@ func _test_battle_defeat_ends_route() -> void:
 		and result.snapshot.data["route_outcome"] == "failed",
 		"battle defeat should fail the route"
 	)
+	_check(
+		result.snapshot.data.get("end_reason", "") == "battle_defeat",
+		"battle defeat should expose a stable end reason"
+	)
 	var retry := engine.submit(RouteCommand.select_node(
 		&"route.v050.node.first_hunt"
 	))

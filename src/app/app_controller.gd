@@ -62,11 +62,12 @@ var _preferences: Dictionary = {
 var _preferences_path: String = "user://preferences.json"
 var _diagnostics: RefCounted = null
 var _diagnostics_directory: String = "user://diagnostics"
+var _testing_mode := false
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	get_tree().auto_accept_quit = false
+	get_tree().auto_accept_quit = _testing_mode
 	_load_preferences()
 	_start_diagnostics()
 	show_start_screen()
@@ -79,6 +80,7 @@ func configure_for_testing(
 	preferences_path_value: String = "user://preferences.json",
 	diagnostics_directory_value: String = ""
 ) -> void:
+	_testing_mode = true
 	save_directory = save_directory_value
 	checkpoint_slot = checkpoint_slot_value
 	_seed_override = seed_override_value
@@ -101,6 +103,7 @@ func show_start_screen() -> void:
 	screen.preferences_changed.connect(_on_preferences_changed)
 	screen.restore_backup_requested.connect(_on_restore_backup_requested)
 	screen.feedback_submitted.connect(_on_feedback_submitted)
+	screen.test_game_requested.connect(_on_test_game_requested)
 	screen.quit_requested.connect(_on_quit_requested)
 	_set_route(ROUTE_START)
 	_refresh_checkpoint_summary(screen)
@@ -122,6 +125,26 @@ func start_new_game(
 		return result
 	_session = result.data
 	_record_diagnostic("route_started", {"seed": resolved_seed, "kind": "first_route"})
+	_show_current_state()
+	return result
+
+
+func start_test_game(seed_value: int = -1) -> InfrastructureResult:
+	var resolved_seed := _resolve_seed(seed_value)
+	var result = AppBootstrapScript.start_route_v07(
+		resolved_seed,
+		{
+			"save_directory": save_directory,
+			"test_profile": true,
+		},
+		"test_checkpoint",
+		false
+	)
+	if not result.ok:
+		_show_start_error(result)
+		return result
+	_session = result.data
+	_record_diagnostic("test_profile_started", {"seed": resolved_seed})
 	_show_current_state()
 	return result
 
@@ -833,7 +856,7 @@ func _show_battle() -> void:
 		push_error("Route battle snapshot is unavailable.")
 		return
 	var screen := _replace_screen(BattleScreenScene)
-	var labels := _build_display_labels()
+	var labels := _build_display_labels(snapshot)
 	var encounter_name := "未知遭遇"
 	var resolved = _session.resolve_current_encounter()
 	if resolved.ok:
@@ -844,10 +867,12 @@ func _show_battle() -> void:
 		encounter_name,
 		labels.cards,
 		labels.enemies,
-		Callable(_session, "query_card_play")
+		Callable(_session, "query_card_play"),
+		labels.details
 	)
 	screen.command_requested.connect(_on_battle_command_requested)
 	screen.battle_finished.connect(_on_battle_finished)
+	screen.exit_requested.connect(_on_battle_exit_requested)
 	screen.apply_snapshot(snapshot)
 	_set_route(ROUTE_BATTLE)
 
@@ -857,6 +882,15 @@ func _on_battle_command_requested(command: BattleCommand) -> void:
 		return
 	var result: BattleCommandResult = _session.submit_battle(command)
 	_screen.apply_command_result(result)
+
+
+func _on_battle_exit_requested() -> void:
+	_record_diagnostic("battle_exit_requested", {
+		"node_id": String(_session.get_active_node_id())
+		if _session != null and _session.has_method("get_active_node_id")
+		else "",
+	})
+	show_start_screen()
 
 
 func _on_battle_finished(snapshot: BattleSnapshot) -> void:
@@ -969,24 +1003,108 @@ func _show_route_result() -> void:
 	var screen := _replace_screen(RouteResultScreenScene)
 	screen.show_result(_session.get_route_snapshot(), save_state)
 	screen.hub_requested.connect(_show_hub)
+	screen.retry_requested.connect(_on_route_retry_requested)
 	_set_route(ROUTE_ROUTE_RESULT)
 
 
-func _build_display_labels() -> Dictionary:
+func _on_route_retry_requested() -> void:
+	if _session == null or not _session.has_method("get_route_snapshot"):
+		return
+	var progression_state: Dictionary = _session.progression.export_persistent_state()
+	progression_state["phase"] = "hub"
+	progression_state["reward_option_ids"] = []
+	progression_state["last_battle_outcome"] = ""
+	var deck_state: Dictionary = {}
+	if _session.deck_engine != null:
+		deck_state = _session.deck_engine.export_persistent_state()
+	var result = AppBootstrapScript.start_route_v07(
+		_resolve_seed(-1),
+		{
+			"save_directory": save_directory,
+			"progression_state": progression_state,
+			"deck_state": deck_state,
+		},
+		checkpoint_slot,
+		false
+	)
+	if not result.ok:
+		_show_start_error(result)
+		return
+	_session = result.data
+	_record_diagnostic("route_retry_requested", {})
+	_show_current_state()
+
+
+func _build_display_labels(snapshot: BattleSnapshot = null) -> Dictionary:
 	var card_labels: Dictionary = {}
 	var enemy_labels: Dictionary = {}
+	var card_details: Dictionary = {}
 	if _session == null:
-		return {"cards": card_labels, "enemies": enemy_labels}
-	var resolved = _session.resolve_current_encounter()
-	if not resolved.ok:
-		return {"cards": card_labels, "enemies": enemy_labels}
-	for definition_value in resolved.data.get("deck_definition_ids", []):
-		var definition_id := StringName(definition_value)
+		return {
+			"cards": card_labels,
+			"enemies": enemy_labels,
+			"details": card_details,
+		}
+	var content: BattleContentPort = _session.base_content
+	if _session.progression != null and _session.base_content != null:
+		content = _session.progression.create_upgraded_content(
+			_session.base_content
+		)
+	var definition_ids: Array[StringName] = []
+	var deck_snapshot = (
+		_session.get_deck_snapshot()
+		if _session.has_method("get_deck_snapshot")
+		else null
+	)
+	if deck_snapshot != null:
+		for definition_value in deck_snapshot.data.get("current_card_ids", []):
+			definition_ids.append(StringName(definition_value))
+		for card_value in deck_snapshot.data.get("cards", []):
+			if card_value is Dictionary:
+				definition_ids.append(StringName(
+					card_value.get("definition_id", "")
+				))
+	if snapshot != null:
+		for hand_value in snapshot.data.get("hand", []):
+			if hand_value is Dictionary:
+				definition_ids.append(StringName(
+					hand_value.get("definition_id", "")
+				))
+	var levels: Dictionary = {}
+	var progression_snapshot: ProgressionSnapshot = (
+		_session.get_progression_snapshot()
+	)
+	for card_value in progression_snapshot.data.get("collection", []):
+		if card_value is Dictionary:
+			levels[String(card_value.get("definition_id", ""))] = int(
+				card_value.get("level", 0)
+			)
+	for definition_id in definition_ids:
+		if String(definition_id).is_empty() or card_labels.has(definition_id):
+			continue
 		card_labels[definition_id] = _session.card_display_name(definition_id)
-	for enemy_value in resolved.data.get("enemy_configs", []):
-		var definition_id := StringName(enemy_value.get("definition_id", ""))
-		enemy_labels[definition_id] = _session.enemy_display_name(definition_id)
-	return {"cards": card_labels, "enemies": enemy_labels}
+		var definition: Dictionary = content.get_card_definition(definition_id)
+		card_details[String(definition_id)] = {
+			"name": String(card_labels[definition_id]),
+			"description": String(definition.get("description_zh", "")),
+			"effect_text": _format_card_effects(definition),
+			"level": int(levels.get(String(definition_id), 0)),
+		}
+	if snapshot != null:
+		for enemy_value in snapshot.data.get("enemies", []):
+			if not enemy_value is Dictionary:
+				continue
+			var definition_id := StringName(
+				enemy_value.get("definition_id", "")
+			)
+			enemy_labels[definition_id] = _session.enemy_display_name(
+				definition_id
+			)
+	return {
+		"cards": card_labels,
+		"enemies": enemy_labels,
+		"details": card_details,
+	}
 
 
 func _build_card_names() -> Dictionary:
@@ -1089,6 +1207,10 @@ func _on_new_game_requested() -> void:
 
 func _on_challenge_requested() -> void:
 	_show_challenge_hub()
+
+
+func _on_test_game_requested() -> void:
+	start_test_game(_resolve_seed(-1))
 
 
 func _on_preferences_changed(preferences: Dictionary) -> void:

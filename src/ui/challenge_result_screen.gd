@@ -97,7 +97,7 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 14)
 	pad.add_child(column)
 	_eyebrow_label = UiTheme.label(
-		"MIRROR ECHOES // INHERITANCE",
+		"镜厅余响 · 传承",
 		12,
 		UiTheme.C_GOLD
 	)
@@ -156,9 +156,9 @@ func _render() -> void:
 	_result_icon.texture = load(ChallengeCatalog.outcome_icon(completed))
 	var challenge_id := String(_snapshot_data.get("challenge_id", ""))
 	_eyebrow_label.text = (
-		"BROKEN PROCESSION // INHERITANCE"
+		"破碎游行 · 传承"
 		if challenge_id == "challenge.v070.broken_procession"
-		else "MIRROR ECHOES // INHERITANCE"
+		else "镜厅余响 · 传承"
 	)
 	var route: Dictionary = _snapshot_data.get("route", {})
 	var run_state: Dictionary = route.get("run_state", {})

@@ -107,7 +107,7 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label("OLD HOUSE // RESPITE", 12, UiTheme.C_GOLD))
+	heading.add_child(UiTheme.label("旧宅档案 · 短暂休整", 12, UiTheme.C_GOLD))
 	heading.add_child(UiTheme.label("旧宅喘息", 36, UiTheme.C_TEXT))
 	heading.add_child(UiTheme.label(
 		"伤口、污染和目光都在门外等待。只能优先处理其中一种。",

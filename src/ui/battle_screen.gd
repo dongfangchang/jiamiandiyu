@@ -3,12 +3,14 @@ extends Control
 signal command_requested(command: BattleCommand)
 signal selection_changed(card_instance_id: StringName, target_id: StringName)
 signal battle_finished(snapshot: BattleSnapshot)
+signal exit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const BattleCommandScript := preload("res://src/core/battle_command.gd")
 const BattleCommandResultScript := preload("res://src/core/battle_command_result.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
+const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 
 const PHASE_NAMES := {
 	"round_start": "回合开始",
@@ -57,6 +59,7 @@ var _selection_target_id: StringName = &""
 var _last_playability: BattlePlayability
 var _playability_handler: Callable
 var _card_labels: Dictionary = {}
+var _card_details: Dictionary = {}
 var _enemy_labels: Dictionary = {}
 var _encounter_title := "首场战斗"
 var _events: Array[String] = []
@@ -81,6 +84,10 @@ var _end_turn_button: Button
 var _selection_label: Label
 var _selection_action_button: Button
 var _meter_value_labels: Dictionary = {}
+var _effects_layer: Control
+var _exit_button: Button
+var _exit_confirmation: ConfirmationDialog
+var _visual_effect_count := 0
 
 
 func _ready() -> void:
@@ -93,10 +100,12 @@ func configure(
 	encounter_title: String,
 	card_labels: Dictionary,
 	enemy_labels: Dictionary,
-	query_playability_handler: Callable
+	query_playability_handler: Callable,
+	card_details: Dictionary = {}
 ) -> void:
 	_encounter_title = encounter_title if not encounter_title.is_empty() else "首场战斗"
 	_card_labels = card_labels.duplicate(true)
+	_card_details = card_details.duplicate(true)
 	_enemy_labels = enemy_labels.duplicate(true)
 	_playability_handler = query_playability_handler
 	if is_instance_valid(_encounter_label):
@@ -138,6 +147,7 @@ func apply_command_result(result: BattleCommandResult) -> void:
 		_selection_target_id = &""
 	for event in result.events:
 		_append_event(_format_event(event))
+		_play_event_feedback(event)
 	if result.snapshot != null:
 		apply_snapshot(result.snapshot)
 		var outcome := String(result.snapshot.data.get("outcome", ""))
@@ -191,7 +201,26 @@ func get_enemy_art_path(definition_id: StringName) -> String:
 
 
 func get_card_art_path(definition_id: StringName) -> String:
-	return String(CARD_ART_BY_DEFINITION.get(definition_id, ""))
+	var direct := String(CARD_ART_BY_DEFINITION.get(definition_id, ""))
+	return direct if not direct.is_empty() else ProgressionCatalog.card_art(String(definition_id))
+
+
+func get_card_effect_text(definition_id: StringName) -> String:
+	var details_value: Variant = _card_details.get(String(definition_id), {})
+	if details_value is Dictionary:
+		return String(details_value.get("effect_text", ""))
+	return ""
+
+
+func get_visual_effect_count() -> int:
+	return _visual_effect_count
+
+
+func is_exit_confirmation_visible() -> bool:
+	return (
+		is_instance_valid(_exit_confirmation)
+		and _exit_confirmation.visible
+	)
 
 
 func get_status_icon_path(icon_id: String) -> String:
@@ -268,6 +297,12 @@ func end_turn() -> void:
 
 func _build() -> void:
 	UiTheme.add_background(self, BATTLE_BACKGROUND, UiTheme.C_BG, 0.58)
+	_effects_layer = Control.new()
+	_effects_layer.name = "EffectsLayer"
+	_effects_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_effects_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_effects_layer.z_index = 50
+	add_child(_effects_layer)
 
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -302,7 +337,7 @@ func _build() -> void:
 	_build_side_panel(side)
 
 	var hand := UiTheme.panel(UiTheme.C_SURFACE, UiTheme.C_GOLD)
-	hand.custom_minimum_size = Vector2(0, 252)
+	hand.custom_minimum_size = Vector2(0, 292)
 	root.add_child(hand)
 	_build_hand_panel(hand)
 
@@ -342,6 +377,8 @@ func _build_header() -> Control:
 	row.add_child(pressure_group)
 	_end_turn_button = UiTheme.button("结束回合", end_turn, false, 126)
 	row.add_child(_end_turn_button)
+	_exit_button = UiTheme.button("退出战斗", _request_exit, true, 112)
+	row.add_child(_exit_button)
 	return row
 
 
@@ -510,7 +547,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 	var panel := UiTheme.panel(Color("#201e18"), border)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.custom_minimum_size = Vector2(0, 410)
+	panel.custom_minimum_size = Vector2(0, 350)
 
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 7)
@@ -524,7 +561,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			var art := TextureRect.new()
 			art.name = "EnemyArt"
 			art.texture = load(art_path) as Texture2D
-			art.custom_minimum_size = Vector2(0, 205)
+			art.custom_minimum_size = Vector2(0, 170)
 			art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -532,7 +569,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			column.add_child(art)
 		else:
 			var unknown := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
-			unknown.custom_minimum_size = Vector2(0, 205)
+			unknown.custom_minimum_size = Vector2(0, 170)
 			unknown.add_child(UiTheme.center_label("未知存在", 16, UiTheme.C_MUTED))
 			column.add_child(unknown)
 		column.add_child(UiTheme.center_label(
@@ -540,6 +577,8 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			17,
 			UiTheme.C_TEXT if alive else UiTheme.C_MUTED
 		))
+		panel.set_meta("battle_actor_id", String(enemy.get("actor_id", "")))
+		panel.set_meta("battle_alive", alive)
 		column.add_child(UiTheme.center_label(
 			"生命 %d / %d%s" % [
 				int(enemy.get("hp", 0)),
@@ -592,7 +631,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 		Color("#272318") if selected else Color("#1b1a15"),
 		border
 	)
-	panel.custom_minimum_size = Vector2(242, 206)
+	panel.custom_minimum_size = Vector2(242, 244)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var column := VBoxContainer.new()
@@ -649,6 +688,17 @@ func _build_hand_card(card: Dictionary) -> Control:
 		13,
 		UiTheme.C_MUTED
 	))
+	var effect_text := get_card_effect_text(
+		StringName(card.get("definition_id", ""))
+	)
+	if not effect_text.is_empty():
+		var effect_label := UiTheme.wrapped_label(
+			effect_text,
+			12,
+			UiTheme.C_PAPER
+		)
+		effect_label.custom_minimum_size = Vector2(0, 34)
+		column.add_child(effect_label)
 	panel.tooltip_text = "实例 ID：%s" % String(instance_id)
 
 	var spacer := Control.new()
@@ -722,6 +772,40 @@ func _refresh_controls() -> void:
 			child,
 			_pending or _selection_card_id.is_empty()
 		)
+	_refresh_target_highlights()
+
+
+func _refresh_target_highlights() -> void:
+	if _snapshot == null or not is_instance_valid(_lanes_row):
+		return
+	var enemy_target := false
+	if not _selection_card_id.is_empty():
+		var selected := _find_hand_card(_selection_card_id)
+		enemy_target = String(selected.get("target_type", "")) == "enemy"
+	for lane in _lanes_row.get_children():
+		if not lane is PanelContainer:
+			continue
+		var panel := lane as PanelContainer
+		var alive := bool(panel.get_meta("battle_alive", false))
+		var highlighted := enemy_target and alive and not _pending
+		var border := (
+			UiTheme.C_GOLD
+			if highlighted
+			else (UiTheme.C_DANGER if alive else UiTheme.C_LINE)
+		)
+		panel.add_theme_stylebox_override(
+			"panel",
+			UiTheme.style_box(
+				Color("#262116") if highlighted else Color("#201e18"),
+				border,
+				2 if highlighted else 1,
+				8
+			)
+		)
+		var target_button := _find_named_button(panel, "TargetButton")
+		if target_button != null:
+			target_button.disabled = not highlighted
+			target_button.text = "选择目标" if highlighted else "选择此目标"
 
 
 func _set_buttons_disabled(control: Node, disabled: bool) -> void:
@@ -729,6 +813,16 @@ func _set_buttons_disabled(control: Node, disabled: bool) -> void:
 		(control as BaseButton).disabled = disabled
 	for child in control.get_children():
 		_set_buttons_disabled(child, disabled)
+
+
+func _find_named_button(root: Node, button_name: String) -> Button:
+	if root is Button and root.name == button_name:
+		return root as Button
+	for child in root.get_children():
+		var found := _find_named_button(child, button_name)
+		if found != null:
+			return found
+	return null
 
 
 func _find_hand_card(card_instance_id: StringName) -> Dictionary:
@@ -755,11 +849,20 @@ func _enemy_name_by_actor(actor_id: StringName) -> String:
 
 
 func _card_name(definition_id: StringName) -> String:
-	return String(_card_labels.get(definition_id, UiTheme.readable_id(String(definition_id))))
+	if _card_labels.has(definition_id):
+		return String(_card_labels[definition_id])
+	var details_value: Variant = _card_details.get(String(definition_id), {})
+	if details_value is Dictionary:
+		var display_name := String(details_value.get("name", ""))
+		if not display_name.is_empty():
+			return display_name
+	return "未知卡牌"
 
 
 func _enemy_name(definition_id: StringName) -> String:
-	return String(_enemy_labels.get(definition_id, UiTheme.readable_id(String(definition_id))))
+	if _enemy_labels.has(definition_id):
+		return String(_enemy_labels[definition_id])
+	return "未知存在"
 
 
 func _reason_text(reason_code: StringName) -> String:
@@ -776,7 +879,11 @@ func _format_event(event: BattleEvent) -> String:
 		"CardPlayed":
 			return "打出 %s → %s。" % [
 				_card_name(StringName(data.get("definition_id", ""))),
-				String(data.get("target_id", "无目标")),
+				(
+					_enemy_name_by_actor(StringName(data.get("target_id", "")))
+					if not String(data.get("target_id", "")).is_empty()
+					else "无目标"
+				),
 			]
 		"CardDrawn":
 			return "抽取 %s。" % _card_name(StringName(data.get("definition_id", "")))
@@ -806,7 +913,9 @@ func _format_event(event: BattleEvent) -> String:
 				int(data.get("after", 0)),
 			]
 		"BattleEnded":
-			return "战斗结束：%s。" % String(data.get("outcome", ""))
+			return "战斗结束：%s。" % (
+				"胜利" if String(data.get("outcome", "")) == "victory" else "失败"
+			)
 		_:
 			return "灵性痕迹一闪而过。"
 
@@ -885,6 +994,138 @@ func _pad(content: Control, margin: int) -> MarginContainer:
 
 func _on_lane_pressed(enemy_id: StringName) -> void:
 	select_target(enemy_id)
+
+
+func _request_exit() -> void:
+	if not is_instance_valid(_exit_confirmation):
+		_exit_confirmation = ConfirmationDialog.new()
+		_exit_confirmation.title = "退出当前战斗？"
+		_exit_confirmation.dialog_text = (
+			"战斗中途不会保存。确认后将返回标题，并从最近检查点继续。"
+		)
+		_exit_confirmation.ok_button_text = "退出战斗"
+		_exit_confirmation.cancel_button_text = "继续战斗"
+		_exit_confirmation.confirmed.connect(func() -> void:
+			exit_requested.emit()
+		)
+		add_child(_exit_confirmation)
+	_exit_confirmation.popup_centered()
+
+
+func _play_event_feedback(event: BattleEvent) -> void:
+	var data := event.data
+	match String(event.type):
+		"CardPlayed":
+			_play_card_cast(
+				StringName(data.get("definition_id", "")),
+				StringName(data.get("target_id", ""))
+			)
+		"DamageApplied":
+			var target_id := StringName(data.get("target_id", ""))
+			var amount := int(data.get("amount", 0))
+			var anchor := _actor_anchor(target_id)
+			if anchor != null and amount > 0:
+				_show_floating_text(anchor, "-%d" % amount, UiTheme.C_DANGER_TEXT)
+				_pulse_control(anchor, Color(1.15, 0.72, 0.68, 1))
+		"Healed":
+			var target_id := StringName(data.get("target_id", ""))
+			var amount := int(data.get("amount", 0))
+			var anchor := _actor_anchor(target_id)
+			if anchor != null and amount > 0:
+				_show_floating_text(anchor, "+%d" % amount, UiTheme.C_GOLD)
+				_pulse_control(anchor, Color(1.1, 1.08, 0.82, 1))
+		"BlockChanged":
+			var before := int(data.get("before", 0))
+			var after := int(data.get("after", 0))
+			if after > before:
+				var anchor := _actor_anchor(StringName(data.get("target_id", "")))
+				if anchor != null:
+					_show_floating_text(
+						anchor,
+						"护盾 +%d" % (after - before),
+						UiTheme.C_GOLD
+					)
+		"StatusChanged":
+			var anchor := _actor_anchor(StringName(data.get("target_id", "")))
+			if anchor != null:
+				_show_floating_text(
+					anchor,
+					"状态：%s" % String(data.get("status_id", "")),
+					UiTheme.C_PAPER
+				)
+		"RiskChanged":
+			_show_floating_text(
+				_health_meter,
+				"污染 %+d" % (
+					int(data.get("after", 0)) - int(data.get("before", 0))
+				),
+				UiTheme.C_DANGER_TEXT
+			)
+
+
+func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:
+	if not is_instance_valid(_effects_layer):
+		return
+	var target := _actor_anchor(target_id)
+	if target == null:
+		target = _health_meter
+	var start := Vector2(
+		_effects_layer.size.x * 0.24,
+		_effects_layer.size.y * 0.78
+	)
+	var end := target.get_global_rect().get_center() - _effects_layer.global_position
+	var card_visual := TextureRect.new()
+	card_visual.texture = load(get_card_art_path(definition_id)) as Texture2D
+	card_visual.custom_minimum_size = Vector2(130, 92)
+	card_visual.size = Vector2(130, 92)
+	card_visual.position = start
+	card_visual.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	card_visual.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	card_visual.modulate = Color(1, 1, 1, 0.95)
+	_effects_layer.add_child(card_visual)
+	_visual_effect_count += 1
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(card_visual, "position", end, 0.25)
+	tween.tween_property(card_visual, "scale", Vector2(0.35, 0.35), 0.25)
+	tween.tween_property(card_visual, "rotation", 0.22, 0.25)
+	tween.chain().tween_property(card_visual, "modulate:a", 0.0, 0.18)
+	tween.chain().tween_callback(card_visual.queue_free)
+
+
+func _show_floating_text(anchor: Control, text_value: String, color: Color) -> void:
+	if not is_instance_valid(_effects_layer) or not is_instance_valid(anchor):
+		return
+	var label := UiTheme.label(text_value, 26, color)
+	label.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.02, 1))
+	label.add_theme_constant_override("outline_size", 5)
+	label.size = Vector2(180, 44)
+	var center := anchor.get_global_rect().get_center() - _effects_layer.global_position
+	label.position = center - Vector2(90, 18)
+	_effects_layer.add_child(label)
+	_visual_effect_count += 1
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position", label.position + Vector2(0, -58), 0.7)
+	tween.tween_property(label, "modulate:a", 0.0, 0.7)
+	tween.chain().tween_callback(label.queue_free)
+
+
+func _pulse_control(control: Control, color: Color) -> void:
+	if not is_instance_valid(control):
+		return
+	var tween := create_tween()
+	tween.tween_property(control, "modulate", color, 0.08)
+	tween.tween_property(control, "modulate", Color.WHITE, 0.18)
+
+
+func _actor_anchor(actor_id: StringName) -> Control:
+	if actor_id.is_empty() or actor_id == &"player":
+		return _health_meter
+	for child in _lanes_row.get_children():
+		if String(child.get_meta("battle_actor_id", "")) == String(actor_id):
+			return child as Control
+	return null
 
 
 func _on_battle_finished(snapshot: BattleSnapshot) -> void:

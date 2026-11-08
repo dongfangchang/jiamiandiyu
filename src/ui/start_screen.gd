@@ -6,6 +6,7 @@ signal challenge_requested
 signal preferences_changed(preferences: Dictionary)
 signal restore_backup_requested
 signal feedback_submitted(feedback: Dictionary)
+signal test_game_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
@@ -20,6 +21,7 @@ var _challenge_button: Button
 var _challenge_hint: Label
 var _settings_button: Button
 var _restore_backup_button: Button
+var _test_game_button: Button
 var _preferences_status: Label
 var _preferences: Dictionary = {}
 var _preferences_initialized := false
@@ -139,6 +141,8 @@ func set_busy(busy: bool) -> void:
 		_new_game_button.disabled = _busy
 	if is_instance_valid(_challenge_button):
 		_challenge_button.disabled = _busy or not _challenge_available
+	if is_instance_valid(_test_game_button):
+		_test_game_button.disabled = _busy
 
 
 func is_continue_enabled() -> bool:
@@ -293,6 +297,14 @@ func _build_panel_content() -> VBoxContainer:
 	)
 	_restore_backup_button.disabled = true
 	system_row.add_child(_restore_backup_button)
+	_test_game_button = UiTheme.button(
+		"测试档案",
+		_on_test_game,
+		true,
+		128
+	)
+	_test_game_button.tooltip_text = "解锁全部卡牌、资源和挑战，用于发布前测试"
+	system_row.add_child(_test_game_button)
 	_preferences_status = UiTheme.label("", 12, UiTheme.C_MUTED)
 	content.add_child(_preferences_status)
 
@@ -356,6 +368,13 @@ func _on_restore_backup() -> void:
 	if _busy or not _backup_available:
 		return
 	restore_backup_requested.emit()
+
+
+func _on_test_game() -> void:
+	if _busy:
+		return
+	set_busy(true)
+	test_game_requested.emit()
 
 
 func show_backup_restore_result(success: bool, message: String) -> void:

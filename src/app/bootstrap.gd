@@ -737,6 +737,18 @@ static func start_route_v07(
 			var saved_deck_state: Variant = saved_deck.get("state", {})
 			if saved_deck_state is Dictionary:
 				deck_state = saved_deck_state.duplicate(true)
+	if (
+		not resume_from_checkpoint
+		and bool(paths.get("test_profile", false))
+	):
+		progression_state = _build_test_progression_state(deck_content)
+	if not resume_from_checkpoint:
+		var explicit_progression: Variant = paths.get("progression_state", {})
+		if explicit_progression is Dictionary and not explicit_progression.is_empty():
+			progression_state = explicit_progression.duplicate(true)
+		var explicit_deck: Variant = paths.get("deck_state", {})
+		if explicit_deck is Dictionary and not explicit_deck.is_empty():
+			deck_state = explicit_deck.duplicate(true)
 
 	var services := create_services(selected_seed)
 	services.saves = save_service
@@ -1178,6 +1190,27 @@ static func start_challenge_v07(
 
 static func checkpoint_summary(envelope: Dictionary) -> Dictionary:
 	return _checkpoint_summary(envelope)
+
+
+static func _build_test_progression_state(deck_content) -> Dictionary:
+	var collection: Dictionary = {}
+	for definition_id in deck_content.get_card_catalog_ids():
+		collection[String(definition_id)] = {
+			"copies": 1,
+			"level": 0,
+			"fragments": 99,
+		}
+	return {
+		"phase": "hub",
+		"identity_id": "identity.doctor",
+		"divination_tickets": 99,
+		"collection": collection,
+		"pity_counter": 0,
+		"reward_option_ids": [],
+		"last_battle_outcome": "",
+		"last_gacha_results": [],
+		"revision": 1,
+	}
 
 
 static func load_player_preferences(

@@ -445,17 +445,20 @@ func _capture_battle() -> void:
 		"廷根旧宅 · 失约的房客",
 		{
 			&"card.skill.ink_dart": "墨刺",
+			&"card.skill.coffin_nail": "棺钉",
 			&"card.skill.paper_guard": "纸符护持",
-			&"card.skill.insight": "洞察",
+			&"card.skill.warding_circle": "守夜圆环",
 		},
 		{
 			&"enemy.weeping_tenant": "哭泣的房客",
 			&"enemy.candle_moth": "烛焰飞蛾",
 			&"enemy.mirror_hound": "镜中猎犬",
 		},
-		Callable()
+		Callable(),
+		_battle_card_details()
 	)
 	screen.apply_snapshot(_battle_snapshot())
+	screen.select_card_instance(StringName("player.action.017"))
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("battle_screen.png")
@@ -472,11 +475,13 @@ func _capture_boss_battle() -> void:
 			&"card.skill.ink_dart": "墨刺",
 			&"card.skill.paper_guard": "纸符护持",
 			&"card.skill.omen": "凶兆",
+			&"card.skill.coffin_nail": "棺钉",
 		},
 		{
 			&"enemy.mirror_baron": "镜厅男爵",
 		},
-		Callable()
+		Callable(),
+		_battle_card_details()
 	)
 	var snapshot := _battle_snapshot()
 	snapshot.data["round_number"] = 6
@@ -567,6 +572,24 @@ func _card_names() -> Dictionary:
 		"card.skill.omen": "凶兆",
 		"card.skill.whisper": "低语",
 		"card.skill.second_look": "再看一眼",
+		"card.skill.warding_circle": "守夜圆环",
+		"card.skill.lantern_step": "提灯步",
+		"card.skill.whispered_hunch": "低语预感",
+		"card.skill.mirrored_memory": "镜中记忆",
+		"card.skill.fated_echo": "命运回声",
+		"card.skill.piercing_omen": "穿刺凶兆",
+		"card.skill.coffin_nail": "棺钉",
+		"card.skill.second_sight": "第二视觉",
+	}
+
+
+func _battle_card_details() -> Dictionary:
+	return {
+		"card.skill.ink_dart": {"name": "墨刺", "effect_text": "造成 4 点伤害"},
+		"card.skill.coffin_nail": {"name": "棺钉", "effect_text": "造成 6 伤害；施加 2 层标记"},
+		"card.skill.paper_guard": {"name": "纸符护持", "effect_text": "获得 5 点护盾"},
+		"card.skill.warding_circle": {"name": "守夜圆环", "effect_text": "获得 6 点护盾"},
+		"card.skill.omen": {"name": "凶兆", "effect_text": "施加 2 层标记"},
 	}
 
 
@@ -594,9 +617,9 @@ func _battle_snapshot() -> BattleSnapshot:
 		"hand": [
 			{
 				"instance_id": "player.action.017",
-				"definition_id": "card.skill.ink_dart",
+				"definition_id": "card.skill.coffin_nail",
 				"category": "skill",
-				"cost_spirit": 1,
+				"cost_spirit": 2,
 				"target_type": "enemy",
 			},
 			{
@@ -608,10 +631,10 @@ func _battle_snapshot() -> BattleSnapshot:
 			},
 			{
 				"instance_id": "player.insight.005",
-				"definition_id": "card.skill.insight",
+				"definition_id": "card.skill.warding_circle",
 				"category": "skill",
-				"cost_spirit": 0,
-				"target_type": "none",
+				"cost_spirit": 1,
+				"target_type": "self",
 			},
 		],
 		"draw_pile_count": 5,

@@ -153,7 +153,7 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label("CASE ROUTE // SEER 9", 12, UiTheme.C_GOLD))
+	heading.add_child(UiTheme.label("调查路线 · 占卜家序列 9", 12, UiTheme.C_GOLD))
 	_route_label = UiTheme.label("廷根旧宅调查", 35, UiTheme.C_TEXT)
 	heading.add_child(_route_label)
 	heading.add_child(UiTheme.label(

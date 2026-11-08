@@ -190,7 +190,7 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label("RITE OF THE TAMPERED OBITUARY", 12, UiTheme.C_GOLD))
+	heading.add_child(UiTheme.label("被篡改的讣告", 12, UiTheme.C_GOLD))
 	heading.add_child(UiTheme.label("被篡改的讣告", 35, UiTheme.C_TEXT))
 	heading.add_child(UiTheme.label(
 		"只依据界面中的证物与线索完成三步仪式。",

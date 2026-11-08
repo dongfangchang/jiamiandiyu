@@ -261,7 +261,7 @@ func _build_header() -> HBoxContainer:
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
 	heading.add_child(UiTheme.label(
-		"RELIC ARCHIVE // LOADOUT",
+		"封印物档案 · 出战牌组",
 		12,
 		UiTheme.C_GOLD
 	))

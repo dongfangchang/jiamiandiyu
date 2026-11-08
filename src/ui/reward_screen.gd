@@ -119,7 +119,7 @@ func _build() -> void:
 	var heading := VBoxContainer.new()
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(heading)
-	heading.add_child(UiTheme.label("POST-BATTLE ARCHIVE // SPOILS", 12, UiTheme.C_GOLD))
+	heading.add_child(UiTheme.label("战后档案 · 战利品", 12, UiTheme.C_GOLD))
 	heading.add_child(UiTheme.label("挑选战利品", 36, UiTheme.C_TEXT))
 	heading.add_child(UiTheme.label(
 		"胜利留下两页互相矛盾的记录。只有一份能被带回去。",

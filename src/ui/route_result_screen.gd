@@ -1,6 +1,7 @@
 extends Control
 
 signal hub_requested
+signal retry_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
@@ -13,6 +14,7 @@ var _detail_label: Label
 var _save_label: Label
 var _result_icon: TextureRect
 var _hub_button: Button
+var _retry_button: Button
 
 
 func _ready() -> void:
@@ -73,7 +75,7 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pad.add_child(column)
-	column.add_child(UiTheme.label("ROUTE ARCHIVE // VERDICT", 12, UiTheme.C_GOLD))
+	column.add_child(UiTheme.label("路线档案 · 结论", 12, UiTheme.C_GOLD))
 
 	var hero := HBoxContainer.new()
 	hero.add_theme_constant_override("separation", 26)
@@ -110,13 +112,15 @@ func _build() -> void:
 	var footer := HBoxContainer.new()
 	footer.alignment = BoxContainer.ALIGNMENT_END
 	column.add_child(footer)
+	_retry_button = UiTheme.button("重新探索", _on_retry, false, 160)
+	footer.add_child(_retry_button)
 	_hub_button = UiTheme.button("返回白昼档案", _on_hub, true, 180)
 	footer.add_child(_hub_button)
 
 
 func _render_result() -> void:
 	var completed := get_route_outcome() == "completed"
-	_title_label.text = "晋升完成" if completed else "路线中断"
+	_title_label.text = "晋升完成" if completed else "探索失败"
 	_title_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_GOLD if completed else UiTheme.C_DANGER_TEXT
@@ -130,6 +134,7 @@ func _render_result() -> void:
 	var nodes: Array = _snapshot_data.get("nodes", [])
 	var sequence: Dictionary = _snapshot_data.get("sequence", {})
 	var run_state: Dictionary = _snapshot_data.get("run_state", {})
+	var end_reason := String(_snapshot_data.get("end_reason", ""))
 	var sequence_text := "占卜家 · 序列 %d" % int(
 		sequence.get("current_sequence", 9)
 	)
@@ -139,12 +144,14 @@ func _render_result() -> void:
 		)
 	_detail_label.text = (
 		"路线：%s\n已完成节点：%d / %d\n序列：%s\n"
+		+ "结束原因：%s\n"
 		+ "剩余生命：%d / %d  ·  污染：%d / %d  ·  被注视：%d / %d"
 	) % [
 		String(_snapshot_data.get("display_name_zh", "未知路线")),
 		completed_nodes.size(),
 		nodes.size(),
 		sequence_text,
+		_end_reason_text(end_reason),
 		int(run_state.get("hp", 0)),
 		int(run_state.get("max_hp", 0)),
 		int(run_state.get("corruption", 0)),
@@ -158,10 +165,12 @@ func _render_result() -> void:
 		)
 	else:
 		_detail_label.text += (
-			"\n\n路线没有完成晋升。已确认的局外奖励不会丢失。"
+			"\n\n本次探索已结束。收藏、卡牌等级、预设和已确认奖励不会丢失；"
+			+ "回到白昼档案后可调整牌组或重新挑战。"
 		)
 	_update_save_label()
 	_hub_button.disabled = false
+	_retry_button.disabled = completed
 
 
 func _update_save_label() -> void:
@@ -180,13 +189,36 @@ func _update_save_label() -> void:
 			_save_label.add_theme_color_override("font_color", UiTheme.C_MUTED)
 
 
+func _end_reason_text(reason: String) -> String:
+	match reason:
+		"battle_defeat":
+			return "战斗中生命降至 0"
+		"corruption_limit":
+			return "污染达到上限，探索被迫结束"
+		"ritual_error", "ritual_corruption_limit":
+			return "晋升仪式失败"
+		"ascension_completed":
+			return "三步晋升仪式完成"
+		"route_node_missing":
+			return "路线节点数据异常"
+		"":
+			return "规则层未提供原因"
+		_:
+			return reason
+
+
 func _show_empty() -> void:
 	_title_label.text = "等待路线结算"
 	_detail_label.text = "调查尚未结束。"
 	_save_label.text = ""
 	_result_icon.texture = null
 	_hub_button.disabled = true
+	_retry_button.disabled = true
 
 
 func _on_hub() -> void:
 	hub_requested.emit()
+
+
+func _on_retry() -> void:
+	retry_requested.emit()

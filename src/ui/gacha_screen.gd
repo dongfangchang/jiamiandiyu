@@ -20,6 +20,7 @@ var _triple_button: Button
 var _back_button: Button
 var _busy := false
 var _result_count := 0
+var _pending_token := 0
 
 
 func _ready() -> void:
@@ -36,6 +37,7 @@ func configure(card_names: Dictionary = {}) -> void:
 func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
 	_busy = false
+	_pending_token += 1
 	_update_resources()
 	_render_results(_snapshot_data.get("last_gacha_results", []))
 	_set_status("祈愿结果由灵界规则结算，界面只呈现回响。")
@@ -43,6 +45,7 @@ func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
 
 func apply_command_result(result: ProgressionCommandResult) -> void:
 	_busy = false
+	_pending_token += 1
 	if result == null:
 		_set_status("未收到祈愿结果。", true)
 		_refresh_buttons()
@@ -72,9 +75,12 @@ func request_draw(pull_count: int) -> void:
 	if _busy:
 		return
 	_busy = true
+	_pending_token += 1
+	var token := _pending_token
 	_refresh_buttons()
 	_set_status("正在向灵界请求回响……")
 	draw_requested.emit(pull_count)
+	get_tree().create_timer(4.0).timeout.connect(_on_draw_timeout.bind(token))
 
 
 func is_pending() -> bool:
@@ -121,7 +127,7 @@ func _build() -> void:
 	var title := VBoxContainer.new()
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
-	title.add_child(UiTheme.label("SPIRIT WORLD // DIVINATION", 12, UiTheme.C_GOLD))
+	title.add_child(UiTheme.label("灵界档案 · 占卜", 12, UiTheme.C_GOLD))
 	title.add_child(UiTheme.label("灵界祈愿", 36, UiTheme.C_TEXT))
 	title.add_child(UiTheme.label(
 		"抽取封印中的回响。重复的回响会化为残页。",
@@ -196,7 +202,7 @@ func _render_results(results_value: Variant) -> void:
 	if not is_instance_valid(_result_row):
 		return
 	for child in _result_row.get_children():
-		child.queue_free()
+		child.free()
 	_result_count = 0
 	var results: Array = results_value if results_value is Array else []
 	if results.is_empty():
@@ -285,14 +291,22 @@ func _update_resources() -> void:
 
 func _refresh_buttons() -> void:
 	if is_instance_valid(_back_button):
-		_back_button.disabled = _busy
+		_back_button.disabled = false
 	_update_resources()
 
 
 func _on_back() -> void:
-	if _busy:
-		return
+	_busy = false
+	_pending_token += 1
 	back_requested.emit()
+
+
+func _on_draw_timeout(token: int) -> void:
+	if token != _pending_token or not _busy:
+		return
+	_busy = false
+	_set_status("祈愿结算超时，已解除等待。可以返回或重试。", true)
+	_refresh_buttons()
 
 
 func _set_status(message: String, danger: bool = false) -> void:

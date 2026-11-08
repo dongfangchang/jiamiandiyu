@@ -119,6 +119,17 @@ v0.7.0 当前所有权：
 - 所有角色在 `docs/reports/v0.7.0/<role>.md` 记录本版本工作。
 - UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
 
+v0.9.1 当前所有权：
+
+- 自 2026-11-08 起，`product_manager_v2` 接替旧产品经理负责当前及后续版本；历史文档不删除。
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- 测试角色入口及显示映射由应用/数据层负责，玩法只提供只读语义。
+- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者；不得同时修改同一文件。
+- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：新产品经理。
+- `tests/integration/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.9.1/<role>.md` 记录本版本工作。
+
 ## 5. 协作与同步
 
 - 所有智能体共享同一文件系统，禁止同时编辑同一文件。

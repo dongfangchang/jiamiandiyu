@@ -108,7 +108,7 @@ func _build() -> void:
 	var title := VBoxContainer.new()
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
-	title.add_child(UiTheme.label("RELIC ARCHIVE // REINFORCEMENT", 12, UiTheme.C_GOLD))
+	title.add_child(UiTheme.label("封印物档案 · 强化", 12, UiTheme.C_GOLD))
 	title.add_child(UiTheme.label("卡牌升级", 36, UiTheme.C_TEXT))
 	title.add_child(UiTheme.label(
 		"用重复回响留下的残页加固卡牌。每张牌的下一次战斗都会读取新等级。",

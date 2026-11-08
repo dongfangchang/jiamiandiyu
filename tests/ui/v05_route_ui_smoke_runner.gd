@@ -301,7 +301,7 @@ func _test_route_result() -> void:
 		"route_outcome": "failed",
 		"completed_node_ids": ["route.v050.node.first_hunt"],
 	}), "backup")
-	_expect(screen.get_title_text() == "路线中断", "route result marks route failure")
+	_expect(screen.get_title_text() == "探索失败", "route result marks route failure")
 	_expect(screen.get_save_text().contains("备份"), "route result displays backup recovery")
 	screen.queue_free()
 	await get_tree().process_frame

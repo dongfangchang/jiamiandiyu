@@ -141,6 +141,7 @@ func get_snapshot() -> RouteSnapshot:
 		"run_state": _state.get("run_state", {}).duplicate(true),
 		"rest_options": _available_rest_options(),
 		"route_outcome": String(_state.get("route_outcome", "")),
+		"end_reason": String(_state.get("end_reason", "")),
 		"sequence": get_sequence_state().to_dictionary(),
 		"ritual": get_ritual_snapshot().to_dictionary(),
 		"can_begin_ascension": _can_begin_ascension(),
@@ -289,11 +290,13 @@ func _resolve_node(
 	if outcome == OUTCOME_DEFEAT:
 		_state["phase"] = String(PHASE_FAILED)
 		_state["route_outcome"] = String(ROUTE_OUTCOME_FAILED)
+		_state["end_reason"] = "battle_defeat"
 		_emit(&"RouteFailed", {"reason_code": "battle_defeat"})
 		return _success()
 	if _corruption_limit_reached():
 		_state["phase"] = String(PHASE_FAILED)
 		_state["route_outcome"] = String(ROUTE_OUTCOME_FAILED)
+		_state["end_reason"] = "corruption_limit"
 		_emit(&"RouteFailed", {"reason_code": "corruption_limit"})
 		return _success()
 	_complete_node(String(node_id))
@@ -484,6 +487,7 @@ func _complete_ritual() -> void:
 	_complete_node(node_id)
 	_state["phase"] = String(PHASE_COMPLETED)
 	_state["route_outcome"] = String(ROUTE_OUTCOME_COMPLETED)
+	_state["end_reason"] = "ascension_completed"
 	_emit(&"RitualCompleted", {"ritual_id": String(ritual_state["ritual_id"])})
 	_emit(&"SequenceAdvanced", {
 		"pathway_id": "seer",
@@ -501,6 +505,7 @@ func _fail_ritual(reason: StringName) -> void:
 	_state["ritual_state"] = ritual_state
 	_state["phase"] = String(PHASE_FAILED)
 	_state["route_outcome"] = String(ROUTE_OUTCOME_FAILED)
+	_state["end_reason"] = String(reason)
 	_emit(&"RitualFailed", {"reason_code": String(reason)})
 	_emit(&"RouteFailed", {"reason_code": String(reason)})
 
@@ -509,6 +514,7 @@ func _continue_after_node(node_id: String) -> void:
 	var node_index := _node_index(node_id)
 	if node_index < 0:
 		_state["phase"] = String(PHASE_FAILED)
+		_state["end_reason"] = "route_node_missing"
 		return
 	if node_index + 1 >= _nodes.size():
 		_state["phase"] = String(PHASE_COMPLETED)
@@ -814,6 +820,7 @@ func _new_state() -> Dictionary:
 		"ritual_state": {},
 		"sequence_state": "locked",
 		"route_outcome": "",
+		"end_reason": "",
 		"revision": 1,
 	}
 

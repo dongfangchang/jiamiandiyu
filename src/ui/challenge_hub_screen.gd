@@ -107,7 +107,7 @@ func _build() -> void:
 	root.add_theme_constant_override("separation", 18)
 	safe.add_child(root)
 	root.add_child(UiTheme.label(
-		"MIRROR ARCHIVE // CHALLENGES",
+		"镜厅档案 · 挑战",
 		12,
 		UiTheme.C_GOLD
 	))

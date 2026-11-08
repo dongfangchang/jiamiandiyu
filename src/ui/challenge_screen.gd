@@ -192,7 +192,7 @@ func _build() -> void:
 	heading.add_theme_constant_override("separation", 3)
 	header.add_child(heading)
 	_eyebrow_label = UiTheme.label(
-		"MIRROR ECHOES // REPEATABLE CHALLENGE",
+		"镜厅余响 · 可重复挑战",
 		12,
 		UiTheme.C_GOLD
 	)
@@ -293,9 +293,9 @@ func _render() -> void:
 		ChallengeCatalog.challenge_name(challenge_id)
 	))
 	if challenge_id == "challenge.v070.broken_procession":
-		_eyebrow_label.text = "BROKEN PROCESSION // SECOND CHALLENGE"
+		_eyebrow_label.text = "破碎游行 · 第二挑战"
 	else:
-		_eyebrow_label.text = "MIRROR ECHOES // REPEATABLE CHALLENGE"
+		_eyebrow_label.text = "镜厅余响 · 可重复挑战"
 	_heading_label.text = challenge_name
 	_description_label.text = String(_snapshot_data.get(
 		"description_zh",

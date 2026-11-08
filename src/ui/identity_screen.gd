@@ -134,7 +134,7 @@ func _build() -> void:
 	title_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_column.add_theme_constant_override("separation", 3)
 	header.add_child(title_column)
-	title_column.add_child(UiTheme.label("DAYLIGHT ARCHIVE // PERSONA", 12, UiTheme.C_GOLD))
+	title_column.add_child(UiTheme.label("白昼档案 · 人格", 12, UiTheme.C_GOLD))
 	title_column.add_child(UiTheme.label("白昼身份", 34, UiTheme.C_TEXT))
 	title_column.add_child(UiTheme.label(
 		"选择一种被人相信的生活，让夜晚的力量拥有代价。",
