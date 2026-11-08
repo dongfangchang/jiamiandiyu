@@ -358,7 +358,7 @@ func _build_preset(preset: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(338, 78)
+	panel.custom_minimum_size = Vector2(338, 96)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 12)
@@ -378,8 +378,14 @@ func _build_preset(preset: Dictionary) -> Control:
 		16,
 		UiTheme.C_GOLD if selected else UiTheme.C_TEXT
 	))
+	var guidance: Dictionary = DeckCatalog.preset_guidance(preset_id)
+	text.add_child(UiTheme.label(
+		String(guidance.get("tag", "")),
+		12,
+		UiTheme.C_GOLD if selected else UiTheme.C_PAPER
+	))
 	text.add_child(UiTheme.wrapped_label(
-		String(preset.get("description_zh", "")),
+		String(guidance.get("when", preset.get("description_zh", ""))),
 		11,
 		UiTheme.C_MUTED
 	))

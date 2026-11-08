@@ -28,6 +28,25 @@ const PRESET_NAMES := {
 	"deck.preset.echo": "镜中余响",
 }
 
+const PRESET_GUIDANCE := {
+	"deck.preset.ward": {
+		"tag": "稳守 / 续航",
+		"when": "适合先熟悉敌方压力，再用护盾和治疗稳住路线。",
+	},
+	"deck.preset.oracle": {
+		"tag": "抽牌 / 灵性",
+		"when": "适合想多看几张牌、寻找关键窗口的回合。",
+	},
+	"deck.preset.burst": {
+		"tag": "压制 / 爆发",
+		"when": "适合已经熟悉目标优先级，准备尽快结束首领阶段。",
+	},
+	"deck.preset.echo": {
+		"tag": "控制 / 回响",
+		"when": "适合先施加标记和控制，再用续航牌拉长优势。",
+	},
+}
+
 
 static func card_art(definition_id: String) -> String:
 	var suffix := definition_id.get_slice(".", definition_id.get_slice_count(".") - 1)
@@ -99,3 +118,10 @@ static func reason_text(reason_code: String) -> String:
 
 static func preset_name(preset_id: String) -> String:
 	return String(PRESET_NAMES.get(preset_id, preset_id))
+
+
+static func preset_guidance(preset_id: String) -> Dictionary:
+	return PRESET_GUIDANCE.get(preset_id, {
+		"tag": "自定义方向",
+		"when": "根据当前收藏和路线需要调整牌组。",
+	})
