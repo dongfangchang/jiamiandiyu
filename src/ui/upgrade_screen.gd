@@ -16,6 +16,7 @@ var _status_label: Label
 var _ticket_label: Label
 var _back_button: Button
 var _buttons_by_card: Dictionary = {}
+var _status_by_card: Dictionary = {}
 var _button_blocked: Dictionary = {}
 var _busy := false
 var _card_row_count := 0
@@ -89,6 +90,10 @@ func get_card_name(definition_id: String) -> String:
 	return String(_card_names.get(definition_id, UiTheme.readable_id(definition_id)))
 
 
+func get_card_status_text(definition_id: String) -> String:
+	return String(_status_by_card.get(definition_id, ""))
+
+
 func _build() -> void:
 	UiTheme.add_background(self, ProgressionCatalog.UPGRADE_BACKGROUND, UiTheme.C_BG, 0.5)
 	var safe := MarginContainer.new()
@@ -151,6 +156,7 @@ func _render_collection() -> void:
 	for child in _grid.get_children():
 		child.queue_free()
 	_buttons_by_card.clear()
+	_status_by_card.clear()
 	_button_blocked.clear()
 	_card_row_count = 0
 	_ticket_label.text = "占卜券 %d" % int(_snapshot_data.get("divination_tickets", 0))
@@ -222,10 +228,9 @@ func _build_card_row(card: Dictionary) -> Control:
 		UiTheme.C_GOLD if level > 0 else UiTheme.C_LINE
 	))
 	var owned := copies > 0
-	var status := "未收容" if not owned else (
-		"已满级" if level >= max_level else "残页 %d / %d" % [fragments, cost]
-	)
+	var status := _card_status(owned, level, max_level, fragments, cost)
 	info.add_child(UiTheme.label(status, 13, UiTheme.C_MUTED))
+	_status_by_card[definition_id] = status
 	var before_text := _preview_text(definition_id, level)
 	var after_text := _preview_text(definition_id, level + 1)
 	var preview := UiTheme.wrapped_label(
@@ -260,6 +265,19 @@ func _build_card_row(card: Dictionary) -> Control:
 	_buttons_by_card[definition_id] = upgrade_button
 	_button_blocked[definition_id] = base_disabled
 	return panel
+
+
+func _card_status(owned: bool, level: int, max_level: int, fragments: int, cost: int) -> String:
+	if not owned:
+		return "未收容 · 先通过祈愿获得该卡牌"
+	if level >= max_level:
+		return "已满级 · 当前效果已是最高等级"
+	if cost <= 0:
+		return "升级所需残页暂不可用 · 返回档案后重试"
+	var remaining := maxi(0, cost - fragments)
+	if remaining == 0:
+		return "残页 %d / %d · 可升级" % [fragments, cost]
+	return "残页 %d / %d · 还需 %d 页" % [fragments, cost, remaining]
 
 
 func _preview_text(definition_id: String, level: int) -> String:

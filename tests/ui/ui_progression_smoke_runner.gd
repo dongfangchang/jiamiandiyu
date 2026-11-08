@@ -206,6 +206,8 @@ func _test_upgrade() -> void:
 		"collection": collection,
 	}))
 	_expect(screen.get_card_row_count() == 2, "upgrade renders owned and insufficient cards")
+	_expect(screen.get_card_status_text("card.skill.ink_dart").contains("可升级"), "upgrade explains ready card action")
+	_expect(screen.get_card_status_text("card.skill.focus").contains("还需 6 页"), "upgrade explains missing fragment difference")
 	_expect(screen.get_background_path().ends_with("reward-archive.png"), "upgrade art background resolves")
 	screen.request_upgrade("card.skill.ink_dart")
 	_expect(screen.is_pending(), "upgrade command enters pending")
