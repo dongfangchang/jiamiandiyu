@@ -17,6 +17,8 @@ var _ticket_label: Label
 var _back_button: Button
 var _buttons_by_card: Dictionary = {}
 var _status_by_card: Dictionary = {}
+var _progress_by_card: Dictionary = {}
+var _next_step_by_card: Dictionary = {}
 var _button_blocked: Dictionary = {}
 var _busy := false
 var _card_row_count := 0
@@ -94,6 +96,14 @@ func get_card_status_text(definition_id: String) -> String:
 	return String(_status_by_card.get(definition_id, ""))
 
 
+func get_card_progress_text(definition_id: String) -> String:
+	return String(_progress_by_card.get(definition_id, ""))
+
+
+func get_card_next_step_text(definition_id: String) -> String:
+	return String(_next_step_by_card.get(definition_id, ""))
+
+
 func _build() -> void:
 	UiTheme.add_background(self, ProgressionCatalog.UPGRADE_BACKGROUND, UiTheme.C_BG, 0.5)
 	var safe := MarginContainer.new()
@@ -157,6 +167,8 @@ func _render_collection() -> void:
 		child.queue_free()
 	_buttons_by_card.clear()
 	_status_by_card.clear()
+	_progress_by_card.clear()
+	_next_step_by_card.clear()
 	_button_blocked.clear()
 	_card_row_count = 0
 	_ticket_label.text = "占卜券 %d" % int(_snapshot_data.get("divination_tickets", 0))
@@ -231,6 +243,22 @@ func _build_card_row(card: Dictionary) -> Control:
 	var status := _card_status(owned, level, max_level, fragments, cost)
 	info.add_child(UiTheme.label(status, 13, UiTheme.C_MUTED))
 	_status_by_card[definition_id] = status
+	var required_fragments := maxi(0, cost) if level < max_level else 0
+	var shortfall := maxi(0, required_fragments - fragments)
+	var progress_text := "残页：已有 %d · 需要 %d · 差额 %d" % [
+		fragments,
+		required_fragments,
+		shortfall,
+	]
+	var next_step_text := _next_step_text(owned, level, max_level, required_fragments, shortfall)
+	_progress_by_card[definition_id] = progress_text
+	_next_step_by_card[definition_id] = next_step_text
+	info.add_child(UiTheme.label(progress_text, 13, UiTheme.C_PAPER))
+	info.add_child(UiTheme.wrapped_label(
+		next_step_text,
+		13,
+		UiTheme.C_GOLD if owned and level < max_level and shortfall == 0 else UiTheme.C_MUTED
+	))
 	var before_text := _preview_text(definition_id, level)
 	var after_text := _preview_text(definition_id, level + 1)
 	var preview := UiTheme.wrapped_label(
@@ -278,6 +306,24 @@ func _card_status(owned: bool, level: int, max_level: int, fragments: int, cost:
 	if remaining == 0:
 		return "残页 %d / %d · 可升级" % [fragments, cost]
 	return "残页 %d / %d · 还需 %d 页" % [fragments, cost, remaining]
+
+
+func _next_step_text(
+	owned: bool,
+	level: int,
+	max_level: int,
+	required_fragments: int,
+	shortfall: int
+) -> String:
+	if not owned:
+		return "下一步：先通过祈愿或奖励收容这张卡。"
+	if level >= max_level:
+		return "下一步：已达当前等级上限，可投入其他卡牌。"
+	if required_fragments <= 0:
+		return "下一步：等待成长档案提供升级成本。"
+	if shortfall <= 0:
+		return "下一步：残页足够，可以升级。"
+	return "下一步：再收集 %d 张残页。" % shortfall
 
 
 func _preview_text(definition_id: String, level: int) -> String:

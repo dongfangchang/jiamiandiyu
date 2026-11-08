@@ -208,6 +208,21 @@ func _test_upgrade() -> void:
 	_expect(screen.get_card_row_count() == 2, "upgrade renders owned and insufficient cards")
 	_expect(screen.get_card_status_text("card.skill.ink_dart").contains("可升级"), "upgrade explains ready card action")
 	_expect(screen.get_card_status_text("card.skill.focus").contains("还需 6 页"), "upgrade explains missing fragment difference")
+	_expect(screen.get_card_progress_text("card.skill.ink_dart").contains("已有 8") and screen.get_card_progress_text("card.skill.ink_dart").contains("需要 6") and screen.get_card_progress_text("card.skill.ink_dart").contains("差额 0"), "upgrade shows owned required and shortfall fragments")
+	_expect(screen.get_card_next_step_text("card.skill.ink_dart").contains("可以升级"), "upgrade gives ready next step")
+	_expect(screen.get_card_next_step_text("card.skill.focus").contains("再收集 6"), "upgrade gives insufficient next step")
+	var edge_collection := [
+		{"definition_id": "card.skill.omen", "copies": 0, "level": 0, "fragments": 0, "max_level": 3, "next_upgrade_cost": 6},
+		{"definition_id": "card.skill.whisper", "copies": 1, "level": 3, "fragments": 12, "max_level": 3, "next_upgrade_cost": 0},
+	]
+	screen.apply_snapshot(_progression_snapshot({
+		"phase": "hub",
+		"identity_id": "identity.reporter",
+		"identity_options": _identity_options("identity.reporter"),
+		"collection": edge_collection,
+	}))
+	_expect(screen.get_card_next_step_text("card.skill.omen").contains("先通过祈愿或奖励"), "upgrade gives unowned next step")
+	_expect(screen.get_card_next_step_text("card.skill.whisper").contains("等级上限"), "upgrade gives max level next step")
 	_expect(screen.get_background_path().ends_with("reward-archive.png"), "upgrade art background resolves")
 	screen.request_upgrade("card.skill.ink_dart")
 	_expect(screen.is_pending(), "upgrade command enters pending")
