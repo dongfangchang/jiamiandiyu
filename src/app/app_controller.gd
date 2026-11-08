@@ -1390,7 +1390,10 @@ func _on_feedback_submitted(feedback: Dictionary) -> void:
 
 func _start_diagnostics() -> void:
 	_diagnostics = DiagnosticsServiceScript.new(_diagnostics_directory)
-	_diagnostics.start_session("v0.14.0", "development")
+	_diagnostics.start_session(
+		ProjectSettings.get_setting("application/config/version", "0.25.0"),
+		"development"
+	)
 
 
 func _record_diagnostic(event_type: String, details: Dictionary = {}) -> void:
