@@ -94,6 +94,16 @@ func _test_deck_screen() -> void:
 	screen.request_select_preset("deck.preset.oracle")
 	_expect(_captured_command == "select_preset", "preset selection emits command")
 	_expect(_captured_preset_id == "deck.preset.oracle", "preset selection emits stable id")
+	var loaded_preset := _deck_snapshot_variant("deck.preset.oracle", true, "playable")
+	screen.apply_command_result(DeckCommandResultScript.new(true, &"playable", [], loaded_preset))
+	_expect(screen.get_status_text().contains("已载入「灵性预感」"), "preset load confirms selected name")
+	_expect(screen.get_status_text().contains("可以确认出战"), "legal preset explains readiness")
+	var unavailable_preset := _deck_snapshot_variant("deck.preset.oracle", false, "card_not_owned")
+	screen.request_select_preset("deck.preset.oracle")
+	screen.apply_command_result(DeckCommandResultScript.new(true, &"card_not_owned", [], unavailable_preset))
+	_expect(screen.get_status_text().contains("暂不能确认出战"), "unavailable preset explains blocked readiness")
+	_expect(screen.get_status_text().contains("尚未收入收藏"), "unavailable preset exposes ownership reason")
+	screen.apply_snapshot(loaded_preset)
 	screen.set_pending(false)
 
 	_captured_command = ""
@@ -323,6 +333,18 @@ func _progression_snapshot() -> ProgressionSnapshot:
 		"pity_counter": 2,
 		"rare_pity": 4,
 	})
+
+
+func _deck_snapshot_variant(selected_preset_id: String, legal: bool, reason_code: String) -> DeckSnapshot:
+	var data := _deck_snapshot().to_dictionary()
+	data["selected_preset_id"] = selected_preset_id
+	data["legal"] = legal
+	data["reason_code"] = reason_code
+	data["confirmed"] = false
+	for value in data.get("presets", []):
+		if value is Dictionary:
+			value["selected"] = String(value.get("id", "")) == selected_preset_id
+	return DeckSnapshotScript.new(data)
 
 
 func _challenge_snapshot(overrides: Dictionary) -> ChallengeSnapshot:

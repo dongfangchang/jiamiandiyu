@@ -13,6 +13,7 @@ var _snapshot_data: Dictionary = {}
 var _levels: Dictionary = {}
 var _filter_mode := "all"
 var _busy := false
+var _last_command_type: StringName = &""
 
 var _deck_count_label: Label
 var _deck_state_label: Label
@@ -48,13 +49,23 @@ func apply_command_result(result: DeckCommandResult) -> void:
 		_refresh_buttons()
 		return
 	if not result.accepted:
+		_last_command_type = &""
 		_set_status(DeckCatalog.reason_text(String(result.reason_code)), true)
 		_refresh_buttons()
 		return
 	if result.snapshot != null:
 		_snapshot_data = result.snapshot.to_dictionary()
 	_render()
-	_set_status("牌组档案已更新。")
+	if _last_command_type == DeckCommand.SELECT_PRESET:
+		var selected_name := _selected_preset_name()
+		var readiness := _selected_preset_readiness()
+		_set_status(
+			"已载入「%s」。%s" % [selected_name, readiness],
+			not bool(_snapshot_data.get("legal", false))
+		)
+	else:
+		_set_status("牌组档案已更新。")
+	_last_command_type = &""
 
 
 func set_progression_snapshot(snapshot: ProgressionSnapshot) -> void:
@@ -403,11 +414,18 @@ func _build_preset(preset: Dictionary) -> Control:
 		11,
 		UiTheme.C_MUTED
 	))
+	text.add_child(UiTheme.label(
+		"可直接确认出战"
+			if bool(preset.get("legal", false))
+			else "载入后需补齐收藏卡或换回可用预设",
+		10,
+		UiTheme.C_GOLD if bool(preset.get("legal", false)) else UiTheme.C_DANGER_TEXT
+	))
 	var load_button := UiTheme.button(
-		"当前" if selected else "载入",
+		"已载入" if selected else "载入此组",
 		func() -> void: request_select_preset(preset_id),
 		true,
-		78
+		88
 	)
 	load_button.set_meta("preset_id", preset_id)
 	row.add_child(load_button)
@@ -614,8 +632,13 @@ func _request(command: DeckCommand) -> void:
 	if _busy or command == null:
 		return
 	_busy = true
+	_last_command_type = command.type
 	_refresh_buttons()
-	_set_status("正在更新牌组档案……")
+	_set_status(
+		"正在载入牌组「%s」……" % DeckCatalog.preset_name(String(command.preset_id))
+		if command.type == DeckCommand.SELECT_PRESET
+		else "正在更新牌组档案……"
+	)
 	deck_command_requested.emit(command)
 
 
@@ -639,6 +662,22 @@ func _show_empty() -> void:
 	_deck_state_label.text = "等待牌组档案"
 	_set_status("尚未连接牌组状态。")
 	_refresh_buttons()
+
+
+func _selected_preset_name() -> String:
+	var selected_id := String(_snapshot_data.get("selected_preset_id", ""))
+	if selected_id.is_empty():
+		return "自定义牌组"
+	return DeckCatalog.preset_name(selected_id)
+
+
+func _selected_preset_readiness() -> String:
+	var reason := DeckCatalog.reason_text(String(_snapshot_data.get("reason_code", "")))
+	if bool(_snapshot_data.get("legal", false)):
+		return "这套牌组已满足 8 张唯一卡牌要求，可以确认出战。"
+	if reason.is_empty():
+		return "当前牌组还不能确认出战。"
+	return "当前牌组暂不能确认出战：%s" % reason
 
 
 func _set_status(message: String, danger: bool = false) -> void:
