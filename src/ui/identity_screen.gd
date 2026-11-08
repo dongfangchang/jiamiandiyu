@@ -213,6 +213,13 @@ func _build_identity_card(option: Dictionary) -> Control:
 		13,
 		UiTheme.C_GOLD
 	))
+	var passive_text := String(option.get("passive_text_zh", ""))
+	if not passive_text.is_empty():
+		column.add_child(UiTheme.wrapped_label(
+			"身份特性：%s" % passive_text,
+			13,
+			UiTheme.C_PAPER_DEEP
+		))
 	var button := UiTheme.button(
 		"扮演此身份",
 		func() -> void: _request_identity(identity_id),
@@ -275,6 +282,13 @@ func _build_hub_actions(data: Dictionary, selected: Dictionary) -> VBoxContainer
 		14,
 		UiTheme.C_GOLD
 	))
+	var passive_text := String(selected.get("passive_text_zh", ""))
+	if not passive_text.is_empty():
+		content.add_child(UiTheme.wrapped_label(
+			"身份特性：%s" % passive_text,
+			14,
+			UiTheme.C_PAPER
+		))
 	var owned := 0
 	for card_value in data.get("collection", []):
 		if card_value is Dictionary and int(card_value.get("copies", 0)) > 0:

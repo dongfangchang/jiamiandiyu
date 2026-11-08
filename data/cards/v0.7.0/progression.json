@@ -7,6 +7,7 @@
       "id": "identity.reporter",
       "display_name_zh": "记者",
       "description_zh": "维持调查网络，以一篇报道换取更多线索。",
+      "passive_text_zh": "进入路线时被注视 -1；每场战斗胜利额外获得 1 占卜券。",
       "battle_modifiers": {"starting_attention": -1},
       "victory_resources": {"divination_tickets": 1}
     },
@@ -14,6 +15,7 @@
       "id": "identity.doctor",
       "display_name_zh": "医生",
       "description_zh": "熟悉身体与污染的边界，以更好的体魄进入战斗。",
+      "passive_text_zh": "进入路线时最大生命 +4。",
       "battle_modifiers": {"max_hp_bonus": 4},
       "victory_resources": {}
     },
@@ -21,7 +23,8 @@
       "id": "identity.gravedigger",
       "display_name_zh": "守墓人",
       "description_zh": "替遗忘的名字收殓，能从重复的命运中拾取更多残片。",
-      "battle_modifiers": {},
+      "passive_text_zh": "最大灵性 +1；重复回响额外获得 2 残页。",
+      "battle_modifiers": {"max_spirit_bonus": 1},
       "duplicate_fragment_bonus": 2,
       "victory_resources": {}
     }

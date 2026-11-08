@@ -128,6 +128,7 @@ func get_snapshot() -> ProgressionSnapshot:
 			"id": identity_id,
 			"display_name_zh": String(identity.get("display_name_zh", identity_id)),
 			"description_zh": String(identity.get("description_zh", "")),
+			"passive_text_zh": String(identity.get("passive_text_zh", "")),
 			"battle_modifiers": identity.get("battle_modifiers", {}).duplicate(true),
 			"selected": StringName(_state.get("identity_id", &"")) == StringName(identity_id),
 		})
@@ -282,6 +283,16 @@ func apply_battle_modifiers(player_state: Dictionary) -> Dictionary:
 			int(modified.get("attention", 0)) + starting_attention,
 			0,
 			int(modified.get("max_attention", 10))
+		)
+	var max_spirit_bonus: int = int(modifiers.get("max_spirit_bonus", 0))
+	if max_spirit_bonus != 0:
+		modified["max_spirit"] = maxi(
+			0,
+			int(modified.get("max_spirit", 0)) + max_spirit_bonus
+		)
+		modified["spirit"] = mini(
+			int(modified["max_spirit"]),
+			maxi(0, int(modified.get("spirit", 0)) + max_spirit_bonus)
 		)
 	return modified
 

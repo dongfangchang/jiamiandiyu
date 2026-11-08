@@ -71,6 +71,8 @@ static func modifier_text(modifiers: Dictionary) -> String:
 		lines.append("初始被注视 %+d" % int(modifiers["starting_attention"]))
 	if int(modifiers.get("max_attention_bonus", 0)) != 0:
 		lines.append("被注视上限 %+d" % int(modifiers["max_attention_bonus"]))
+	if int(modifiers.get("max_spirit_bonus", 0)) != 0:
+		lines.append("灵性上限 %+d" % int(modifiers["max_spirit_bonus"]))
 	return " · ".join(lines) if not lines.is_empty() else "无直接战斗修正"
 
 

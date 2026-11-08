@@ -182,7 +182,7 @@ v0.10.1 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.10.1/<role>.md` 记录本版本工作。
 - 连携事件必须描述真实完成的结算；非阻断缺口进入补丁或候选池，不冻结不相关功能。
 
-v0.11.0 当前所有权：
+v0.11.0 已关闭所有权（保留历史）：
 
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
@@ -191,6 +191,16 @@ v0.11.0 当前所有权：
 - `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.11.0/<role>.md` 记录本版本工作。
 - 手牌整卡可点击；选项按钮被裁切属于 S1 操作阻断，必须用实际鼠标路径回归。
+
+v0.12.0 当前所有权：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
+- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
+- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.12.0/<role>.md` 记录本版本工作。
+- 身份收益的唯一定义仍位于 progression 数据；UI 只显示快照文本和修正。
 
 ## 5. 协作与同步
 

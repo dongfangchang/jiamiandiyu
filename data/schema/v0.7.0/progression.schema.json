@@ -13,11 +13,12 @@
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "display_name_zh", "description_zh", "battle_modifiers", "victory_resources"],
+        "required": ["id", "display_name_zh", "description_zh", "passive_text_zh", "battle_modifiers", "victory_resources"],
         "properties": {
           "id": {"type": "string", "pattern": "^identity\\."},
           "display_name_zh": {"type": "string", "minLength": 1},
           "description_zh": {"type": "string"},
+          "passive_text_zh": {"type": "string", "minLength": 1},
           "battle_modifiers": {"type": "object"},
           "victory_resources": {"type": "object"},
           "duplicate_fragment_bonus": {"type": "integer", "minimum": 0}
