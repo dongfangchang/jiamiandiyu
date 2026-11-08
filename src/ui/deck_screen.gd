@@ -358,7 +358,7 @@ func _build_preset(preset: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(338, 96)
+	panel.custom_minimum_size = Vector2(338, 112)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 12)
@@ -384,6 +384,11 @@ func _build_preset(preset: Dictionary) -> Control:
 		12,
 		UiTheme.C_GOLD if selected else UiTheme.C_PAPER
 	))
+	text.add_child(UiTheme.label(
+		_preset_cost_summary(preset),
+		11,
+		UiTheme.C_PAPER
+	))
 	text.add_child(UiTheme.wrapped_label(
 		String(guidance.get("when", preset.get("description_zh", ""))),
 		11,
@@ -408,6 +413,31 @@ func _build_preset(preset: Dictionary) -> Control:
 	row.add_child(save_button)
 	_action_buttons.append(save_button)
 	return panel
+
+
+func _preset_cost_summary(preset: Dictionary) -> String:
+	var ids: Variant = preset.get("card_definition_ids", [])
+	var cards: Variant = _snapshot_data.get("cards", [])
+	if not ids is Array or not cards is Array:
+		return "费用摘要：等待卡牌数据"
+	var costs: Array[int] = []
+	for raw_id in ids:
+		var found := false
+		for card_value in cards:
+			if card_value is Dictionary and String(card_value.get("definition_id", "")) == String(raw_id):
+				costs.append(int(card_value.get("cost_spirit", 0)))
+				found = true
+				break
+		if not found:
+			return "费用摘要：卡牌数据不完整"
+	if costs.is_empty():
+		return "费用摘要：暂无卡牌"
+	var total := 0
+	var highest := 0
+	for cost in costs:
+		total += cost
+		highest = maxi(highest, cost)
+	return "费用 %.2f · 最高 %d · %d 张" % [float(total) / float(costs.size()), highest, costs.size()]
 
 
 func _render_collection() -> void:
