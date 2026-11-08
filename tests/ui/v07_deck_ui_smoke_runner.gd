@@ -22,6 +22,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_test_assets()
 	await _test_deck_screen()
+	await _test_deck_small_viewport()
 	await _test_identity_deck_entry()
 	await _test_challenge_hub()
 	await _test_second_challenge_screen()
@@ -85,12 +86,7 @@ func _test_deck_screen() -> void:
 	_expect(screen.is_pending(), "deck command enters pending")
 	_expect(_captured_command == "add_card", "deck add emits stable command")
 	_expect(_captured_definition_id == "card.skill.warding_circle", "deck add emits stable id")
-	screen.apply_command_result(DeckCommandResultScript.new(
-		false,
-		&"wrong_deck_size",
-		[],
-		deck
-	))
+	screen.apply_command_result(DeckCommandResultScript.new(false, &"wrong_deck_size", [], deck))
 	_expect(not screen.is_pending(), "deck rejection clears pending")
 	_expect(screen.get_status_text().contains("必须为 8 张"), "deck rejection reason is readable")
 
@@ -104,6 +100,35 @@ func _test_deck_screen() -> void:
 	screen.request_confirm_deck()
 	_expect(_captured_command == "confirm_deck", "confirmed legal deck emits command")
 	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _test_deck_small_viewport() -> void:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1100, 700)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(viewport)
+	var screen = DeckScreenScene.instantiate()
+	viewport.add_child(screen)
+	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	screen.apply_snapshot(_deck_snapshot())
+	screen.set_progression_snapshot(_progression_snapshot())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var content_scroll: ScrollContainer = screen.get("_content_scroll")
+	_expect(content_scroll != null, "deck small viewport provides content scrolling")
+	if content_scroll != null:
+		var bar := content_scroll.get_v_scroll_bar()
+		_expect(bar.max_value > bar.page + 1.0, "deck small viewport exposes clipped content through scrolling")
+	var confirm_button: Button = screen.get("_confirm_button")
+	_expect(confirm_button != null, "deck confirm button remains instantiated")
+	if confirm_button != null:
+		var rect := confirm_button.get_global_rect()
+		_expect(
+			rect.position.y >= 0.0 and rect.end.y <= 700.0,
+			"deck confirm button remains inside small viewport"
+		)
+	viewport.queue_free()
 	await get_tree().process_frame
 
 

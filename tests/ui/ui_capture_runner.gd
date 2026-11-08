@@ -30,7 +30,7 @@ const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
 
 func _ready() -> void:
-	DisplayServer.window_set_size(Vector2i(1600, 900))
+	DisplayServer.window_set_size(_capture_size())
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIRECTORY))
 	await get_tree().process_frame
 	await _capture_start()
@@ -56,6 +56,16 @@ func _ready() -> void:
 	await _capture_boss_battle()
 	await _capture_result()
 	get_tree().quit(0)
+
+
+func _capture_size() -> Vector2i:
+	for argument in OS.get_cmdline_args():
+		if not String(argument).begins_with("--capture-size="):
+			continue
+		var parts := String(argument).trim_prefix("--capture-size=").split("x")
+		if parts.size() == 2 and parts[0].is_valid_int() and parts[1].is_valid_int():
+			return Vector2i(maxi(640, int(parts[0])), maxi(480, int(parts[1])))
+	return Vector2i(1600, 900)
 
 
 func _capture_start() -> void:

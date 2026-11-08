@@ -18,6 +18,7 @@ var _deck_count_label: Label
 var _deck_state_label: Label
 var _status_label: Label
 var _preset_row: HBoxContainer
+var _content_scroll: ScrollContainer
 var _collection_grid: GridContainer
 var _deck_list: VBoxContainer
 var _filter_option: OptionButton
@@ -193,10 +194,18 @@ func _build() -> void:
 	_preset_row.add_theme_constant_override("separation", 10)
 	root.add_child(_preset_row)
 
+	_content_scroll = ScrollContainer.new()
+	_content_scroll.name = "ContentScroll"
+	_content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_content_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(_content_scroll)
 	var content := HBoxContainer.new()
 	content.add_theme_constant_override("separation", 12)
-	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(content)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_content_scroll.add_child(content)
 
 	var collection_panel := UiTheme.panel(
 		Color(0.055, 0.058, 0.047, 0.97),
