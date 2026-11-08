@@ -677,6 +677,12 @@ func _connect_identity_screen(screen: Control) -> void:
 	screen.gacha_requested.connect(_on_gacha_requested)
 	screen.upgrade_requested.connect(_on_upgrade_requested)
 	screen.deck_requested.connect(_on_deck_requested)
+	screen.main_menu_requested.connect(show_start_screen)
+	screen.restart_requested.connect(_on_restart_requested)
+
+
+func _on_restart_requested() -> void:
+	_show_route_selection()
 
 
 func _on_identity_selected(identity_id: StringName) -> void:

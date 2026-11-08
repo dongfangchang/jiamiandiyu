@@ -533,8 +533,13 @@ func _build_card_tile(card: Dictionary) -> Control:
 		11,
 		UiTheme.C_MUTED
 	))
+	info.add_child(UiTheme.badge(
+		"已拥有 · 可加入" if owned else "未拥有 · 仅可查看",
+		UiTheme.C_GOLD if owned else UiTheme.C_MUTED,
+		UiTheme.C_GOLD if owned else UiTheme.C_LINE
+	))
 	var button := UiTheme.button(
-		"移出" if in_deck else ("加入" if owned else "未拥有"),
+		"移出牌组" if in_deck else ("加入牌组" if owned else "尚未拥有"),
 		func() -> void:
 			if in_deck:
 				request_remove_card(definition_id)

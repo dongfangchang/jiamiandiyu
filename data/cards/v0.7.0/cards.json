@@ -9,7 +9,13 @@
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "enemy",
-      "effects": [{"effect_id": "damage", "amount": 4, "target": "enemy"}]
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy"
+        }
+      ]
     },
     {
       "id": "card.skill.paper_guard",
@@ -18,7 +24,13 @@
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "self",
-      "effects": [{"effect_id": "block", "amount": 5, "target": "self"}]
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 5,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "card.skill.calm_breath",
@@ -28,8 +40,17 @@
       "cost_spirit": 1,
       "target_type": "self",
       "effects": [
-        {"effect_id": "heal", "amount": 4, "target": "self"},
-        {"effect_id": "risk", "risk_id": "corruption", "amount": -1, "target": "self"}
+        {
+          "effect_id": "heal",
+          "amount": 4,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        }
       ]
     },
     {
@@ -39,7 +60,13 @@
       "category": "skill",
       "cost_spirit": 0,
       "target_type": "self",
-      "effects": [{"effect_id": "spirit", "amount": 1, "target": "self"}]
+      "effects": [
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "card.skill.insight",
@@ -48,7 +75,13 @@
       "category": "skill",
       "cost_spirit": 0,
       "target_type": "none",
-      "effects": [{"effect_id": "draw", "count": 1, "target": "none"}]
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ]
     },
     {
       "id": "card.skill.omen",
@@ -58,7 +91,14 @@
       "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "apply_status", "status_id": "mark", "stacks": 2, "duration": 2, "max_stacks": 4, "target": "enemy"}
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "max_stacks": 4,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -69,7 +109,13 @@
       "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "apply_status", "status_id": "weaken", "stacks": 2, "duration": 1, "target": "enemy"}
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 2,
+          "duration": 1,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -79,7 +125,12 @@
       "category": "skill",
       "cost_spirit": 0,
       "target_type": "enemy",
-      "effects": [{"effect_id": "reveal_intent", "target": "enemy"}]
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        }
+      ]
     },
     {
       "id": "card.skill.warding_circle",
@@ -88,7 +139,13 @@
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "self",
-      "effects": [{"effect_id": "block", "amount": 4, "target": "self"}]
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 4,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "card.skill.lantern_step",
@@ -98,8 +155,16 @@
       "cost_spirit": 1,
       "target_type": "self",
       "effects": [
-        {"effect_id": "block", "amount": 3, "target": "self"},
-        {"effect_id": "draw", "count": 1, "target": "none"}
+        {
+          "effect_id": "block",
+          "amount": 3,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
       ]
     },
     {
@@ -109,7 +174,13 @@
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "none",
-      "effects": [{"effect_id": "draw", "count": 2, "target": "none"}]
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 2,
+          "target": "none"
+        }
+      ]
     },
     {
       "id": "card.skill.mirrored_memory",
@@ -119,8 +190,16 @@
       "cost_spirit": 0,
       "target_type": "self",
       "effects": [
-        {"effect_id": "spirit", "amount": 1, "target": "self"},
-        {"effect_id": "draw", "count": 1, "target": "none"}
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
       ]
     },
     {
@@ -131,7 +210,14 @@
       "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "apply_status", "status_id": "mark", "stacks": 3, "duration": 2, "max_stacks": 6, "target": "enemy"}
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 3,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -142,8 +228,19 @@
       "cost_spirit": 2,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "damage", "amount": 2, "target": "enemy"},
-        {"effect_id": "apply_status", "status_id": "mark", "stacks": 2, "duration": 2, "max_stacks": 6, "target": "enemy"}
+        {
+          "effect_id": "damage",
+          "amount": 2,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -154,8 +251,17 @@
       "cost_spirit": 2,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "damage", "amount": 6, "target": "enemy"},
-        {"effect_id": "risk", "risk_id": "corruption", "amount": 1, "target": "self"}
+        {
+          "effect_id": "damage",
+          "amount": 6,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": 1,
+          "target": "self"
+        }
       ]
     },
     {
@@ -166,8 +272,15 @@
       "cost_spirit": 0,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "reveal_intent", "target": "enemy"},
-        {"effect_id": "spirit", "amount": 1, "target": "self"}
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        }
       ]
     },
     {
@@ -178,8 +291,18 @@
       "cost_spirit": 0,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "reveal_intent", "target": "enemy"},
-        {"effect_id": "apply_status", "status_id": "mark", "stacks": 1, "duration": 2, "max_stacks": 6, "target": "enemy"}
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -190,8 +313,17 @@
       "cost_spirit": 1,
       "target_type": "self",
       "effects": [
-        {"effect_id": "block", "amount": 6, "target": "self"},
-        {"effect_id": "risk", "risk_id": "attention", "amount": -1, "target": "self"}
+        {
+          "effect_id": "block",
+          "amount": 6,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": -1,
+          "target": "self"
+        }
       ]
     },
     {
@@ -202,8 +334,19 @@
       "cost_spirit": 2,
       "target_type": "enemy",
       "effects": [
-        {"effect_id": "damage", "amount": 5, "target": "enemy"},
-        {"effect_id": "apply_status", "status_id": "weaken", "stacks": 2, "duration": 1, "max_stacks": 2, "target": "enemy"}
+        {
+          "effect_id": "damage",
+          "amount": 5,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 2,
+          "duration": 1,
+          "max_stacks": 2,
+          "target": "enemy"
+        }
       ]
     },
     {
@@ -214,8 +357,520 @@
       "cost_spirit": 1,
       "target_type": "self",
       "effects": [
-        {"effect_id": "heal", "amount": 3, "target": "self"},
-        {"effect_id": "draw", "count": 1, "target": "none"}
+        {
+          "effect_id": "heal",
+          "amount": 3,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ]
+    },
+    {
+      "id": "card.skill.ink_scarlet",
+      "display_name_zh": "猩红墨痕",
+      "description_zh": "以标记为引，刺入敌人的薄弱处。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 3,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "mark",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.echo_reading",
+      "display_name_zh": "回声读本",
+      "description_zh": "从刚刚打出的灵性牌中抽取新的线索。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.veil_step",
+      "display_name_zh": "帷幕侧行",
+      "description_zh": "避开一击，并让短暂的注视落空。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 4,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.severed_fate",
+      "display_name_zh": "断命线",
+      "description_zh": "切断命运联系，让下一次攻击失去锋芒。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 1,
+          "duration": 1,
+          "max_stacks": 2,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.paper_swarm",
+      "display_name_zh": "纸蝶群",
+      "description_zh": "散开的纸蝶带回一张牌，同时划伤敌人。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 2,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.midnight_ledger",
+      "display_name_zh": "午夜账本",
+      "description_zh": "记下代价，将污染压回账页。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 3,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.borrowed_breath",
+      "display_name_zh": "借来的呼吸",
+      "description_zh": "借一口未来的气息恢复灵性与生命。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "heal",
+          "amount": 2,
+          "target": "self"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.glass_thesis",
+      "display_name_zh": "玻璃命题",
+      "description_zh": "看穿敌人的下一步，并将答案留在手中。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.hungry_symbol",
+      "display_name_zh": "饥饿符号",
+      "description_zh": "喂饱标记，换取更危险的洞察。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "mark",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.candle_archive",
+      "display_name_zh": "烛火档案",
+      "description_zh": "在火光里整理防线，同时翻开一张旧记录。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 3,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.omen_chorus",
+      "display_name_zh": "凶兆合唱",
+      "description_zh": "同时留下标记与削弱，准备下一张爆发牌。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "max_stacks": 6,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 1,
+          "duration": 1,
+          "max_stacks": 2,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "mark",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.mirror_shard",
+      "display_name_zh": "镜片反射",
+      "description_zh": "用倒影挡下一部分攻击，再把碎片弹回敌人。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 2,
+          "target": "self"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 2,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.closed_eye",
+      "display_name_zh": "闭眼预言",
+      "description_zh": "预见攻击并让敌人的锋芒暂时消退。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 1,
+          "duration": 1,
+          "max_stacks": 2,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.last_witness",
+      "display_name_zh": "最后证人",
+      "description_zh": "以一张手牌为证，换取更强的续命。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "heal",
+          "amount": 5,
+          "target": "self"
+        },
+        {
+          "effect_id": "discard",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.black_thread",
+      "display_name_zh": "黑线缝合",
+      "description_zh": "拆掉敌人的标记，令其无法继续借力。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "remove_status",
+          "status_id": "mark",
+          "stacks": -1,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "mark",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.false_death",
+      "display_name_zh": "假死",
+      "description_zh": "让倒影代替自己承受代价，但引来更多注视。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 8,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.eclipse",
+      "display_name_zh": "日蚀终幕",
+      "description_zh": "在污染中击出沉重一击。",
+      "category": "skill",
+      "cost_spirit": 3,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 7,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "payoff"
+      ]
+    },
+    {
+      "id": "card.skill.red_corridor",
+      "display_name_zh": "红色回廊",
+      "description_zh": "沿着标记的路径突进，并回收一点灵性。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.sealed_answer",
+      "display_name_zh": "封存答案",
+      "description_zh": "打开封印，抽取两张牌，却让污染逼近。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 2,
+          "target": "none"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "synergy_tags": [
+        "tempo",
+        "chain"
+      ]
+    },
+    {
+      "id": "card.skill.hollow_bell",
+      "display_name_zh": "空心钟",
+      "description_zh": "敲碎标记回声，留下稳定但不致命的伤口。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 3,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "remove_status",
+          "status_id": "mark",
+          "stacks": -1,
+          "target": "enemy"
+        }
+      ],
+      "synergy_tags": [
+        "mark",
+        "payoff"
       ]
     }
   ]

@@ -23,7 +23,27 @@
     "card.skill.dream_question",
     "card.skill.mirror_ward",
     "card.skill.severed_string",
-    "card.skill.last_rites"
+    "card.skill.last_rites",
+    "card.skill.ink_scarlet",
+    "card.skill.echo_reading",
+    "card.skill.veil_step",
+    "card.skill.severed_fate",
+    "card.skill.paper_swarm",
+    "card.skill.midnight_ledger",
+    "card.skill.borrowed_breath",
+    "card.skill.glass_thesis",
+    "card.skill.hungry_symbol",
+    "card.skill.candle_archive",
+    "card.skill.omen_chorus",
+    "card.skill.mirror_shard",
+    "card.skill.closed_eye",
+    "card.skill.last_witness",
+    "card.skill.black_thread",
+    "card.skill.false_death",
+    "card.skill.eclipse",
+    "card.skill.red_corridor",
+    "card.skill.sealed_answer",
+    "card.skill.hollow_bell"
   ],
   "presets": [
     {

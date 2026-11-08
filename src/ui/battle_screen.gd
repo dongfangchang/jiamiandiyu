@@ -683,6 +683,14 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			var visible: Dictionary = intent.get("visible_fields", {})
 			intent_text = "意图：攻击 %d" % int(visible.get("damage", 0))
 		column.add_child(UiTheme.center_label(intent_text, 13, UiTheme.C_PAPER))
+		var pressure_bonus := int(enemy.get("pressure_bonus", 0))
+		var phase_count := int(enemy.get("triggered_phase_count", 0))
+		if pressure_bonus > 0 or phase_count > 0:
+			column.add_child(UiTheme.badge(
+				"强化 +%d" % pressure_bonus if pressure_bonus > 0 else "阶段已触发 %d" % phase_count,
+				UiTheme.C_DANGER_TEXT,
+				UiTheme.C_DANGER
+			))
 		var statuses: Array = enemy.get("statuses", [])
 		if not statuses.is_empty():
 			var status_row := HBoxContainer.new()
@@ -747,7 +755,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.set_meta("battle_instance_id", String(instance_id))
 	panel.custom_minimum_size = Vector2(242, 190)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 7)
@@ -1091,6 +1099,14 @@ func _format_event(event: BattleEvent) -> String:
 			]
 		"EnemyPressureChanged":
 			return "敌方压力提升至 +%d。" % int(data.get("bonus", 0))
+		"EnemyPhaseTriggered":
+			return "%s 进入强化阶段：%s（攻击 +%d，护盾 +%d，恢复 %d）。" % [
+				_enemy_name_by_actor(StringName(data.get("enemy_id", ""))),
+				String(data.get("display_name_zh", "未知强化")),
+				int(data.get("base_attack_bonus", 0)),
+				int(data.get("block_bonus", 0)),
+				int(data.get("heal", 0)),
+			]
 		"IntentRevealed":
 			return "%s 的意图被揭示。" % _enemy_name_by_actor(
 				StringName(data.get("enemy_id", ""))
@@ -1242,8 +1258,10 @@ func _play_event_feedback(event: BattleEvent) -> void:
 			var amount := int(data.get("amount", 0))
 			var anchor := _actor_anchor(target_id)
 			if anchor != null and amount > 0:
-				_show_floating_text(anchor, "-%d" % amount, UiTheme.C_DANGER_TEXT)
-				_pulse_control(anchor, Color(1.15, 0.72, 0.68, 1))
+				_show_floating_text(anchor, "受到伤害  -%d" % amount, UiTheme.C_DANGER_TEXT)
+				_flash_actor(anchor, UiTheme.C_DANGER)
+				_shake_actor(anchor)
+				_pulse_control(anchor, Color(1.25, 0.48, 0.42, 1))
 		"Healed":
 			var target_id := StringName(data.get("target_id", ""))
 			var amount := int(data.get("amount", 0))
@@ -1287,6 +1305,9 @@ func _play_event_feedback(event: BattleEvent) -> void:
 				UiTheme.C_GOLD
 			)
 			_pulse_control(_health_meter, Color(1.18, 1.1, 0.72, 1))
+		"EnemyPressureChanged", "EnemyPhaseTriggered":
+			_show_floating_text(_pressure_label, "敌人强化！", UiTheme.C_DANGER_TEXT)
+			_pulse_control(_pressure_label, Color(1.25, 0.48, 0.42, 1))
 
 
 func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:
@@ -1335,6 +1356,32 @@ func _show_floating_text(anchor: Control, text_value: String, color: Color) -> v
 	tween.tween_property(label, "position", label.position + Vector2(0, -58), 0.7)
 	tween.tween_property(label, "modulate:a", 0.0, 0.7)
 	tween.chain().tween_callback(label.queue_free)
+
+
+func _flash_actor(actor: Control, color: Color) -> void:
+	if not is_instance_valid(_effects_layer) or not is_instance_valid(actor):
+		return
+	var flash := ColorRect.new()
+	flash.color = Color(color, 0.48)
+	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash.position = actor.get_global_rect().position - _effects_layer.global_position
+	flash.size = actor.get_global_rect().size
+	_effects_layer.add_child(flash)
+	_visual_effect_count += 1
+	var tween := create_tween()
+	tween.tween_property(flash, "modulate:a", 0.0, 0.34)
+	tween.tween_callback(flash.queue_free)
+
+
+func _shake_actor(actor: Control) -> void:
+	if not is_instance_valid(actor):
+		return
+	var origin := actor.position
+	var tween := create_tween()
+	tween.tween_property(actor, "position", origin + Vector2(9, 0), 0.045)
+	tween.tween_property(actor, "position", origin + Vector2(-8, 0), 0.045)
+	tween.tween_property(actor, "position", origin + Vector2(5, 0), 0.045)
+	tween.tween_property(actor, "position", origin, 0.06)
 
 
 func _pulse_control(control: Control, color: Color) -> void:

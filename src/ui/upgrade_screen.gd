@@ -199,7 +199,18 @@ func _build_card_row(card: Dictionary) -> Control:
 	var copies := int(card.get("copies", 0))
 	var fragments := int(card.get("fragments", 0))
 	var cost := int(card.get("next_upgrade_cost", 0))
+	var owned := copies > 0
 	var panel := UiTheme.panel(Color(0.065, 0.068, 0.055, 0.97), UiTheme.C_LINE)
+	var ready_to_upgrade := owned and level < max_level and fragments >= cost and cost > 0
+	panel.add_theme_stylebox_override(
+		"panel",
+		UiTheme.style_box(
+			Color(0.09, 0.085, 0.055, 0.99) if ready_to_upgrade else Color(0.065, 0.068, 0.055, 0.97),
+			UiTheme.C_GOLD if ready_to_upgrade else UiTheme.C_LINE,
+			2 if ready_to_upgrade else 1,
+			8
+		)
+	)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.set_meta("definition_id", definition_id)
 	var pad := MarginContainer.new()
@@ -239,9 +250,12 @@ func _build_card_row(card: Dictionary) -> Control:
 		UiTheme.C_GOLD,
 		UiTheme.C_GOLD if level > 0 else UiTheme.C_LINE
 	))
-	var owned := copies > 0
 	var status := _card_status(owned, level, max_level, fragments, cost)
-	info.add_child(UiTheme.label(status, 13, UiTheme.C_MUTED))
+	info.add_child(UiTheme.label(
+		"● 现在可以升级" if ready_to_upgrade else status,
+		14,
+		UiTheme.C_GOLD if ready_to_upgrade else UiTheme.C_MUTED
+	))
 	_status_by_card[definition_id] = status
 	var required_fragments := maxi(0, cost) if level < max_level else 0
 	var shortfall := maxi(0, required_fragments - fragments)
@@ -276,7 +290,7 @@ func _build_card_row(card: Dictionary) -> Control:
 	action.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(action)
 	var upgrade_button := UiTheme.button(
-		"升级",
+		"立即升级" if ready_to_upgrade else "升级",
 		func() -> void: request_upgrade(definition_id),
 		true,
 		112

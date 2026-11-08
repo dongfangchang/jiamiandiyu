@@ -241,6 +241,7 @@ func get_snapshot() -> BattleSnapshot:
 			"intent": enemy["intent"].duplicate(true),
 			"phases": enemy.get("phases", []).duplicate(true),
 			"triggered_phase_count": enemy.get("triggered_phases", []).size(),
+			"pressure_bonus": int(enemy.get("pressure_bonus", 0)),
 		})
 
 	var revision_value: int = _revision

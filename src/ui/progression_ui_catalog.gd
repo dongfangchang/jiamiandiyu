@@ -43,7 +43,8 @@ static func identity_art(identity_id: String) -> String:
 
 
 static func card_art(definition_id: String) -> String:
-	return String(CARD_ART.get(definition_id, ""))
+	var art := String(CARD_ART.get(definition_id, ""))
+	return art if not art.is_empty() and ResourceLoader.exists(art) else CARD_BACK
 
 
 static func upgrade_icon(level: int) -> String:

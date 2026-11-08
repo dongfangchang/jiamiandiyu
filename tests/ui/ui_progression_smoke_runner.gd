@@ -74,6 +74,8 @@ func _test_identity_and_hub() -> void:
 	screen.apply_command_result(result)
 	_expect(not screen.is_pending(), "identity pending clears after result")
 	_expect(screen.has_hub_actions(), "hub exposes battle, gacha and upgrade actions")
+	_expect(screen.has_main_menu_action(), "hub exposes a main menu action")
+	_expect(screen.has_restart_action(), "hub exposes a restart action")
 	_expect(screen.get_selected_identity_id() == "identity.doctor", "hub retains selected identity")
 	screen.queue_free()
 	await get_tree().process_frame

@@ -8,15 +8,21 @@
       "display_name_zh": "记者",
       "description_zh": "维持调查网络，以一篇报道换取更多线索。",
       "passive_text_zh": "进入路线时被注视 -1；每场战斗胜利额外获得 1 占卜券。",
-      "battle_modifiers": {"starting_attention": -1},
-      "victory_resources": {"divination_tickets": 1}
+      "battle_modifiers": {
+        "starting_attention": -1
+      },
+      "victory_resources": {
+        "divination_tickets": 1
+      }
     },
     {
       "id": "identity.doctor",
       "display_name_zh": "医生",
       "description_zh": "熟悉身体与污染的边界，以更好的体魄进入战斗。",
       "passive_text_zh": "进入路线时最大生命 +4。",
-      "battle_modifiers": {"max_hp_bonus": 4},
+      "battle_modifiers": {
+        "max_hp_bonus": 4
+      },
       "victory_resources": {}
     },
     {
@@ -24,7 +30,9 @@
       "display_name_zh": "守墓人",
       "description_zh": "替遗忘的名字收殓，能从重复的命运中拾取更多残片。",
       "passive_text_zh": "最大灵性 +1；重复回响额外获得 2 残页。",
-      "battle_modifiers": {"max_spirit_bonus": 1},
+      "battle_modifiers": {
+        "max_spirit_bonus": 1
+      },
       "duplicate_fragment_bonus": 2,
       "victory_resources": {}
     }
@@ -42,25 +50,162 @@
     "card.skill.coffin_nail"
   ],
   "gacha_pool": [
-    {"definition_id": "card.skill.ink_dart", "rarity": "common"},
-    {"definition_id": "card.skill.paper_guard", "rarity": "common"},
-    {"definition_id": "card.skill.calm_breath", "rarity": "common"},
-    {"definition_id": "card.skill.focus", "rarity": "common"},
-    {"definition_id": "card.skill.insight", "rarity": "common"},
-    {"definition_id": "card.skill.warding_circle", "rarity": "common"},
-    {"definition_id": "card.skill.lantern_step", "rarity": "common"},
-    {"definition_id": "card.skill.whispered_hunch", "rarity": "common"},
-    {"definition_id": "card.skill.mirrored_memory", "rarity": "common"},
-    {"definition_id": "card.skill.omen", "rarity": "rare"},
-    {"definition_id": "card.skill.whisper", "rarity": "rare"},
-    {"definition_id": "card.skill.fated_echo", "rarity": "rare"},
-    {"definition_id": "card.skill.piercing_omen", "rarity": "rare"},
-    {"definition_id": "card.skill.coffin_nail", "rarity": "rare"},
-    {"definition_id": "card.skill.second_sight", "rarity": "rare"},
-    {"definition_id": "card.skill.dream_question", "rarity": "common"},
-    {"definition_id": "card.skill.mirror_ward", "rarity": "common"},
-    {"definition_id": "card.skill.severed_string", "rarity": "rare"},
-    {"definition_id": "card.skill.last_rites", "rarity": "rare"}
+    {
+      "definition_id": "card.skill.ink_dart",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.paper_guard",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.calm_breath",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.focus",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.insight",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.warding_circle",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.lantern_step",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.whispered_hunch",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.mirrored_memory",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.omen",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.whisper",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.fated_echo",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.piercing_omen",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.coffin_nail",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.second_sight",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.dream_question",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.mirror_ward",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.severed_string",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.last_rites",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.ink_scarlet",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.echo_reading",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.veil_step",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.severed_fate",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.paper_swarm",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.midnight_ledger",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.borrowed_breath",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.glass_thesis",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.hungry_symbol",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.candle_archive",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.omen_chorus",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.mirror_shard",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.closed_eye",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.last_witness",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.black_thread",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.false_death",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.eclipse",
+      "rarity": "rare"
+    },
+    {
+      "definition_id": "card.skill.red_corridor",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.sealed_answer",
+      "rarity": "common"
+    },
+    {
+      "definition_id": "card.skill.hollow_bell",
+      "rarity": "common"
+    }
   ],
   "reward_options": [
     {
@@ -76,24 +221,485 @@
     }
   ],
   "upgrade_definitions": {
-    "card.skill.ink_dart": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.paper_guard": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.calm_breath": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.focus": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.insight": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "count", "amount_per_level": 1}]},
-    "card.skill.omen": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
-    "card.skill.whisper": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
-    "card.skill.warding_circle": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.lantern_step": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.whispered_hunch": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "count", "amount_per_level": 1}]},
-    "card.skill.mirrored_memory": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.fated_echo": {"max_level": 2, "bonuses": [{"effect_index": 0, "field": "stacks", "amount_per_level": 1}]},
-    "card.skill.piercing_omen": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.coffin_nail": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.second_sight": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.dream_question": {"max_level": 2, "bonuses": [{"effect_index": 1, "field": "stacks", "amount_per_level": 1}]},
-    "card.skill.mirror_ward": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.severed_string": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]},
-    "card.skill.last_rites": {"max_level": 3, "bonuses": [{"effect_index": 0, "field": "amount", "amount_per_level": 1}]}
+    "card.skill.ink_dart": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.paper_guard": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.calm_breath": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.focus": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.insight": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.omen": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.whisper": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.warding_circle": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.lantern_step": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.whispered_hunch": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.mirrored_memory": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.fated_echo": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.piercing_omen": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.coffin_nail": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.second_sight": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.dream_question": {
+      "max_level": 2,
+      "bonuses": [
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.mirror_ward": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.severed_string": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.last_rites": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.ink_scarlet": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.echo_reading": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "count",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.veil_step": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.severed_fate": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.paper_swarm": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.midnight_ledger": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.borrowed_breath": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.glass_thesis": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 1,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.hungry_symbol": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.candle_archive": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.omen_chorus": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.mirror_shard": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.closed_eye": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.last_witness": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "count",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.black_thread": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "stacks",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.false_death": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.eclipse": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.red_corridor": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.sealed_answer": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "count",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.hollow_bell": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 0,
+          "field": "amount",
+          "amount_per_level": 1
+        },
+        {
+          "effect_index": 1,
+          "field": "stacks",
+          "amount_per_level": 1
+        }
+      ]
+    }
   }
 }

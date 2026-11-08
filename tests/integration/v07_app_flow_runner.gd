@@ -69,7 +69,7 @@ func _test_identity_and_deck() -> void:
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"deck", "identity selection opens the deck editor")
 	var deck = _app.get_current_screen()
-	_expect(deck.get_total_card_count() == 20, "deck editor exposes the twenty-card pool")
+	_expect(deck.get_total_card_count() == 40, "deck editor exposes the forty-card pool")
 	_expect(deck.get_preset_count() == 4, "deck editor exposes four presets")
 	_expect(deck.get_current_deck_count() == 8, "default deck contains eight unique cards")
 	_expect(deck.is_confirm_enabled(), "default deck is immediately confirmable")

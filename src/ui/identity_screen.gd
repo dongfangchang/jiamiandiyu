@@ -5,6 +5,8 @@ signal battle_requested
 signal gacha_requested
 signal upgrade_requested
 signal deck_requested
+signal main_menu_requested
+signal restart_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
@@ -23,6 +25,8 @@ var _has_hub_actions := false
 var _deck_data: Dictionary = {}
 var _deck_summary_label: Label
 var _deck_button: Button
+var _main_menu_button: Button
+var _restart_button: Button
 
 
 func _ready() -> void:
@@ -99,6 +103,14 @@ func get_deck_summary_text() -> String:
 
 func has_hub_actions() -> bool:
 	return _has_hub_actions
+
+
+func has_main_menu_action() -> bool:
+	return is_instance_valid(_main_menu_button)
+
+
+func has_restart_action() -> bool:
+	return is_instance_valid(_restart_button)
 
 
 func get_selected_identity_id() -> String:
@@ -322,7 +334,11 @@ func _build_hub_actions(data: Dictionary, selected: Dictionary) -> VBoxContainer
 	var battle_button := UiTheme.button("进入夜间战斗", _on_battle, true, 0)
 	var gacha_button := UiTheme.button("进行灵界祈愿", _on_gacha, true, 0)
 	var upgrade_button := UiTheme.button("整理卡牌与残页", _on_upgrade, true, 0)
-	for button in [battle_button, gacha_button, upgrade_button]:
+	_main_menu_button = UiTheme.button("回到主菜单", _on_main_menu, false, 0)
+	_restart_button = UiTheme.button("重新开始", _on_restart, false, 0)
+	var menu_button := _main_menu_button
+	var restart_button := _restart_button
+	for button in [battle_button, gacha_button, upgrade_button, menu_button, restart_button]:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		content.add_child(button)
 		_action_buttons.append(button)
@@ -393,6 +409,18 @@ func _on_upgrade() -> void:
 	if _busy:
 		return
 	upgrade_requested.emit()
+
+
+func _on_main_menu() -> void:
+	if _busy:
+		return
+	main_menu_requested.emit()
+
+
+func _on_restart() -> void:
+	if _busy:
+		return
+	restart_requested.emit()
 
 
 func _on_deck() -> void:
