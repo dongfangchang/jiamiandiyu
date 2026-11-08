@@ -1,6 +1,9 @@
 extends RefCounted
 
 const ROUTE_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png"
+## The route map is a light parchment asset; keep its presentation in the
+## same ink-dark range as the rest of the UI while preserving node contrast.
+const ROUTE_BACKGROUND_DIM := 0.74
 const REST_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png"
 const RITUAL_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png"
 const BOSS_ART := "res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png"

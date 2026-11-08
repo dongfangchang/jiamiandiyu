@@ -9,8 +9,11 @@
 - 战斗页根据页面实际纵向/横向溢出显示滚动提示。
 - 标准窗口不显示无效提示；窄窗口提示如何查看手牌和操作。
 - 保持现有 ScrollContainer 和稳定资源路径，不改变玩法命令。
+- 路线总览、路线选择和路线结算页共用路线地图的深色呈现参数；对浅色羊皮纸底图统一增加暗色遮罩，保持地图节点和按钮对比度，同时让页面切换与休息、仪式等暗色页面连续。
 
 ## 验证
 
 - `V025_VIEWPORT_GUIDANCE_OK checks=4`
 - `V014_CARD_LAYOUT_OK checks=20`
+- `V05_ROUTE_UI_SMOKE_OK checks=62`
+- `UI_SMOKE_OK checks=33`

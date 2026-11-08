@@ -55,7 +55,12 @@ func get_background_path() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.58)
+	UiTheme.add_background(
+		self,
+		RouteCatalog.ROUTE_BACKGROUND,
+		UiTheme.C_BG,
+		RouteCatalog.ROUTE_BACKGROUND_DIM
+	)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 160)
