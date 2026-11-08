@@ -2,12 +2,12 @@
 
 ## 指针
 
-- 当前版本：`v0.14.0`
-- 阶段：自适应战斗布局与第四预设
-- 当前版本文档：`docs/versions/v0.14.0.md`
+- 当前版本：`v0.15.0`
+- 阶段：macOS 开发工具补丁
+- 当前版本文档：`docs/versions/v0.15.0.md`
 - 当前文档状态：已关闭
 - 更新日期：2026-11-08
-- 前一版本：`v0.13.0`，已关闭；20 卡池与四张新牌已接入
+- 前一版本：`v0.14.0`，已关闭；自适应战斗布局与第四预设已完成
 
 ## 强制阅读
 
@@ -15,7 +15,7 @@
 2. `docs/PROJECT_CHARTER.md`
 3. `docs/TEAM_PROTOCOL.md`
 4. `docs/ARCHITECTURE_CONTRACT.md`
-5. `docs/versions/v0.14.0.md`
+5. `docs/versions/v0.15.0.md`
 
 ## 当前冻结规则
 
@@ -55,9 +55,17 @@
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
 - 产品经理：`product_manager_v2`。
-- 角色报告路径：`docs/reports/v0.14.0/<role>.md`。
+- 角色报告路径：`docs/reports/v0.15.0/<role>.md`。
 
 ## 当前验证结果
+
+v0.15.0 macOS 开发工具补丁已关闭：
+
+- 编辑器与试玩脚本 shell 语法通过。
+- Godot 4.7.2 headless 启动退出码均为 `0`。
+- 缺少 `.tools/` 时两个脚本均返回退出码 `1` 并显示修复路径。
+- 参数透传、格式检查和 Windows 入口未修改检查通过。
+- 详细证据见 `docs/reports/v0.15.0/qa.md`。
 
 v0.14.0 当前质量门：
 
@@ -107,6 +115,9 @@ v0.7.0 已关闭并通过最终回归：
 - UI 已完成 v0.7 卡组与第二挑战美术实际界面复审。
 
 ## 当前状态
+
+- v0.15.0 macOS 开发工具补丁已关闭；编辑器与试玩入口可在本机使用。
+- 下一功能版本需要等待用户选择方向。
 
 - v0.14.0 的 38 组统一 QA 已全部通过。
 - v0.14.0 20 卡池、四预设、多视口布局、身份被动、路线选择和状态说明回归通过。

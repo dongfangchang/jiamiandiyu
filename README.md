@@ -12,6 +12,8 @@
 双击 `open-editor.cmd` 即可用 Godot 打开本项目。
 双击 `play.cmd` 可直接启动当前可玩版本。
 
+macOS 可运行 `./open-editor-mac.sh` 用 Godot 4.7.2 打开本项目，或运行 `./play-mac.sh` 直接试玩；脚本默认使用 `.tools/godot-4.7.2/Godot.app`。
+
 `play.cmd` 仍依赖项目内 `.tools/` 中的 Godot；下面生成的独立构建不依赖编辑器、`.tools/` 或网络。
 
 生成独立 Windows 构建：
