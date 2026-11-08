@@ -290,7 +290,7 @@ func _show_empty() -> void:
 
 func _refresh_buttons() -> void:
 	if is_instance_valid(_back_button):
-		_back_button.disabled = _busy
+		_back_button.disabled = false
 	for definition_id in _buttons_by_card:
 		var button: Button = _buttons_by_card[definition_id]
 		if is_instance_valid(button):
@@ -298,8 +298,6 @@ func _refresh_buttons() -> void:
 
 
 func _on_back() -> void:
-	if _busy:
-		return
 	back_requested.emit()
 
 

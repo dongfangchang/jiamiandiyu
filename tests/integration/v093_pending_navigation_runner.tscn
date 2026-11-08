@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/integration/v093_pending_navigation_runner.gd" id="1"]
+
+[node name="V093PendingNavigationRunner" type="Node"]
+script = ExtResource("1")

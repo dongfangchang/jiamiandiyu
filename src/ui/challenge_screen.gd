@@ -108,8 +108,6 @@ func request_start() -> void:
 
 
 func request_exit() -> void:
-	if _busy:
-		return
 	exit_requested.emit()
 
 
@@ -423,7 +421,7 @@ func _refresh_buttons() -> void:
 	if is_instance_valid(_start_button):
 		_start_button.disabled = not can_start()
 	if is_instance_valid(_exit_button):
-		_exit_button.disabled = _busy
+		_exit_button.disabled = false
 
 
 func _show_empty() -> void:

@@ -120,8 +120,6 @@ func request_confirm_deck() -> void:
 
 
 func request_back() -> void:
-	if _busy:
-		return
 	back_requested.emit()
 
 
@@ -582,7 +580,7 @@ func _refresh_buttons() -> void:
 		if not is_instance_valid(button):
 			continue
 		if button == _back_button or button == _reset_button or button == _clear_button:
-			button.disabled = _busy
+			button.disabled = false if button == _back_button else _busy
 		elif button == _confirm_button:
 			button.disabled = _busy or not legal
 		else:

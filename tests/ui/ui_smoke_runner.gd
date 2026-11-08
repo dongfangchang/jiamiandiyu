@@ -30,7 +30,9 @@ func _test_start_screen() -> void:
 		"start screen shows the current product label without a checkpoint"
 	)
 	_expect(
-		screen.get_version_text().contains("v0.9.2")
+		screen.get_version_text().contains("v%s" % String(
+			ProjectSettings.get_setting("application/config/version", "")
+		))
 		and not screen.get_version_text().contains("WHISPERS"),
 		"start screen shows the current Chinese version without English branding"
 	)
@@ -53,7 +55,9 @@ func _test_start_screen() -> void:
 	_expect(screen.is_continue_enabled(), "continue enabled with loaded checkpoint")
 	_expect(screen.get_status_text().contains("检查点"), "start screen shows checkpoint status")
 	_expect(
-		screen.get_version_text().contains("v0.9.2"),
+		screen.get_version_text().contains("v%s" % String(
+			ProjectSettings.get_setting("application/config/version", "")
+		)),
 		"loaded checkpoints must not replace the current product version"
 	)
 	_expect(screen.get_summary_text().contains("记者"), "summary shows resolved identity")

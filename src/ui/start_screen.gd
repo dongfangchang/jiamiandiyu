@@ -64,7 +64,7 @@ func show_checkpoint_status(
 	_continue_button.disabled = status != "loaded"
 	_new_game_button.disabled = false
 	_version_label.text = "v%s  ·  本地离线原型" % String(
-		ProjectSettings.get_setting("application/config/version", "0.9.2")
+		ProjectSettings.get_setting("application/config/version", "0.9.3")
 	)
 	match status:
 		"loaded":
@@ -82,7 +82,7 @@ func show_checkpoint_status(
 			_version_label.text = "v%s  ·  本地离线原型" % String(
 				ProjectSettings.get_setting(
 					"application/config/version",
-					"0.9.2"
+					"0.9.3"
 				)
 			)
 			set_challenge_available(
@@ -227,7 +227,7 @@ func _build() -> void:
 	footer.add_child(footer_spacer)
 	_version_label = UiTheme.label(
 		"v%s  ·  本地离线原型" % String(
-			ProjectSettings.get_setting("application/config/version", "0.9.2")
+			ProjectSettings.get_setting("application/config/version", "0.9.3")
 		),
 		11,
 		UiTheme.C_GOLD

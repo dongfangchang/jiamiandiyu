@@ -137,7 +137,9 @@ func _test_corrupt_primary_backup_restore_through_ui() -> void:
 	if title_screen != null and title_screen.has_method("get_version_text"):
 		var version_text := String(title_screen.call("get_version_text"))
 		_expect(
-			version_text.contains("v0.9.2")
+			version_text.contains("v%s" % String(
+				ProjectSettings.get_setting("application/config/version", "")
+			))
 			and not version_text.contains("WHISPERS"),
 			"title version text should use the current Chinese product version"
 		)

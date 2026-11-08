@@ -130,7 +130,7 @@ v0.9.1 已关闭所有权（保留历史）：
 - `tests/integration/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.9.1/<role>.md` 记录本版本工作。
 
-v0.9.2 当前所有权：
+v0.9.2 已关闭所有权（保留历史）：
 
 - 自 2026-11-08 起，`product_manager_v2` 继续负责当前及后续版本的质量制度、版本文档和验收；历史文档不删除。
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
@@ -140,6 +140,17 @@ v0.9.2 当前所有权：
 - `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.9.2/<role>.md` 记录本版本工作。
 - 日常迭代按修改面选择最小测试集；版本门必须通过全量 QA、破坏性专项、截图和独立构建。
+
+v0.9.3 当前所有权：
+
+- 自 2026-11-08 起，`product_manager_v2` 继续负责当前及后续版本的质量制度、版本文档和验收；历史文档不删除。
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者；不得同时修改同一文件。
+- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：当前产品经理。
+- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.9.3/<role>.md` 记录本版本工作。
+- 返回、退出和取消不得被领域结算的 pending 状态永久禁用；重复结算仍必须由单次命令保护。
 
 ## 5. 协作与同步
 

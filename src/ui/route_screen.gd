@@ -215,7 +215,7 @@ func _render_snapshot() -> void:
 	var phase := String(_snapshot_data.get("phase", ""))
 	var outcome := String(_snapshot_data.get("route_outcome", ""))
 	_result_button.disabled = _busy or outcome.is_empty()
-	_hub_button.disabled = _busy
+	_hub_button.disabled = false
 	if phase == "map":
 		_set_status("选择当前可进入的路线节点。")
 	elif phase == "battle_pending":
@@ -358,7 +358,7 @@ func _refresh_buttons() -> void:
 			_snapshot_data.get("route_outcome", "")
 		).is_empty()
 	if is_instance_valid(_hub_button):
-		_hub_button.disabled = _busy
+		_hub_button.disabled = false
 
 
 func _on_result() -> void:
@@ -368,8 +368,6 @@ func _on_result() -> void:
 
 
 func _on_hub() -> void:
-	if _busy:
-		return
 	hub_requested.emit()
 
 

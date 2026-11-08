@@ -134,8 +134,6 @@ func request_hint() -> void:
 
 
 func request_cancel() -> void:
-	if _busy:
-		return
 	_busy = true
 	_refresh_buttons()
 	_set_status("正在退出仪式……")
@@ -406,7 +404,7 @@ func _refresh_buttons() -> void:
 			or step_index in hinted
 		)
 	if is_instance_valid(_cancel_button):
-		_cancel_button.disabled = _busy or not in_progress
+		_cancel_button.disabled = not in_progress
 	for button_value in _option_buttons.values():
 		var button: Button = button_value
 		if is_instance_valid(button):
