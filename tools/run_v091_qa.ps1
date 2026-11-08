@@ -6,6 +6,17 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $godot = Join-Path $projectRoot ".tools\godot-4.7.2\Godot_v4.7.2-stable_win64.exe"
 $logDirectory = Join-Path $projectRoot ".tools\qa-logs"
+$projectConfig = Get-Content -Raw -LiteralPath (
+    Join-Path $projectRoot "project.godot"
+)
+$versionMatch = [regex]::Match(
+    $projectConfig,
+    'config/version="([^"]+)"'
+)
+$projectVersion = "unknown"
+if ($versionMatch.Success) {
+    $projectVersion = $versionMatch.Groups[1].Value
+}
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null
 
 $checks = @(
@@ -46,6 +57,8 @@ $checks = @(
     @{ Name = "route_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v05_route_contract_runner.tscn") },
     @{ Name = "challenge_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v06_challenge_contract_runner.tscn") },
     @{ Name = "deck_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v07_deck_contract_runner.tscn") },
+    @{ Name = "v018_deck_balance"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v018_deck_balance_audit_runner.tscn") },
+    @{ Name = "v020_preset_metrics"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v020_preset_metrics_runner.tscn") },
     @{ Name = "main"; Args = @("--headless","--path",$projectRoot,"--quit-after","5") }
 )
 
@@ -67,4 +80,4 @@ foreach ($check in $checks) {
 if ($failed.Count -gt 0) {
     throw "QA failed: $($failed -join ', ')"
 }
-Write-Host "V0.14.0 QA PASS: $($checks.Count) checks"
+Write-Host "V$projectVersion QA PASS: $($checks.Count) checks"
