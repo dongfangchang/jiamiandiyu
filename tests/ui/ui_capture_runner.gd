@@ -8,6 +8,7 @@ const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
 const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
 const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
+const RouteSelectScene := preload("res://scenes/ui/route_select_screen.tscn")
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
@@ -23,6 +24,7 @@ const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
 const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
 const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
+const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
 
 const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
@@ -34,6 +36,7 @@ func _ready() -> void:
 	await _capture_start()
 	await _capture_tutorial()
 	await _capture_settings()
+	await _capture_route_select()
 	await _capture_deck()
 	await _capture_identity()
 	await _capture_identity_hub()
@@ -59,7 +62,7 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.10.1",
+		"content_version": "v0.11.0",
 		"sequence": 8,
 		"deck_size": 8,
 		"identity_id": "identity.reporter",
@@ -98,6 +101,18 @@ func _capture_settings() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("settings_screen.png")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _capture_route_select() -> void:
+	var screen = RouteSelectScene.instantiate()
+	add_child(screen)
+	var previews = AppBootstrapScript.get_route_previews_v07({})
+	screen.set_routes(previews.data if previews.ok else [])
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("route_select_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 

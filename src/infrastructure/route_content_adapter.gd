@@ -132,18 +132,19 @@ func _validate_route(route: Dictionary, catalog: CampaignContentCatalog) -> bool
 	if not nodes_value is Array or nodes_value.size() != EXPECTED_NODE_TYPES.size():
 		return false
 	var seen_node_ids: Dictionary = {}
-	for index in range(nodes_value.size()):
-		var value: Variant = nodes_value[index]
+	var seen_node_types: Dictionary = {}
+	for value in nodes_value:
 		if not value is Dictionary:
 			return false
 		var node: Dictionary = value
 		var node_id := String(node.get("id", ""))
 		if node_id.is_empty() or seen_node_ids.has(node_id):
 			return false
-		if String(node.get("type", "")) != EXPECTED_NODE_TYPES[index]:
+		var node_type := String(node.get("type", ""))
+		if node_type not in EXPECTED_NODE_TYPES or seen_node_types.has(node_type):
 			return false
 		seen_node_ids[node_id] = true
-		var node_type := String(node.get("type", ""))
+		seen_node_types[node_type] = true
 		if node_type in ["normal", "elite", "boss"]:
 			if not catalog.has_encounter(
 				StringName(node.get("encounter_id", ""))

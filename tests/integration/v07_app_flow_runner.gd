@@ -58,7 +58,13 @@ func _test_start_state() -> void:
 func _test_identity_and_deck() -> void:
 	_app.get_current_screen().new_game_requested.emit()
 	await _wait_frames(3)
-	_expect(_app.get_current_route() == &"identity", "new game opens identity selection")
+	_expect(
+		_app.get_current_route() == &"route_select",
+		"new game opens route selection"
+	)
+	_app.get_current_screen().choose_route("route.v070.first_case")
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"identity", "route choice opens identity selection")
 	_app.get_current_screen().choose_identity(IDENTITY_ID)
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"deck", "identity selection opens the deck editor")

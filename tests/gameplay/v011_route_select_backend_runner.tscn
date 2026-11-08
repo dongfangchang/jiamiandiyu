@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/gameplay/v011_route_select_backend_runner.gd" id="1"]
+
+[node name="V011RouteSelectBackendRunner" type="Node"]
+script = ExtResource("1")

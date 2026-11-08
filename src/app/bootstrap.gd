@@ -574,6 +574,35 @@ static func start_route(
 	)
 
 
+static func get_route_previews_v07(
+	paths: Dictionary = {}
+) -> InfrastructureResult:
+	var loader := JsonDocumentLoaderScript.new()
+	var routes_result := loader.load_document(
+		String(paths.get("routes", DEFAULT_V07_ROUTES_PATH)),
+		String(paths.get("routes_schema", DEFAULT_V07_ROUTES_SCHEMA_PATH))
+	)
+	if not routes_result.ok:
+		return _with_stage(routes_result, &"routes")
+	var previews: Array[Dictionary] = []
+	for route_value in routes_result.data.get("routes", []):
+		if not route_value is Dictionary:
+			continue
+		var route: Dictionary = route_value
+		previews.append({
+			"id": String(route.get("id", "")),
+			"display_name_zh": String(route.get(
+				"display_name_zh",
+				route.get("id", "")
+			)),
+			"description_zh": String(route.get(
+				"description_zh",
+				"选择这条调查路线。"
+			)),
+		})
+	return InfrastructureResultScript.success(previews)
+
+
 static func start_route_v07(
 	run_seed: int,
 	paths: Dictionary = {},
@@ -697,6 +726,7 @@ static func start_route_v07(
 	)
 	var save_service := SaveMigrationsScript.create_v07_service(save_directory)
 	var selected_seed := run_seed
+	var selected_route_id := StringName(paths.get("route_id", ""))
 	var progression_state: Dictionary = {}
 	var route_state: Dictionary = {}
 	var deck_state: Dictionary = {}
@@ -727,6 +757,11 @@ static func start_route_v07(
 			var stored_state: Variant = saved_route.get("state", {})
 			if stored_state is Dictionary:
 				route_state = stored_state.duplicate(true)
+				var stored_route_id := StringName(
+					stored_state.get("route_id", "")
+				)
+				if not stored_route_id.is_empty():
+					selected_route_id = stored_route_id
 		var saved_sequence: Variant = saved_route.get("sequence_state", {})
 		if saved_sequence is Dictionary:
 			resumed_sequence = saved_sequence.duplicate(true)
@@ -749,6 +784,14 @@ static func start_route_v07(
 		var explicit_deck: Variant = paths.get("deck_state", {})
 		if explicit_deck is Dictionary and not explicit_deck.is_empty():
 			deck_state = explicit_deck.duplicate(true)
+	if selected_route_id.is_empty():
+		selected_route_id = route_content.get_default_route_id()
+	if not route_content.has_route(selected_route_id):
+		return InfrastructureResultScript.failure(
+			&"route_not_found",
+			"Requested v0.7 route does not exist.",
+			{"route_id": String(selected_route_id)}
+		)
 
 	var services := create_services(selected_seed)
 	services.saves = save_service
@@ -815,7 +858,8 @@ static func start_route_v07(
 		checkpoint_slot,
 		deck_engine,
 		"v0.7.0",
-		5
+		5,
+		selected_route_id
 	)
 	var initialized_route := session.initialize(route_state)
 	if not initialized_route.ok:
@@ -824,7 +868,7 @@ static func start_route_v07(
 		session,
 		{
 			"resumed": resume_from_checkpoint,
-			"route_id": String(route_content.get_default_route_id()),
+			"route_id": String(selected_route_id),
 			"content_version": "v0.7.0",
 			"sequence_state": resumed_sequence,
 		}

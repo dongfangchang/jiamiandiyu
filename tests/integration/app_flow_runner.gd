@@ -57,7 +57,13 @@ func _test_start_state() -> void:
 func _test_new_route_identity() -> void:
 	_app.get_current_screen().new_game_requested.emit()
 	await _wait_frames(3)
-	_expect(_app.get_current_route() == &"identity", "new game routes to identity selection")
+	_expect(
+		_app.get_current_route() == &"route_select",
+		"new game routes to route selection"
+	)
+	_app.get_current_screen().choose_route("route.v070.first_case")
+	await _wait_frames(3)
+	_expect(_app.get_current_route() == &"identity", "route choice routes to identity selection")
 	_expect(_app.get_session() != null, "route session is retained")
 	var progression = _app.get_progression_snapshot()
 	_expect(

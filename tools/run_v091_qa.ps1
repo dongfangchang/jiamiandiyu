@@ -22,6 +22,7 @@ $checks = @(
     @{ Name = "v07_deck"; Args = @("--headless","--path",$projectRoot,"res://tests/gameplay/v07_deck_test_runner.tscn") },
     @{ Name = "v07_challenge"; Args = @("--headless","--path",$projectRoot,"res://tests/gameplay/v07_challenge_test_runner.tscn") },
     @{ Name = "v0100_chain"; Args = @("--headless","--path",$projectRoot,"res://tests/gameplay/v0100_chain_runner.tscn") },
+    @{ Name = "v011_route_select"; Args = @("--headless","--path",$projectRoot,"res://tests/gameplay/v011_route_select_backend_runner.tscn") },
     @{ Name = "ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/ui_smoke_runner.tscn") },
     @{ Name = "progression_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/ui_progression_smoke_runner.tscn") },
     @{ Name = "route_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v05_route_ui_smoke_runner.tscn") },
@@ -35,6 +36,8 @@ $checks = @(
     @{ Name = "v093_pending_navigation"; Args = @("--headless","--path",$projectRoot,"res://tests/integration/v093_pending_navigation_runner.tscn") },
     @{ Name = "v094_response_truth"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v094_response_truth_smoke_runner.tscn") },
     @{ Name = "v0100_chain_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v0100_chain_ui_smoke_runner.tscn") },
+    @{ Name = "v011_route_select_ui"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v011_route_select_smoke_runner.tscn") },
+    @{ Name = "v011_status_keyword"; Args = @("--headless","--path",$projectRoot,"res://tests/ui/v011_status_keyword_smoke_runner.tscn") },
     @{ Name = "simulation_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/balance_contract_runner.tscn") },
     @{ Name = "economy"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v04_economy_contract_runner.tscn") },
     @{ Name = "route_contract"; Args = @("--headless","--path",$projectRoot,"res://tests/simulation/v05_route_contract_runner.tscn") },
@@ -61,4 +64,4 @@ foreach ($check in $checks) {
 if ($failed.Count -gt 0) {
     throw "QA failed: $($failed -join ', ')"
 }
-Write-Host "V0.10.1 QA PASS: $($checks.Count) checks"
+Write-Host "V0.11.0 QA PASS: $($checks.Count) checks"

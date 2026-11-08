@@ -16,6 +16,7 @@ const ChallengeHubScreenScene := preload("res://scenes/ui/challenge_hub_screen.t
 const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
+const RouteSelectScreenScene := preload("res://scenes/ui/route_select_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
@@ -33,6 +34,7 @@ const ROUTE_DECK: StringName = &"deck"
 const ROUTE_IDENTITY: StringName = &"identity"
 const ROUTE_HUB: StringName = &"hub"
 const ROUTE_MAP: StringName = &"map"
+const ROUTE_ROUTE_SELECT: StringName = &"route_select"
 const ROUTE_REST: StringName = &"rest"
 const ROUTE_BATTLE: StringName = &"battle"
 const ROUTE_REWARD: StringName = &"reward"
@@ -113,13 +115,17 @@ func show_start_screen() -> void:
 
 func start_new_game(
 	seed_value: int = -1,
-	_encounter_id: StringName = &""
+	_encounter_id: StringName = &"",
+	route_id: StringName = &""
 ) -> InfrastructureResult:
 	checkpoint_slot = _base_checkpoint_slot
 	var resolved_seed := _resolve_seed(seed_value)
+	var paths := {"save_directory": save_directory}
+	if not route_id.is_empty():
+		paths["route_id"] = String(route_id)
 	var result = AppBootstrapScript.start_route_v07(
 		resolved_seed,
-		{"save_directory": save_directory},
+		paths,
 		checkpoint_slot,
 		false
 	)
@@ -1201,9 +1207,19 @@ func _format_card_effects(definition: Dictionary) -> String:
 			"draw":
 				parts.append("抽 %d 张牌" % int(effect.get("count", 0)))
 			"apply_status":
-				parts.append("施加 %d 层 %s" % [
+				var status_id := StringName(effect.get(
+					"status_id",
+					""
+				))
+				var status_note := ""
+				if status_id == &"mark":
+					status_note = "（下次受伤时附加等量伤害并消耗）"
+				elif status_id == &"weaken":
+					status_note = "（降低敌人下一次攻击）"
+				parts.append("施加 %d 层%s%s" % [
 					int(effect.get("stacks", 0)),
-					_status_label(StringName(effect.get("status_id", ""))),
+					_status_label(status_id),
+					status_note,
 				])
 			"remove_status":
 				parts.append("移除 %s" % _status_label(
@@ -1231,7 +1247,23 @@ func _status_label(status_id: StringName) -> String:
 
 
 func _on_new_game_requested() -> void:
-	start_new_game(_resolve_seed(-1))
+	_show_route_selection()
+
+
+func _show_route_selection() -> void:
+	var previews := AppBootstrapScript.get_route_previews_v07({})
+	if not previews.ok:
+		_show_start_error(previews)
+		return
+	var screen := _replace_screen(RouteSelectScreenScene)
+	screen.route_selected.connect(_on_route_selected)
+	screen.back_requested.connect(show_start_screen)
+	screen.set_routes(previews.data)
+	_set_route(ROUTE_ROUTE_SELECT)
+
+
+func _on_route_selected(route_id: StringName) -> void:
+	start_new_game(_resolve_seed(-1), &"", route_id)
 
 
 func _on_challenge_requested() -> void:
@@ -1340,7 +1372,7 @@ func _on_feedback_submitted(feedback: Dictionary) -> void:
 
 func _start_diagnostics() -> void:
 	_diagnostics = DiagnosticsServiceScript.new(_diagnostics_directory)
-	_diagnostics.start_session("v0.10.1", "development")
+	_diagnostics.start_session("v0.11.0", "development")
 
 
 func _record_diagnostic(event_type: String, details: Dictionary = {}) -> void:

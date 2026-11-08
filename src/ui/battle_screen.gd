@@ -251,6 +251,7 @@ func select_card_instance(card_instance_id: StringName) -> void:
 		_status_label.text = "已选择「%s」；请选择敌方列。" % _card_name(StringName(card["definition_id"]))
 	else:
 		_query_current_playability()
+	_refresh_hand_selection()
 	_refresh_selection()
 	_refresh_controls()
 
@@ -272,6 +273,7 @@ func cancel_selection() -> void:
 	if is_instance_valid(_status_label):
 		_status_label.text = "已取消选择。"
 	selection_changed.emit(&"", &"")
+	_refresh_hand_selection()
 	_refresh_selection()
 	_refresh_controls()
 
@@ -627,6 +629,30 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			var visible: Dictionary = intent.get("visible_fields", {})
 			intent_text = "意图：攻击 %d" % int(visible.get("damage", 0))
 		column.add_child(UiTheme.center_label(intent_text, 13, UiTheme.C_PAPER))
+		var statuses: Array = enemy.get("statuses", [])
+		if not statuses.is_empty():
+			var status_row := HBoxContainer.new()
+			status_row.alignment = BoxContainer.ALIGNMENT_CENTER
+			status_row.add_theme_constant_override("separation", 6)
+			for status_value in statuses:
+				if not status_value is Dictionary:
+					continue
+				var status: Dictionary = status_value
+				var status_id := StringName(status.get("status_id", ""))
+				var status_badge := UiTheme.badge(
+					"%s %d" % [
+						_status_name(status_id),
+						int(status.get("stacks", 0)),
+					],
+					UiTheme.C_GOLD if status_id == &"mark" else UiTheme.C_PAPER,
+					UiTheme.C_LINE
+				)
+				if status_id == &"mark":
+					status_badge.tooltip_text = "标记：受到下一次伤害时附加等量伤害并消耗"
+				elif status_id == &"weaken":
+					status_badge.tooltip_text = "削弱：降低敌人下一次攻击"
+				status_row.add_child(status_badge)
+			column.add_child(status_row)
 
 		var target_button := UiTheme.button(
 			"选择此目标",
@@ -663,7 +689,10 @@ func _build_hand_card(card: Dictionary) -> Control:
 		Color("#272318") if selected else Color("#1b1a15"),
 		border
 	)
-	panel.custom_minimum_size = Vector2(242, 244)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.set_meta("battle_instance_id", String(instance_id))
+	panel.custom_minimum_size = Vector2(242, 212)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var column := VBoxContainer.new()
@@ -731,7 +760,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 		)
 		effect_label.custom_minimum_size = Vector2(0, 34)
 		column.add_child(effect_label)
-	panel.tooltip_text = "实例 ID：%s" % String(instance_id)
+	panel.tooltip_text = "点击整张卡牌选择；再选择目标并打出"
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -744,7 +773,33 @@ func _build_hand_card(card: Dictionary) -> Control:
 	select_button.name = "SelectButton"
 	select_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(select_button)
+	panel.gui_input.connect(_on_hand_card_input.bind(instance_id))
+	_make_card_descendants_mouse_transparent(panel, select_button)
 	return panel
+
+
+func _on_hand_card_input(
+	event: InputEvent,
+	instance_id: StringName
+) -> void:
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+	):
+		select_card_instance(instance_id)
+
+
+func _make_card_descendants_mouse_transparent(
+	control: Node,
+	select_button: Button
+) -> void:
+	for child in control.get_children():
+		if child == select_button:
+			continue
+		if child is Control:
+			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_make_card_descendants_mouse_transparent(child, select_button)
 
 
 func _query_current_playability() -> void:
@@ -838,6 +893,32 @@ func _refresh_target_highlights() -> void:
 		if target_button != null:
 			target_button.disabled = not highlighted
 			target_button.text = "选择目标" if highlighted else "选择此目标"
+
+
+func _refresh_hand_selection() -> void:
+	if not is_instance_valid(_hand_row):
+		return
+	for child in _hand_row.get_children():
+		if not child is PanelContainer:
+			continue
+		var panel := child as PanelContainer
+		var instance_id := StringName(panel.get_meta(
+			"battle_instance_id",
+			""
+		))
+		var selected := instance_id == _selection_card_id
+		panel.add_theme_stylebox_override(
+			"panel",
+			UiTheme.style_box(
+				Color("#272318") if selected else Color("#1b1a15"),
+				UiTheme.C_GOLD if selected else UiTheme.C_LINE,
+				1,
+				8
+			)
+		)
+		var select_button := _find_named_button(panel, "SelectButton")
+		if select_button != null:
+			select_button.text = "已选择" if selected else "选择手牌"
 
 
 func _set_buttons_disabled(control: Node, disabled: bool) -> void:

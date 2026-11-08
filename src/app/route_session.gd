@@ -26,6 +26,7 @@ var save_version: int = DEFAULT_SAVE_VERSION
 var root_seed: int
 var checkpoint_slot: String
 var last_checkpoint_result: InfrastructureResult = null
+var selected_route_id: StringName = &""
 
 var _route_engine: RouteEngine = null
 var _battle_session: GameSession = null
@@ -45,7 +46,8 @@ func _init(
 	save_slot: String,
 	deck_engine_value: DeckEngine = null,
 	content_version_value: String = DEFAULT_CONTENT_VERSION,
-	save_version_value: int = DEFAULT_SAVE_VERSION
+	save_version_value: int = DEFAULT_SAVE_VERSION,
+	route_id_value: StringName = &""
 ) -> void:
 	services = app_services
 	catalog = content_catalog
@@ -59,6 +61,11 @@ func _init(
 	save_version = save_version_value
 	root_seed = run_seed
 	checkpoint_slot = save_slot
+	selected_route_id = (
+		route_id_value
+		if not route_id_value.is_empty()
+		else route_content.get_default_route_id()
+	)
 
 
 func initialize(route_state: Dictionary = {}) -> InfrastructureResult:
@@ -73,7 +80,7 @@ func initialize(route_state: Dictionary = {}) -> InfrastructureResult:
 		return InfrastructureResultScript.success(self, {"route_deferred": true})
 	_route_engine = RouteEngineScript.new(
 		route_content,
-		route_content.get_default_route_id()
+		selected_route_id
 	)
 	var initialized: RouteCommandResult
 	if route_state.is_empty():

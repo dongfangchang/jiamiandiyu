@@ -19,6 +19,7 @@
         "properties": {
           "id": {"type": "string", "pattern": "^route\\."},
           "display_name_zh": {"type": "string", "minLength": 1},
+          "description_zh": {"type": "string"},
           "initial_run_state": {"type": "object"},
           "sequence": {"type": "object", "required": ["pathway_id", "pathway_name_zh", "current_sequence", "next_sequence", "next_sequence_name_zh"]},
           "rest_options": {

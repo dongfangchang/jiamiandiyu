@@ -709,16 +709,18 @@ func _load_route() -> bool:
 		NODE_BOSS,
 		NODE_RITUAL,
 	]
-	for index in range(nodes_value.size()):
-		var value: Variant = nodes_value[index]
+	var seen_types: Dictionary = {}
+	for value in nodes_value:
 		if not value is Dictionary:
 			return false
 		var node: Dictionary = value.duplicate(true)
 		var node_id := String(node.get("id", ""))
 		if node_id.is_empty() or _node_by_id.has(node_id):
 			return false
-		if StringName(node.get("type", "")) != expected_types[index]:
+		var node_type := StringName(node.get("type", ""))
+		if node_type not in expected_types or seen_types.has(node_type):
 			return false
+		seen_types[node_type] = true
 		if node.get("type") in ["normal", "elite", "boss"]:
 			if String(node.get("encounter_id", "")).is_empty():
 				return false
@@ -729,6 +731,8 @@ func _load_route() -> bool:
 				return false
 		_nodes.append(node)
 		_node_by_id[node_id] = node
+	if seen_types.size() != expected_types.size():
+		return false
 	var options_value: Variant = _route.get("rest_options")
 	if not options_value is Array or options_value.size() < 2:
 		return false
