@@ -14,6 +14,7 @@ var _result_row: HBoxContainer
 var _ticket_label: Label
 var _pity_label: Label
 var _cost_label: Label
+var _guidance_label: Label
 var _status_label: Label
 var _single_button: Button
 var _triple_button: Button
@@ -99,6 +100,10 @@ func get_ticket_text() -> String:
 	return _ticket_label.text if is_instance_valid(_ticket_label) else ""
 
 
+func get_guidance_text() -> String:
+	return _guidance_label.text if is_instance_valid(_guidance_label) else ""
+
+
 func get_background_path() -> String:
 	return ProgressionCatalog.GACHA_BACKGROUND
 
@@ -168,6 +173,8 @@ func _build() -> void:
 func _build_bottom_controls() -> VBoxContainer:
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
+	_guidance_label = UiTheme.wrapped_label("抽取说明等待档案。", 13, UiTheme.C_PAPER)
+	content.add_child(_guidance_label)
 	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
 	content.add_child(_status_label)
 	var row := HBoxContainer.new()
@@ -273,6 +280,7 @@ func _build_result_card(result: Dictionary) -> Control:
 
 func _update_resources() -> void:
 	var costs: Dictionary = _snapshot_data.get("gacha_costs", {})
+	var rarity_weights: Dictionary = _snapshot_data.get("rarity_weights", {})
 	var tickets := int(_snapshot_data.get("divination_tickets", 0))
 	var single_cost := int(costs.get("single", 0))
 	var triple_cost := int(costs.get("triple", 0))
@@ -281,12 +289,23 @@ func _update_resources() -> void:
 		int(_snapshot_data.get("pity_counter", 0)),
 		int(_snapshot_data.get("rare_pity", 0)),
 	]
+	_guidance_label.text = _gacha_guidance(rarity_weights, int(_snapshot_data.get("rare_pity", 0)))
 	_cost_label.text = "单抽 %d 券  ·  三连 %d 券  ·  三连按三次独立抽取结算" % [
 		single_cost,
 		triple_cost,
 	]
 	_single_button.disabled = _busy or single_cost <= 0 or tickets < single_cost
 	_triple_button.disabled = _busy or triple_cost <= 0 or tickets < triple_cost
+
+
+func _gacha_guidance(rarity_weights: Dictionary, rare_pity: int) -> String:
+	if not rarity_weights.has("rare") or rare_pity <= 0:
+		return "抽取说明：稀有率与保底信息暂不可用，请稍后查看档案。"
+	var rare_weight: Variant = rarity_weights.get("rare")
+	var rare_weight_text := String(rare_weight)
+	if rare_weight is float and is_equal_approx(float(rare_weight), round(float(rare_weight))):
+		rare_weight_text = str(int(rare_weight))
+	return "抽取说明：稀有回响权重 %s · 保底上限 %d 次" % [rare_weight_text, rare_pity]
 
 
 func _refresh_buttons() -> void:

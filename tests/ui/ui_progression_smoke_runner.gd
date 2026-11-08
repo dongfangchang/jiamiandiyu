@@ -140,6 +140,8 @@ func _test_gacha() -> void:
 	}))
 	_expect(screen.get_background_path().ends_with("gacha-altar.png"), "gacha altar background resolves")
 	_expect(screen.get_ticket_text().contains("7"), "gacha reads tickets from snapshot")
+	_expect(screen.get_guidance_text().contains("稀有回响权重 15"), "gacha explains rare probability from snapshot")
+	_expect(screen.get_guidance_text().contains("保底上限 4 次"), "gacha explains pity ceiling from snapshot")
 	_expect(screen.get_result_count() == 0, "gacha starts with no result cards")
 	screen.request_draw(3)
 	_expect(screen.is_pending(), "gacha command enters pending")
