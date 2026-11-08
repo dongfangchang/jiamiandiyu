@@ -162,7 +162,7 @@ v0.9.4 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.9.4/<role>.md` 记录本版本工作。
 - S3 显示与文案问题不得冻结不相关角色；只有 S1/数据破坏/持续崩溃触发全局暂停。
 
-v0.10.0 当前所有权：
+v0.10.0 已关闭所有权（保留历史）：
 
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
@@ -171,6 +171,16 @@ v0.10.0 当前所有权：
 - `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.10.0/<role>.md` 记录本版本工作。
 - 战斗连携只通过 `battle.chain` 配置；UI 读取快照字段，不自行计算触发或伤害。
+
+v0.10.1 当前所有权：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
+- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
+- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- 所有角色在 `docs/reports/v0.10.1/<role>.md` 记录本版本工作。
+- 连携事件必须描述真实完成的结算；非阻断缺口进入补丁或候选池，不冻结不相关功能。
 
 ## 5. 协作与同步
 

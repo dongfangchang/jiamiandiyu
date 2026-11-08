@@ -8,8 +8,12 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	_test_formal_chain_configuration()
 	_test_zero_cost_and_threshold()
+	_test_rejected_action_does_not_advance()
 	_test_chain_trigger_kills_all()
+	_test_direct_kill_does_not_emit_empty_echo()
+	_test_echo_draw_reshuffle_and_hand_limit()
 	_test_turn_end_resets_chain()
 	_test_deterministic_replay()
 	if _failures.is_empty():
@@ -19,6 +23,25 @@ func _ready() -> void:
 	for failure in _failures:
 		printerr("V0100_CHAIN_FAIL: %s" % failure)
 	get_tree().quit(1)
+
+
+func _test_formal_chain_configuration() -> void:
+	var balance: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(
+			"res://data/balance/v0.7.0/balance.json"
+		)
+	)
+	var chain: Dictionary = balance.get("combat", {}).get("chain", {})
+	_expect(
+		int(chain.get("threshold", 0)) == 3,
+		"formal balance must define chain threshold"
+	)
+	_expect(
+		int(chain.get("damage", -1)) == 1
+		and int(chain.get("draw", -1)) == 1
+		and int(chain.get("spirit", -1)) == 1,
+		"formal balance must define chain echo effects"
+	)
 
 
 func _test_zero_cost_and_threshold() -> void:
@@ -84,6 +107,22 @@ func _test_zero_cost_and_threshold() -> void:
 		)
 
 
+func _test_rejected_action_does_not_advance() -> void:
+	var engine = _make_engine(
+		[&"card.test.block"],
+		[10]
+	)
+	var rejected = engine.submit(BattleCommandScript.play_card(
+		&"missing.card",
+		&""
+	))
+	_expect(not rejected.accepted, "invalid card command should be rejected")
+	_expect(
+		int(rejected.snapshot.data.get("chain", {}).get("count", -1)) == 0,
+		"rejected commands must not advance chain"
+	)
+
+
 func _test_chain_trigger_kills_all() -> void:
 	var engine = _make_engine(
 		[
@@ -110,6 +149,87 @@ func _test_chain_trigger_kills_all() -> void:
 	_expect(
 		int(third.snapshot.data.get("chain", {}).get("count", -1)) == 0,
 		"lethal chain trigger should reset chain"
+	)
+
+
+func _test_direct_kill_does_not_emit_empty_echo() -> void:
+	var engine = _make_engine(
+		[
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.damage",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+		],
+		[3]
+	)
+	_play_definition(engine, &"card.test.block")
+	_play_definition(engine, &"card.test.block")
+	var lethal: BattleCommandResult = _play_definition(
+		engine,
+		&"card.test.damage"
+	)
+	var chain_triggers := 0
+	for event in lethal.events:
+		if event.type == &"ChainTriggered":
+			chain_triggers += 1
+	_expect(
+		String(lethal.snapshot.data.get("outcome", "")) == "victory",
+		"direct lethal card should finish the battle"
+	)
+	_expect(
+		chain_triggers == 0,
+		"direct lethal card must not emit a chain echo with no living target"
+	)
+
+
+func _test_echo_draw_reshuffle_and_hand_limit() -> void:
+	var engine = _make_engine(
+		[
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+			&"card.test.block",
+		],
+		[20],
+		{"draw": 4, "damage": 0},
+		7,
+		8,
+		8
+	)
+	_play_definition(engine, &"card.test.block")
+	_play_definition(engine, &"card.test.block")
+	var trigger: BattleCommandResult = _play_definition(
+		engine,
+		&"card.test.block"
+	)
+	var reshuffled := false
+	var hand_limit_discard := false
+	for event in trigger.events:
+		if event.type == &"DeckReshuffled":
+			reshuffled = true
+		if (
+			event.type == &"CardDiscarded"
+			and String(event.data.get("reason_code", "")) == "hand_limit"
+		):
+			hand_limit_discard = true
+	_expect(
+		reshuffled,
+		"echo draw should reshuffle when the draw pile is empty"
+	)
+	_expect(
+		hand_limit_discard,
+		"echo draw must respect hand limit without duplicating cards"
+	)
+	_expect(
+		int(trigger.snapshot.data.get("player", {}).get("spirit", -1)) == 1,
+		"echo should still restore spirit after a draw-boundary case"
 	)
 
 
@@ -164,9 +284,13 @@ func _make_engine(
 	deck: Array,
 	enemy_hp: Array,
 	chain_overrides: Dictionary = {},
-	seed: int = 7
+	seed: int = 7,
+	starting_hand: int = 5,
+	max_hand_size: int = 8
 ):
 	var balance = FakeBalance.new()
+	balance.starting_hand = starting_hand
+	balance.max_hand_size = max_hand_size
 	for key in chain_overrides:
 		balance.chain[String(key)] = chain_overrides[key]
 	var engine = BattleEngineScript.new()
@@ -247,6 +371,13 @@ class FakeContent:
 			"target_type": "none",
 			"effects": [{"effect_id": "draw", "count": 1, "target": "none"}],
 		},
+		&"card.test.damage": {
+			"id": "card.test.damage",
+			"category": "skill",
+			"cost_spirit": 1,
+			"target_type": "enemy",
+			"effects": [{"effect_id": "damage", "amount": 3, "target": "enemy"}],
+		},
 	}
 
 	func get_card_definition(definition_id: StringName) -> Dictionary:
@@ -256,6 +387,8 @@ class FakeContent:
 class FakeBalance:
 	extends BattleBalancePort
 
+	var starting_hand := 5
+	var max_hand_size := 8
 	var chain := {
 		"threshold": 3,
 		"damage": 2,
@@ -268,11 +401,11 @@ class FakeBalance:
 			&"battle.max_rounds":
 				return 10
 			&"player.starting_hand":
-				return 5
+				return starting_hand
 			&"player.turn_draw_to_hand_size":
 				return 6
 			&"player.max_hand_size":
-				return 8
+				return max_hand_size
 			&"battle.enemy_pressure_start_round":
 				return 7
 			&"battle.chain":

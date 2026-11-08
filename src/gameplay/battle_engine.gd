@@ -313,9 +313,10 @@ func _play_card(command: BattleCommand) -> BattleCommandResult:
 		"card_instance_id": String(card["instance_id"]),
 		"reason_code": "played",
 	})
+	_check_outcome_after_player_action()
 	if _outcome == OUTCOME_NONE:
 		_advance_chain(int(definition.get("cost_spirit", 0)))
-	_check_outcome_after_player_action()
+		_check_outcome_after_player_action()
 	_revision += 1
 	return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
 
@@ -403,15 +404,6 @@ func _advance_chain(spirit_cost: int) -> void:
 		for enemy in _enemies:
 			if _is_alive(enemy):
 				_apply_damage(enemy, _chain_damage, "chain.echo")
-	if _all_enemies_defeated():
-		_chain_count = 0
-		_emit(&"ChainChanged", {
-			"before": _chain_threshold,
-			"after": 0,
-			"threshold": _chain_threshold,
-			"reason_code": "triggered",
-		})
-		return
 	if _chain_spirit > 0:
 		var spirit_before := int(_player["spirit"])
 		_player["spirit"] = mini(

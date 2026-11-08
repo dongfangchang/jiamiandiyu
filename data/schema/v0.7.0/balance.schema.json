@@ -11,7 +11,22 @@
       "type": "object",
       "required": ["max_health", "starting_health", "spirit_per_turn", "starting_hand", "turn_draw_to_hand_size", "max_hand_size", "corruption", "attention"]
     },
-    "combat": {"type": "object", "required": ["max_rounds", "enemy_pressure"]},
+    "combat": {
+      "type": "object",
+      "required": ["max_rounds", "enemy_pressure", "chain"],
+      "properties": {
+        "chain": {
+          "type": "object",
+          "required": ["threshold", "damage", "draw", "spirit"],
+          "properties": {
+            "threshold": {"type": "integer", "minimum": 1},
+            "damage": {"type": "integer", "minimum": 0},
+            "draw": {"type": "integer", "minimum": 0},
+            "spirit": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
     "progression": {"type": "object"},
     "gacha": {"type": "object"},
     "upgrade": {"type": "object"},

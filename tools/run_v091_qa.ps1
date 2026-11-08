@@ -61,4 +61,4 @@ foreach ($check in $checks) {
 if ($failed.Count -gt 0) {
     throw "QA failed: $($failed -join ', ')"
 }
-Write-Host "V0.10.0 QA PASS: $($checks.Count) checks"
+Write-Host "V0.10.1 QA PASS: $($checks.Count) checks"
