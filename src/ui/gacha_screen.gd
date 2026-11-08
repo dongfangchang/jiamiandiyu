@@ -302,7 +302,7 @@ func _gacha_guidance(rarity_weights: Dictionary, rare_pity: int) -> String:
 	if not rarity_weights.has("rare") or rare_pity <= 0:
 		return "抽取说明：稀有率与保底信息暂不可用，请稍后查看档案。"
 	var rare_weight: Variant = rarity_weights.get("rare")
-	var rare_weight_text := String(rare_weight)
+	var rare_weight_text := str(rare_weight)
 	if rare_weight is float and is_equal_approx(float(rare_weight), round(float(rare_weight))):
 		rare_weight_text = str(int(rare_weight))
 	return "抽取说明：稀有回响权重 %s · 保底上限 %d 次" % [rare_weight_text, rare_pity]
