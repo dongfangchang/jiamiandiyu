@@ -23,6 +23,7 @@ const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
+const DiagnosticsServiceScript := preload("res://src/infrastructure/playtest_diagnostics_service.gd")
 
 const ROUTE_START: StringName = &"start"
 const ROUTE_CHALLENGE_HUB: StringName = &"challenge_hub"
@@ -59,11 +60,15 @@ var _preferences: Dictionary = {
 	"reduce_flash": false,
 }
 var _preferences_path: String = "user://preferences.json"
+var _diagnostics: RefCounted = null
+var _diagnostics_directory: String = "user://diagnostics"
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	get_tree().auto_accept_quit = false
 	_load_preferences()
+	_start_diagnostics()
 	show_start_screen()
 
 
@@ -71,13 +76,20 @@ func configure_for_testing(
 	save_directory_value: String,
 	checkpoint_slot_value: String = "checkpoint",
 	seed_override_value: int = -1,
-	preferences_path_value: String = "user://preferences.json"
+	preferences_path_value: String = "user://preferences.json",
+	diagnostics_directory_value: String = ""
 ) -> void:
 	save_directory = save_directory_value
 	checkpoint_slot = checkpoint_slot_value
 	_seed_override = seed_override_value
 	_preferences_path = preferences_path_value
+	_diagnostics_directory = (
+		diagnostics_directory_value
+		if not diagnostics_directory_value.is_empty()
+		else save_directory_value.path_join("diagnostics")
+	)
 	_load_preferences()
+	_start_diagnostics()
 
 
 func show_start_screen() -> void:
@@ -88,6 +100,7 @@ func show_start_screen() -> void:
 	screen.challenge_requested.connect(_on_challenge_requested)
 	screen.preferences_changed.connect(_on_preferences_changed)
 	screen.restore_backup_requested.connect(_on_restore_backup_requested)
+	screen.feedback_submitted.connect(_on_feedback_submitted)
 	screen.quit_requested.connect(_on_quit_requested)
 	_set_route(ROUTE_START)
 	_refresh_checkpoint_summary(screen)
@@ -108,6 +121,7 @@ func start_new_game(
 		_show_start_error(result)
 		return result
 	_session = result.data
+	_record_diagnostic("route_started", {"seed": resolved_seed, "kind": "first_route"})
 	_show_current_state()
 	return result
 
@@ -134,6 +148,10 @@ func start_new_challenge(
 		_show_start_error(result)
 		return result
 	_session = result.data
+	_record_diagnostic("challenge_started", {
+		"seed": resolved_seed,
+		"challenge_id": String(challenge_id),
+	})
 	_show_current_state()
 	return result
 
@@ -181,6 +199,10 @@ func continue_saved_checkpoint() -> InfrastructureResult:
 		_show_start_error(result)
 		return result
 	_session = result.data
+	_record_diagnostic("checkpoint_resumed", {
+		"challenge_phase": challenge_phase,
+		"challenge_id": String(challenge_id),
+	})
 	_show_current_state()
 	return result
 
@@ -608,6 +630,9 @@ func _on_identity_selected(identity_id: StringName) -> void:
 	if _screen != null:
 		_screen.apply_command_result(result)
 	if result.accepted:
+		_record_diagnostic("identity_selected", {
+			"identity_id": String(identity_id),
+		})
 		_show_deck_screen(ROUTE_HUB, ROUTE_HUB)
 
 
@@ -656,6 +681,9 @@ func _on_deck_command_requested(command: DeckCommand) -> void:
 	if not result.accepted:
 		return
 	if command.type == DeckCommand.CONFIRM_DECK:
+		_record_diagnostic("deck_confirmed", {
+			"deck_size": int(_session.get_deck_snapshot().data.get("current_deck_size", 0)),
+		})
 		if _deck_after_confirm_route == ROUTE_HUB:
 			_show_hub()
 		elif _deck_after_confirm_route == ROUTE_CHALLENGE_HUB:
@@ -841,6 +869,11 @@ func _route_after_battle(snapshot: BattleSnapshot) -> void:
 	var progression: ProgressionSnapshot = _session.get_progression_snapshot()
 	var phase := String(progression.data.get("phase", ""))
 	var outcome := String(snapshot.data.get("outcome", ""))
+	_record_diagnostic("battle_finished", {
+		"outcome": outcome,
+		"round_number": int(snapshot.data.get("round_number", 0)),
+		"battle_id": String(snapshot.data.get("battle_id", "")),
+	})
 	if outcome == "victory" and phase == "reward":
 		_show_reward()
 		return
@@ -870,6 +903,7 @@ func _on_reward_claimed(reward_id: StringName) -> void:
 	)
 	_screen.apply_command_result(result)
 	if result.accepted:
+		_record_diagnostic("reward_claimed", {"reward_id": String(reward_id)})
 		_show_current_state()
 
 
@@ -1125,7 +1159,54 @@ func _on_continue_requested() -> void:
 
 
 func _on_quit_requested() -> void:
+	_finish_diagnostics()
 	get_tree().quit(0)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_finish_diagnostics()
+		get_tree().quit(0)
+
+
+func _on_feedback_submitted(feedback: Dictionary) -> void:
+	if _diagnostics == null:
+		if _screen != null and _screen.has_method("show_feedback_save_state"):
+			_screen.show_feedback_save_state(false, "诊断服务未初始化。")
+		return
+	var result = _diagnostics.save_feedback(
+		String(feedback.get("text", "")),
+		String(feedback.get("stage", "unknown")),
+		bool(feedback.get("stuck", false)),
+		String(feedback.get("pacing", "unknown"))
+	)
+	if _screen != null and _screen.has_method("show_feedback_save_state"):
+		_screen.show_feedback_save_state(
+			result.ok,
+			String(result.message if not result.ok else "已保存在本机。")
+		)
+
+
+func _start_diagnostics() -> void:
+	_diagnostics = DiagnosticsServiceScript.new(_diagnostics_directory)
+	_diagnostics.start_session("v0.9.0", "development")
+
+
+func _record_diagnostic(event_type: String, details: Dictionary = {}) -> void:
+	if _diagnostics != null:
+		_diagnostics.record_event(event_type, details)
+
+
+func _finish_diagnostics() -> void:
+	if _diagnostics == null:
+		return
+	var summary := {
+		"route": String(_route),
+		"has_session": _session != null,
+	}
+	if _last_checkpoint_summary.has("sequence"):
+		summary["sequence"] = int(_last_checkpoint_summary.get("sequence", 0))
+	_diagnostics.finish_session(summary)
 
 
 func _show_start_error(result: InfrastructureResult) -> void:

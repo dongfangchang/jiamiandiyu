@@ -5,6 +5,7 @@ signal continue_requested
 signal challenge_requested
 signal preferences_changed(preferences: Dictionary)
 signal restore_backup_requested
+signal feedback_submitted(feedback: Dictionary)
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
@@ -26,6 +27,12 @@ var _backup_available := false
 var _confirm_new_game: ConfirmationDialog
 var _system_overlay: Control
 var _tutorial_overlay: Control
+var _feedback_overlay: Control
+var _feedback_status: Label
+var _feedback_text: TextEdit
+var _feedback_stage: OptionButton
+var _feedback_pacing: OptionButton
+var _feedback_stuck: CheckButton
 var _tutorial_step := 0
 var _busy := false
 var _checkpoint_status := "none"
@@ -455,6 +462,12 @@ func _open_system_menu() -> void:
 		false,
 		220
 	))
+	content.add_child(UiTheme.button(
+		"记录试玩反馈",
+		_open_feedback_form,
+		false,
+		220
+	))
 	var close := UiTheme.button("关闭", _close_system_menu, true, 120)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_END
 	content.add_child(close)
@@ -464,6 +477,135 @@ func _close_system_menu() -> void:
 	if is_instance_valid(_system_overlay):
 		_system_overlay.queue_free()
 		_system_overlay = null
+
+
+func _open_feedback_form() -> void:
+	if is_instance_valid(_system_overlay):
+		_close_system_menu()
+	if is_instance_valid(_feedback_overlay):
+		_feedback_overlay.queue_free()
+	var overlay := ColorRect.new()
+	overlay.color = Color(0.015, 0.018, 0.014, 0.9)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(overlay)
+	_feedback_overlay = overlay
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var content := VBoxContainer.new()
+	var panel := UiTheme.padded_panel(
+		content,
+		24,
+		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.C_GOLD
+	)
+	panel.custom_minimum_size = Vector2(760, 0)
+	center.add_child(panel)
+	content.add_theme_constant_override("separation", 12)
+	content.add_child(UiTheme.label("记录试玩反馈", 28, UiTheme.C_TEXT))
+	content.add_child(UiTheme.wrapped_label(
+		"反馈只保存在本机。不会上传文本、输入记录或系统信息。",
+		13,
+		UiTheme.C_MUTED
+	))
+	var text := TextEdit.new()
+	text.custom_minimum_size = Vector2(0, 190)
+	text.placeholder_text = "哪里有趣、哪里卡住、节奏是否合适……"
+	text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	content.add_child(text)
+	_feedback_text = text
+	var options := HBoxContainer.new()
+	options.add_theme_constant_override("separation", 12)
+	content.add_child(options)
+	var stage := OptionButton.new()
+	for label in ["整体", "牌组", "战斗", "抽卡与升级", "路线与仪式", "挑战"]:
+		stage.add_item(label)
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	options.add_child(stage)
+	_feedback_stage = stage
+	var pacing := OptionButton.new()
+	for label in ["节奏合适", "节奏偏快", "节奏偏慢"]:
+		pacing.add_item(label)
+	pacing.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	options.add_child(pacing)
+	_feedback_pacing = pacing
+	var stuck := CheckButton.new()
+	stuck.text = "当前有卡住或无法继续"
+	content.add_child(stuck)
+	_feedback_stuck = stuck
+	_feedback_status = UiTheme.label("", 13, UiTheme.C_MUTED)
+	content.add_child(_feedback_status)
+	var actions := HBoxContainer.new()
+	actions.alignment = BoxContainer.ALIGNMENT_END
+	actions.add_theme_constant_override("separation", 12)
+	content.add_child(actions)
+	actions.add_child(UiTheme.button(
+		"取消",
+		_close_feedback_form,
+		false,
+		100
+	))
+	actions.add_child(UiTheme.button(
+		"保存反馈",
+		_submit_feedback,
+		true,
+		140
+	))
+
+
+func _submit_feedback() -> void:
+	if not is_instance_valid(_feedback_text):
+		return
+	var feedback := {
+		"text": _feedback_text.text,
+		"stage": _feedback_stage_id(_feedback_stage.selected),
+		"stuck": _feedback_stuck.button_pressed,
+		"pacing": _feedback_pacing_id(_feedback_pacing.selected),
+	}
+	if String(feedback.text).strip_edges().is_empty():
+		_feedback_status.text = "请先写下一句反馈。"
+		_feedback_status.add_theme_color_override(
+			"font_color",
+			UiTheme.C_DANGER_TEXT
+		)
+		return
+	feedback_submitted.emit(feedback)
+
+
+func _close_feedback_form() -> void:
+	if is_instance_valid(_feedback_overlay):
+		_feedback_overlay.queue_free()
+		_feedback_overlay = null
+	_feedback_status = null
+	_feedback_text = null
+	_feedback_stage = null
+	_feedback_pacing = null
+	_feedback_stuck = null
+
+
+func show_feedback_save_state(success: bool, message: String) -> void:
+	if not is_instance_valid(_feedback_status):
+		return
+	_feedback_status.text = (
+		"反馈已保存。" if success else "反馈保存失败：" + message
+	)
+	_feedback_status.add_theme_color_override(
+		"font_color",
+		UiTheme.C_PAPER if success else UiTheme.C_DANGER_TEXT
+	)
+	if success:
+		get_tree().create_timer(0.8).timeout.connect(_close_feedback_form)
+
+
+func _feedback_stage_id(index: int) -> String:
+	var ids := ["overall", "deck", "battle", "growth", "route", "challenge"]
+	return ids[clampi(index, 0, ids.size() - 1)]
+
+
+func _feedback_pacing_id(index: int) -> String:
+	var ids := ["good", "too_fast", "too_slow"]
+	return ids[clampi(index, 0, ids.size() - 1)]
 
 
 func _open_tutorial() -> void:

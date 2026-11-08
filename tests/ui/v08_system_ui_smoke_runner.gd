@@ -5,6 +5,7 @@ const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 var _screen: Control
 var _preferences_events := 0
 var _restore_events := 0
+var _feedback_events := 0
 var _passed := 0
 var _failures: Array[String] = []
 
@@ -17,6 +18,9 @@ func _ready() -> void:
 	)
 	_screen.restore_backup_requested.connect(func() -> void:
 		_restore_events += 1
+	)
+	_screen.feedback_submitted.connect(func(_feedback: Dictionary) -> void:
+		_feedback_events += 1
 	)
 	_screen.show_checkpoint_status(
 		"loaded",
@@ -59,6 +63,13 @@ func _run_checks() -> void:
 
 	_screen.call("_on_restore_backup")
 	_expect(_restore_events == 1, "backup restore should emit once")
+
+	_screen.call("_open_feedback_form")
+	var feedback_text: TextEdit = _screen.get("_feedback_text")
+	feedback_text.text = "战斗节奏合适，希望增加牌组封面。"
+	_screen.call("_submit_feedback")
+	_expect(_feedback_events == 1, "feedback should emit once")
+	_screen.call("_close_feedback_form")
 
 	_screen.call("_on_new_game")
 	var confirmation: ConfirmationDialog = _screen.get("_confirm_new_game")
