@@ -2,9 +2,9 @@
 
 ## 指针
 
-- 当前版本：`v0.17.0`
-- 阶段：试玩引导与行动反馈
-- 当前版本文档：`docs/versions/v0.17.0.md`
+- 当前版本：`v0.18.0`
+- 阶段：牌组与数值平衡审计
+- 当前版本文档：`docs/versions/v0.18.0.md`
 - 当前文档状态：已关闭
 - 更新日期：2026-11-08
 - 前一版本：`v0.14.0`，已关闭；自适应战斗布局与第四预设已完成
@@ -55,7 +55,7 @@
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
 - 产品经理：`product_manager_v2`。
-- 角色报告路径：`docs/reports/v0.17.0/<role>.md`。
+- 角色报告路径：`docs/reports/v0.18.0/<role>.md`。
 
 ## 当前验证结果
 
@@ -73,6 +73,12 @@ v0.17.0 试玩引导与行动反馈已关闭：
 - 战斗状态条显示来自快照的下一步行动提示。
 - UI smoke 33 项、多视口布局 20 项、headless 和格式检查通过。
 - 详细证据见 `docs/reports/v0.17.0/qa.md`。
+
+v0.18.0 牌组与数值平衡审计已关闭：
+
+- 四套预设、20 张卡池引用、费用带宽和效果方向审计通过。
+- `V018_DECK_BALANCE_AUDIT_OK checks=81 presets=4`。
+- 详细证据见 `docs/reports/v0.18.0/numerical_designer.md`。
 
 v0.16.0 UI 改进与可玩性体验同步已关闭：
 

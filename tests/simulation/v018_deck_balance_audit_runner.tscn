@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://tests/simulation/v018_deck_balance_audit_runner.gd" type="Script" id="1"]
+
+[node name="V018DeckBalanceAuditRunner" type="Node"]
+script = ExtResource("1")
