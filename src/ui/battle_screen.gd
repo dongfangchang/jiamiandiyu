@@ -31,29 +31,29 @@ const REASON_NAMES := {
 	"ok": "命令已完成",
 }
 
-const BATTLE_BACKGROUND := "res://assets/game/v0.3.0/scenes/battle-tingen-old-house.png"
+const BATTLE_BACKGROUND := "res://assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png"
 const ENEMY_ART_BY_DEFINITION := {
-	&"enemy.weeping_tenant": "res://assets/game/v0.3.0/enemies/enemy-weeping-tenant.png",
-	&"enemy.candle_moth": "res://assets/game/v0.3.0/enemies/enemy-candle-moth.png",
-	&"enemy.mirror_hound": "res://assets/game/v0.3.0/enemies/enemy-mirror-hound.png",
-	&"enemy.mirror_hound_echo": "res://assets/game/v0.3.0/enemies/enemy-mirror-hound.png",
-	&"enemy.mirror_baron": "res://assets/game/v0.5.0/enemies/enemy-mirror-baron.png",
+	&"enemy.weeping_tenant": "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-weeping-tenant.png",
+	&"enemy.candle_moth": "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-candle-moth.png",
+	&"enemy.mirror_hound": "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-mirror-hound.png",
+	&"enemy.mirror_hound_echo": "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-mirror-hound.png",
+	&"enemy.mirror_baron": "res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png",
 }
 const CARD_ART_BY_DEFINITION := {
-	&"card.skill.ink_dart": "res://assets/game/v0.3.0/cards/card-skill-ink-dart.png",
-	&"card.skill.paper_guard": "res://assets/game/v0.3.0/cards/card-skill-paper-guard.png",
-	&"card.skill.calm_breath": "res://assets/game/v0.3.0/cards/card-skill-calm-breath.png",
-	&"card.skill.focus": "res://assets/game/v0.3.0/cards/card-skill-focus.png",
-	&"card.skill.insight": "res://assets/game/v0.3.0/cards/card-skill-insight.png",
-	&"card.skill.omen": "res://assets/game/v0.3.0/cards/card-skill-omen.png",
-	&"card.skill.whisper": "res://assets/game/v0.3.0/cards/card-skill-whisper.png",
-	&"card.skill.second_look": "res://assets/game/v0.3.0/cards/card-skill-second-look.png",
-	&"card.skill.dream_question": "res://assets/game/v0.13.0/cards/card_skill_dream_question.png",
-	&"card.skill.mirror_ward": "res://assets/game/v0.13.0/cards/card_skill_mirror_ward.png",
-	&"card.skill.severed_string": "res://assets/game/v0.13.0/cards/card_skill_severed_string.png",
-	&"card.skill.last_rites": "res://assets/game/v0.13.0/cards/card_skill_last_rites.png",
+	&"card.skill.ink_dart": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
+	&"card.skill.paper_guard": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-paper-guard.png",
+	&"card.skill.calm_breath": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-calm-breath.png",
+	&"card.skill.focus": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-focus.png",
+	&"card.skill.insight": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-insight.png",
+	&"card.skill.omen": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-omen.png",
+	&"card.skill.whisper": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-whisper.png",
+	&"card.skill.second_look": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-second-look.png",
+	&"card.skill.dream_question": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_dream_question.png",
+	&"card.skill.mirror_ward": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
+	&"card.skill.severed_string": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
+	&"card.skill.last_rites": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
 }
-const STATUS_ICON_BASE := "res://assets/game/v0.3.0/status/"
+const STATUS_ICON_BASE := "res://assets/game/v0.24.0/v0.3.0/status/"
 
 var _snapshot: BattleSnapshot
 var _revision := -1

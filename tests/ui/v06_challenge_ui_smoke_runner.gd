@@ -32,14 +32,14 @@ func _ready() -> void:
 
 func _test_assets() -> void:
 	var paths := [
-		"res://assets/game/v0.6.0/scenes/challenge-selection.png",
-		"res://assets/game/v0.6.0/scenes/challenge-result.png",
-		"res://assets/game/v0.6.0/icons/challenge-emblem.png",
-		"res://assets/game/v0.6.0/icons/modifier-pressure-advance.png",
-		"res://assets/game/v0.6.0/icons/modifier-mirror-echo.png",
-		"res://assets/game/v0.6.0/icons/modifier-compact-deck.png",
-		"res://assets/game/v0.6.0/icons/challenge-success.png",
-		"res://assets/game/v0.6.0/icons/challenge-failure.png",
+		"res://assets/game/v0.24.0/v0.6.0/scenes/challenge-selection.png",
+		"res://assets/game/v0.24.0/v0.6.0/scenes/challenge-result.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/modifier-pressure-advance.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/modifier-mirror-echo.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/modifier-compact-deck.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/challenge-success.png",
+		"res://assets/game/v0.24.0/v0.6.0/icons/challenge-failure.png",
 	]
 	for path in paths:
 		_expect(ResourceLoader.exists(path), "challenge UI art exists: %s" % path)

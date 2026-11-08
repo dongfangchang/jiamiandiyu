@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs>
+  <filter id="paperGrain" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="17" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+    <feComponentTransfer in="mono" result="faint">
+      <feFuncA type="table" tableValues="0 .10"/>
+    </feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+  </filter>
+  <radialGradient id="paperWash" cx="47%" cy="36%" r="72%">
+    <stop offset="0" stop-color="#EFE1C0"/>
+    <stop offset=".58" stop-color="#D8C29A"/>
+    <stop offset="1" stop-color="#AF9165"/>
+  </radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="47%" r="68%">
+    <stop offset=".55" stop-color="#211D18" stop-opacity="0"/>
+    <stop offset="1" stop-color="#211D18" stop-opacity=".48"/>
+  </radialGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#171A18"/>
+    <stop offset=".55" stop-color="#303530"/>
+    <stop offset="1" stop-color="#6E695A"/>
+  </linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E0C47A"/>
+    <stop offset=".45" stop-color="#B99750"/>
+    <stop offset="1" stop-color="#69532D"/>
+  </linearGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+    <path d="M 0 0 V 7" stroke="#211D18" stroke-width=".6" opacity=".13"/>
+  </pattern>
+  <pattern id="crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
+    <path d="M0 0L8 8M8 0L0 8" stroke="#211D18" stroke-width=".45" opacity=".10"/>
+  </pattern>
+  <filter id="roughInk">
+    <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs>
+
+  <rect width="900" height="900" fill="url(#night)" filter="url(#paperGrain)"/>
+  <rect width="900" height="900" fill="url(#crosshatch)" opacity=".45"/>
+  <circle cx="470" cy="392" r="274" fill="none" stroke="#788079" stroke-width="1.5" opacity=".45"/>
+  <path d="M0 690 C130 622, 208 672, 318 624 S548 628, 684 652 S818 622, 900 666 V900 H0 Z" fill="#171A18" opacity=".72"/>
+  <path d="M0 740 C153 702, 253 746, 390 707 S650 714, 900 730 V900 H0 Z" fill="#788079" opacity=".12"/>
+  <path d="M397 216 C435 190, 499 211, 510 258 L489 327 H416 Z" fill="#090B0A"/>
+  <path d="M370 260 H550 L514 287 H405 Z" fill="#090B0A"/>
+  <path d="M336 690 C346 511, 403 382, 457 370 C519 385, 580 507, 601 690 Z" fill="#090B0A"/>
+  <path d="M395 411 C431 373, 490 379, 525 422 L508 522 H411 Z" fill="#090B0A"/>
+  <path d="M392 326 C430 302, 481 306, 509 339 C479 360, 433 368, 392 345 Z" fill="#AF9165" opacity=".28"/>
+  <g fill="#E8DFC9" stroke="#7A2828" stroke-width="2">
+    <ellipse cx="429" cy="335" rx="10" ry="6"/><ellipse cx="471" cy="327" rx="8" ry="5"/>
+    <ellipse cx="501" cy="343" rx="7" ry="4"/><ellipse cx="447" cy="359" rx="6" ry="3.5"/>
+    <ellipse cx="486" cy="365" rx="9" ry="4"/>
+  </g>
+  <path d="M601 516 C673 478, 717 430, 727 350" fill="none" stroke="#211D18" stroke-width="12"/>
+  <path d="M727 350 V780" stroke="#211D18" stroke-width="10"/>
+  <circle cx="727" cy="334" r="47" fill="#B99750" opacity=".18"/>
+  <circle cx="727" cy="334" r="22" fill="#E8DFC9" filter="url(#roughInk)"/>
+  <path d="M727 182 V246 M727 422 V486 M575 334 H639 M815 334 H879" stroke="#E8DFC9" stroke-width="2" opacity=".3"/>
+  <path d="M160 738 C282 703, 355 748, 450 718 S654 724, 789 744" fill="none" stroke="#788079" stroke-width="26" opacity=".16"/>
+  <rect x="38" y="36" width="824" height="828" fill="none" stroke="#B99750" stroke-width="1.5" opacity=".65"/>
+  <text x="75" y="91" fill="#E8DFC9" font-family="'Palatino Linotype',serif" font-size="15" letter-spacing="5">ANOMALY // PURSUER</text>
+  <text x="825" y="91" text-anchor="end" fill="#7A2828" font-family="'Palatino Linotype',serif" font-size="15" letter-spacing="3">GAZE II</text>
+  <text x="75" y="797" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="46" font-weight="700" letter-spacing="6">提灯追猎者</text>
+  <text x="78" y="830" fill="#AF9165" font-family="'Noto Serif SC',serif" font-size="14" letter-spacing="2">它循着被注视者的脚步出现。</text>
+
+
+  <defs>
+    <radialGradient id="v024Vignette_1776514870" cx="50%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.72" stop-color="#000000" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0.32"/>
+    </radialGradient>
+    <pattern id="v024Hatch_1776514870" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(24)">
+      <path d="M0 0V13" stroke="#211D18" stroke-width="0.7" opacity="0.12"/>
+      <path d="M6.5 0V13" stroke="#E8DFC9" stroke-width="0.35" opacity="0.08"/>
+    </pattern>
+    <filter id="v024Grain_1776514870" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" seed="28" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono"><feFuncA type="table" tableValues="0 0.06"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="mono" mode="multiply"/>
+    </filter>
+  </defs>
+  <g pointer-events="none" opacity="0.8">
+    <rect width="900" height="900" fill="url(#v024Vignette_1776514870)"/>
+    <rect x="18" y="27" width="864" height="846" fill="none" stroke="#B99750" stroke-width="1.2" opacity="0.42"/>
+    <path d="M16.2 81h31.500000000000004M16.2 81V27M883.8 81h-31.500000000000004M883.8 81V27M16.2 819h31.500000000000004M16.2 819V873M883.8 819h-31.500000000000004M883.8 819V873" fill="none" stroke="#D8C29A" stroke-width="2" opacity="0.55"/>
+  </g></svg>

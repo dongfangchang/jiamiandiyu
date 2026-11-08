@@ -79,7 +79,7 @@ const SAMPLE_HAND := [
 		"state": "可打出",
 		"reason": "费用 1，当前目标有效。",
 		"tone": "ready",
-		"texture": "res://assets/game/cards/card-identity-reporter.png",
+		"texture": "res://assets/game/v0.24.0/cards/card-identity-reporter.png",
 	},
 	{
 		"id": "card.artifact.watchers_eye",
@@ -87,7 +87,7 @@ const SAMPLE_HAND := [
 		"state": "目标非法",
 		"reason": "静态快照 reason_code=invalid_target。",
 		"tone": "danger",
-		"texture": "res://assets/game/cards/card-artifact-watchers-eye.png",
+		"texture": "res://assets/game/v0.24.0/cards/card-artifact-watchers-eye.png",
 	},
 	{
 		"id": "card.sample.insight",
@@ -95,7 +95,7 @@ const SAMPLE_HAND := [
 		"state": "灵性不足",
 		"reason": "静态快照 reason_code=insufficient_spirit。",
 		"tone": "blocked",
-		"texture": "res://assets/game/cards/card-identity-doctor.png",
+		"texture": "res://assets/game/v0.24.0/cards/card-identity-doctor.png",
 	},
 ]
 
@@ -351,7 +351,7 @@ func _battle_lane(index: int, title: String, has_enemy: bool) -> Control:
 
 	if has_enemy:
 		var enemy := TextureRect.new()
-		enemy.texture = load("res://assets/game/v0.3.0/enemies/enemy-weeping-tenant.png")
+		enemy.texture = load("res://assets/game/v0.24.0/v0.3.0/enemies/enemy-weeping-tenant.png")
 		enemy.custom_minimum_size = Vector2(0, 190)
 		enemy.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		enemy.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

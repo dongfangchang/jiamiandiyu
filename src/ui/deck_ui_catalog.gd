@@ -1,10 +1,10 @@
 extends RefCounted
 
-const BACKGROUND := "res://assets/game/v0.7.0/scenes/deck_archive.png"
-const CARD_BACK := "res://assets/game/v0.4.0/cards/card-back-sealed-omen.png"
-const V07_CARD_DIR := "res://assets/game/v0.7.0/cards/"
-const V013_CARD_DIR := "res://assets/game/v0.13.0/cards/"
-const V03_CARD_DIR := "res://assets/game/v0.3.0/cards/"
+const BACKGROUND := "res://assets/game/v0.24.0/v0.7.0/scenes/deck_archive.png"
+const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
+const V07_CARD_DIR := "res://assets/game/v0.24.0/v0.7.0/cards/"
+const V013_CARD_DIR := "res://assets/game/v0.24.0/v0.13.0/cards/"
+const V03_CARD_DIR := "res://assets/game/v0.24.0/v0.3.0/cards/"
 
 const V07_CARD_IDS: Array[String] = [
 	"card.skill.warding_circle",

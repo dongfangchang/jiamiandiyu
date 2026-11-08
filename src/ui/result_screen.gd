@@ -70,7 +70,7 @@ func is_return_enabled() -> bool:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, "res://assets/game/scenes/title-screen.png", UiTheme.C_BG, 0.86)
+	UiTheme.add_background(self, "res://assets/game/v0.24.0/scenes/title-screen.png", UiTheme.C_BG, 0.86)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 100)

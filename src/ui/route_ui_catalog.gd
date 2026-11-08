@@ -1,11 +1,11 @@
 extends RefCounted
 
-const ROUTE_BACKGROUND := "res://assets/game/v0.5.0/scenes/route-map.png"
-const REST_BACKGROUND := "res://assets/game/v0.5.0/scenes/rest-old-house.png"
-const RITUAL_BACKGROUND := "res://assets/game/v0.5.0/scenes/ritual-tampered-obituary.png"
-const BOSS_ART := "res://assets/game/v0.5.0/enemies/enemy-mirror-baron.png"
-const ROUTE_ICON_BASE := "res://assets/game/v0.5.0/icons/"
-const RITUAL_CARD_BASE := "res://assets/game/v0.5.0/rituals/"
+const ROUTE_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png"
+const REST_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png"
+const RITUAL_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png"
+const BOSS_ART := "res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png"
+const ROUTE_ICON_BASE := "res://assets/game/v0.24.0/v0.5.0/icons/"
+const RITUAL_CARD_BASE := "res://assets/game/v0.24.0/v0.5.0/rituals/"
 
 const ROUTE_STATE_ICON := {
 	"locked": "route-pending.png",

@@ -1,0 +1,1508 @@
+{
+  "assets": [
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/cards/card-artifact-faceless-mask.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/cards/card-artifact-faceless-mask.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.artifact.faceless_mask",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 600
+    },
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/cards/card-artifact-watchers-eye.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/cards/card-artifact-watchers-eye.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.artifact.watchers_eye",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 600
+    },
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/cards/card-identity-doctor.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/cards/card-identity-doctor.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "asset.sample_identity.doctor",
+      "usage_pages": [
+        "cards"
+      ],
+      "width": 600
+    },
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/cards/card-identity-gravedigger.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/cards/card-identity-gravedigger.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "asset.sample_identity.gravedigger",
+      "usage_pages": [
+        "cards"
+      ],
+      "width": 600
+    },
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/cards/card-identity-reporter.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/cards/card-identity-reporter.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "asset.sample_identity.reporter",
+      "usage_pages": [
+        "cards"
+      ],
+      "width": 600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/enemies/enemy-lantern-pursuer.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/enemies/enemy-lantern-pursuer.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "enemy.lantern_pursuer",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 900
+    },
+    {
+      "height": 800,
+      "png": "assets/game/v0.24.0/icons/status-sheet.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/icons/status-sheet.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.status_sheet",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 1200
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/scenes/ritual-ascension.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/scenes/ritual-ascension.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.ritual_ascension",
+      "usage_pages": [
+        "route",
+        "rest",
+        "ritual"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/scenes/title-screen.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/scenes/title-screen.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.title_screen",
+      "usage_pages": [
+        "title",
+        "identity",
+        "result"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 840,
+      "png": "assets/game/v0.24.0/templates/card-frame.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/templates/card-frame.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "asset.card_frame",
+      "usage_pages": [
+        "templates"
+      ],
+      "width": 600
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.13.0/cards/card_skill_dream_question.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.13.0/cards/card_skill_dream_question.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.dream_question",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.13.0/cards/card_skill_last_rites.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.last_rites",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.mirror_ward",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.13.0/cards/card_skill_severed_string.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.severed_string",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-calm-breath.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-calm-breath.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.calm_breath",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-focus.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-focus.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.focus",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-ink-dart.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.ink_dart",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-insight.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-insight.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.insight",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-omen.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-omen.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.omen",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-paper-guard.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-paper-guard.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.paper_guard",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-second-look.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-second-look.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.second_look",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.3.0/cards/card-skill-whisper.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/cards/card-skill-whisper.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.whisper",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.3.0/enemies/enemy-candle-moth.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/enemies/enemy-candle-moth.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "enemy.candle_moth",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 900
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.3.0/enemies/enemy-mirror-hound.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/enemies/enemy-mirror-hound.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "enemy.mirror_hound",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 900
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.3.0/enemies/enemy-weeping-tenant.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/enemies/enemy-weeping-tenant.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "enemy.weeping_tenant",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 900
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.battle_tingen_old_house",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-ascension.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-ascension.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.ascension",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-attack.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-attack.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.attack",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-attention.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-attention.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.attention",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-block.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-block.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.block",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-corruption.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-corruption.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.corruption",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-draw.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-draw.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.draw",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-health.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-health.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.health",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-madness.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-madness.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.madness",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-persona.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-persona.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.persona",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-relic.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-relic.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.relic",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-rite.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-rite.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.rite",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 64,
+      "png": "assets/game/v0.24.0/v0.3.0/status/status-spirit.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.3.0/status/status-spirit.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "status.spirit",
+      "usage_pages": [
+        "status"
+      ],
+      "width": 64
+    },
+    {
+      "height": 720,
+      "png": "assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/cards/card-back-sealed-omen.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "asset.card_back_sealed_omen",
+      "usage_pages": [
+        "cards"
+      ],
+      "width": 512
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.4.0/icons/card-shard.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/icons/card-shard.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.card_shard",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/icons/divination-ticket.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.divination_ticket",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.4.0/icons/upgrade-1.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/icons/upgrade-1.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.upgrade_1",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.4.0/icons/upgrade-2.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/icons/upgrade-2.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.upgrade_2",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.4.0/icons/upgrade-3.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/icons/upgrade-3.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.upgrade_3",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 640,
+      "png": "assets/game/v0.24.0/v0.4.0/identities/card-identity-doctor.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/identities/card-identity-doctor.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "identity.doctor",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 512
+    },
+    {
+      "height": 640,
+      "png": "assets/game/v0.24.0/v0.4.0/identities/card-identity-gravedigger.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/identities/card-identity-gravedigger.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "identity.gravedigger",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 512
+    },
+    {
+      "height": 640,
+      "png": "assets/game/v0.24.0/v0.4.0/identities/card-identity-reporter.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/identities/card-identity-reporter.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "identity.reporter",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 512
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.4.0/scenes/gacha-altar.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/scenes/gacha-altar.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.gacha_altar",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.4.0/scenes/reward-archive.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.4.0/scenes/reward-archive.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.reward_archive",
+      "usage_pages": [
+        "identity",
+        "reward",
+        "gacha",
+        "upgrade"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "enemy.mirror_baron",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 900
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.5.0/icons/ritual-failure.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/icons/ritual-failure.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.ritual_failure",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.5.0/icons/ritual-success.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/icons/ritual-success.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.ritual_success",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 96,
+      "png": "assets/game/v0.24.0/v0.5.0/icons/route-completed.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/icons/route-completed.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.route_completed",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 96
+    },
+    {
+      "height": 96,
+      "png": "assets/game/v0.24.0/v0.5.0/icons/route-current.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/icons/route-current.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.route_current",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 96
+    },
+    {
+      "height": 96,
+      "png": "assets/game/v0.24.0/v0.5.0/icons/route-pending.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/icons/route-pending.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.route_pending",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 96
+    },
+    {
+      "height": 600,
+      "png": "assets/game/v0.24.0/v0.5.0/rituals/ritual-card-chronology.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/rituals/ritual-card-chronology.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "ritual.card.chronology",
+      "usage_pages": [
+        "rituals"
+      ],
+      "width": 420
+    },
+    {
+      "height": 600,
+      "png": "assets/game/v0.24.0/v0.5.0/rituals/ritual-card-name-record.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/rituals/ritual-card-name-record.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "ritual.card.name_record",
+      "usage_pages": [
+        "rituals"
+      ],
+      "width": 420
+    },
+    {
+      "height": 600,
+      "png": "assets/game/v0.24.0/v0.5.0/rituals/ritual-card-seal.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/rituals/ritual-card-seal.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "ritual.card.seal",
+      "usage_pages": [
+        "rituals"
+      ],
+      "width": 420
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/scenes/rest-old-house.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.rest_old_house",
+      "usage_pages": [
+        "route",
+        "rest",
+        "ritual"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.ritual_tampered_obituary",
+      "usage_pages": [
+        "route",
+        "rest",
+        "ritual"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.5.0/scenes/route-map.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.5.0/scenes/route-map.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.route_map",
+      "usage_pages": [
+        "route",
+        "rest",
+        "ritual"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 256,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/challenge-emblem.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.challenge_emblem",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 256
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/challenge-failure.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/challenge-failure.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.challenge_failure",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/challenge-success.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/challenge-success.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.challenge_success",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/deck-restricted.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/deck-restricted.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.deck_restricted",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-compact-deck.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-compact-deck.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_compact_deck",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-early-phase.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-early-phase.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_early_phase",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-mirror-echo.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-mirror-echo.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_mirror_echo",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-pressure-advance.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-pressure-advance.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_pressure_advance",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-reinforced-guard.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-reinforced-guard.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_reinforced_guard",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.6.0/icons/modifier-restricted-reward.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/icons/modifier-restricted-reward.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_restricted_reward",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.6.0/scenes/challenge-result.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/scenes/challenge-result.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.challenge_result",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.6.0/scenes/challenge-selection.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.6.0/scenes/challenge-selection.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.challenge_selection",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 1600
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_coffin_nail.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_coffin_nail.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.coffin_nail",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_fated_echo.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_fated_echo.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.fated_echo",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_lantern_step.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_lantern_step.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.lantern_step",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_mirrored_memory.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_mirrored_memory.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.mirrored_memory",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_piercing_omen.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_piercing_omen.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.piercing_omen",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_second_sight.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_second_sight.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.second_sight",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_warding_circle.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_warding_circle.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.warding_circle",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 400,
+      "png": "assets/game/v0.24.0/v0.7.0/cards/card_skill_whispered_hunch.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/cards/card_skill_whispered_hunch.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "card.skill.whispered_hunch",
+      "usage_pages": [
+        "battle",
+        "deck",
+        "reward",
+        "gacha"
+      ],
+      "width": 512
+    },
+    {
+      "height": 256,
+      "png": "assets/game/v0.24.0/v0.7.0/icons/challenge_broken_procession.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/icons/challenge_broken_procession.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.challenge_broken_procession",
+      "usage_pages": [
+        "challenge"
+      ],
+      "width": 256
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.7.0/icons/modifier_obituary_echo.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/icons/modifier_obituary_echo.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_obituary_echo",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.7.0/icons/modifier_ritual_vigil.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/icons/modifier_ritual_vigil.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_ritual_vigil",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.7.0/icons/modifier_twin_shadow.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/icons/modifier_twin_shadow.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.modifier_twin_shadow",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 128,
+      "png": "assets/game/v0.24.0/v0.7.0/icons/route_overridden_node.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/icons/route_overridden_node.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "icon.route_overridden_node",
+      "usage_pages": [
+        "icons"
+      ],
+      "width": 128
+    },
+    {
+      "height": 900,
+      "png": "assets/game/v0.24.0/v0.7.0/scenes/deck_archive.png",
+      "review_status": "candidate_pending_ui_review",
+      "source": "art/assets/svg/v0.24.0/v0.7.0/scenes/deck_archive.svg",
+      "source_info": {
+        "generator": "art/tools/generate_v024_art_polish.mjs",
+        "kind": "project-authored-svg",
+        "license": "project-original"
+      },
+      "stable_id": "scene.deck_archive",
+      "usage_pages": [
+        "deck"
+      ],
+      "width": 1600
+    }
+  ],
+  "generator": "art/tools/generate_v024_art_polish.mjs + art/tools/render_v024_art.gd",
+  "source_policy": "project-authored SVG only; no external images",
+  "version": "v0.24.0"
+}

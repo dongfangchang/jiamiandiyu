@@ -32,18 +32,18 @@ func _ready() -> void:
 
 func _test_assets() -> void:
 	var paths := [
-		"res://assets/game/v0.5.0/scenes/route-map.png",
-		"res://assets/game/v0.5.0/scenes/rest-old-house.png",
-		"res://assets/game/v0.5.0/scenes/ritual-tampered-obituary.png",
-		"res://assets/game/v0.5.0/enemies/enemy-mirror-baron.png",
-		"res://assets/game/v0.5.0/rituals/ritual-card-name-record.png",
-		"res://assets/game/v0.5.0/rituals/ritual-card-chronology.png",
-		"res://assets/game/v0.5.0/rituals/ritual-card-seal.png",
-		"res://assets/game/v0.5.0/icons/route-pending.png",
-		"res://assets/game/v0.5.0/icons/route-current.png",
-		"res://assets/game/v0.5.0/icons/route-completed.png",
-		"res://assets/game/v0.5.0/icons/ritual-success.png",
-		"res://assets/game/v0.5.0/icons/ritual-failure.png",
+		"res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png",
+		"res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png",
+		"res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png",
+		"res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png",
+		"res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-name-record.png",
+		"res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-chronology.png",
+		"res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-seal.png",
+		"res://assets/game/v0.24.0/v0.5.0/icons/route-pending.png",
+		"res://assets/game/v0.24.0/v0.5.0/icons/route-current.png",
+		"res://assets/game/v0.24.0/v0.5.0/icons/route-completed.png",
+		"res://assets/game/v0.24.0/v0.5.0/icons/ritual-success.png",
+		"res://assets/game/v0.24.0/v0.5.0/icons/ritual-failure.png",
 	]
 	for path in paths:
 		_expect(ResourceLoader.exists(path), "v0.5 UI art exists: %s" % path)

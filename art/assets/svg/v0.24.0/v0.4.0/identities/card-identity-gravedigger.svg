@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="640" viewBox="0 0 512 640">
+  <defs>
+    <radialGradient id="paperWash" cx="43%" cy="34%" r="76%">
+      <stop offset="0" stop-color="#F0E3C5"/>
+      <stop offset=".58" stop-color="#D8C29A"/>
+      <stop offset="1" stop-color="#AF9165"/>
+    </radialGradient>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10140f"/>
+      <stop offset=".52" stop-color="#29302a"/>
+      <stop offset="1" stop-color="#0a0d0b"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6CF8F"/>
+      <stop offset=".45" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#5F4927"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".65" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M0 0L10 10M10 0L0 10" stroke="#E8DFC9" stroke-width=".5" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="3" seed="41" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .095"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+    <clipPath id="portraitClip"><rect x="43" y="102" width="426" height="389"/></clipPath>
+  </defs>
+
+
+    <rect width="512" height="640" fill="url(#paperWash)" filter="url(#grain)"/>
+    <rect width="512" height="640" fill="url(#hatch)"/>
+    <circle cx="92.16" cy="102.4" r="143.36" fill="#E8DFC9" opacity=".11"/>
+    <path d="M0 537.6 C117.76 486.4, 209.92 582.4, 307.2 524.8 S430.08 492.8, 512 550.4"
+      fill="none" stroke="#211D18" stroke-width="1.2" opacity=".12"/>
+
+    <rect x="43" y="102" width="426" height="389" fill="#3A3731" opacity=".075" stroke="#211D18" stroke-width="1.5"/>
+    <g clip-path="url(#portraitClip)">
+    <path d="M103 239 C137 178 184 141 241 139 C307 139 354 184 386 239" fill="none" stroke="#788079" stroke-width="16" opacity=".15"/>
+    <circle cx="256" cy="282" r="168" fill="none" stroke="#211D18" stroke-width="1.2" opacity=".26"/>
+    <path d="M56 521 L56 394 C56 327 103 294 151 294 H163 V521Z" fill="#3A3731" opacity=".32" stroke="#788079" stroke-width="2"/>
+    <path d="M111 340 C130 323 151 325 166 343 V381 H111Z" fill="#788079" opacity=".22" stroke="#211D18" stroke-width="2"/>
+    <path d="M176 178 C202 145 285 139 319 176 L300 214 H195Z" fill="#211D18"/>
+    <path d="M157 206 H347 L315 232 H188Z" fill="#211D18"/>
+    <ellipse cx="256" cy="272" rx="55" ry="69" fill="#3A3731"/>
+    <path d="M203 263 C225 222 249 210 274 216 C301 224 316 247 319 271 C294 253 274 253 251 261 C231 268 215 270 203 263Z"
+      fill="#AF9165" opacity=".28"/>
+    <path d="M120 513 C133 397 183 326 256 322 C333 326 379 398 392 513Z" fill="#211D18"/>
+    <path d="M156 413 C209 389 304 390 358 416 L341 513 H173Z" fill="#3A3731"/>
+    <path d="M211 356 L197 513 M301 356 L316 513" stroke="#B99750" stroke-width="1.5" opacity=".65"/>
+    <path d="M372 189 L419 538" stroke="#211D18" stroke-width="13" stroke-linecap="round"/>
+    <path d="M351 225 C377 196 409 200 426 225 L418 259 C399 271 373 261 361 241Z" fill="#AF9165" stroke="#211D18" stroke-width="2"/>
+    <path d="M377 244 L432 511" stroke="#B99750" stroke-width="2" opacity=".6"/>
+    <path d="M104 403 C83 433 78 472 92 515" fill="none" stroke="#211D18" stroke-width="6"/>
+    <path d="M74 413 H130 L122 465 H81Z" fill="#D8C29A" stroke="#211D18" stroke-width="2" opacity=".76"/>
+    <circle cx="101" cy="440" r="17" fill="#B99750" opacity=".55"/>
+    <circle cx="101" cy="440" r="6" fill="#7A2828"/>
+    <path d="M76 537 C182 505 333 508 436 538" fill="none" stroke="#211D18" stroke-width="1.2" opacity=".38"/>
+  </g>
+
+    <rect x="18" y="18" width="476" height="604" rx="4" fill="none" stroke="#211D18" stroke-width="5"/>
+    <rect x="28" y="28" width="456" height="584" rx="3" fill="none" stroke="#B99750" stroke-width="2"/>
+    <path d="M18 62 L62 18 M450 18 L494 62 M18 578 L62 622 M450 622 L494 578"
+      fill="none" stroke="url(#brass)" stroke-width="5"/>
+    <circle cx="256" cy="16" r="6" fill="#7A2828" stroke="#211D18" stroke-width="1"/>
+    <path d="M208 584 H304" stroke="#7A2828" stroke-width="4"/>
+
+
+
+  <defs>
+    <radialGradient id="v024Vignette_3862717166" cx="50%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.72" stop-color="#000000" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0.32"/>
+    </radialGradient>
+    <pattern id="v024Hatch_3862717166" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(24)">
+      <path d="M0 0V13" stroke="#211D18" stroke-width="0.7" opacity="0.12"/>
+      <path d="M6.5 0V13" stroke="#E8DFC9" stroke-width="0.35" opacity="0.08"/>
+    </pattern>
+    <filter id="v024Grain_3862717166" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" seed="44" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono"><feFuncA type="table" tableValues="0 0.06"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="mono" mode="multiply"/>
+    </filter>
+  </defs>
+  <g pointer-events="none" opacity="0.78">
+    <rect width="512" height="640" fill="url(#v024Hatch_3862717166)"/>
+    <rect x="13.312" y="28.799999999999997" width="485.376" height="582.4" fill="none" stroke="#B99750" stroke-width="1.4" opacity="0.48"/>
+    <path d="M13.312 76.8h46.08M498.688 76.8h-46.08M13.312 563.2h46.08M498.688 563.2h-46.08" stroke="#7A2828" stroke-width="1.2" opacity="0.48"/>
+  </g></svg>

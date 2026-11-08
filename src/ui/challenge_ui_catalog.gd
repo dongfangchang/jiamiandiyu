@@ -1,11 +1,11 @@
 extends RefCounted
 
-const SELECTION_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-selection.png"
-const RESULT_BACKGROUND := "res://assets/game/v0.6.0/scenes/challenge-result.png"
-const ICON_BASE := "res://assets/game/v0.6.0/icons/"
-const EMBLEM := "res://assets/game/v0.6.0/icons/challenge-emblem.png"
-const ICON_BASE_V07 := "res://assets/game/v0.7.0/icons/"
-const EMBLEM_V07 := "res://assets/game/v0.7.0/icons/challenge_broken_procession.png"
+const SELECTION_BACKGROUND := "res://assets/game/v0.24.0/v0.6.0/scenes/challenge-selection.png"
+const RESULT_BACKGROUND := "res://assets/game/v0.24.0/v0.6.0/scenes/challenge-result.png"
+const ICON_BASE := "res://assets/game/v0.24.0/v0.6.0/icons/"
+const EMBLEM := "res://assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png"
+const ICON_BASE_V07 := "res://assets/game/v0.24.0/v0.7.0/icons/"
+const EMBLEM_V07 := "res://assets/game/v0.24.0/v0.7.0/icons/challenge_broken_procession.png"
 
 const MODIFIER_ICONS := {
 	"modifier.rushed_reflection": "modifier-pressure-advance.png",

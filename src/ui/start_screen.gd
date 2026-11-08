@@ -10,7 +10,7 @@ signal test_game_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
-const TITLE_BACKGROUND := "res://assets/game/scenes/title-screen.png"
+const TITLE_BACKGROUND := "res://assets/game/v0.24.0/scenes/title-screen.png"
 
 var _continue_button: Button
 var _new_game_button: Button

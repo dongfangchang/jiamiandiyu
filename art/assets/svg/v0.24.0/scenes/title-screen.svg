@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+  <filter id="paperGrain" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="4" seed="17" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+    <feComponentTransfer in="mono" result="faint">
+      <feFuncA type="table" tableValues="0 .10"/>
+    </feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+  </filter>
+  <radialGradient id="paperWash" cx="47%" cy="36%" r="72%">
+    <stop offset="0" stop-color="#EFE1C0"/>
+    <stop offset=".58" stop-color="#D8C29A"/>
+    <stop offset="1" stop-color="#AF9165"/>
+  </radialGradient>
+  <radialGradient id="vignette" cx="50%" cy="47%" r="68%">
+    <stop offset=".55" stop-color="#211D18" stop-opacity="0"/>
+    <stop offset="1" stop-color="#211D18" stop-opacity=".48"/>
+  </radialGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#171A18"/>
+    <stop offset=".55" stop-color="#303530"/>
+    <stop offset="1" stop-color="#6E695A"/>
+  </linearGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#E0C47A"/>
+    <stop offset=".45" stop-color="#B99750"/>
+    <stop offset="1" stop-color="#69532D"/>
+  </linearGradient>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+    <path d="M 0 0 V 7" stroke="#211D18" stroke-width=".6" opacity=".13"/>
+  </pattern>
+  <pattern id="crosshatch" width="8" height="8" patternUnits="userSpaceOnUse">
+    <path d="M0 0L8 8M8 0L0 8" stroke="#211D18" stroke-width=".45" opacity=".10"/>
+  </pattern>
+  <filter id="roughInk">
+    <feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs>
+
+  <rect width="1600" height="900" fill="url(#night)" filter="url(#paperGrain)"/>
+  <rect width="1600" height="900" fill="url(#hatch)" opacity=".11"/>
+  <path d="M0 660 L0 564 L82 564 L82 522 L130 522 L130 589 L197 589 L197 502 L245 502 L245 569 L320 569 L320 527 L370 527 L370 608 L455 608 L455 551 L519 551 L519 620 L600 620 L600 476 L641 476 L641 594 L706 594 L706 538 L770 538 L770 604 L840 604 L840 492 L885 492 L885 575 L944 575 L944 510 L1004 510 L1004 611 L1074 611 L1074 553 L1130 553 L1130 620 L1213 620 L1213 518 L1268 518 L1268 583 L1322 583 L1322 540 L1380 540 L1380 603 L1471 603 L1471 548 L1520 548 L1520 622 L1600 622 V900 H0 Z" fill="#111412"/>
+  <path d="M0 716 C199 642, 333 720, 503 674 S844 644, 1004 692 S1306 652, 1600 697 V900 H0 Z" fill="#788079" opacity=".13"/>
+  <path d="M0 776 C187 730, 343 784, 535 747 S892 736, 1110 781 S1408 739, 1600 754 V900 H0 Z" fill="#090B0A" opacity=".76"/>
+  <g transform="translate(800 443)">
+    <g transform="translate(-176 14) rotate(-16)">
+      <rect x="-111" y="-165" width="222" height="330" rx="3" fill="#AF9165" stroke="#B99750" stroke-width="3" opacity=".74"/>
+      <circle cy="-37" r="58" fill="none" stroke="#211D18" stroke-width="2" opacity=".5"/>
+    </g>
+    <g transform="translate(176 17) rotate(15)">
+      <rect x="-111" y="-165" width="222" height="330" rx="3" fill="#AF9165" stroke="#B99750" stroke-width="3" opacity=".74"/>
+      <path d="M-58 8 L0 -56 L58 8 L0 72 Z" fill="none" stroke="#211D18" stroke-width="2" opacity=".5"/>
+    </g>
+    <g>
+      <rect x="-124" y="-186" width="248" height="372" rx="4" fill="#D8C29A" stroke="#211D18" stroke-width="5"/>
+      <rect x="-111" y="-173" width="222" height="346" fill="none" stroke="#B99750" stroke-width="2"/>
+      <path d="M0 -118 C-78 -118, -105 -35, -91 34 C-76 109, -29 143, 0 158 C29 143, 76 109, 91 34 C105 -35, 78 -118, 0 -118 Z"
+        fill="#E8DFC9" stroke="#211D18" stroke-width="3"/>
+      <path d="M-64 -28 C-37 -49, -16 -42, 0 -20 C-24 -3, -49 -5, -64 -28 Z" fill="#211D18"/>
+      <path d="M64 -28 C37 -49, 16 -42, 0 -20 C24 -3, 49 -5, 64 -28 Z" fill="#211D18"/>
+      <path d="M0 -117 C18 -56, -12 -27, 10 14 C24 47, -19 87, 0 157" fill="none" stroke="#7A2828" stroke-width="3"/>
+      <path d="M0 52 C14 64, 18 85, 0 98 C-18 85, -14 64, 0 52 Z" fill="#7A2828" opacity=".75"/>
+    </g>
+    <g fill="#B99750">
+      <circle cx="-214" cy="-129" r="5"/><circle cx="214" cy="-129" r="5"/>
+      <path d="M-256 166 H-170 M170 166 H256" stroke="#B99750" stroke-width="2"/>
+    </g>
+  </g>
+  <text x="800" y="196" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="78" font-weight="700" letter-spacing="16">假面低语</text>
+  <text x="800" y="242" text-anchor="middle" fill="#B99750" font-family="'Noto Serif SC',serif" font-size="17" letter-spacing="8">命运在灰雾中低语</text>
+  <path d="M555 273 H689 M911 273 H1045" stroke="#B99750" stroke-width="1"/>
+  <path d="M800 258 L811 273 L800 288 L789 273 Z" fill="#7A2828"/>
+  <text x="800" y="824" text-anchor="middle" fill="#AF9165" font-family="'Noto Serif SC',serif" font-size="16" letter-spacing="4">白昼扮演凡人 · 黑夜偿还代价</text>
+  <text x="1528" y="852" text-anchor="end" fill="#788079" font-family="'Noto Serif SC',serif" font-size="11" letter-spacing="3">私人离线原型 // v0.9.2</text>
+  <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#B99750" stroke-width="1.5" opacity=".45"/>
+
+
+  <defs>
+    <radialGradient id="v024Vignette_605225016" cx="50%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.72" stop-color="#000000" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0.32"/>
+    </radialGradient>
+    <pattern id="v024Hatch_605225016" width="13" height="13" patternUnits="userSpaceOnUse" patternTransform="rotate(24)">
+      <path d="M0 0V13" stroke="#211D18" stroke-width="0.7" opacity="0.12"/>
+      <path d="M6.5 0V13" stroke="#E8DFC9" stroke-width="0.35" opacity="0.08"/>
+    </pattern>
+    <filter id="v024Grain_605225016" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="2" seed="15" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono"><feFuncA type="table" tableValues="0 0.06"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="mono" mode="multiply"/>
+    </filter>
+  </defs>
+  <g pointer-events="none" opacity="0.8">
+    <rect width="1600" height="900" fill="url(#v024Vignette_605225016)"/>
+    <rect x="28.799999999999997" y="27" width="1542.4" height="846" fill="none" stroke="#B99750" stroke-width="1.2" opacity="0.42"/>
+    <path d="M28.799999999999997 81h56.00000000000001M28.799999999999997 81V27M1571.2 81h-56.00000000000001M1571.2 81V27M28.799999999999997 819h56.00000000000001M28.799999999999997 819V873M1571.2 819h-56.00000000000001M1571.2 819V873" fill="none" stroke="#D8C29A" stroke-width="2" opacity="0.55"/>
+  </g></svg>

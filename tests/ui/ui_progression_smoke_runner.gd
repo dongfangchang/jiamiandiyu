@@ -27,18 +27,18 @@ func _ready() -> void:
 
 func _test_assets() -> void:
 	var paths := [
-		"res://assets/game/v0.4.0/identities/card-identity-reporter.png",
-		"res://assets/game/v0.4.0/identities/card-identity-doctor.png",
-		"res://assets/game/v0.4.0/identities/card-identity-gravedigger.png",
-		"res://assets/game/v0.4.0/scenes/gacha-altar.png",
-		"res://assets/game/v0.4.0/scenes/reward-archive.png",
-		"res://assets/game/v0.4.0/cards/card-back-sealed-omen.png",
-		"res://assets/game/v0.4.0/icons/divination-ticket.png",
-		"res://assets/game/v0.4.0/icons/card-shard.png",
-		"res://assets/game/v0.4.0/icons/upgrade-1.png",
-		"res://assets/game/v0.4.0/icons/upgrade-2.png",
-		"res://assets/game/v0.4.0/icons/upgrade-3.png",
-		"res://assets/game/v0.3.0/cards/card-skill-ink-dart.png",
+		"res://assets/game/v0.24.0/v0.4.0/identities/card-identity-reporter.png",
+		"res://assets/game/v0.24.0/v0.4.0/identities/card-identity-doctor.png",
+		"res://assets/game/v0.24.0/v0.4.0/identities/card-identity-gravedigger.png",
+		"res://assets/game/v0.24.0/v0.4.0/scenes/gacha-altar.png",
+		"res://assets/game/v0.24.0/v0.4.0/scenes/reward-archive.png",
+		"res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png",
+		"res://assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png",
+		"res://assets/game/v0.24.0/v0.4.0/icons/card-shard.png",
+		"res://assets/game/v0.24.0/v0.4.0/icons/upgrade-1.png",
+		"res://assets/game/v0.24.0/v0.4.0/icons/upgrade-2.png",
+		"res://assets/game/v0.24.0/v0.4.0/icons/upgrade-3.png",
+		"res://assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
 	]
 	for path in paths:
 		_expect(ResourceLoader.exists(path), "formal UI art exists: %s" % path)
