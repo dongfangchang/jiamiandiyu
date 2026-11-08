@@ -69,11 +69,11 @@
     </g>
   </g>
   <text x="800" y="196" text-anchor="middle" fill="#E8DFC9" font-family="'Noto Serif SC',serif" font-size="78" font-weight="700" letter-spacing="16">假面低语</text>
-  <text x="800" y="242" text-anchor="middle" fill="#B99750" font-family="'Palatino Linotype',serif" font-size="17" letter-spacing="8">WHISPERS BENEATH THE MASK</text>
+  <text x="800" y="242" text-anchor="middle" fill="#B99750" font-family="'Noto Serif SC',serif" font-size="17" letter-spacing="8">命运在灰雾中低语</text>
   <path d="M555 273 H689 M911 273 H1045" stroke="#B99750" stroke-width="1"/>
   <path d="M800 258 L811 273 L800 288 L789 273 Z" fill="#7A2828"/>
   <text x="800" y="824" text-anchor="middle" fill="#AF9165" font-family="'Noto Serif SC',serif" font-size="16" letter-spacing="4">白昼扮演凡人 · 黑夜偿还代价</text>
-  <text x="1528" y="852" text-anchor="end" fill="#788079" font-family="'Palatino Linotype',serif" font-size="11" letter-spacing="3">PRIVATE OCCULT PROTOTYPE // 00</text>
+  <text x="1528" y="852" text-anchor="end" fill="#788079" font-family="'Noto Serif SC',serif" font-size="11" letter-spacing="3">私人离线原型 // v0.9.2</text>
   <rect x="34" y="34" width="1532" height="832" fill="none" stroke="#B99750" stroke-width="1.5" opacity=".45"/>
 
 </svg>

@@ -59,7 +59,7 @@ func _capture_start() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("loaded", {
-		"content_version": "v0.8.0",
+		"content_version": "v0.9.2",
 		"sequence": 8,
 		"deck_size": 8,
 		"identity_id": "identity.reporter",

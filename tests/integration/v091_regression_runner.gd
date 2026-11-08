@@ -346,6 +346,37 @@ func _test_profile() -> void:
 			retry_collection == 16,
 			"route retry must preserve collection and upgrades"
 		)
+	var challenge = AppBootstrapScript.start_challenge_v07(
+		20261110,
+		{
+			"save_directory": TEST_ROOT.path_join("saves"),
+			"test_profile": true,
+			"challenge_id": "challenge.v070.broken_procession",
+			"sequence_state": {
+				"pathway_id": "seer",
+				"pathway_name_zh": "占卜家",
+				"current_sequence": 8,
+				"next_sequence": 7,
+				"next_sequence_name_zh": "魔术师",
+				"advancement_state": "completed",
+				"completed_challenge_ids": [
+					"challenge.v060.mirror_echoes",
+				],
+			},
+		},
+		"test_challenge_checkpoint",
+		false,
+		true
+	)
+	_expect(challenge.ok, "test profile should open the second challenge")
+	if challenge.ok:
+		_expect(
+			bool(challenge.data.get_challenge_snapshot().data.get(
+				"unlocked",
+				false
+			)),
+			"test profile should unlock the second challenge"
+		)
 
 
 func _battle_snapshot() -> BattleSnapshot:

@@ -1242,7 +1242,7 @@ static func restore_checkpoint_backup(
 				"cause_details": backup.details,
 			}
 		)
-	var restored := service.save_slot(save_slot, backup.data)
+	var restored := service.restore_backup(save_slot)
 	if not restored.ok:
 		return InfrastructureResultScript.failure(
 			&"checkpoint_backup_restore_failed",
@@ -1250,11 +1250,12 @@ static func restore_checkpoint_backup(
 			{
 				"cause": String(restored.code),
 				"cause_message": restored.message,
+				"cause_details": restored.details,
 			}
 		)
 	return InfrastructureResultScript.success(
 		_checkpoint_summary(backup.data),
-		{"restored": true}
+		restored.details
 	)
 
 

@@ -44,6 +44,7 @@ const ROUTE_ROUTE_RESULT: StringName = &"route_result"
 var save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
 var checkpoint_slot: String = "checkpoint"
 
+var _base_checkpoint_slot := "checkpoint"
 var _route: StringName = &""
 var _screen: Control = null
 var _session: RefCounted = null
@@ -83,6 +84,7 @@ func configure_for_testing(
 	_testing_mode = true
 	save_directory = save_directory_value
 	checkpoint_slot = checkpoint_slot_value
+	_base_checkpoint_slot = checkpoint_slot_value
 	_seed_override = seed_override_value
 	_preferences_path = preferences_path_value
 	_diagnostics_directory = (
@@ -113,6 +115,7 @@ func start_new_game(
 	seed_value: int = -1,
 	_encounter_id: StringName = &""
 ) -> InfrastructureResult:
+	checkpoint_slot = _base_checkpoint_slot
 	var resolved_seed := _resolve_seed(seed_value)
 	var result = AppBootstrapScript.start_route_v07(
 		resolved_seed,
@@ -130,6 +133,7 @@ func start_new_game(
 
 
 func start_test_game(seed_value: int = -1) -> InfrastructureResult:
+	checkpoint_slot = "test_checkpoint"
 	var resolved_seed := _resolve_seed(seed_value)
 	var result = AppBootstrapScript.start_route_v07(
 		resolved_seed,
@@ -144,6 +148,12 @@ func start_test_game(seed_value: int = -1) -> InfrastructureResult:
 		_show_start_error(result)
 		return result
 	_session = result.data
+	var initial_checkpoint: InfrastructureResult = (
+		_session.save_checkpoint("test_profile")
+	)
+	if not initial_checkpoint.ok:
+		_show_start_error(initial_checkpoint)
+		return initial_checkpoint
 	_record_diagnostic("test_profile_started", {"seed": resolved_seed})
 	_show_current_state()
 	return result
@@ -285,8 +295,9 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 		_last_checkpoint_summary = {}
 		start_screen.show_checkpoint_status(
 			"corrupt",
-			{},
-			"%s: %s" % [String(inspected.code), inspected.message]
+			{"backup_available": false},
+			"检查点检查失败。原始文件未被覆盖，请保留诊断记录。",
+			_preferences
 		)
 		return
 
@@ -299,6 +310,9 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 		if not bool(_last_checkpoint_summary.get("deck_confirmed", false)):
 			_last_checkpoint_summary["challenge_available"] = false
 			_last_checkpoint_summary["challenge_reason"] = "请先通过继续游戏确认出战牌组"
+		if checkpoint_slot == "test_checkpoint":
+			_last_checkpoint_summary["challenge_available"] = true
+			_last_checkpoint_summary["challenge_reason"] = "测试档案已解锁全部挑战"
 		start_screen.show_checkpoint_status(
 			"loaded",
 			_last_checkpoint_summary,
@@ -308,10 +322,17 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 		return
 	_last_checkpoint_summary = {}
 	if status == "corrupt":
+		var backup_available := bool(
+			inspected.data.get("backup_available", false)
+		)
 		start_screen.show_checkpoint_status(
 			"corrupt",
-			{},
-			String(inspected.data.get("message", "Checkpoint could not be read.")),
+			{"backup_available": backup_available},
+			(
+				"主检查点损坏，可用上次备份恢复。恢复操作不会自动覆盖原档。"
+				if backup_available
+				else "主检查点损坏，且没有可用的上次备份。原始文件已保留。"
+			),
 			_preferences
 		)
 		return
@@ -532,6 +553,14 @@ func _load_challenge_hub_probe() -> InfrastructureResult:
 		sequence_state["completed_challenge_ids"] = (
 			completed_challenges.duplicate()
 		)
+	if checkpoint_slot == "test_checkpoint":
+		sequence_state["current_sequence"] = 8
+		sequence_state["next_sequence"] = 7
+		sequence_state["next_sequence_name_zh"] = "魔术师"
+		sequence_state["advancement_state"] = "completed"
+		sequence_state["completed_challenge_ids"] = [
+			"challenge.v060.mirror_echoes",
+		]
 	var challenge_ids: Array = session.challenge_content.get_challenge_ids()
 	return InfrastructureResult.success({
 		"session": session,
@@ -1311,7 +1340,7 @@ func _on_feedback_submitted(feedback: Dictionary) -> void:
 
 func _start_diagnostics() -> void:
 	_diagnostics = DiagnosticsServiceScript.new(_diagnostics_directory)
-	_diagnostics.start_session("v0.9.0", "development")
+	_diagnostics.start_session("v0.9.2", "development")
 
 
 func _record_diagnostic(event_type: String, details: Dictionary = {}) -> void:

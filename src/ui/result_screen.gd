@@ -166,7 +166,7 @@ func _reason_text(reason: String) -> String:
 		"":
 			return "规则层未提供原因"
 		_:
-			return reason
+			return "未识别的结束原因；请查看诊断记录"
 
 
 func _on_return() -> void:

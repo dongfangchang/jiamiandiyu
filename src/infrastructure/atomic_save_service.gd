@@ -176,6 +176,107 @@ func load_backup(slot: String) -> InfrastructureResult:
 	return _load_with_migration(get_slot_path(slot, true))
 
 
+func restore_backup(slot: String) -> InfrastructureResult:
+	var slot_error := _validate_slot_name(slot)
+	if not slot_error.ok:
+		return slot_error
+	var backup := load_backup(slot)
+	if not backup.ok:
+		return backup
+	var validation := validate_envelope(backup.data, current_save_version)
+	if not validation.ok:
+		return InfrastructureResult.failure(
+			&"backup_validation_failed",
+			"Checkpoint backup failed validation.",
+			validation.details
+		)
+	var directory_error := _ensure_directory()
+	if not directory_error.ok:
+		return directory_error
+
+	var main_path := get_slot_path(slot)
+	var temp_path := get_slot_path(slot, false, ".restore.tmp")
+	var preserved_path := get_slot_path(slot, false, ".restore-old.json")
+	_remove_if_exists(temp_path)
+	var file := FileAccess.open(temp_path, FileAccess.WRITE)
+	if file == null:
+		return InfrastructureResult.failure(
+			&"restore_write_failed",
+			"Restored checkpoint could not be prepared.",
+			{"path": temp_path, "error": FileAccess.get_open_error()}
+		)
+	file.store_string(JSON.stringify(backup.data, "  ", true, true))
+	file.flush()
+	file.close()
+
+	var temp_document := _read_json_object(temp_path)
+	if not temp_document.ok:
+		_remove_if_exists(temp_path)
+		return InfrastructureResult.failure(
+			&"restore_validation_failed",
+			"Prepared checkpoint could not be validated.",
+			{"cause": String(temp_document.code), "path": temp_path}
+		)
+	var temp_validation := validate_envelope(
+		temp_document.data,
+		current_save_version
+	)
+	if not temp_validation.ok:
+		_remove_if_exists(temp_path)
+		return InfrastructureResult.failure(
+			&"restore_validation_failed",
+			"Prepared checkpoint failed validation.",
+			{"cause": String(temp_validation.code), "path": temp_path}
+		)
+
+	var preserved := false
+	if FileAccess.file_exists(main_path):
+		_remove_if_exists(preserved_path)
+		var preserve_error := DirAccess.rename_absolute(
+			ProjectSettings.globalize_path(main_path),
+			ProjectSettings.globalize_path(preserved_path)
+		)
+		if preserve_error != OK:
+			_remove_if_exists(temp_path)
+			return InfrastructureResult.failure(
+				&"restore_preserve_failed",
+				"Existing checkpoint could not be moved aside for recovery.",
+				{"path": main_path, "error": preserve_error}
+			)
+		preserved = true
+
+	var rename_error := DirAccess.rename_absolute(
+		ProjectSettings.globalize_path(temp_path),
+		ProjectSettings.globalize_path(main_path)
+	)
+	if rename_error != OK:
+		_remove_if_exists(temp_path)
+		var recovery_error := ERR_UNAVAILABLE
+		if preserved:
+			recovery_error = DirAccess.rename_absolute(
+				ProjectSettings.globalize_path(preserved_path),
+				ProjectSettings.globalize_path(main_path)
+			)
+		return InfrastructureResult.failure(
+			&"restore_commit_failed",
+			"Validated backup could not replace the checkpoint.",
+			{
+				"path": main_path,
+				"error": rename_error,
+				"preserved_path": preserved_path if preserved else "",
+				"preserved_recovery_error": recovery_error if preserved else "",
+			}
+		)
+	return InfrastructureResult.success(
+		{"slot": slot},
+		{
+			"restored": true,
+			"backup_path": get_slot_path(slot, true),
+			"preserved_path": preserved_path if preserved else "",
+		}
+	)
+
+
 func inspect_slot(slot: String) -> InfrastructureResult:
 	var slot_error := _validate_slot_name(slot)
 	if not slot_error.ok:

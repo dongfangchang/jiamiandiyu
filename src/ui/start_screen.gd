@@ -63,7 +63,9 @@ func show_checkpoint_status(
 	_busy = false
 	_continue_button.disabled = status != "loaded"
 	_new_game_button.disabled = false
-	_version_label.text = "本地原型  /  WHISPERS BENEATH THE MASK"
+	_version_label.text = "v%s  ·  本地离线原型" % String(
+		ProjectSettings.get_setting("application/config/version", "0.9.2")
+	)
 	match status:
 		"loaded":
 			_continue_button.disabled = false
@@ -77,9 +79,12 @@ func show_checkpoint_status(
 			)
 			var pity_current := _optional_int(summary, ["pity_counter", "rare_pity_counter"])
 			var pity_limit := _optional_int(summary, ["rare_pity", "pity_limit"])
-			var content_version := String(summary.get("content_version", ""))
-			if not content_version.is_empty():
-				_version_label.text = content_version + "  /  WHISPERS BENEATH THE MASK"
+			_version_label.text = "v%s  ·  本地离线原型" % String(
+				ProjectSettings.get_setting(
+					"application/config/version",
+					"0.9.2"
+				)
+			)
 			set_challenge_available(
 				bool(summary.get("challenge_available", false)),
 				String(summary.get("challenge_reason", ""))
@@ -221,8 +226,10 @@ func _build() -> void:
 	footer_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(footer_spacer)
 	_version_label = UiTheme.label(
-		"本地原型  /  WHISPERS BENEATH THE MASK",
-		12,
+		"v%s  ·  本地离线原型" % String(
+			ProjectSettings.get_setting("application/config/version", "0.9.2")
+		),
+		11,
 		UiTheme.C_GOLD
 	)
 	footer.add_child(_version_label)

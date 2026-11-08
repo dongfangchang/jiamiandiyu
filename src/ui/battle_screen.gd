@@ -64,6 +64,7 @@ var _enemy_labels: Dictionary = {}
 var _encounter_title := "首场战斗"
 var _events: Array[String] = []
 var _outcome_emitted := false
+var _exit_emitted := false
 
 var _encounter_label: Label
 var _phase_label: Label
@@ -866,7 +867,10 @@ func _enemy_name(definition_id: StringName) -> String:
 
 
 func _reason_text(reason_code: StringName) -> String:
-	return String(REASON_NAMES.get(String(reason_code), "操作被规则层拒绝：%s" % String(reason_code)))
+	return String(REASON_NAMES.get(
+		String(reason_code),
+		"操作被规则层拒绝；请查看战斗记录。"
+	))
 
 
 func _format_event(event: BattleEvent) -> String:
@@ -982,6 +986,20 @@ func _status_icon(icon_id: String, size: int) -> TextureRect:
 	return icon
 
 
+func _status_name(status_id: StringName) -> String:
+	match status_id:
+		&"mark":
+			return "标记"
+		&"weaken":
+			return "削弱"
+		&"bleed":
+			return "流血"
+		&"vulnerable":
+			return "易伤"
+		_:
+			return "未知状态"
+
+
 func _pad(content: Control, margin: int) -> MarginContainer:
 	var result := MarginContainer.new()
 	result.add_theme_constant_override("margin_left", margin)
@@ -1006,6 +1024,9 @@ func _request_exit() -> void:
 		_exit_confirmation.ok_button_text = "退出战斗"
 		_exit_confirmation.cancel_button_text = "继续战斗"
 		_exit_confirmation.confirmed.connect(func() -> void:
+			if _exit_emitted:
+				return
+			_exit_emitted = true
 			exit_requested.emit()
 		)
 		add_child(_exit_confirmation)
@@ -1050,7 +1071,9 @@ func _play_event_feedback(event: BattleEvent) -> void:
 			if anchor != null:
 				_show_floating_text(
 					anchor,
-					"状态：%s" % String(data.get("status_id", "")),
+					"状态：%s" % _status_name(StringName(
+						data.get("status_id", "")
+					)),
 					UiTheme.C_PAPER
 				)
 		"RiskChanged":

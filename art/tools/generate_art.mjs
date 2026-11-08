@@ -440,11 +440,11 @@ const titleSvg = svgDoc(1600, 900, `
     </g>
   </g>
   <text x="800" y="196" text-anchor="middle" fill="${C.bone}" font-family="'Noto Serif SC',serif" font-size="78" font-weight="700" letter-spacing="16">假面低语</text>
-  <text x="800" y="242" text-anchor="middle" fill="${C.gold}" font-family="'Palatino Linotype',serif" font-size="17" letter-spacing="8">WHISPERS BENEATH THE MASK</text>
+  <text x="800" y="242" text-anchor="middle" fill="${C.gold}" font-family="'Noto Serif SC',serif" font-size="17" letter-spacing="8">命运在灰雾中低语</text>
   <path d="M555 273 H689 M911 273 H1045" stroke="${C.gold}" stroke-width="1"/>
   <path d="M800 258 L811 273 L800 288 L789 273 Z" fill="${C.blood}"/>
   <text x="800" y="824" text-anchor="middle" fill="${C.paperDeep}" font-family="'Noto Serif SC',serif" font-size="16" letter-spacing="4">白昼扮演凡人 · 黑夜偿还代价</text>
-  <text x="1528" y="852" text-anchor="end" fill="${C.fog}" font-family="'Palatino Linotype',serif" font-size="11" letter-spacing="3">PRIVATE OCCULT PROTOTYPE // 00</text>
+  <text x="1528" y="852" text-anchor="end" fill="${C.fog}" font-family="'Noto Serif SC',serif" font-size="11" letter-spacing="3">私人离线原型 // v0.9.2</text>
   <rect x="34" y="34" width="1532" height="832" fill="none" stroke="${C.gold}" stroke-width="1.5" opacity=".45"/>
 `);
 fs.writeFileSync(path.join(svgDir, "scenes", "title-screen.svg"), titleSvg, "utf8");

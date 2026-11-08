@@ -26,12 +26,13 @@ func _test_start_screen() -> void:
 	await get_tree().process_frame
 	_expect(not screen.is_continue_enabled(), "continue disabled with no checkpoint")
 	_expect(
-		screen.get_version_text().contains("本地原型"),
-		"start screen avoids a stale version label without a checkpoint"
+		screen.get_version_text().contains("本地离线原型"),
+		"start screen shows the current product label without a checkpoint"
 	)
 	_expect(
-		not screen.get_version_text().contains("v0.3.0"),
-		"start screen no longer shows the stale v0.3 version"
+		screen.get_version_text().contains("v0.9.2")
+		and not screen.get_version_text().contains("WHISPERS"),
+		"start screen shows the current Chinese version without English branding"
 	)
 	_expect(
 		screen.get_summary_text().contains("未选择"),
@@ -52,8 +53,8 @@ func _test_start_screen() -> void:
 	_expect(screen.is_continue_enabled(), "continue enabled with loaded checkpoint")
 	_expect(screen.get_status_text().contains("检查点"), "start screen shows checkpoint status")
 	_expect(
-		screen.get_version_text().contains("v0.4.0"),
-		"loaded summary drives the displayed content version"
+		screen.get_version_text().contains("v0.9.2"),
+		"loaded checkpoints must not replace the current product version"
 	)
 	_expect(screen.get_summary_text().contains("记者"), "summary shows resolved identity")
 	_expect(screen.get_summary_text().contains("占卜券：7"), "summary shows ticket count")
