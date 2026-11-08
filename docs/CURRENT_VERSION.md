@@ -15,7 +15,7 @@
 2. `docs/PROJECT_CHARTER.md`
 3. `docs/TEAM_PROTOCOL.md`
 4. `docs/ARCHITECTURE_CONTRACT.md`
-5. `docs/versions/v0.24.0.md`
+5. `docs/versions/v0.25.0.md`
 
 ## 当前冻结规则
 
@@ -103,6 +103,12 @@ v0.22.0 奖励选择说明已关闭：
 - 占卜券和卡牌残页奖励显示用途与选择时机。
 - 成长 UI 回归 41 项通过。
 - 详细证据见 `docs/reports/v0.22.0/ui.md`。
+
+v0.25.0 首个窄视口切片正在执行：
+
+- 战斗页仅在实际内容溢出时显示滚动提示，保留手牌和操作入口的滚动可达性。
+- `V025_VIEWPORT_GUIDANCE_OK checks=4` 已通过；全流程窗口截图和独立构建仍待 QA 版本门。
+- 详细范围见 `docs/versions/v0.25.0.md`，当前报告见 `docs/reports/v0.25.0/product_manager.md`。
 
 v0.16.0 UI 改进与可玩性体验同步已关闭：
 
