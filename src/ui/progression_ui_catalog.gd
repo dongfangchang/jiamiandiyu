@@ -55,6 +55,25 @@ static func reward_icon(kind: String) -> String:
 	return SHARD_ICON if kind == "card_fragments" else TICKET_ICON
 
 
+static func reward_guidance(kind: String) -> Dictionary:
+	match kind:
+		"divination_tickets":
+			return {
+				"tag": "资源储备",
+				"when": "适合准备下一次祈愿，或想保留更多抽卡选择时。",
+			}
+		"card_fragments":
+			return {
+				"tag": "定向成长",
+				"when": "适合已经确定构筑方向，想尽快升级一张关键卡时。",
+			}
+		_:
+			return {
+				"tag": "未知奖励",
+				"when": "奖励类型未知，请查看档案记录后再决定。",
+			}
+
+
 static func rarity_text(rarity: String) -> String:
 	match rarity:
 		"rare":

@@ -186,12 +186,17 @@ func _build_reward_card(option: Dictionary, data: Dictionary) -> Control:
 		44,
 		UiTheme.C_GOLD
 	))
-	var description := (
-		"可用于下一次灵界祈愿。"
-		if kind == "divination_tickets"
-		else "可转化为对应卡牌的升级残页。"
-	)
-	column.add_child(UiTheme.wrapped_label(description, 15, UiTheme.C_PAPER))
+	var guidance: Dictionary = ProgressionCatalog.reward_guidance(kind)
+	column.add_child(UiTheme.center_label(
+		String(guidance.get("tag", "未知奖励")),
+		14,
+		UiTheme.C_GOLD
+	))
+	column.add_child(UiTheme.wrapped_label(
+		String(guidance.get("when", "")),
+		15,
+		UiTheme.C_PAPER
+	))
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
