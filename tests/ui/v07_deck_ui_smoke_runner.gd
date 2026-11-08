@@ -130,6 +130,7 @@ func _test_deck_small_viewport() -> void:
 	if content_scroll != null:
 		var bar := content_scroll.get_v_scroll_bar()
 		_expect(bar.max_value > bar.page + 1.0, "deck small viewport exposes clipped content through scrolling")
+		_expect(screen.get_scroll_hint_text().contains("向下滚动"), "deck small viewport explains how to reveal actions")
 	var confirm_button: Button = screen.get("_confirm_button")
 	_expect(confirm_button != null, "deck confirm button remains instantiated")
 	if confirm_button != null:

@@ -20,6 +20,7 @@ var _deck_state_label: Label
 var _status_label: Label
 var _preset_row: HBoxContainer
 var _content_scroll: ScrollContainer
+var _scroll_hint_label: Label
 var _collection_grid: GridContainer
 var _deck_list: VBoxContainer
 var _filter_option: OptionButton
@@ -34,12 +35,14 @@ func _ready() -> void:
 	theme = UiTheme.build_theme()
 	_build()
 	_show_empty()
+	call_deferred("_refresh_scroll_hint")
 
 
 func apply_snapshot(snapshot: DeckSnapshot) -> void:
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
 	_busy = false
 	_render()
+	call_deferred("_refresh_scroll_hint")
 
 
 func apply_command_result(result: DeckCommandResult) -> void:
@@ -56,6 +59,7 @@ func apply_command_result(result: DeckCommandResult) -> void:
 	if result.snapshot != null:
 		_snapshot_data = result.snapshot.to_dictionary()
 	_render()
+	call_deferred("_refresh_scroll_hint")
 	if _last_command_type == DeckCommand.SELECT_PRESET:
 		var selected_name := _selected_preset_name()
 		var readiness := _selected_preset_readiness()
@@ -164,6 +168,10 @@ func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
 
 
+func get_scroll_hint_text() -> String:
+	return _scroll_hint_label.text if is_instance_valid(_scroll_hint_label) else ""
+
+
 func get_deck_state_text() -> String:
 	return _deck_state_label.text if is_instance_valid(_deck_state_label) else ""
 
@@ -204,6 +212,9 @@ func _build() -> void:
 	_preset_row = HBoxContainer.new()
 	_preset_row.add_theme_constant_override("separation", 10)
 	root.add_child(_preset_row)
+	_scroll_hint_label = UiTheme.label("", 12, UiTheme.C_GOLD)
+	_scroll_hint_label.visible = false
+	root.add_child(_scroll_hint_label)
 
 	_content_scroll = ScrollContainer.new()
 	_content_scroll.name = "ContentScroll"
@@ -662,6 +673,15 @@ func _show_empty() -> void:
 	_deck_state_label.text = "等待牌组档案"
 	_set_status("尚未连接牌组状态。")
 	_refresh_buttons()
+
+
+func _refresh_scroll_hint() -> void:
+	if not is_instance_valid(_content_scroll) or not is_instance_valid(_scroll_hint_label):
+		return
+	var vertical_bar := _content_scroll.get_v_scroll_bar()
+	var overflow := vertical_bar.max_value > vertical_bar.page + 1.0
+	_scroll_hint_label.visible = overflow
+	_scroll_hint_label.text = "内容超出当前窗口 · 向下滚动查看卡牌与出战操作" if overflow else ""
 
 
 func _selected_preset_name() -> String:
