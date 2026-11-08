@@ -108,7 +108,8 @@ static func button(
 	text_value: String,
 	on_pressed: Callable,
 	enabled: bool = true,
-	min_width: float = 132.0
+	min_width: float = 132.0,
+	primary: bool = false
 ) -> Button:
 	var result := Button.new()
 	result.text = text_value
@@ -116,14 +117,22 @@ static func button(
 	result.custom_minimum_size = Vector2(min_width, 40)
 	result.focus_mode = Control.FOCUS_ALL
 	result.add_theme_font_size_override("font_size", 15)
-	result.add_theme_color_override("font_color", C_TEXT)
+	result.add_theme_color_override("font_color", C_TEXT if not primary else Color("#fff8e8"))
 	result.add_theme_color_override("font_hover_color", Color("#fff4dc"))
 	result.add_theme_color_override("font_disabled_color", C_MUTED)
-	result.add_theme_stylebox_override("normal", style_box(C_SURFACE_RAISED, C_LINE, 1, 6))
-	result.add_theme_stylebox_override("hover", style_box(Color("#302c23"), C_GOLD, 1, 6))
+	var normal_background := C_SURFACE_RAISED if not primary else Color("#4a3b1d")
+	var normal_border := C_LINE if not primary else C_GOLD
+	result.add_theme_stylebox_override("normal", style_box(normal_background, normal_border, 1, 6))
+	result.add_theme_stylebox_override("hover", style_box(
+		Color("#302c23") if not primary else Color("#685329"),
+		C_GOLD,
+		2,
+		6
+	))
 	result.add_theme_stylebox_override("pressed", style_box(Color("#171711"), C_GOLD, 2, 6))
-	result.add_theme_stylebox_override("focus", style_box(Color(0, 0, 0, 0), C_GOLD, 2, 6))
-	result.add_theme_stylebox_override("disabled", style_box(Color("#181711"), C_LINE, 1, 6))
+	result.add_theme_stylebox_override("focus", style_box(Color(0, 0, 0, 0), Color("#f3d58a"), 2, 6))
+	result.add_theme_stylebox_override("disabled", style_box(Color("#181711"), Color("#514a3b"), 1, 6))
+	result.add_theme_constant_override("outline_size", 2)
 	result.pressed.connect(on_pressed)
 	return result
 

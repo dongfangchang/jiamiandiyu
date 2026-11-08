@@ -2,9 +2,9 @@
 
 ## 指针
 
-- 当前版本：`v0.15.0`
-- 阶段：macOS 开发工具补丁
-- 当前版本文档：`docs/versions/v0.15.0.md`
+- 当前版本：`v0.16.0`
+- 阶段：UI 改进与可玩性体验同步
+- 当前版本文档：`docs/versions/v0.16.0.md`
 - 当前文档状态：已关闭
 - 更新日期：2026-11-08
 - 前一版本：`v0.14.0`，已关闭；自适应战斗布局与第四预设已完成
@@ -55,7 +55,7 @@
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
 - 产品经理：`product_manager_v2`。
-- 角色报告路径：`docs/reports/v0.15.0/<role>.md`。
+- 角色报告路径：`docs/reports/v0.16.0/<role>.md`。
 
 ## 当前验证结果
 
@@ -66,6 +66,13 @@ v0.15.0 macOS 开发工具补丁已关闭：
 - 缺少 `.tools/` 时两个脚本均返回退出码 `1` 并显示修复路径。
 - 参数透传、格式检查和 Windows 入口未修改检查通过。
 - 详细证据见 `docs/reports/v0.15.0/qa.md`。
+
+v0.16.0 UI 改进与可玩性体验同步已关闭：
+
+- 共用按钮主题统一主操作、聚焦、悬停、按下和禁用状态。
+- UI smoke：33 项通过；多视口卡牌布局：20 项通过。
+- macOS headless 启动和 `git diff --check` 通过。
+- 详细证据见 `docs/reports/v0.16.0/qa.md`。
 
 v0.14.0 当前质量门：
 
