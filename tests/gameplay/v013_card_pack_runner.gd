@@ -34,13 +34,13 @@ func _ready() -> void:
 		"res://data/balance/v0.7.0/balance.json"
 	)
 	var cards: Array = cards_document.get("cards", [])
-	_expect(cards.size() == 20, "card pack should contain twenty cards")
+	_expect(cards.size() == 40, "card pack should contain forty cards")
 	var definition_ids: Dictionary = {}
 	for definition in cards:
 		definition_ids[String(definition.get("id", ""))] = true
 	_expect(
-		definition_ids.size() == 20,
-		"all twenty card definitions should have unique IDs"
+		definition_ids.size() == 40,
+		"all forty card definitions should have unique IDs"
 	)
 	_content = BattleContentAdapterScript.new(cards)
 	_balance = BattleBalanceAdapterScript.new(balance_document)

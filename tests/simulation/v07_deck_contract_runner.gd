@@ -74,7 +74,7 @@ func _ready() -> void:
 
 func _test_card_pool() -> void:
 	var cards: Array = _cards.get("cards", [])
-	_expect(cards.size() == 20, "exactly 20 cards")
+	_expect(cards.size() == 40, "exactly 40 cards")
 	var ids := {}
 	for value in cards:
 		if value is Dictionary:
@@ -82,7 +82,7 @@ func _test_card_pool() -> void:
 			_expect(not definition_id.is_empty(), "card id is not empty")
 			_expect(not ids.has(definition_id), "card id unique: %s" % definition_id)
 			ids[definition_id] = true
-	_expect(ids.size() == 20, "20 unique card ids")
+	_expect(ids.size() == 40, "40 unique card ids")
 
 	var upgrade_definitions: Dictionary = _progression.get(
 		"upgrade_definitions",

@@ -13,7 +13,7 @@ func _ready() -> void:
 	for card_value in cards_doc.get("cards", []):
 		if card_value is Dictionary:
 			catalog[String(card_value.get("id", ""))] = card_value
-	_expect(catalog.size() == 20, "20-card catalog")
+	_expect(catalog.size() == 40, "40-card catalog")
 	for preset_value in decks_doc.get("presets", []):
 		_audit_preset(preset_value, catalog)
 	if _failures.is_empty():

@@ -15,7 +15,21 @@
           "amount": 4,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "灵性投射",
+        "标记触发"
+      ],
+      "rules_text_zh": "对一个敌人造成4点灵体伤害。目标已有“标记”时，额外造成1点灵体伤害。",
+      "flavor_text_zh": "墨线穿过纸面，先抵达的是那道看不见的轮廓。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.paper_guard",
@@ -30,7 +44,19 @@
           "amount": 5,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "召唤物攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "纸符",
+        "灵体屏障"
+      ],
+      "rules_text_zh": "召唤纸符守卫，获得5点护盾；本回合首次受到灵体伤害时，护盾额外承受1点。",
+      "flavor_text_zh": "纸页折成一只手，替你按住门后的低语。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.calm_breath",
@@ -51,7 +77,19 @@
           "amount": -1,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "理智",
+        "净化准备"
+      ],
+      "rules_text_zh": "恢复4点生命，并移除1点污染。",
+      "flavor_text_zh": "呼吸落回胸腔，灵魂边缘的污迹暂时退潮。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.focus",
@@ -66,7 +104,19 @@
           "amount": 1,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "灵性准备",
+        "理智"
+      ],
+      "rules_text_zh": "获得1点灵性；若本回合已揭示意图，额外获得1点理智护持。",
+      "flavor_text_zh": "把散落在灵界的视线收拢成一根针。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.insight",
@@ -81,7 +131,19 @@
           "count": 1,
           "target": "none"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜",
+        "信息差"
+      ],
+      "rules_text_zh": "抽1张牌，并短暂看见一个敌人的未显现意图。",
+      "flavor_text_zh": "答案没有出现，只是阴影先承认了它。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.omen",
@@ -99,7 +161,21 @@
           "max_stacks": 4,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "诅咒攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "标记",
+        "厄运预示"
+      ],
+      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合；其下一次受伤时触发标记。",
+      "flavor_text_zh": "签文上的墨迹向下渗，像一场尚未降临的厄运。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.whisper",
@@ -116,7 +192,19 @@
           "duration": 1,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "精神幻觉侵蚀",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "削弱",
+        "误导"
+      ],
+      "rules_text_zh": "使一个敌人的下一次攻击降低2点；若其意图未揭示，先揭示意图。",
+      "flavor_text_zh": "低语没有改变命运，只让命运迟疑了一拍。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.second_look",
@@ -130,7 +218,19 @@
           "effect_id": "reveal_intent",
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "灵性视觉",
+        "意图揭示"
+      ],
+      "rules_text_zh": "揭示一个敌人的攻击意图；若已揭示，则获得1点灵性。",
+      "flavor_text_zh": "第二眼看见的，往往比第一眼更接近真实。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.warding_circle",
@@ -145,7 +245,19 @@
           "amount": 4,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "召唤物攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "仪式",
+        "灵体屏障"
+      ],
+      "rules_text_zh": "获得4点护盾；若本回合已施加标记，护盾额外获得1点。",
+      "flavor_text_zh": "粉笔圈住的不是房间，而是房间里某种东西的名字。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.lantern_step",
@@ -165,7 +277,19 @@
           "count": 1,
           "target": "none"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "空间攻击",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列9→8",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "错位",
+        "闪避"
+      ],
+      "rules_text_zh": "获得3点护盾并抽1张牌；本回合下一次敌方攻击伤害降低1点。",
+      "flavor_text_zh": "灯影挪开半步，你便从必中的位置消失。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.whispered_hunch",
@@ -180,7 +304,19 @@
           "count": 2,
           "target": "none"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "预感",
+        "抽牌"
+      ],
+      "rules_text_zh": "抽2张牌；若本回合仍未揭示敌意，获得1点被注视。",
+      "flavor_text_zh": "预感敲门两次，第二次通常不是礼貌。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.mirrored_memory",
@@ -200,7 +336,19 @@
           "count": 1,
           "target": "none"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "历史孔隙",
+        "灵性"
+      ],
+      "rules_text_zh": "获得1点灵性并抽1张牌；弃牌堆中每有一张占卜牌，额外获得1点护盾。",
+      "flavor_text_zh": "镜中旧事短暂复燃，留下可供借用的余温。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.fated_echo",
@@ -218,7 +366,21 @@
           "max_stacks": 6,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "诅咒攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "命运回声",
+        "标记"
+      ],
+      "rules_text_zh": "对一个敌人施加3层“标记”，持续2回合；若其本回合已行动，标记持续时间延长1回合。",
+      "flavor_text_zh": "命运的回声晚到一步，却正好落在伤口上。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.piercing_omen",
@@ -241,7 +403,22 @@
           "max_stacks": 6,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害",
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "单体直伤 + 诅咒",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "灵界穿刺",
+        "标记"
+      ],
+      "rules_text_zh": "造成2点灵体伤害，并施加2层“标记”。",
+      "flavor_text_zh": "预兆先刺破灵体，厄运再沿裂口进入。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.coffin_nail",
@@ -262,7 +439,22 @@
           "amount": 1,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [
+        "物理伤害",
+        "灵体伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列9→8",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "精准投掷",
+        "代价"
+      ],
+      "rules_text_zh": "造成6点伤害；获得1点污染。若目标有标记，改为灵体伤害并消耗标记。",
+      "flavor_text_zh": "棺钉钉入木头，也钉住了某段不该移动的历史。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.second_sight",
@@ -281,7 +473,19 @@
           "amount": 1,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "灵性视觉",
+        "意图揭示"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图，并获得1点灵性；若意图为攻击，额外施加1层标记。",
+      "flavor_text_zh": "灵界的第二层薄雾被拨开，露出即将落下的手。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.dream_question",
@@ -303,7 +507,21 @@
           "max_stacks": 6,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "灵魂伤害"
+      ],
+      "attack_form": "精神幻觉侵蚀",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "梦境",
+        "标记"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图，并施加1层标记；目标下一次攻击后受到1点灵魂伤害。",
+      "flavor_text_zh": "问题进入梦里，答案醒来时已经少了一部分。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.mirror_ward",
@@ -324,7 +542,19 @@
           "amount": -1,
           "target": "self"
         }
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "命运干涉",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列9→8",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "反射",
+        "被注视"
+      ],
+      "rules_text_zh": "获得6点护盾并移除1点被注视；若本回合闪避过攻击，下一次护盾不被穿透。",
+      "flavor_text_zh": "镜面把注视折回去，代价是你也看见了自己。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.severed_string",
@@ -347,7 +577,21 @@
           "max_stacks": 2,
           "target": "enemy"
         }
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害"
+      ],
+      "attack_form": "灵体束缚操控",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "断线",
+        "削弱"
+      ],
+      "rules_text_zh": "造成5点灵体伤害，并使目标下一次攻击降低2点。若目标已有标记，改为束缚其行动顺序。",
+      "flavor_text_zh": "看不见的线被剪断，动作便先于意志停下。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.last_rites",
@@ -367,7 +611,21 @@
           "count": 1,
           "target": "none"
         }
-      ]
+      ],
+      "damage_types": [
+        "净化伤害"
+      ],
+      "attack_form": "净化伤害 + 特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "净化",
+        "续航"
+      ],
+      "rules_text_zh": "恢复3点生命并抽1张牌；若污染不低于3，额外移除1点污染。",
+      "flavor_text_zh": "最后的祷词不负责拯救，只负责让污秽暂时闭嘴。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.ink_scarlet",
@@ -394,7 +652,22 @@
       "synergy_tags": [
         "mark",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害",
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "单体直伤 + DOT",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "流血墨痕",
+        "持续侵蚀"
+      ],
+      "rules_text_zh": "造成3点灵体伤害，并施加1层“标记”；目标在下次行动后受到1点腐蚀污秽伤害。",
+      "flavor_text_zh": "红色墨痕沿灵体的裂缝蔓延，像迟到的血。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.echo_reading",
@@ -418,7 +691,19 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜",
+        "灵性"
+      ],
+      "rules_text_zh": "抽1张牌并获得1点灵性；若抽到0费牌，揭示一个随机敌人的意图。",
+      "flavor_text_zh": "回声重复的不是声音，而是你尚未作出的选择。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.veil_step",
@@ -443,7 +728,19 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "空间攻击",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "闪避",
+        "错位"
+      ],
+      "rules_text_zh": "获得4点护盾并移除1点被注视；本回合首次受击时将1点伤害转为空间偏移。",
+      "flavor_text_zh": "帷幕掠过肩头，你的影子比身体先躲开。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.severed_fate",
@@ -470,7 +767,21 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害"
+      ],
+      "attack_form": "命运干涉 + 单体直伤",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "命运转嫁",
+        "削弱"
+      ],
+      "rules_text_zh": "造成4点灵体伤害并使目标下一次攻击降低1点；若目标有标记，将1层标记转为你的护盾。",
+      "flavor_text_zh": "命运被剪下一角，落在谁身上只取决于手腕。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.paper_swarm",
@@ -494,7 +805,21 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [
+        "物理伤害"
+      ],
+      "attack_form": "AOE范围攻击 + 召唤物",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "纸偶",
+        "范围"
+      ],
+      "rules_text_zh": "对所有敌人造成2点物理伤害，并抽1张牌；有标记的目标额外受到1点灵体伤害。",
+      "flavor_text_zh": "纸片飞成一群没有脸的观众，掌声从四面八方落下。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.midnight_ledger",
@@ -519,7 +844,22 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵魂伤害",
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "单体直伤 + DOT",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "账目",
+        "污染转移"
+      ],
+      "rules_text_zh": "造成3点灵魂伤害并移除1点污染；若本回合已使用净化牌，额外使目标获得1层标记。",
+      "flavor_text_zh": "午夜账簿记下的不是姓名，而是每一次迟疑的利息。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.borrowed_breath",
@@ -543,7 +883,19 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "力量窃取（低强度）",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "借力",
+        "恢复"
+      ],
+      "rules_text_zh": "恢复2点生命并获得1点灵性；本回合下一次对敌伤害提高1点。",
+      "flavor_text_zh": "借来的呼吸不属于你，却足够撑过下一句咒文。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.glass_thesis",
@@ -566,7 +918,19 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "推演",
+        "意图揭示"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图并抽1张牌；若其意图为攻击，下一次命运干涉效果强度提高1级。",
+      "flavor_text_zh": "玻璃上的论证只差一个裂纹，裂纹里藏着结论。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.hungry_symbol",
@@ -594,7 +958,21 @@
       "synergy_tags": [
         "mark",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "诅咒攻击 + 命运干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "饥饿符号",
+        "代价"
+      ],
+      "rules_text_zh": "施加2层标记并获得1点污染；标记触发时额外抽1张牌。",
+      "flavor_text_zh": "符号先吃掉一小段命运，再把空出的地方留给你。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.candle_archive",
@@ -618,7 +996,19 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "召唤物攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "蜡烛",
+        "灵体屏障"
+      ],
+      "rules_text_zh": "获得3点护盾并抽1张牌；若本回合揭示过意图，护盾持续至下回合结束。",
+      "flavor_text_zh": "烛火保存一页历史，也保存一口尚未吐出的气。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.omen_chorus",
@@ -648,7 +1038,21 @@
       "synergy_tags": [
         "mark",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "AOE范围攻击 + 诅咒",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "群体预兆",
+        "削弱"
+      ],
+      "rules_text_zh": "对所有敌人施加1层标记并使其下一次攻击降低1点。",
+      "flavor_text_zh": "众声合唱时，最轻的厄运也会变得清晰。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.mirror_shard",
@@ -672,7 +1076,21 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害"
+      ],
+      "attack_form": "单体直伤 + 灵体屏障",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "反射",
+        "精准投掷"
+      ],
+      "rules_text_zh": "获得2点护盾并对一个敌人造成2点灵体伤害；若护盾被击破，下一张牌费用降低1。",
+      "flavor_text_zh": "镜片飞出时没有方向，只有被命中的那一刻才有。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.closed_eye",
@@ -698,7 +1116,19 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "精神幻觉侵蚀",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "闭眼预判",
+        "削弱"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图并使其下一次攻击降低1点；若本回合未受伤，抽1张牌。",
+      "flavor_text_zh": "闭上眼，世界终于停止伪装成安全的样子。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.last_witness",
@@ -722,7 +1152,21 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "净化伤害"
+      ],
+      "attack_form": "净化伤害 + 特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "见证",
+        "净化"
+      ],
+      "rules_text_zh": "恢复5点生命并弃1张牌；若弃掉的是诅咒牌，移除1点污染。",
+      "flavor_text_zh": "见证者最后留下的不是证词，而是一块干净的空白。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.black_thread",
@@ -747,7 +1191,22 @@
       "synergy_tags": [
         "mark",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害",
+        "净化伤害"
+      ],
+      "attack_form": "灵体束缚操控 + 单体直伤",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "断线",
+        "净化"
+      ],
+      "rules_text_zh": "移除目标1层标记并造成4点灵体伤害；若移除的是最后一层标记，额外造成1点净化伤害。",
+      "flavor_text_zh": "黑线收紧时，厄运失去名字，伤口却还在。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.false_death",
@@ -772,7 +1231,19 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "命运干涉",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "假死",
+        "代价"
+      ],
+      "rules_text_zh": "获得8点护盾并增加1点被注视；本回合生命不会因一次攻击降至1点以下。",
+      "flavor_text_zh": "假死不是欺骗死亡，而是让死亡暂时找不到你。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.eclipse",
@@ -797,7 +1268,22 @@
       "synergy_tags": [
         "tempo",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "灵体伤害",
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "单体直伤 + DOT",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "日蚀",
+        "污染代价"
+      ],
+      "rules_text_zh": "造成7点灵体伤害并获得1点污染；目标下次行动后受到1点腐蚀污秽伤害。",
+      "flavor_text_zh": "光被遮住的瞬间，灵体先承认了自己的形状。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.red_corridor",
@@ -821,7 +1307,22 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [
+        "元素灵性伤害",
+        "灵体伤害"
+      ],
+      "attack_form": "空间攻击 + 单体直伤",
+      "pathway": "占卜家→小丑",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "走位",
+        "穿刺"
+      ],
+      "rules_text_zh": "造成4点元素灵性伤害并获得1点灵性；若本回合已闪避或错位，改为灵体伤害并额外造成1点。",
+      "flavor_text_zh": "红色走廊没有尽头，只有每一步都更接近你的影子。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.sealed_answer",
@@ -846,7 +1347,19 @@
       "synergy_tags": [
         "tempo",
         "chain"
-      ]
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "封存信息",
+        "代价"
+      ],
+      "rules_text_zh": "抽2张牌并获得1点污染；下一次揭示意图时，额外看到目标的状态持续时间。",
+      "flavor_text_zh": "答案被封在蜡里，代价是你必须先承认自己不知道。",
+      "art_status": "card_back_fallback"
     },
     {
       "id": "card.skill.hollow_bell",
@@ -871,7 +1384,22 @@
       "synergy_tags": [
         "mark",
         "payoff"
-      ]
+      ],
+      "damage_types": [
+        "净化伤害",
+        "灵体伤害"
+      ],
+      "attack_form": "单体直伤 + 净化",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "空响",
+        "净化"
+      ],
+      "rules_text_zh": "造成3点伤害并移除目标1层标记；若目标没有标记，改为造成1点净化伤害。",
+      "flavor_text_zh": "空钟敲响，污秽无处回声，只有灵体留下。",
+      "art_status": "card_back_fallback"
     }
   ]
 }

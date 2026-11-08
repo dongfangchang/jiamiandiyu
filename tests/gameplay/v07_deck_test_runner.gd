@@ -48,7 +48,7 @@ func _test_formal_card_pool() -> void:
 	var cards_document := _read_json(CARDS_PATH)
 	var progression := _read_json(PROGRESSION_PATH)
 	var cards: Array = cards_document.get("cards", [])
-	_check(cards.size() == 20, "formal expanded card pool should contain 20 cards")
+	_check(cards.size() == 40, "formal expanded card pool should contain 40 cards")
 	var ids := {}
 	for value in cards:
 		var card: Dictionary = value

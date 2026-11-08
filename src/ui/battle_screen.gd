@@ -84,6 +84,7 @@ var _attention_meter: VBoxContainer
 var _lanes_row: HBoxContainer
 var _hand_row: HBoxContainer
 var _event_list: VBoxContainer
+var _event_scroll: ScrollContainer
 var _play_button: Button
 var _cancel_button: Button
 var _end_turn_button: Button
@@ -489,9 +490,19 @@ func _build_side_panel(panel: PanelContainer) -> void:
 	column.add_child(divider)
 
 	_event_list = VBoxContainer.new()
-	_event_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_event_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_event_list.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_event_list.add_theme_constant_override("separation", 6)
-	column.add_child(_event_list)
+	_event_scroll = ScrollContainer.new()
+	_event_scroll.name = "BattleLogScroll"
+	_event_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_event_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_event_scroll.custom_minimum_size = Vector2(0, 96)
+	_event_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_event_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_event_scroll.follow_focus = true
+	_event_scroll.add_child(_event_list)
+	column.add_child(_event_scroll)
 	_append_event("等待战斗开始。")
 
 
@@ -1146,6 +1157,21 @@ func _append_event(text_value: String) -> void:
 		child.free()
 	for event_text in _events:
 		_event_list.add_child(UiTheme.wrapped_label("· " + event_text, 13, UiTheme.C_MUTED))
+	if is_instance_valid(_event_scroll):
+		call_deferred("_scroll_event_log_to_latest")
+
+
+func _scroll_event_log_to_latest() -> void:
+	if not is_instance_valid(_event_scroll):
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(_event_scroll):
+		return
+	await get_tree().process_frame
+	if not is_instance_valid(_event_scroll):
+		return
+	var bar := _event_scroll.get_v_scroll_bar()
+	_event_scroll.scroll_vertical = int(bar.max_value)
 
 
 func _is_player_action_phase() -> bool:

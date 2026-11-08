@@ -299,7 +299,7 @@ func _test_all_cards_and_enemies_remain_readable() -> void:
 		return
 	var card_definitions: Array = cards_document.get("cards", [])
 	var enemy_definitions: Array = enemies_document.get("enemies", [])
-	_expect(card_definitions.size() == 20, "destructive audit must cover all 20 cards")
+	_expect(card_definitions.size() == 40, "destructive audit must cover all 40 cards")
 	var card_labels := {}
 	var card_details := {}
 	var hand: Array = []
