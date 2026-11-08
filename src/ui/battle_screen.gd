@@ -96,12 +96,14 @@ var _exit_confirmation: ConfirmationDialog
 var _visual_effect_count := 0
 var _screen_scroll: ScrollContainer
 var _content_root: Control
+var _scroll_hint_label: Label
 
 
 func _ready() -> void:
 	theme = UiTheme.build_theme()
 	_build()
 	_refresh_controls()
+	call_deferred("_refresh_scroll_hint")
 
 
 func configure(
@@ -142,6 +144,7 @@ func apply_snapshot(snapshot: BattleSnapshot) -> void:
 	_render_snapshot()
 	_status_label.text = _snapshot_hint()
 	_refresh_controls()
+	call_deferred("_refresh_scroll_hint")
 
 
 func apply_command_result(result: BattleCommandResult) -> void:
@@ -190,6 +193,10 @@ func get_selected_target_id() -> StringName:
 
 func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
+
+
+func get_scroll_hint_text() -> String:
+	return _scroll_hint_label.text if is_instance_valid(_scroll_hint_label) else ""
 
 
 func get_event_count() -> int:
@@ -413,13 +420,20 @@ func _build_header() -> Control:
 
 
 func _build_status_strip() -> Control:
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 2)
+	var status := UiTheme.wrapped_label("等待战斗初始化。", 15, UiTheme.C_TEXT)
+	content.add_child(status)
+	_scroll_hint_label = UiTheme.label("", 12, UiTheme.C_GOLD)
+	_scroll_hint_label.visible = false
+	content.add_child(_scroll_hint_label)
 	var strip := UiTheme.padded_panel(
-		UiTheme.wrapped_label("等待战斗初始化。", 15, UiTheme.C_TEXT),
+		content,
 		10,
 		Color("#252118"),
 		UiTheme.C_LINE
 	)
-	_status_label = strip.get_child(0).get_child(0) as Label
+	_status_label = status
 	return strip
 
 
@@ -508,6 +522,24 @@ func _build_hand_panel(panel: PanelContainer) -> void:
 	_hand_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_hand_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_hand_row)
+
+
+func _refresh_scroll_hint() -> void:
+	if not is_instance_valid(_screen_scroll) or not is_instance_valid(_scroll_hint_label):
+		return
+	var vertical_bar := _screen_scroll.get_v_scroll_bar()
+	var horizontal_bar := _screen_scroll.get_h_scroll_bar()
+	var vertical_overflow := vertical_bar.max_value > vertical_bar.page + 1.0
+	var horizontal_overflow := horizontal_bar.max_value > horizontal_bar.page + 1.0
+	_scroll_hint_label.visible = vertical_overflow or horizontal_overflow
+	if not _scroll_hint_label.visible:
+		_scroll_hint_label.text = ""
+		return
+	_scroll_hint_label.text = (
+		"页面内容超出当前窗口 · 上下滑动查看手牌和操作"
+		if vertical_overflow and not horizontal_overflow
+		else "页面内容超出当前窗口 · 滑动查看完整战场和操作"
+	)
 
 
 func _render_snapshot() -> void:
