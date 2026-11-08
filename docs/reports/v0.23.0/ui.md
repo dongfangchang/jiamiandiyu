@@ -2,7 +2,7 @@
 
 ## 状态
 
-- 状态：完成 UI 增量，等待版本集成验收
+- 状态：完成 UI 增量，已提交并推送，等待版本集成验收
 - 任务：让抽卡页面直接解释当前稀有概率和保底上限，降低抽取决策成本。
 
 ## 实现
@@ -15,6 +15,7 @@
 ## 验证
 
 - `git diff --check`：通过。
+- 提交：`554d57b feat(v0.23.0): explain gacha pity guidance`，已推送 `origin/main`。
 - 本机未安装 Godot 4.7.2 命令行，`PROGRESSION_UI_SMOKE` 需在项目提供的 Godot 环境中运行。
 
 ## 风险与下一步
