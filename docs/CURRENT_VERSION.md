@@ -2,9 +2,9 @@
 
 ## 指针
 
-- 当前版本：`v0.19.0`
-- 阶段：牌组构筑说明
-- 当前版本文档：`docs/versions/v0.19.0.md`
+- 当前版本：`v0.20.0`
+- 阶段：预设构筑指标
+- 当前版本文档：`docs/versions/v0.20.0.md`
 - 当前文档状态：已关闭
 - 更新日期：2026-11-08
 - 前一版本：`v0.14.0`，已关闭；自适应战斗布局与第四预设已完成
@@ -55,7 +55,7 @@
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
 - 产品经理：`product_manager_v2`。
-- 角色报告路径：`docs/reports/v0.19.0/<role>.md`。
+- 角色报告路径：`docs/reports/v0.20.0/<role>.md`。
 
 ## 当前验证结果
 
@@ -85,6 +85,12 @@ v0.19.0 牌组构筑说明已关闭：
 - 四套预设显示策略标签和适用时机。
 - 牌组 UI、通用 UI 和平衡审计回归通过。
 - 详细证据见 `docs/reports/v0.19.0/ui.md`。
+
+v0.20.0 预设构筑指标已关闭：
+
+- 四套预设均输出可重复的费用、效果方向和风险指标。
+- `V020_PRESET_METRICS_OK checks=72 presets=4`。
+- 详细证据见 `docs/reports/v0.20.0/numerical_designer.md`。
 
 v0.16.0 UI 改进与可玩性体验同步已关闭：
 
