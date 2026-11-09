@@ -17,6 +17,7 @@ var _resource_label: Label
 var _route_label: Label
 var _chapter_label: Label
 var _chapter_summary_label: Label
+var _current_goal_label: Label
 var _challenge_label: Label
 var _result_button: Button
 var _hub_button: Button
@@ -175,6 +176,8 @@ func _build() -> void:
 	heading.add_child(_chapter_label)
 	_chapter_summary_label = UiTheme.wrapped_label("", 13, UiTheme.C_MUTED)
 	heading.add_child(_chapter_summary_label)
+	_current_goal_label = UiTheme.wrapped_label("", 13, UiTheme.C_PAPER)
+	heading.add_child(_current_goal_label)
 	heading.add_child(UiTheme.label(
 		"沿固定线索推进。战斗只在节点边界留下检查点。",
 		14,
@@ -238,6 +241,10 @@ func _render_snapshot() -> void:
 	_chapter_summary_label.text = String(
 		_snapshot_data.get("chapter_summary_zh", "沿线索推进调查。")
 	)
+	var current_node := _find_node(String(_snapshot_data.get("current_node_id", "")))
+	var current_goal := String(current_node.get("investigation_goal_zh", ""))
+	_current_goal_label.text = ("当前调查目标：" + current_goal) if not current_goal.is_empty() else ""
+	_current_goal_label.visible = not current_goal.is_empty()
 	_update_resources()
 	for child in _nodes_row.get_children():
 		child.queue_free()

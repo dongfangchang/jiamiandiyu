@@ -62,12 +62,17 @@ func _test_route_screen() -> void:
 	var snapshot = _route_snapshot({
 		"phase": "map",
 		"nodes": _route_nodes("route.v050.node.first_hunt"),
+		"current_node_id": "route.v050.node.first_hunt",
+		"chapter_title_zh": "廷根：雨夜异常调查",
+		"chapter_phase_zh": "从灵视到证据",
+		"chapter_summary_zh": "沿线索确认异常。",
 	})
 	screen.apply_snapshot(snapshot)
 	_expect(screen.get_node_count() == 5, "route screen renders five nodes")
 	_expect(screen.get_node_state(0) == "available", "first node is available")
 	_expect(screen.get_node_state(2) == "locked", "later rest node is locked")
 	_expect(screen.get_background_path().ends_with("route-map.png"), "route art background resolves")
+	_expect(screen.find_child("ChapterMapScroll", true, false) != null, "route keeps chapter map in a horizontal scroll container")
 	_expect(screen.is_node_button_enabled("route.v050.node.first_hunt"), "available node button enabled")
 	_expect(not screen.is_node_button_enabled("route.v050.node.mirror_pursuit"), "locked node button disabled")
 	screen.request_node("route.v050.node.first_hunt")
@@ -348,6 +353,7 @@ func _route_nodes(available_id: String) -> Array:
 			"id": String(entry[0]),
 			"type": String(entry[1]),
 			"display_name_zh": String(entry[2]),
+			"investigation_goal_zh": "确认异常并保留一条可复核的目击线索。" if index == 0 else "",
 			"state": state,
 		})
 	return result
