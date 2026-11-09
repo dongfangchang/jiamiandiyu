@@ -39,10 +39,12 @@ $process = Start-Process `
     -RedirectStandardError $stderr
 
 Get-Content -LiteralPath $stdout | Write-Host
-if ((Get-Item -LiteralPath $stderr).Length -gt 0) {
-    Get-Content -LiteralPath $stderr | Write-Error
+$stderrContent = Get-Content -Raw -LiteralPath $stderr
+if (-not [string]::IsNullOrWhiteSpace($stderrContent)) {
+    Write-Warning "Godot export reported diagnostics:`n$stderrContent"
 }
 if ($process.ExitCode -ne 0) {
+    Get-Content -LiteralPath $stderr | Select-Object -Last 20
     throw "Windows export failed with exit code $($process.ExitCode)"
 }
 if (-not (Test-Path -LiteralPath $outputExecutable)) {
