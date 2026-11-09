@@ -3,7 +3,7 @@
 
 # Godot generated data
 .godot/
-export/
+/export/
 build/
 
 # Local temporary files
