@@ -73,8 +73,8 @@ func _test_deck_screen() -> void:
 	_expect(screen.get_current_deck_count() == 8, "deck screen renders eight current cards")
 	_expect(screen.get_selected_preset_id() == "deck.preset.ward", "deck screen retains selected preset")
 	_expect(screen.is_confirm_enabled(), "legal snapshot enables confirm")
-	_expect(screen.inspect_card("card.skill.warding_circle"), "deck card opens detail dialog")
-	_expect(screen.get_card_detail_text().contains("费用") and screen.get_card_detail_text().contains("目标"), "card detail exposes cost and target")
+	_expect(screen.inspect_card("card.skill.ink_dart"), "deck card opens detail dialog")
+	_expect(screen.get_card_detail_text().contains("费用") and screen.get_card_detail_text().contains("目标") and screen.get_card_detail_text().contains("伤害"), "card detail exposes cost, target and effect")
 
 	screen.set_filter("owned")
 	_expect(screen.get_card_count() == 8, "owned filter reads snapshot ownership")
@@ -278,6 +278,7 @@ func _deck_snapshot() -> DeckSnapshot:
 			"definition_id": definition_id,
 			"display_name_zh": _card_name(definition_id),
 			"description_zh": "用于 UI 验证的卡牌描述。",
+			"rules_text_zh": "造成4点伤害。" if index == 0 else "用于 UI 验证的卡牌描述。",
 			"category": "skill",
 			"cost_spirit": index % 3,
 			"target_type": (

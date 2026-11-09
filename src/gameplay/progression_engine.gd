@@ -17,6 +17,7 @@ const BAL_RARE_PITY: StringName = &"gacha.rare_pity"
 const BAL_DUPLICATE_FRAGMENTS: StringName = &"gacha.duplicate_fragments"
 const BAL_UPGRADE_COSTS: StringName = &"upgrade.cost_by_next_level"
 const BAL_REWARD_AMOUNTS: StringName = &"reward.amounts"
+const SEQUENCE_FRAGMENT_REWARD_ID := "reward.sequence_fragments"
 
 const RARITY_COMMON: StringName = &"common"
 const RARITY_RARE: StringName = &"rare"
@@ -146,6 +147,16 @@ func get_snapshot() -> ProgressionSnapshot:
 			var view: Dictionary = reward.duplicate(true)
 			view["amount"] = _reward_amount(reward_id)
 			reward_views.append(view)
+	if SEQUENCE_FRAGMENT_REWARD_ID in _state.get("reward_option_ids", []):
+		var target_id := String(_state.get("sequence_reward_target_id", ""))
+		var target := _content.get_card_definition(StringName(target_id))
+		reward_views.append({
+			"id": SEQUENCE_FRAGMENT_REWARD_ID,
+			"display_name_zh": "%s残页" % String(target.get("display_name_zh", "序列卡牌")),
+			"kind": "card_fragments",
+			"target_definition_id": target_id,
+			"amount": _reward_amount("reward.ink_dart_fragments"),
+		})
 
 	var identity_id := StringName(_state.get("identity_id", &""))
 	var identity: Dictionary = _identities_by_id.get(String(identity_id), {})
@@ -359,6 +370,7 @@ func _resolve_battle(outcome: StringName) -> ProgressionCommandResult:
 	})
 	if outcome == OUTCOME_VICTORY:
 		_apply_victory_resources()
+		_state["sequence_reward_target_id"] = _pick_sequence_reward_target()
 		_state["reward_option_ids"] = _all_reward_ids()
 		_state["phase"] = String(PHASE_REWARD)
 	else:
@@ -377,6 +389,8 @@ func _claim_reward(reward_id: StringName) -> ProgressionCommandResult:
 	if reward.is_empty():
 		return _rejected(&"reward_not_available")
 	var amount: int = _reward_amount(String(reward_id))
+	if String(reward_id) == SEQUENCE_FRAGMENT_REWARD_ID:
+		amount = _reward_amount("reward.ink_dart_fragments")
 	if amount <= 0:
 		return _rejected(&"balance_missing")
 	var kind := String(reward.get("kind", ""))
@@ -384,6 +398,8 @@ func _claim_reward(reward_id: StringName) -> ProgressionCommandResult:
 		_state["divination_tickets"] = int(_state.get("divination_tickets", 0)) + amount
 	elif kind == "card_fragments":
 		var target_id := String(reward.get("target_definition_id", ""))
+		if String(reward_id) == SEQUENCE_FRAGMENT_REWARD_ID:
+			target_id = String(_state.get("sequence_reward_target_id", target_id))
 		if target_id.is_empty() or not _content.has_card_definition(StringName(target_id)):
 			return _rejected(&"content_invalid")
 		_add_fragments(target_id, amount)
@@ -655,6 +671,13 @@ func _reward_amount(reward_id: String) -> int:
 
 
 func _reward_by_id(reward_id: String) -> Dictionary:
+	if reward_id == SEQUENCE_FRAGMENT_REWARD_ID:
+		return {
+			"id": SEQUENCE_FRAGMENT_REWARD_ID,
+			"display_name_zh": "序列 %d 残页" % int(_state.get("sequence", 9)),
+			"kind": "card_fragments",
+			"target_definition_id": String(_state.get("sequence_reward_target_id", "")),
+		}
 	for reward in _reward_options:
 		if String(reward.get("id", "")) == reward_id:
 			return reward.duplicate(true)
@@ -665,7 +688,24 @@ func _all_reward_ids() -> Array[String]:
 	var result: Array[String] = []
 	for reward in _reward_options:
 		result.append(String(reward.get("id", "")))
+	if not String(_state.get("sequence_reward_target_id", "")).is_empty():
+		result.append(SEQUENCE_FRAGMENT_REWARD_ID)
 	return result
+
+
+func _pick_sequence_reward_target() -> String:
+	var candidates: Array[String] = []
+	var sequence := int(_state.get("sequence", 9))
+	for definition_id in _all_card_ids():
+		var definition := _content.get_card_definition(StringName(definition_id))
+		var band := String(definition.get("sequence_band", "序列9"))
+		if sequence == 9 and (band.contains("序列9") or band.contains("→8")):
+			candidates.append(definition_id)
+		elif sequence == 8 and band.contains("序列8"):
+			candidates.append(definition_id)
+	if candidates.is_empty():
+		return "card.skill.ink_dart"
+	return candidates[_random.next_int(candidates.size())]
 
 
 func _all_card_ids() -> Array[String]:
@@ -869,6 +909,7 @@ func _new_state() -> Dictionary:
 		"last_battle_outcome": "",
 		"last_gacha_results": [],
 		"gacha_history": [],
+		"sequence_reward_target_id": "",
 		"potion_inventory": [],
 		"sequence": 9,
 		"digestion": _new_digestion_state(),
@@ -923,11 +964,15 @@ func _restore_state(value: Dictionary) -> ProgressionCommandResult:
 	var gacha_history: Variant = restored.get("gacha_history", [])
 	if not gacha_history is Array:
 		return _restore_error(&"gacha_history_invalid")
+	var sequence_reward_target_id := String(restored.get("sequence_reward_target_id", ""))
+	if not sequence_reward_target_id.is_empty() and not _content.has_card_definition(StringName(sequence_reward_target_id)):
+		return _restore_error(&"sequence_reward_target_invalid")
 	restored["phase"] = String(phase)
 	restored["collection"] = normalized
 	restored["digestion"] = digestion.duplicate(true)
 	restored["potion_inventory"] = potion_inventory.duplicate()
 	restored["gacha_history"] = gacha_history.duplicate(true)
+	restored["sequence_reward_target_id"] = sequence_reward_target_id
 	restored["sequence"] = int(restored.get("sequence", 9))
 	_state = restored
 	return ProgressionCommandResult.new(true, &"ok", [], get_snapshot())

@@ -61,6 +61,8 @@ func _ready() -> void:
 		hand_row != null and hand_row.get_child_count() == 8,
 		"battle log growth must not remove hand cards"
 	)
+	_expect(screen.inspect_enemy("enemy.01"), "enemy detail should open from battle snapshot")
+	_expect(screen.get_enemy_detail_text().contains("生命") and screen.get_enemy_detail_text().contains("基础攻击"), "enemy detail should expose attributes")
 	if _failures.is_empty():
 		print("V027_BATTLE_LOG_OK checks=%d" % _checks)
 		get_tree().quit(0)

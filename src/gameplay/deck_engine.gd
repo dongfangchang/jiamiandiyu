@@ -145,6 +145,7 @@ func get_snapshot() -> DeckSnapshot:
 				definition.get("display_name_zh", definition_id)
 			),
 			"description_zh": String(definition.get("description_zh", "")),
+			"rules_text_zh": String(definition.get("rules_text_zh", definition.get("description_zh", ""))),
 			"category": String(definition.get("category", "")),
 			"cost_spirit": int(definition.get("cost_spirit", 0)),
 			"target_type": String(definition.get("target_type", "")),

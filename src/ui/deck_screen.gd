@@ -577,7 +577,7 @@ func _show_card_detail(card: Dictionary) -> void:
 		int(card.get("cost_spirit", 0)),
 		DeckCatalog.target_text(String(card.get("target_type", ""))),
 		int(_levels.get(definition_id, 0)),
-		String(card.get("description_zh", "暂无功能说明")),
+		String(card.get("rules_text_zh", card.get("description_zh", "暂无功能说明"))),
 	]
 	_card_detail_dialog.popup_centered(Vector2(500, 340))
 

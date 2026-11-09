@@ -143,7 +143,7 @@
           "enemy_slots": [
             {
               "enemy_id": "enemy.weeping_tenant",
-              "lane_index": 1
+              "lane_index": 0
             }
           ]
         },
@@ -159,7 +159,7 @@
           "enemy_slots": [
             {
               "enemy_id": "enemy.mirror_hound",
-              "lane_index": 1
+              "lane_index": 2
             }
           ]
         }

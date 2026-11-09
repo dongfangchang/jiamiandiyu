@@ -371,10 +371,17 @@ func _end_turn() -> BattleCommandResult:
 			"damage": raw_damage,
 		})
 		_apply_damage_to_player(raw_damage, String(enemy["id"]))
+		if String(enemy.get("threat", "")) == "corruption" and _is_alive(_player):
+			_apply_risk(&"corruption", 2)
 		if not _is_alive(_player):
+			break
+		if _outcome != OUTCOME_NONE:
 			break
 
 	_tick_enemy_statuses()
+	if _outcome != OUTCOME_NONE:
+		_revision += 1
+		return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
 	if not _is_alive(_player):
 		_finish_battle(OUTCOME_DEFEAT, &"player_died")
 		_revision += 1
@@ -884,6 +891,13 @@ func _apply_risk(risk_id: StringName, amount: int) -> void:
 		"after": int(_player[current_key]),
 		"reason_code": "card_effect",
 	})
+	if current_key == "corruption" and int(_player[current_key]) >= int(_player[max_key]):
+		_emit(&"CorruptionOverflow", {
+			"before": before,
+			"after": int(_player[current_key]),
+			"max": int(_player[max_key]),
+		})
+		_finish_battle(OUTCOME_DEFEAT, &"corruption_overflow")
 
 
 func _draw_to_hand(target_size: int) -> void:

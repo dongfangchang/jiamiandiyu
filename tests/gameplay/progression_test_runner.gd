@@ -149,9 +149,14 @@ func _test_reward_flow_and_fragments() -> void:
 	_check(resolved.accepted, "victory should resolve into reward choice")
 	_check(resolved.snapshot.data["phase"] == "reward", "victory should enter reward phase")
 	_check(
-		resolved.snapshot.data["reward_options"].size() == 2,
-		"reward phase should expose two choices"
+		resolved.snapshot.data["reward_options"].size() >= 2,
+		"reward phase should expose the base choices and a sequence card fragment"
 	)
+	var sequence_reward_found := false
+	for reward in resolved.snapshot.data["reward_options"]:
+		if String(reward.get("id", "")) == "reward.sequence_fragments":
+			sequence_reward_found = not String(reward.get("target_definition_id", "")).is_empty()
+	_check(sequence_reward_found, "victory should offer a random current-sequence card fragment")
 	_check(
 		int(resolved.snapshot.data["divination_tickets"]) == 6,
 		"reporter victory should grant one extra ticket"

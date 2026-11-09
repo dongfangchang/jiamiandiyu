@@ -95,6 +95,7 @@ var _meter_value_labels: Dictionary = {}
 var _effects_layer: Control
 var _exit_button: Button
 var _exit_confirmation: ConfirmationDialog
+var _enemy_detail_dialog: AcceptDialog
 var _visual_effect_count := 0
 var _screen_scroll: ScrollContainer
 var _content_root: Control
@@ -246,6 +247,20 @@ func is_exit_confirmation_visible() -> bool:
 
 func get_status_icon_path(icon_id: String) -> String:
 	return STATUS_ICON_BASE.path_join("status-" + icon_id + ".png")
+
+
+func inspect_enemy(actor_id: String) -> bool:
+	if _snapshot == null:
+		return false
+	for enemy_value in _snapshot.data.get("enemies", []):
+		if enemy_value is Dictionary and String(enemy_value.get("actor_id", "")) == actor_id:
+			_show_enemy_detail(enemy_value)
+			return true
+	return false
+
+
+func get_enemy_detail_text() -> String:
+	return _enemy_detail_dialog.dialog_text if is_instance_valid(_enemy_detail_dialog) else ""
 
 
 func select_card_instance(card_instance_id: StringName) -> void:
@@ -460,11 +475,14 @@ func _build_battlefield(panel: PanelContainer) -> void:
 	))
 
 	_lanes_row = HBoxContainer.new()
+	_lanes_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_lanes_row.custom_minimum_size = Vector2(0, 0)
 	_lanes_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_lanes_row.add_theme_constant_override("separation", 10)
 	var enemy_scroll := ScrollContainer.new()
 	enemy_scroll.name = "EnemyStatusScroll"
 	enemy_scroll.custom_minimum_size = Vector2(0, 220)
+	enemy_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	enemy_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	enemy_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	enemy_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -686,7 +704,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			var art := TextureRect.new()
 			art.name = "EnemyArt"
 			art.texture = load(art_path) as Texture2D
-			art.custom_minimum_size = Vector2(0, 170)
+			art.custom_minimum_size = Vector2(0, 120)
 			art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -694,14 +712,21 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			column.add_child(art)
 		else:
 			var unknown := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
-			unknown.custom_minimum_size = Vector2(0, 170)
+			unknown.custom_minimum_size = Vector2(0, 120)
 			unknown.add_child(UiTheme.center_label("未知存在", 16, UiTheme.C_MUTED))
 			column.add_child(unknown)
-		column.add_child(UiTheme.center_label(
+		var name_label := UiTheme.center_label(
 			_enemy_name(definition_id),
 			17,
 			UiTheme.C_TEXT if alive else UiTheme.C_MUTED
-		))
+		)
+		name_label.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		name_label.tooltip_text = "点击查看状态与属性"
+		name_label.gui_input.connect(func(event: InputEvent) -> void:
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				_show_enemy_detail(enemy)
+		)
+		column.add_child(name_label)
 		panel.set_meta("battle_actor_id", String(enemy.get("actor_id", "")))
 		panel.set_meta("battle_alive", alive)
 		column.add_child(UiTheme.center_label(
@@ -777,6 +802,40 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 		column.add_child(empty)
 		column.add_child(UiTheme.center_label("此列无目标", 14, UiTheme.C_MUTED))
 	return panel
+
+
+func _show_enemy_detail(enemy: Dictionary) -> void:
+	if not is_instance_valid(_enemy_detail_dialog):
+		_enemy_detail_dialog = AcceptDialog.new()
+		_enemy_detail_dialog.title = "怪物状态与属性"
+		_enemy_detail_dialog.ok_button_text = "关闭"
+		add_child(_enemy_detail_dialog)
+	var statuses: Array = enemy.get("statuses", [])
+	var status_text := "无"
+	if not statuses.is_empty():
+		var names: Array[String] = []
+		for value in statuses:
+			if value is Dictionary:
+				names.append("%s ×%d" % [
+					_status_name(StringName(value.get("status_id", ""))),
+					int(value.get("stacks", 0)),
+				])
+		status_text = "、".join(names)
+	var intent: Dictionary = enemy.get("intent", {})
+	var intent_text := "未知"
+	if bool(intent.get("revealed", false)):
+		intent_text = "攻击 %d" % int(intent.get("visible_fields", {}).get("damage", 0))
+	_enemy_detail_dialog.dialog_text = "【%s】\n生命：%d / %d\n基础攻击：%d\n护盾：%d\n当前意图：%s\n状态：%s\n强化阶段：%d" % [
+		_enemy_name(StringName(enemy.get("definition_id", ""))),
+		int(enemy.get("hp", 0)),
+		int(enemy.get("max_hp", 0)),
+		int(enemy.get("base_attack", 0)),
+		int(enemy.get("block", 0)),
+		intent_text,
+		status_text,
+		int(enemy.get("triggered_phase_count", 0)),
+	]
+	_enemy_detail_dialog.popup_centered(Vector2(460, 320))
 
 
 func _render_hand(hand_value: Variant) -> void:
@@ -1173,6 +1232,8 @@ func _format_event(event: BattleEvent) -> String:
 				int(data.get("before", 0)),
 				int(data.get("after", 0)),
 			]
+		"CorruptionOverflow":
+			return "污染达到上限，灵魂被污秽吞没。"
 		"ChainChanged":
 			return "连携 %d → %d。" % [
 				int(data.get("before", 0)),

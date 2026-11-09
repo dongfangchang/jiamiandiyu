@@ -27,7 +27,7 @@
         "灵性投射",
         "标记触发"
       ],
-      "rules_text_zh": "对一个敌人造成4点灵体伤害。目标已有“标记”时，额外造成1点灵体伤害。",
+      "rules_text_zh": "对一个敌人造成4点灵体伤害。",
       "flavor_text_zh": "墨线穿过纸面，先抵达的是那道看不见的轮廓。",
       "art_status": "card_back_fallback"
     },
@@ -54,7 +54,7 @@
         "纸符",
         "灵体屏障"
       ],
-      "rules_text_zh": "召唤纸符守卫，获得5点护盾；本回合首次受到灵体伤害时，护盾额外承受1点。",
+      "rules_text_zh": "获得5点护盾，直到下一回合开始。",
       "flavor_text_zh": "纸页折成一只手，替你按住门后的低语。",
       "art_status": "card_back_fallback"
     },
@@ -114,7 +114,7 @@
         "灵性准备",
         "理智"
       ],
-      "rules_text_zh": "获得1点灵性；若本回合已揭示意图，额外获得1点理智护持。",
+      "rules_text_zh": "获得1点灵性；这是本回合的灵性准备牌。",
       "flavor_text_zh": "把散落在灵界的视线收拢成一根针。",
       "art_status": "card_back_fallback"
     },
@@ -141,7 +141,7 @@
         "占卜",
         "信息差"
       ],
-      "rules_text_zh": "抽1张牌，并短暂看见一个敌人的未显现意图。",
+      "rules_text_zh": "抽1张牌。",
       "flavor_text_zh": "答案没有出现，只是阴影先承认了它。",
       "art_status": "card_back_fallback"
     },
@@ -173,7 +173,7 @@
         "标记",
         "厄运预示"
       ],
-      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合；其下一次受伤时触发标记。",
+      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合；标记会在目标下一次受伤时消耗并追加伤害。",
       "flavor_text_zh": "签文上的墨迹向下渗，像一场尚未降临的厄运。",
       "art_status": "card_back_fallback"
     },
@@ -202,7 +202,7 @@
         "削弱",
         "误导"
       ],
-      "rules_text_zh": "使一个敌人的下一次攻击降低2点；若其意图未揭示，先揭示意图。",
+      "rules_text_zh": "使一个敌人的下一次攻击降低2点。",
       "flavor_text_zh": "低语没有改变命运，只让命运迟疑了一拍。",
       "art_status": "card_back_fallback"
     },
@@ -228,7 +228,7 @@
         "灵性视觉",
         "意图揭示"
       ],
-      "rules_text_zh": "揭示一个敌人的攻击意图；若已揭示，则获得1点灵性。",
+      "rules_text_zh": "揭示一个敌人的攻击意图。",
       "flavor_text_zh": "第二眼看见的，往往比第一眼更接近真实。",
       "art_status": "card_back_fallback"
     },
@@ -261,7 +261,7 @@
         "仪式准备",
         "灵体屏障"
       ],
-      "rules_text_zh": "获得4点护盾，并获得1层“仪式准备”（最多3层）；仪式准备达到3层后，下一次施加标记时额外施加1层。",
+      "rules_text_zh": "获得4点护盾，并获得1层“仪式准备”（最多3层）。准备达到3层后，下一次施加标记时额外施加1层。",
       "flavor_text_zh": "粉笔圈住的不是房间，而是房间里某种东西的名字。",
       "art_status": "card_back_fallback"
     },
@@ -293,7 +293,7 @@
         "错位",
         "闪避"
       ],
-      "rules_text_zh": "获得3点护盾并抽1张牌；本回合下一次敌方攻击伤害降低1点。",
+      "rules_text_zh": "获得3点护盾并抽1张牌。",
       "flavor_text_zh": "灯影挪开半步，你便从必中的位置消失。",
       "art_status": "card_back_fallback"
     },
@@ -320,7 +320,7 @@
         "预感",
         "抽牌"
       ],
-      "rules_text_zh": "抽2张牌；若本回合仍未揭示敌意，获得1点被注视。",
+      "rules_text_zh": "抽2张牌；这是高收益但消耗灵性的牌序选择。",
       "flavor_text_zh": "预感敲门两次，第二次通常不是礼貌。",
       "art_status": "card_back_fallback"
     },
@@ -352,7 +352,7 @@
         "历史孔隙",
         "灵性"
       ],
-      "rules_text_zh": "获得1点灵性并抽1张牌；弃牌堆中每有一张占卜牌，额外获得1点护盾。",
+      "rules_text_zh": "获得1点灵性并抽1张牌。",
       "flavor_text_zh": "镜中旧事短暂复燃，留下可供借用的余温。",
       "art_status": "card_back_fallback"
     },
@@ -384,7 +384,7 @@
         "命运回声",
         "标记"
       ],
-      "rules_text_zh": "对一个敌人施加3层“标记”，持续2回合；若其本回合已行动，标记持续时间延长1回合。",
+      "rules_text_zh": "对一个敌人施加3层“标记”，持续2回合。",
       "flavor_text_zh": "命运的回声晚到一步，却正好落在伤口上。",
       "art_status": "card_back_fallback"
     },
@@ -422,7 +422,7 @@
         "灵界穿刺",
         "标记"
       ],
-      "rules_text_zh": "造成2点灵体伤害，并施加2层“标记”。",
+      "rules_text_zh": "造成2点灵体伤害，并施加2层“标记”，持续2回合。",
       "flavor_text_zh": "预兆先刺破灵体，厄运再沿裂口进入。",
       "art_status": "card_back_fallback"
     },
@@ -467,7 +467,7 @@
       "display_name_zh": "第二视觉",
       "description_zh": "让另一双眼睛接过凝视，换取下一步行动与额外灵性。",
       "category": "skill",
-      "cost_spirit": 0,
+      "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
@@ -489,7 +489,7 @@
         "灵性视觉",
         "意图揭示"
       ],
-      "rules_text_zh": "揭示一个敌人的意图，并获得1点灵性；若意图为攻击，额外施加1层标记。",
+      "rules_text_zh": "揭示一个敌人的攻击意图，并获得1点灵性。",
       "flavor_text_zh": "灵界的第二层薄雾被拨开，露出即将落下的手。",
       "art_status": "card_back_fallback"
     },
@@ -498,7 +498,7 @@
       "display_name_zh": "梦问",
       "description_zh": "在短暂的梦境里先看见敌人下一步，再留下一个薄弱记号。",
       "category": "skill",
-      "cost_spirit": 0,
+      "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
@@ -525,7 +525,7 @@
         "梦境",
         "标记"
       ],
-      "rules_text_zh": "揭示一个敌人的意图，并施加1层标记；目标下一次攻击后受到1点灵魂伤害。",
+      "rules_text_zh": "揭示一个敌人的攻击意图，并施加1层“标记”，持续2回合。",
       "flavor_text_zh": "问题进入梦里，答案醒来时已经少了一部分。",
       "art_status": "card_back_fallback"
     },
@@ -629,7 +629,7 @@
         "净化",
         "续航"
       ],
-      "rules_text_zh": "恢复3点生命并抽1张牌；若污染不低于3，额外移除1点污染。",
+      "rules_text_zh": "恢复3点生命并抽1张牌。",
       "flavor_text_zh": "最后的祷词不负责拯救，只负责让污秽暂时闭嘴。",
       "art_status": "card_back_fallback"
     },
@@ -671,7 +671,7 @@
         "流血墨痕",
         "持续侵蚀"
       ],
-      "rules_text_zh": "造成3点灵体伤害，并施加1层“标记”；目标在下次行动后受到1点腐蚀污秽伤害。",
+      "rules_text_zh": "造成3点灵体伤害，并施加1层“标记”，持续2回合。",
       "flavor_text_zh": "红色墨痕沿灵体的裂缝蔓延，像迟到的血。",
       "art_status": "card_back_fallback"
     },
@@ -689,8 +689,9 @@
           "target": "none"
         },
         {
-          "effect_id": "spirit",
-          "amount": 1,
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": -1,
           "target": "self"
         }
       ],
@@ -707,7 +708,7 @@
         "占卜",
         "灵性"
       ],
-      "rules_text_zh": "抽1张牌并获得1点灵性；若抽到0费牌，揭示一个随机敌人的意图。",
+      "rules_text_zh": "抽1张牌，并移除1点被注视。",
       "flavor_text_zh": "回声重复的不是声音，而是你尚未作出的选择。",
       "art_status": "card_back_fallback"
     },
@@ -833,7 +834,7 @@
       "description_zh": "记下代价，将污染压回账页。",
       "category": "skill",
       "cost_spirit": 1,
-      "target_type": "self",
+      "target_type": "enemy",
       "effects": [
         {
           "effect_id": "damage",
@@ -863,7 +864,7 @@
         "账目",
         "污染转移"
       ],
-      "rules_text_zh": "造成3点灵魂伤害并移除1点污染；若本回合已使用净化牌，额外使目标获得1层标记。",
+      "rules_text_zh": "对一个敌人造成3点灵魂伤害，并移除1点污染。",
       "flavor_text_zh": "午夜账簿记下的不是姓名，而是每一次迟疑的利息。",
       "art_status": "card_back_fallback"
     },
@@ -899,7 +900,7 @@
         "借力",
         "恢复"
       ],
-      "rules_text_zh": "恢复2点生命并获得1点灵性；本回合下一次对敌伤害提高1点。",
+      "rules_text_zh": "恢复2点生命并获得1点灵性。",
       "flavor_text_zh": "借来的呼吸不属于你，却足够撑过下一句咒文。",
       "art_status": "card_back_fallback"
     },
@@ -908,7 +909,7 @@
       "display_name_zh": "玻璃命题",
       "description_zh": "看穿敌人的下一步，并将答案留在手中。",
       "category": "skill",
-      "cost_spirit": 0,
+      "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
@@ -934,7 +935,7 @@
         "推演",
         "意图揭示"
       ],
-      "rules_text_zh": "揭示一个敌人的意图并抽1张牌；若其意图为攻击，下一次命运干涉效果强度提高1级。",
+      "rules_text_zh": "揭示一个敌人的攻击意图并抽1张牌。",
       "flavor_text_zh": "玻璃上的论证只差一个裂纹，裂纹里藏着结论。",
       "art_status": "card_back_fallback"
     },
@@ -976,7 +977,7 @@
         "饥饿符号",
         "代价"
       ],
-      "rules_text_zh": "施加2层标记并获得1点污染；标记触发时额外抽1张牌。",
+      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合，并获得1点污染。",
       "flavor_text_zh": "符号先吃掉一小段命运，再把空出的地方留给你。",
       "art_status": "card_back_fallback"
     },
@@ -990,13 +991,13 @@
       "effects": [
         {
           "effect_id": "block",
-          "amount": 3,
+          "amount": 2,
           "target": "self"
         },
         {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
         }
       ],
       "synergy_tags": [
@@ -1012,7 +1013,7 @@
         "蜡烛",
         "灵体屏障"
       ],
-      "rules_text_zh": "获得3点护盾并抽1张牌；若本回合揭示过意图，护盾持续至下回合结束。",
+      "rules_text_zh": "获得2点护盾，并获得1层“仪式准备”（最多3层）。",
       "flavor_text_zh": "烛火保存一页历史，也保存一口尚未吐出的气。",
       "art_status": "card_back_fallback"
     },
@@ -1056,7 +1057,7 @@
         "群体预兆",
         "削弱"
       ],
-      "rules_text_zh": "对所有敌人施加1层标记并使其下一次攻击降低1点。",
+      "rules_text_zh": "对一个敌人施加1层“标记”，并使其下一次攻击降低1点。",
       "flavor_text_zh": "众声合唱时，最轻的厄运也会变得清晰。",
       "art_status": "card_back_fallback"
     },
@@ -1132,7 +1133,7 @@
         "闭眼预判",
         "削弱"
       ],
-      "rules_text_zh": "揭示一个敌人的意图并使其下一次攻击降低1点；若本回合未受伤，抽1张牌。",
+      "rules_text_zh": "揭示一个敌人的攻击意图，并使其下一次攻击降低1点。",
       "flavor_text_zh": "闭上眼，世界终于停止伪装成安全的样子。",
       "art_status": "card_back_fallback"
     },
@@ -1170,7 +1171,7 @@
         "见证",
         "净化"
       ],
-      "rules_text_zh": "恢复5点生命并弃1张牌；若弃掉的是诅咒牌，移除1点污染。",
+      "rules_text_zh": "恢复5点生命，并弃置1张牌。",
       "flavor_text_zh": "见证者最后留下的不是证词，而是一块干净的空白。",
       "art_status": "card_back_fallback"
     },
@@ -1287,7 +1288,7 @@
         "日蚀",
         "污染代价"
       ],
-      "rules_text_zh": "造成7点灵体伤害并获得1点污染；目标下次行动后受到1点腐蚀污秽伤害。",
+      "rules_text_zh": "造成7点灵体伤害，并获得1点污染。",
       "flavor_text_zh": "光被遮住的瞬间，灵体先承认了自己的形状。",
       "art_status": "card_back_fallback"
     },
@@ -1335,7 +1336,7 @@
       "display_name_zh": "封存答案",
       "description_zh": "打开封印，抽取两张牌，却让污染逼近。",
       "category": "skill",
-      "cost_spirit": 1,
+      "cost_spirit": 2,
       "target_type": "none",
       "effects": [
         {
@@ -1363,7 +1364,7 @@
         "封存信息",
         "代价"
       ],
-      "rules_text_zh": "抽2张牌并获得1点污染；下一次揭示意图时，额外看到目标的状态持续时间。",
+      "rules_text_zh": "抽2张牌，并获得1点污染。",
       "flavor_text_zh": "答案被封在蜡里，代价是你必须先承认自己不知道。",
       "art_status": "card_back_fallback"
     },
@@ -1403,7 +1404,7 @@
         "空响",
         "净化"
       ],
-      "rules_text_zh": "造成3点伤害并移除目标1层标记；若目标没有标记，改为造成1点净化伤害。",
+      "rules_text_zh": "造成3点伤害，并移除目标1层标记。",
       "flavor_text_zh": "空钟敲响，污秽无处回声，只有灵体留下。",
       "art_status": "card_back_fallback"
     }

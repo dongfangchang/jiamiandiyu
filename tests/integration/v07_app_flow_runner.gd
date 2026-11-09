@@ -340,7 +340,7 @@ func _claim_reward(
 ) -> void:
 	_expect(_app.get_current_route() == &"reward", "reward screen is active")
 	var screen = _app.get_current_screen()
-	_expect(screen.get_option_count() == 2, "reward offers two choices")
+	_expect(screen.get_option_count() >= 2, "reward offers base choices and a sequence fragment")
 	screen.claim_reward(reward_id)
 	await _wait_frames(3)
 	if not expected_route.is_empty():

@@ -16,6 +16,7 @@ func _ready() -> void:
 	_test_block_absorbs_enemy_damage()
 	_test_mark_is_consumed_by_next_damage()
 	_test_weaken_reduces_next_attack()
+	_test_corruption_overflow_defeat()
 	_test_victory_and_defeat_outcomes()
 	_test_round_limit()
 	_test_enemy_pressure()
@@ -411,6 +412,20 @@ func _test_weaken_reduces_next_attack() -> void:
 	)
 	var statuses: Array = _enemy_view(result.snapshot, &"enemy.a")["statuses"]
 	_check(_status_index(statuses, &"weaken") < 0, "weaken duration should expire after the attack")
+
+
+func _test_corruption_overflow_defeat() -> void:
+	var enemy := _enemy(&"enemy.tenant", 1, 20, 1)
+	enemy["threat"] = "corruption"
+	var engine := _make_engine(
+		[&"card.test.ink_dart"],
+		[enemy],
+		{"corruption": 8}
+	)
+	var result := engine.submit(BattleCommand.end_turn())
+	_check(result.accepted, "corruption threat turn should resolve")
+	_check(result.snapshot.data["outcome"] == "defeat", "corruption reaching its limit should defeat the player")
+	_check(String(result.snapshot.data["outcome_reason"]) == "corruption_overflow", "corruption defeat should expose a stable reason")
 
 
 func _test_victory_and_defeat_outcomes() -> void:
