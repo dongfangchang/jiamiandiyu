@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="假面低语（本地原型）"
-config/version="0.28.0"
+config/version="0.29.1"
 run/main_scene="res://src/app/app_root.tscn"
 config/features=PackedStringArray("4.7")
 

@@ -29,7 +29,7 @@
               "properties": {
                 "effect_id": {
                   "type": "string",
-                  "enum": ["damage", "block", "heal", "draw", "spirit", "apply_status", "remove_status", "discard", "reveal_intent", "risk"]
+                  "enum": ["damage", "block", "heal", "draw", "spirit", "apply_status", "remove_status", "discard", "reveal_intent", "risk", "prepare_ritual"]
                 }
               },
               "additionalProperties": true

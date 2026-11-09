@@ -25,6 +25,7 @@ const SUPPORTED_EFFECTS: Array[StringName] = [
 	&"discard",
 	&"reveal_intent",
 	&"risk",
+	&"prepare_ritual",
 ]
 
 var _content: BattleContentPort
@@ -346,6 +347,14 @@ func _end_turn() -> BattleCommandResult:
 		var intent: Dictionary = enemy["intent"]
 		var pressure: int = int(enemy.get("pressure_bonus", 0))
 		var raw_damage: int = int(enemy["base_attack"]) + pressure
+		var foresight_index := _find_status_index(_player["statuses"], &"foresight")
+		if foresight_index >= 0:
+			raw_damage = maxi(0, raw_damage - 1)
+			_player["statuses"].remove_at(foresight_index)
+			_emit(&"ForesightConsumed", {
+				"enemy_id": String(enemy["id"]),
+				"reduction": 1,
+			})
 		var weaken_index: int = _find_status_index(enemy["statuses"], &"weaken")
 		if weaken_index >= 0:
 			raw_damage = maxi(0, raw_damage - int(enemy["statuses"][weaken_index]["stacks"]))
@@ -630,10 +639,19 @@ func _apply_effect(
 			reveal_target["intent"]["visible_fields"] = {
 				"damage": int(reveal_target["intent"].get("damage", 0)),
 			}
+			_apply_status(_player, &"foresight", 1, 1, 1)
 			_emit(&"IntentRevealed", {
 				"enemy_id": String(reveal_target["id"]),
 				"revealed_fields": reveal_target["intent"]["visible_fields"].duplicate(true),
 			})
+		&"prepare_ritual":
+			_apply_status(
+				_player,
+				&"ritual_preparation",
+				int(effect.get("amount", 1)),
+				99,
+				3
+			)
 		&"risk":
 			_apply_risk(StringName(effect["risk_id"]), int(effect["amount"]))
 		_:
@@ -742,6 +760,15 @@ func _apply_status(
 	duration: int,
 	max_stacks: int
 ) -> void:
+	if status_id == &"mark" and target != _player:
+		var ritual_index := _find_status_index(_player["statuses"], &"ritual_preparation")
+		if ritual_index >= 0 and int(_player["statuses"][ritual_index].get("stacks", 0)) >= 3:
+			stacks += 1
+			_player["statuses"].remove_at(ritual_index)
+			_emit(&"RitualPrepared", {
+				"target_id": _actor_id(target),
+				"bonus_mark": 1,
+			})
 	var statuses: Array = target["statuses"]
 	var index: int = _find_status_index(statuses, status_id)
 	if status_id == &"weaken":
@@ -1082,7 +1109,7 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 		&"apply_status":
 			if not (effect.get("status_id") is String):
 				return false
-			if String(effect["status_id"]) not in ["mark", "weaken"]:
+			if String(effect["status_id"]) not in ["mark", "weaken", "foresight", "ritual_preparation"]:
 				return false
 			if not _is_positive_integer(effect.get("stacks")):
 				return false
@@ -1092,7 +1119,7 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 		&"remove_status":
 			return (
 				effect.get("status_id") is String
-				and String(effect["status_id"]) in ["mark", "weaken"]
+				and String(effect["status_id"]) in ["mark", "weaken", "foresight", "ritual_preparation"]
 			)
 		&"reveal_intent":
 			return true
@@ -1102,6 +1129,8 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 				and String(effect["risk_id"]) in ["corruption", "attention"]
 				and _is_integer_number(effect.get("amount"))
 			)
+		&"prepare_ritual":
+			return _is_positive_integer(effect.get("amount", 1))
 	return false
 
 

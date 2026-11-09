@@ -49,6 +49,7 @@ func _ready() -> void:
 		"consuming the potion should advance to sequence eight"
 	)
 	_test_wave_transition()
+	_test_seer_foresight_and_ritual()
 	_finish()
 
 
@@ -72,6 +73,66 @@ func _test_wave_transition() -> void:
 	_expect(result.accepted, "first wave should accept lethal card")
 	_expect(String(result.snapshot.data.get("outcome", "")) == "", "first wave should not end battle")
 	_expect(result.events.any(func(event): return event.type == &"EnemyWaveArrived"), "next wave event should be emitted")
+
+
+func _test_seer_foresight_and_ritual() -> void:
+	var cards: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/cards/v0.7.0/cards.json"))
+	var balance: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/balance/v0.7.0/balance.json"))
+	var content := BattleContentAdapterScript.new(cards.get("cards", []))
+	var battle := BattleEngineScript.new()
+	var initialized = battle.initialize(content, BattleBalanceAdapterScript.new(balance), BattleRandomAdapterScript.new(SeededRandomServiceScript.new(11).get_stream(&"v028.seer")), &"v028.seer", {
+		"actor_id": "player", "hp": 54, "max_hp": 54, "block": 0, "spirit": 3, "max_spirit": 3,
+		"corruption": 0, "max_corruption": 10, "attention": 0, "max_attention": 10, "statuses": []
+	}, [&"card.skill.second_sight", &"card.skill.warding_circle", &"card.skill.warding_circle", &"card.skill.warding_circle", &"card.skill.omen"], [
+		{"id": "seer.target", "definition_id": "enemy.weeping_tenant", "lane_index": 1, "hp": 20, "max_hp": 20, "base_attack": 2, "wave_index": 0, "phases": []}
+	])
+	_expect(initialized.accepted, "seer fixture should initialize")
+	if not initialized.accepted:
+		return
+	var second_sight_id := _hand_instance_for(battle, &"card.skill.second_sight")
+	var sight_result = battle.submit(BattleCommandScript.play_card(second_sight_id, &"seer.target"))
+	_expect(sight_result.accepted, "second sight should reveal an intent")
+	_expect(_has_status(sight_result.snapshot.data.get("player", {}).get("statuses", []), &"foresight"), "revealing intent should grant foresight")
+	var hp_before := int(sight_result.snapshot.data.get("player", {}).get("hp", 0))
+	var end_result = battle.submit(BattleCommandScript.end_turn())
+	_expect(int(end_result.snapshot.data.get("player", {}).get("hp", 0)) == hp_before - 1, "foresight should reduce the next attack by one")
+	var prep_battle := BattleEngineScript.new()
+	var prep_initialized = prep_battle.initialize(content, BattleBalanceAdapterScript.new(balance), BattleRandomAdapterScript.new(SeededRandomServiceScript.new(13).get_stream(&"v028.ritual")), &"v028.ritual", {
+		"actor_id": "player", "hp": 54, "max_hp": 54, "block": 0, "spirit": 3, "max_spirit": 3,
+		"corruption": 0, "max_corruption": 10, "attention": 0, "max_attention": 10, "statuses": []
+	}, [&"card.skill.warding_circle", &"card.skill.warding_circle", &"card.skill.warding_circle", &"card.skill.omen"], [
+		{"id": "ritual.target", "definition_id": "enemy.weeping_tenant", "lane_index": 1, "hp": 20, "max_hp": 20, "base_attack": 0, "wave_index": 0, "phases": []}
+	])
+	_expect(prep_initialized.accepted, "ritual fixture should initialize")
+	if not prep_initialized.accepted:
+		return
+	for _index in range(3):
+		var ward_id := _hand_instance_for(prep_battle, &"card.skill.warding_circle")
+		_expect(prep_battle.submit(BattleCommandScript.play_card(ward_id)).accepted, "ritual preparation should accept warding circle")
+	var omen_id := _hand_instance_for(prep_battle, &"card.skill.omen")
+	var omen_result = prep_battle.submit(BattleCommandScript.play_card(omen_id, &"ritual.target"))
+	_expect(omen_result.accepted, "prepared omen should be accepted")
+	var target: Dictionary = omen_result.snapshot.data.get("enemies", [])[0]
+	_expect(_status_stacks(target.get("statuses", []), &"mark") == 3, "three ritual preparations should empower the next mark")
+
+
+func _hand_instance_for(battle: BattleEngine, definition_id: StringName) -> StringName:
+	for card in battle.get_snapshot().data.get("hand", []):
+		if StringName(card.get("definition_id", "")) == definition_id:
+			return StringName(card.get("instance_id", ""))
+	return &""
+
+
+func _has_status(statuses: Variant, status_id: StringName) -> bool:
+	return _status_stacks(statuses, status_id) > 0
+
+
+func _status_stacks(statuses: Variant, status_id: StringName) -> int:
+	if statuses is Array:
+		for status in statuses:
+			if status is Dictionary and StringName(status.get("status_id", "")) == status_id:
+				return int(status.get("stacks", 0))
+	return 0
 
 
 func _finish() -> void:

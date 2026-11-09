@@ -244,6 +244,11 @@
           "effect_id": "block",
           "amount": 4,
           "target": "self"
+        },
+        {
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
         }
       ],
       "damage_types": [],
@@ -253,9 +258,10 @@
       "target_layer": "灵体层",
       "mechanic_tags": [
         "仪式",
+        "仪式准备",
         "灵体屏障"
       ],
-      "rules_text_zh": "获得4点护盾；若本回合已施加标记，护盾额外获得1点。",
+      "rules_text_zh": "获得4点护盾，并获得1层“仪式准备”（最多3层）；仪式准备达到3层后，下一次施加标记时额外施加1层。",
       "flavor_text_zh": "粉笔圈住的不是房间，而是房间里某种东西的名字。",
       "art_status": "card_back_fallback"
     },

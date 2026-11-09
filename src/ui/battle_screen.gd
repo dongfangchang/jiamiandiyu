@@ -1127,6 +1127,10 @@ func _format_event(event: BattleEvent) -> String:
 			return "%s 的意图被揭示。" % _enemy_name_by_actor(
 				StringName(data.get("enemy_id", ""))
 			)
+		"ForesightConsumed":
+			return "预见生效：本次攻击伤害降低%d。" % int(data.get("reduction", 0))
+		"RitualPrepared":
+			return "仪式准备完成：下一次标记额外增强。"
 		"RiskChanged":
 			return "%s %d → %d。" % [
 				"污染" if String(data.get("risk_id", "")) == "corruption" else "被注视",
@@ -1239,6 +1243,10 @@ func _status_name(status_id: StringName) -> String:
 			return "流血"
 		&"vulnerable":
 			return "易伤"
+		&"foresight":
+			return "预见"
+		&"ritual_preparation":
+			return "仪式准备"
 		_:
 			return "未知状态"
 
@@ -1321,6 +1329,10 @@ func _play_event_feedback(event: BattleEvent) -> void:
 					)),
 					UiTheme.C_PAPER
 				)
+		"ForesightConsumed":
+			_show_floating_text(_health_meter, "预见：伤害 -%d" % int(data.get("reduction", 0)), UiTheme.C_GOLD)
+		"RitualPrepared":
+			_show_floating_text(_health_meter, "仪式准备完成", UiTheme.C_GOLD)
 		"RiskChanged":
 			_show_floating_text(
 				_health_meter,
