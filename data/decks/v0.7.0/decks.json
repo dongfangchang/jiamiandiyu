@@ -57,8 +57,8 @@
         "card.skill.focus",
         "card.skill.omen",
         "card.skill.warding_circle",
-        "card.skill.lantern_step",
-        "card.skill.coffin_nail"
+        "card.skill.insight",
+        "card.skill.piercing_omen"
       ]
     },
     {
@@ -67,11 +67,11 @@
       "description_zh": "依靠额外灵性与抽牌寻找正确的墨刺窗口。",
       "card_definition_ids": [
         "card.skill.ink_dart",
-        "card.skill.coffin_nail",
+        "card.skill.second_look",
         "card.skill.focus",
         "card.skill.insight",
         "card.skill.whispered_hunch",
-        "card.skill.mirrored_memory",
+        "card.skill.piercing_omen",
         "card.skill.paper_guard",
         "card.skill.calm_breath"
       ]
@@ -85,7 +85,7 @@
         "card.skill.omen",
         "card.skill.fated_echo",
         "card.skill.piercing_omen",
-        "card.skill.coffin_nail",
+        "card.skill.dream_question",
         "card.skill.focus",
         "card.skill.paper_guard",
         "card.skill.calm_breath"
@@ -97,11 +97,11 @@
       "description_zh": "以梦问与标记铺路，用断线控制节奏，并由临终圣礼维持续航。",
       "card_definition_ids": [
         "card.skill.dream_question",
-        "card.skill.mirror_ward",
-        "card.skill.severed_string",
+        "card.skill.second_look",
+        "card.skill.glass_thesis",
         "card.skill.last_rites",
         "card.skill.omen",
-        "card.skill.coffin_nail",
+        "card.skill.whispered_hunch",
         "card.skill.focus",
         "card.skill.ink_dart"
       ]

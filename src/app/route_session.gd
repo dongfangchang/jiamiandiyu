@@ -4,6 +4,7 @@ extends RefCounted
 const GameSessionScript := preload("res://src/app/game_session.gd")
 const InfrastructureResultScript := preload("res://src/infrastructure/infrastructure_result.gd")
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
+const DeckCommandScript := preload("res://src/core/deck_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
 const RouteEngineScript := preload("res://src/gameplay/route_engine.gd")
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
@@ -133,6 +134,11 @@ func consume_potion(potion_id: StringName) -> ProgressionCommandResult:
 	if result.accepted:
 		if _route_engine != null:
 			_route_engine.mark_sequence_advanced()
+		if deck_engine != null:
+			deck_engine.set_current_sequence(
+				int(progression.get_snapshot().data.get("sequence", 9))
+			)
+			deck_engine.submit(DeckCommandScript.reset_default())
 		save_checkpoint("potion_consumed")
 	return result
 

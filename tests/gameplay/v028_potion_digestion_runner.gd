@@ -2,6 +2,7 @@ extends Node
 
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
+const DeckCommandScript := preload("res://src/core/deck_command.gd")
 const BattleCommandScript := preload("res://src/core/battle_command.gd")
 const BattleEngineScript := preload("res://src/gameplay/battle_engine.gd")
 const BattleContentAdapterScript := preload("res://src/infrastructure/battle_content_adapter.gd")
@@ -48,8 +49,11 @@ func _ready() -> void:
 		int(session.get_sequence_state().data.get("current_sequence", 0)) == 8,
 		"consuming the potion should advance to sequence eight"
 	)
+	var post_ascension_deck = session.submit_deck(DeckCommandScript.add_card(&"card.skill.lantern_step"))
+	_expect(post_ascension_deck.accepted, "sequence eight should unlock transitional cards in the deck")
 	_test_wave_transition()
 	_test_seer_foresight_and_ritual()
+	_test_sequence_locked_gacha()
 	_finish()
 
 
@@ -133,6 +137,29 @@ func _status_stacks(statuses: Variant, status_id: StringName) -> int:
 			if status is Dictionary and StringName(status.get("status_id", "")) == status_id:
 				return int(status.get("stacks", 0))
 	return 0
+
+
+func _test_sequence_locked_gacha() -> void:
+	var started = AppBootstrapScript.start_route_v07(
+		20261110,
+		{"test_profile": true, "save_directory": "user://v0291_sequence_lock", "route_id": "route.v028.first_stage"},
+		"v0291_sequence_lock",
+		false
+	)
+	_expect(started.ok, "sequence lock fixture should initialize")
+	if not started.ok:
+		return
+	var session = started.data
+	var pulled = session.submit_progression(ProgressionCommandScript.draw_gacha(1))
+	_expect(pulled.accepted, "sequence lock fixture should allow a gacha pull")
+	if not pulled.accepted:
+		return
+	var last_results: Array = pulled.snapshot.data.get("last_gacha_results", [])
+	if not last_results.is_empty():
+		var definition_id := StringName(last_results[0].get("definition_id", ""))
+		var definition: Dictionary = session.catalog.get_card(definition_id)
+		var band := String(definition.get("sequence_band", ""))
+		_expect(not band.contains("序列8") and not band.contains("→8"), "sequence 9 gacha must not offer sequence 8 cards")
 
 
 func _finish() -> void:

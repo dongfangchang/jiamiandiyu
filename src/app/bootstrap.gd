@@ -824,7 +824,11 @@ static func start_route_v07(
 		):
 			owned_ids.append(String(card_value.get("definition_id", "")))
 	var deck_engine := DeckEngineScript.new(deck_content, battle_content)
-	var initialized_deck := deck_engine.initialize(owned_ids, deck_state)
+	var initialized_deck := deck_engine.initialize(
+		owned_ids,
+		deck_state,
+		int(initialized_progression.snapshot.data.get("sequence", 9))
+	)
 	if not initialized_deck.accepted:
 		return InfrastructureResultScript.failure(
 			&"deck_initialization_failed",

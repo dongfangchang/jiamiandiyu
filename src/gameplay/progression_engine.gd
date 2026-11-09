@@ -154,6 +154,7 @@ func get_snapshot() -> ProgressionSnapshot:
 		"revision": _revision,
 		"phase": String(_state.get("phase", PHASE_INIT_ERROR)),
 		"identity_id": String(identity_id),
+		"sequence": int(_state.get("sequence", 9)),
 		"identity_options": identity_views,
 		"battle_modifiers": identity.get("battle_modifiers", {}).duplicate(true),
 		"divination_tickets": int(_state.get("divination_tickets", 0)),
@@ -566,10 +567,33 @@ func _draw_one_entry() -> Dictionary:
 		rarity = RARITY_RARE
 	else:
 		rarity = _roll_rarity()
-	var entries: Array = _gacha_pool_by_rarity.get(String(rarity), [])
+	var entries: Array = _unlocked_gacha_entries(
+		_gacha_pool_by_rarity.get(String(rarity), [])
+	)
 	if entries.is_empty():
 		return {}
 	return entries[_random.next_int(entries.size())].duplicate(true)
+
+
+func _unlocked_gacha_entries(entries: Array) -> Array:
+	var result: Array = []
+	var current_sequence := int(_state.get("sequence", 9))
+	for entry_value in entries:
+		if not entry_value is Dictionary:
+			continue
+		var definition_id := String(entry_value.get("definition_id", ""))
+		var definition := _content.get_card_definition(StringName(definition_id))
+		var band := String(definition.get("sequence_band", "序列9"))
+		if _is_sequence_locked(band, current_sequence):
+			continue
+		result.append(entry_value.duplicate(true))
+	return result
+
+
+func _is_sequence_locked(sequence_band: String, current_sequence: int) -> bool:
+	if current_sequence <= 8:
+		return false
+	return sequence_band.contains("序列8") or sequence_band.contains("→8")
 
 
 func _roll_rarity() -> StringName:

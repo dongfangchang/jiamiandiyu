@@ -48,6 +48,7 @@ func _ready() -> void:
 						String(effect_value.get("effect_id", "")) in [
 							"damage", "block", "heal", "draw", "spirit", "apply_status",
 							"remove_status", "discard", "reveal_intent", "risk",
+							"prepare_ritual",
 						],
 						"%s should keep a registered runtime effect" % card.get("id", "")
 					)

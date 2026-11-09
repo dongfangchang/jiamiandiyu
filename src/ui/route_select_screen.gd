@@ -81,10 +81,18 @@ func _build() -> void:
 	divider.color = UiTheme.C_LINE
 	divider.custom_minimum_size = Vector2(0, 1)
 	column.add_child(divider)
+	var cards_scroll := ScrollContainer.new()
+	cards_scroll.name = "RouteCardsScroll"
+	cards_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	cards_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	cards_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cards_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(cards_scroll)
 	_cards = HBoxContainer.new()
 	_cards.add_theme_constant_override("separation", 18)
 	_cards.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(_cards)
+	_cards.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	cards_scroll.add_child(_cards)
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 12)
 	column.add_child(footer)

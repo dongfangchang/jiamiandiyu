@@ -13,14 +13,14 @@ func _ready() -> void:
 	if not previews.ok:
 		_finish()
 		return
-	_expect(previews.data.size() == 3, "route selection should expose three routes")
+	_expect(previews.data.size() >= 3, "route selection should expose the available routes")
 	var screen = RouteSelectScene.instantiate()
 	add_child(screen)
 	screen.set_routes(previews.data)
 	await get_tree().process_frame
 	_expect(
-		screen.get_route_count() == 3,
-		"route selection screen should render all route options"
+		screen.get_route_count() == previews.data.size(),
+		"route selection screen should render all available route options"
 	)
 	_expect(
 		not _contains_internal_id(screen),
