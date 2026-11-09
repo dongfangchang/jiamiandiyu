@@ -171,6 +171,10 @@ func _test_gacha() -> void:
 	_expect(not screen.is_pending(), "gacha pending clears after result")
 	_expect(screen.get_result_count() == 3, "triple result renders three cards")
 	_expect(screen.get_status_text().contains("稀有 1"), "gacha displays returned rare count")
+	_expect(screen.inspect_result(0), "gacha result card opens detail dialog")
+	_expect(screen.get_detail_text().contains("墨刺"), "gacha detail shows the selected card name")
+	screen.call("_on_back")
+	_expect(screen.get_result_count() == 0, "leaving gacha clears result cards")
 	screen.set_pending(true)
 	screen.apply_command_result(ProgressionCommandResultScript.new(
 		false,

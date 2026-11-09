@@ -240,6 +240,10 @@
       "id": "route.v028.first_stage",
       "display_name_zh": "廷根异常调查·第一阶段",
       "description_zh": "沿着灵视捕捉到的异常痕迹推进；房客、怨影与镜廊边界会在同一事件中逐层出现。",
+      "chapter_id": "tingen.case.01",
+      "chapter_title_zh": "廷根：雨夜异常调查",
+      "chapter_phase_zh": "从灵视到证据",
+      "chapter_summary_zh": "占卜家在雨夜捕捉到一条不属于活人的线索。先确认房客的异常，再沿回声追猎进入镜厅，最终以仪式整理证据并获得晋升魔药。",
       "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
@@ -286,42 +290,70 @@
           "id": "route.v028.first_stage.node.first_hunt",
           "type": "normal",
           "display_name_zh": "雨夜灵视",
-          "encounter_id": "encounter.first_hunt"
+          "encounter_id": "encounter.first_hunt",
+          "chapter_phase": "discovery",
+          "narrative_beat_zh": "灵视让雨幕中的第二道影子短暂显形。",
+          "investigation_goal_zh": "确认异常并保留一条可复核的目击线索。",
+          "reward_hint_zh": "胜利后保留灵视带来的调查优势。"
         },
         {
           "id": "route.v028.first_stage.node.tenant_trace",
           "type": "normal",
           "display_name_zh": "哭泣房客的余波",
-          "encounter_id": "encounter.v028.tenant_trace"
+          "encounter_id": "encounter.v028.tenant_trace",
+          "chapter_phase": "evidence",
+          "narrative_beat_zh": "哭声停止后，三段不同的回声依次从房间深处浮出。",
+          "investigation_goal_zh": "在连续波次中辨认回声的真正来源。",
+          "reward_hint_zh": "连续完成三次清理，减少后续调查的污染压力。"
         },
         {
           "id": "route.v028.first_stage.node.rest",
           "type": "rest",
-          "display_name_zh": "占卜后的喘息"
+          "display_name_zh": "占卜后的喘息",
+          "chapter_phase": "preparation",
+          "narrative_beat_zh": "短暂的安静让占卜家重新整理灵性和线索。",
+          "investigation_goal_zh": "选择恢复肉身，或封锁回声换取更强的灵性准备。",
+          "reward_hint_zh": "休整选择会影响后续镜廊调查。"
         },
         {
           "id": "route.v028.first_stage.node.mirror_pursuit",
           "type": "elite",
           "display_name_zh": "回声追猎",
-          "encounter_id": "encounter.mirror_pursuit"
+          "encounter_id": "encounter.mirror_pursuit",
+          "chapter_phase": "pursuit",
+          "narrative_beat_zh": "被占卜锁定的回声开始反向追踪灵体。",
+          "investigation_goal_zh": "在镜影逼近前打断追猎，确认镜厅方向。",
+          "reward_hint_zh": "精英战胜利后，晋升仪式线索变得可读。"
         },
         {
           "id": "route.v028.first_stage.node.boundary",
           "type": "normal",
           "display_name_zh": "镜廊边界",
-          "encounter_id": "encounter.v028.boundary"
+          "encounter_id": "encounter.v028.boundary",
+          "chapter_phase": "threshold",
+          "narrative_beat_zh": "镜廊边界把肉身脚步和灵体回声分成两条路径。",
+          "investigation_goal_zh": "穿过边界而不让污染和被注视失控。",
+          "reward_hint_zh": "胜利后可直面镜厅中的异常核心。"
         },
         {
           "id": "route.v028.first_stage.node.baron",
           "type": "boss",
           "display_name_zh": "镜厅男爵",
-          "encounter_id": "encounter.mirror_baron"
+          "encounter_id": "encounter.mirror_baron",
+          "chapter_phase": "confrontation",
+          "narrative_beat_zh": "镜厅男爵借回声维持一具不属于自己的尊贵外壳。",
+          "investigation_goal_zh": "击破镜厅核心，确认篡改讣告的源头。",
+          "reward_hint_zh": "首领战胜利后获得小丑魔药战利品资格。"
         },
         {
           "id": "route.v028.first_stage.node.ascension",
           "type": "ritual",
           "display_name_zh": "小丑魔药的扮演仪式",
-          "ritual_id": "ritual.v070.tampered_obituary"
+          "ritual_id": "ritual.v070.tampered_obituary",
+          "chapter_phase": "advancement",
+          "narrative_beat_zh": "被篡改的讣告留下三步扮演提示，要求占卜家先读懂再服下魔药。",
+          "investigation_goal_zh": "完成三步仪式，确认第一阶段调查闭环。",
+          "reward_hint_zh": "章节完成后以战利品获得序列8魔药。"
         }
       ]
     }

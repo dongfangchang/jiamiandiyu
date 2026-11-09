@@ -990,7 +990,7 @@ func _on_gacha_requested() -> void:
 
 func _show_gacha() -> void:
 	var screen := _replace_screen(GachaScreenScene)
-	screen.configure(_build_card_names())
+	screen.configure(_build_card_names(), _build_card_details())
 	screen.draw_requested.connect(_on_draw_requested)
 	screen.back_requested.connect(_show_hub)
 	screen.apply_snapshot(_session.get_progression_snapshot())
@@ -1174,6 +1174,23 @@ func _build_card_names() -> Dictionary:
 		var definition_id := StringName(card_value.get("definition_id", ""))
 		names[definition_id] = _session.card_display_name(definition_id)
 	return names
+
+
+func _build_card_details() -> Dictionary:
+	var details: Dictionary = {}
+	if _session == null:
+		return details
+	var content: BattleContentPort = _session.base_content
+	for card_value in _session.get_progression_snapshot().data.get("collection", []):
+		if not card_value is Dictionary:
+			continue
+		var definition_id := StringName(card_value.get("definition_id", ""))
+		var definition: Dictionary = content.get_card_definition(definition_id)
+		details[String(definition_id)] = {
+			"description": String(definition.get("description_zh", "")),
+			"effect_text": _format_card_effects(definition),
+		}
+	return details
 
 
 func _build_effect_previews() -> Dictionary:

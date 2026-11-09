@@ -124,6 +124,10 @@ func get_snapshot() -> RouteSnapshot:
 			"display_name_zh": String(node.get("display_name_zh", node_id)),
 			"encounter_id": String(node.get("encounter_id", "")),
 			"ritual_id": String(node.get("ritual_id", "")),
+			"chapter_phase": String(node.get("chapter_phase", "")),
+			"narrative_beat_zh": String(node.get("narrative_beat_zh", "")),
+			"investigation_goal_zh": String(node.get("investigation_goal_zh", "")),
+			"reward_hint_zh": String(node.get("reward_hint_zh", "")),
 			"state": node_state,
 		})
 	var current_node_id := selected_id if not selected_id.is_empty() else available_id
@@ -132,6 +136,10 @@ func get_snapshot() -> RouteSnapshot:
 		"revision": _revision,
 		"route_id": String(_route_id),
 		"display_name_zh": String(_route.get("display_name_zh", _route_id)),
+		"chapter_id": String(_route.get("chapter_id", "")),
+		"chapter_title_zh": String(_route.get("chapter_title_zh", "")),
+		"chapter_phase_zh": String(_route.get("chapter_phase_zh", "")),
+		"chapter_summary_zh": String(_route.get("chapter_summary_zh", "")),
 		"chapter_potion_id": String(_route.get("chapter_potion_id", "")),
 		"phase": String(phase),
 		"current_node_id": current_node_id,

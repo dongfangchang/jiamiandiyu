@@ -76,6 +76,15 @@ func _test_new_route_identity() -> void:
 	var route = _app.get_route_snapshot()
 	_expect(route != null and route.data.get("nodes", []).size() == 5, "route map exposes five fixed nodes")
 	_expect(
+		String(route.data.get("chapter_title_zh", "")).contains("廷根"),
+		"route snapshot exposes the current chapter title"
+	)
+	if route != null and route.data.get("nodes", []).size() > 0:
+		_expect(
+			String(route.data["nodes"][0].get("investigation_goal_zh", "")).contains("异常"),
+			"route node exposes an investigation goal"
+		)
+	_expect(
 		String(route.data.get("available_node_id", "")) == FIRST_NODE,
 		"first hunt is the first available node"
 	)

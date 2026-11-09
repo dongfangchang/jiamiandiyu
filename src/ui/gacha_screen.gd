@@ -10,6 +10,7 @@ const ProgressionCommandResultScript := preload("res://src/core/progression_comm
 
 var _snapshot_data: Dictionary = {}
 var _card_names: Dictionary = {}
+var _card_details: Dictionary = {}
 var _result_row: HBoxContainer
 var _ticket_label: Label
 var _pity_label: Label
@@ -22,6 +23,8 @@ var _back_button: Button
 var _busy := false
 var _result_count := 0
 var _pending_token := 0
+var _detail_dialog: AcceptDialog
+var _result_card_nodes: Array[Control] = []
 
 
 func _ready() -> void:
@@ -30,8 +33,9 @@ func _ready() -> void:
 	_show_empty_results()
 
 
-func configure(card_names: Dictionary = {}) -> void:
+func configure(card_names: Dictionary = {}, card_details: Dictionary = {}) -> void:
 	_card_names = card_names.duplicate(true)
+	_card_details = card_details.duplicate(true)
 	_render_results(_snapshot_data.get("last_gacha_results", []))
 
 
@@ -110,6 +114,21 @@ func get_background_path() -> String:
 
 func get_card_name(definition_id: String) -> String:
 	return String(_card_names.get(definition_id, UiTheme.readable_id(definition_id)))
+
+
+func inspect_result(index: int) -> bool:
+	if index < 0 or index >= _result_card_nodes.size():
+		return false
+	var card := _result_card_nodes[index]
+	var result: Variant = card.get_meta("gacha_result", {})
+	if not result is Dictionary:
+		return false
+	_show_card_detail(result)
+	return is_instance_valid(_detail_dialog) and _detail_dialog.visible
+
+
+func get_detail_text() -> String:
+	return _detail_dialog.dialog_text if is_instance_valid(_detail_dialog) else ""
 
 
 func _build() -> void:
@@ -211,13 +230,16 @@ func _render_results(results_value: Variant) -> void:
 	for child in _result_row.get_children():
 		child.free()
 	_result_count = 0
+	_result_card_nodes.clear()
 	var results: Array = results_value if results_value is Array else []
 	if results.is_empty():
 		_show_empty_results()
 		return
 	for result_value in results:
 		if result_value is Dictionary:
-			_result_row.add_child(_build_result_card(result_value))
+			var result_card := _build_result_card(result_value)
+			_result_card_nodes.append(result_card)
+			_result_row.add_child(result_card)
 			_result_count += 1
 
 
@@ -243,6 +265,20 @@ func _build_result_card(result: Dictionary) -> Control:
 		UiTheme.C_GOLD if rarity == "rare" else UiTheme.C_LINE
 	)
 	panel.custom_minimum_size = Vector2(292, 404)
+	panel.set_meta("gacha_result", result.duplicate(true))
+	panel.modulate.a = 0.0
+	panel.scale = Vector2(0.92, 0.92)
+	panel.pivot_offset = Vector2(146, 202)
+	panel.tree_entered.connect(func() -> void:
+		var tween := panel.create_tween().set_parallel(true)
+		tween.tween_property(panel, "modulate:a", 1.0, 0.24)
+		tween.tween_property(panel, "scale", Vector2.ONE, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	)
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_show_card_detail(result)
+	)
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 12)
 	pad.add_theme_constant_override("margin_top", 12)
@@ -276,6 +312,27 @@ func _build_result_card(result: Dictionary) -> Control:
 		UiTheme.C_DANGER_TEXT if duplicate else UiTheme.C_PAPER
 	))
 	return panel
+
+
+func _show_card_detail(result: Dictionary) -> void:
+	if not is_instance_valid(_detail_dialog):
+		_detail_dialog = AcceptDialog.new()
+		_detail_dialog.title = "回响详情"
+		_detail_dialog.ok_button_text = "关闭"
+		add_child(_detail_dialog)
+	var definition_id := String(result.get("definition_id", ""))
+	var card_detail: Dictionary = _card_details.get(definition_id, {})
+	var description := String(card_detail.get("description", ""))
+	var effect_text := String(card_detail.get("effect_text", ""))
+	var detail := "【%s】\n%s\n\n%s\n品阶：%s\n%s" % [
+		get_card_name(definition_id),
+		description if not description.is_empty() else "点击查看这张回响的规则。",
+		effect_text,
+		ProgressionCatalog.rarity_text(String(result.get("rarity", ""))),
+		("重复回响转化为残页 +%d" % int(result.get("fragments", 0))) if bool(result.get("duplicate", false)) else "首次收容",
+	]
+	_detail_dialog.dialog_text = detail
+	_detail_dialog.popup_centered(Vector2(460, 300))
 
 
 func _update_resources() -> void:
@@ -315,9 +372,22 @@ func _refresh_buttons() -> void:
 
 
 func _on_back() -> void:
+	_clear_results()
 	_busy = false
 	_pending_token += 1
 	back_requested.emit()
+
+
+func _clear_results() -> void:
+	_snapshot_data["last_gacha_results"] = []
+	if is_instance_valid(_result_row):
+		for child in _result_row.get_children():
+			child.free()
+	_result_card_nodes.clear()
+	_result_count = 0
+	_show_empty_results()
+	if is_instance_valid(_detail_dialog):
+		_detail_dialog.hide()
 
 
 func _on_draw_timeout(token: int) -> void:

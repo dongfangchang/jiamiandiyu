@@ -15,6 +15,8 @@ var _nodes_scroll: ScrollContainer
 var _status_label: Label
 var _resource_label: Label
 var _route_label: Label
+var _chapter_label: Label
+var _chapter_summary_label: Label
 var _challenge_label: Label
 var _result_button: Button
 var _hub_button: Button
@@ -169,6 +171,10 @@ func _build() -> void:
 	heading.add_child(UiTheme.label("调查路线 · 占卜家序列 9", 12, UiTheme.C_GOLD))
 	_route_label = UiTheme.label("廷根旧宅调查", 35, UiTheme.C_TEXT)
 	heading.add_child(_route_label)
+	_chapter_label = UiTheme.label("", 15, UiTheme.C_GOLD)
+	heading.add_child(_chapter_label)
+	_chapter_summary_label = UiTheme.wrapped_label("", 13, UiTheme.C_MUTED)
+	heading.add_child(_chapter_summary_label)
 	heading.add_child(UiTheme.label(
 		"沿固定线索推进。战斗只在节点边界留下检查点。",
 		14,
@@ -224,6 +230,13 @@ func _build_footer() -> HBoxContainer:
 func _render_snapshot() -> void:
 	_route_label.text = String(
 		_snapshot_data.get("display_name_zh", "未知路线")
+	)
+	_chapter_label.text = "%s  ·  %s" % [
+		String(_snapshot_data.get("chapter_title_zh", "章节")),
+		String(_snapshot_data.get("chapter_phase_zh", "调查推进")),
+	]
+	_chapter_summary_label.text = String(
+		_snapshot_data.get("chapter_summary_zh", "沿线索推进调查。")
 	)
 	_update_resources()
 	for child in _nodes_row.get_children():
@@ -304,6 +317,12 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		13,
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_MUTED
 	))
+	var goal := String(node.get("investigation_goal_zh", ""))
+	if not goal.is_empty():
+		column.add_child(UiTheme.wrapped_label("调查目标：" + goal, 13, UiTheme.C_PAPER))
+	var beat := String(node.get("narrative_beat_zh", ""))
+	if not beat.is_empty():
+		column.add_child(UiTheme.wrapped_label(beat, 12, UiTheme.C_MUTED))
 	if node_type == "boss" and ResourceLoader.exists(RouteCatalog.BOSS_ART):
 		var boss := TextureRect.new()
 		boss.texture = load(RouteCatalog.BOSS_ART)
