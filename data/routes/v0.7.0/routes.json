@@ -3,7 +3,7 @@
   "content_version": "v0.7.0",
   "base_cards_version": "v0.7.0",
   "base_encounters_version": "v0.7.0",
-  "default_route_id": "route.v070.first_case",
+  "default_route_id": "route.v028.first_stage",
   "routes": [
     {
       "id": "route.v070.first_case",
