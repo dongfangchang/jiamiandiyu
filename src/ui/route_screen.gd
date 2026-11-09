@@ -110,6 +110,10 @@ func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
 
 
+func get_current_goal_text() -> String:
+	return _current_goal_label.text if is_instance_valid(_current_goal_label) else ""
+
+
 func get_background_path() -> String:
 	return RouteCatalog.ROUTE_BACKGROUND
 
@@ -243,8 +247,14 @@ func _render_snapshot() -> void:
 	)
 	var current_node := _find_node(String(_snapshot_data.get("current_node_id", "")))
 	var current_goal := String(current_node.get("investigation_goal_zh", ""))
-	_current_goal_label.text = ("当前调查目标：" + current_goal) if not current_goal.is_empty() else ""
-	_current_goal_label.visible = not current_goal.is_empty()
+	var reward_hint := String(current_node.get("reward_hint_zh", ""))
+	var current_guidance := ""
+	if not current_goal.is_empty():
+		current_guidance = "当前调查目标：" + current_goal
+	if not reward_hint.is_empty():
+		current_guidance += ("\n推进收益：" if not current_guidance.is_empty() else "推进收益：") + reward_hint
+	_current_goal_label.text = current_guidance
+	_current_goal_label.visible = not current_guidance.is_empty()
 	_update_resources()
 	for child in _nodes_row.get_children():
 		child.queue_free()

@@ -73,6 +73,7 @@ func _test_route_screen() -> void:
 	_expect(screen.get_node_state(2) == "locked", "later rest node is locked")
 	_expect(screen.get_background_path().ends_with("route-map.png"), "route art background resolves")
 	_expect(screen.find_child("ChapterMapScroll", true, false) != null, "route keeps chapter map in a horizontal scroll container")
+	_expect(screen.get_current_goal_text().contains("推进收益"), "route exposes the current node reward hint")
 	_expect(screen.is_node_button_enabled("route.v050.node.first_hunt"), "available node button enabled")
 	_expect(not screen.is_node_button_enabled("route.v050.node.mirror_pursuit"), "locked node button disabled")
 	screen.request_node("route.v050.node.first_hunt")
@@ -354,6 +355,7 @@ func _route_nodes(available_id: String) -> Array:
 			"type": String(entry[1]),
 			"display_name_zh": String(entry[2]),
 			"investigation_goal_zh": "确认异常并保留一条可复核的目击线索。" if index == 0 else "",
+			"reward_hint_zh": "保留灵视带来的调查优势。" if index == 0 else "",
 			"state": state,
 		})
 	return result
