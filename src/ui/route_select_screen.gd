@@ -31,6 +31,9 @@ func get_route_count() -> int:
 func choose_route(route_id: String) -> void:
 	for route in _routes:
 		if String(route.get("id", "")) == route_id:
+			if not bool(route.get("playable", true)):
+				_status_label.text = "此章节仍在规划中，尚未开放。"
+				return
 			route_selected.emit(StringName(route_id))
 			return
 	if is_instance_valid(_status_label):
@@ -67,7 +70,7 @@ func _build() -> void:
 	header.add_child(UiTheme.label("雾都入口 · 调查路线", 12, UiTheme.C_GOLD))
 	header.add_child(UiTheme.label("选择调查路线", 38, UiTheme.C_TEXT))
 	header.add_child(UiTheme.wrapped_label(
-		"不同路线复用同一套牌组与敌人，但节点顺序、资源压力和遭遇组合不同。",
+		"当前开放廷根异常调查·第一阶段。后续章节按廷根、贝克兰德、海上旅程的顺序规划，尚未开放。",
 		15,
 		UiTheme.C_MUTED
 	))
@@ -84,7 +87,7 @@ func _build() -> void:
 	var cards_scroll := ScrollContainer.new()
 	cards_scroll.name = "RouteCardsScroll"
 	cards_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	cards_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	cards_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	cards_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cards_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(cards_scroll)
@@ -103,7 +106,7 @@ func _build() -> void:
 	)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(_status_label)
-	_back_button = UiTheme.button("返回标题", request_back, false, 150)
+	_back_button = UiTheme.button("返回标题", request_back, true, 150)
 	footer.add_child(_back_button)
 
 
@@ -118,11 +121,13 @@ func _render_routes() -> void:
 
 func _build_route_card(route: Dictionary) -> Control:
 	var route_id := String(route.get("id", ""))
+	var playable := bool(route.get("playable", true))
 	var panel := UiTheme.panel(
 		Color(0.055, 0.059, 0.048, 0.98),
-		UiTheme.C_GOLD
+		UiTheme.C_GOLD if playable else UiTheme.C_LINE
 	)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.custom_minimum_size = Vector2(360, 0)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 26)
@@ -134,17 +139,19 @@ func _build_route_card(route: Dictionary) -> Control:
 	column.add_theme_constant_override("separation", 16)
 	pad.add_child(column)
 	var icon := TextureRect.new()
-	icon.texture = load(RouteCatalog.ROUTE_ICON_BASE + "route-current.png")
+	icon.texture = load(RouteCatalog.ROUTE_ICON_BASE + ("route-current.png" if playable else "route-pending.png"))
 	icon.custom_minimum_size = Vector2(112, 112)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(icon)
-	column.add_child(UiTheme.center_label(
+	var title := UiTheme.wrapped_label(
 		String(route.get("display_name_zh", "未知路线")),
 		28,
 		UiTheme.C_TEXT
-	))
+	)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(title)
 	var description := UiTheme.wrapped_label(
 		String(route.get("description_zh", "")),
 		15,
@@ -152,15 +159,15 @@ func _build_route_card(route: Dictionary) -> Control:
 	)
 	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(description)
-	column.add_child(UiTheme.center_label(
-		"五节点调查 · 独立资源节奏",
+	column.add_child(UiTheme.wrapped_label(
+		String(route.get("progression_hint_zh", "调查路线")),
 		13,
 		UiTheme.C_GOLD
 	))
 	column.add_child(UiTheme.button(
-		"选择此路线",
+		"选择此路线" if playable else "规划中 · 尚未开放",
 		func() -> void: choose_route(route_id),
-		true,
+		playable,
 		0
 	))
 	return panel

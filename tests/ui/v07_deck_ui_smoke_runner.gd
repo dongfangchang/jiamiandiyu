@@ -22,6 +22,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_test_assets()
 	await _test_deck_screen()
+	await _test_sequence_locked_controls()
 	await _test_deck_small_viewport()
 	await _test_identity_deck_entry()
 	await _test_challenge_hub()
@@ -109,6 +110,40 @@ func _test_deck_screen() -> void:
 	_captured_command = ""
 	screen.request_confirm_deck()
 	_expect(_captured_command == "confirm_deck", "confirmed legal deck emits command")
+	screen.queue_free()
+	await get_tree().process_frame
+
+
+func _test_sequence_locked_controls() -> void:
+	var screen = DeckScreenScene.instantiate()
+	add_child(screen)
+	var snapshot := _deck_snapshot()
+	snapshot.data.cards.append({
+		"definition_id": "card.skill.locked_fixture",
+		"display_name_zh": "提灯步",
+		"owned": true,
+		"in_deck": false,
+		"can_add": false,
+		"add_reason_code": "sequence_locked",
+		"required_sequence": 8,
+	})
+	screen.apply_snapshot(snapshot)
+	screen.set_pending(true)
+	screen.set_pending(false)
+	var found := false
+	for button in screen.get("_action_buttons"):
+		if button.get_meta("definition_id", "") == "card.skill.locked_fixture":
+			found = true
+			_expect(button.disabled, "sequence locked card stays disabled after pending refresh")
+			_expect(button.text == "序列未解锁" and button.tooltip_text.contains("晋升"), "locked button explains advancement")
+	_expect(found, "sequence locked collection tile is present")
+	screen.apply_command_result(DeckCommandResultScript.new(false, &"sequence_locked", [], snapshot))
+	_expect(screen.get_status_text().contains("当前序列") and not screen.get_status_text().contains("sequence_locked"), "sequence rejection is localized")
+	snapshot.data.cards[-1]["in_deck"] = true
+	screen.apply_snapshot(snapshot)
+	for button in screen.get("_action_buttons"):
+		if button.get_meta("definition_id", "") == "card.skill.locked_fixture":
+			_expect(not button.disabled and button.text == "移出牌组", "illegal loaded card can still be removed")
 	screen.queue_free()
 	await get_tree().process_frame
 

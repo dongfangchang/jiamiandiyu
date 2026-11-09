@@ -589,6 +589,8 @@ static func get_route_previews_v07(
 		if not route_value is Dictionary:
 			continue
 		var route: Dictionary = route_value
+		if String(route.get("id", "")) != "route.v028.first_stage":
+			continue
 		previews.append({
 			"id": String(route.get("id", "")),
 			"display_name_zh": String(route.get(
@@ -599,7 +601,32 @@ static func get_route_previews_v07(
 				"description_zh",
 				"选择这条调查路线。"
 			)),
+			"playable": true,
+			"progression_hint_zh": "%d 个调查节点 · 序列 9 占卜家" % route.get("nodes", []).size(),
 		})
+	previews.append_array([
+		{
+			"id": "chapter.planned.tingen",
+			"display_name_zh": "廷根 · 后续调查",
+			"description_zh": "规划占位：在廷根继续值夜者调查，围绕小丑阶段的扮演与廷根事件收束推进。当前尚未开放小丑能力。",
+			"playable": false,
+			"progression_hint_zh": "序列 8 小丑阶段 · 规划中",
+		},
+		{
+			"id": "chapter.planned.backlund",
+			"display_name_zh": "贝克兰德 · 侦探生活",
+			"description_zh": "规划占位：廷根篇结束后，进入贝克兰德的侦探委托、非凡聚会与调查。能力随魔术师、无面人阶段逐步开放。",
+			"playable": false,
+			"progression_hint_zh": "廷根之后 · 规划中",
+		},
+		{
+			"id": "chapter.planned.sea",
+			"display_name_zh": "海上 · 冒险家旅程",
+			"description_zh": "规划占位：贝克兰德篇之后展开海上冒险，以无面人扮演和海上调查为主线；后续晋升按剧情进展开放。",
+			"playable": false,
+			"progression_hint_zh": "贝克兰德之后 · 规划中",
+		},
+	])
 	return InfrastructureResultScript.success(previews)
 
 

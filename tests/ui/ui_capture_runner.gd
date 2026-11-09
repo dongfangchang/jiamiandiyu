@@ -198,10 +198,15 @@ func _capture_gacha() -> void:
 			{"definition_id": "card.skill.omen", "rarity": "rare", "duplicate": false, "fragments": 0},
 			{"definition_id": "card.skill.insight", "rarity": "common", "duplicate": false, "fragments": 0},
 		],
-	}))
+	}), true)
+	await get_tree().create_timer(0.4).timeout
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("gacha_screen.png")
+	screen.call("_on_back")
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
+	_save_capture("gacha_cleared_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 

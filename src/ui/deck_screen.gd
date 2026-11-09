@@ -428,7 +428,9 @@ func _build_preset(preset: Dictionary) -> Control:
 	text.add_child(UiTheme.label(
 		"可直接确认出战"
 			if bool(preset.get("legal", false))
-			else "载入后需补齐收藏卡或换回可用预设",
+			else ("含尚未解锁序列的卡牌，载入后需替换"
+				if String(preset.get("reason_code", "")) == "sequence_locked"
+				else "载入后需补齐收藏卡或换回可用预设"),
 		10,
 		UiTheme.C_GOLD if bool(preset.get("legal", false)) else UiTheme.C_DANGER_TEXT
 	))
@@ -489,6 +491,11 @@ func _build_card_tile(card: Dictionary) -> Control:
 	var definition_id := String(card.get("definition_id", ""))
 	var owned := bool(card.get("owned", false))
 	var in_deck := bool(card.get("in_deck", false))
+	var can_add := bool(card.get("can_add", owned and not in_deck))
+	var add_reason := String(card.get("add_reason_code", ""))
+	var ownership_text := "已在牌组" if in_deck else ("已拥有 · 可加入" if can_add else "未拥有 · 仅可查看")
+	if not in_deck and add_reason == "sequence_locked":
+		ownership_text = "已拥有 · 需序列 %d" % int(card.get("required_sequence", 8))
 	var panel := UiTheme.panel(
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if in_deck else UiTheme.C_LINE
@@ -534,21 +541,23 @@ func _build_card_tile(card: Dictionary) -> Control:
 		UiTheme.C_MUTED
 	))
 	info.add_child(UiTheme.badge(
-		"已拥有 · 可加入" if owned else "未拥有 · 仅可查看",
+		ownership_text,
 		UiTheme.C_GOLD if owned else UiTheme.C_MUTED,
 		UiTheme.C_GOLD if owned else UiTheme.C_LINE
 	))
 	var button := UiTheme.button(
-		"移出牌组" if in_deck else ("加入牌组" if owned else "尚未拥有"),
+		"移出牌组" if in_deck else ("加入牌组" if can_add else ("序列未解锁" if add_reason == "sequence_locked" else "尚未拥有")),
 		func() -> void:
 			if in_deck:
 				request_remove_card(definition_id)
 			else:
 				request_add_card(definition_id),
-		owned,
+		in_deck or can_add,
 		72
 	)
 	button.set_meta("definition_id", definition_id)
+	button.set_meta("action_enabled", in_deck or can_add)
+	button.tooltip_text = DeckCatalog.reason_text(add_reason) if not in_deck and not can_add else ""
 	info.add_child(button)
 	_action_buttons.append(button)
 	panel.tooltip_text = String(card.get("description_zh", ""))
@@ -668,7 +677,7 @@ func _refresh_buttons() -> void:
 		elif button == _confirm_button:
 			button.disabled = _busy or not legal
 		else:
-			button.disabled = _busy
+			button.disabled = _busy or not bool(button.get_meta("action_enabled", true))
 	if is_instance_valid(_filter_option):
 		_filter_option.disabled = _busy
 

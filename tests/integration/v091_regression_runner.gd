@@ -234,6 +234,9 @@ func _test_gacha_exit_during_pending() -> void:
 	screen.call("_on_back")
 	_expect(back_events[0] == 1, "gacha exit should emit during pending")
 	_expect(not bool(screen.is_pending()), "gacha exit should clear pending")
+	screen.apply_snapshot(refreshed_snapshot)
+	_expect(screen.get_result_count() == 0, "reentering gacha must not replay persisted results")
+	_expect(refreshed_snapshot.data.last_gacha_results.size() == 1, "clearing presentation must preserve settlement history")
 	screen.queue_free()
 	await get_tree().process_frame
 

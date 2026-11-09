@@ -13,17 +13,28 @@ func _ready() -> void:
 	_expect(previews.ok, "route previews should load")
 	if previews.ok:
 		var ids: Array[String] = []
+		var playable_ids: Array[String] = []
 		for preview in previews.data:
 			ids.append(String(preview.get("id", "")))
+			if bool(preview.get("playable", false)):
+				playable_ids.append(String(preview.get("id", "")))
 			_expect(
 				not String(preview.get("description_zh", "")).is_empty(),
 				"route previews should include descriptions"
 			)
 		_expect(
-			ids.has("route.v070.first_case")
-			and ids.has("route.v070.broken_procession")
-			and ids.has("route.v070.mirror_watch"),
-			"route previews should contain all normal routes"
+			playable_ids == ["route.v028.first_stage"],
+			"only the updated Tingen chapter should be playable from new game"
+		)
+		_expect(
+			not ids.has("route.v070.first_case")
+			and not ids.has("route.v070.broken_procession")
+			and not ids.has("route.v070.mirror_watch"),
+			"legacy routes should be removed from the new game menu"
+		)
+		_expect(
+			ids == ["route.v028.first_stage", "chapter.planned.tingen", "chapter.planned.backlund", "chapter.planned.sea"],
+			"planned chapters should follow Tingen, Backlund and sea progression"
 		)
 	var started = AppBootstrapScript.start_route_v07(
 		20261108,

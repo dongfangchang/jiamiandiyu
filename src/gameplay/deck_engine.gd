@@ -129,6 +129,7 @@ func get_snapshot() -> DeckSnapshot:
 		var definition: Dictionary = _battle_content.get_card_definition(
 			StringName(definition_id)
 		)
+		var add_reason := _card_add_reason(definition_id, current_ids)
 		card_views.append({
 			"definition_id": definition_id,
 			"display_name_zh": String(
@@ -140,6 +141,9 @@ func get_snapshot() -> DeckSnapshot:
 			"target_type": String(definition.get("target_type", "")),
 			"owned": _owned_ids.has(definition_id),
 			"in_deck": definition_id in current_ids,
+			"can_add": add_reason == REASON_PLAYABLE,
+			"add_reason_code": String(add_reason),
+			"required_sequence": _required_sequence(definition),
 		})
 
 	var preset_views: Array[Dictionary] = []
@@ -202,17 +206,10 @@ func _select_preset(preset_id: StringName) -> DeckCommandResult:
 
 func _add_card(definition_id: StringName) -> DeckCommandResult:
 	var definition_key := String(definition_id)
-	if not _catalog_ids.has(definition_key):
-		return _rejected(REASON_UNKNOWN_CARD)
-	if not _owned_ids.has(definition_key):
-		return _rejected(REASON_CARD_NOT_OWNED)
-	var definition := _battle_content.get_card_definition(definition_id)
-	var sequence_band := String(definition.get("sequence_band", "序列9"))
-	if _current_sequence > 8 and (sequence_band.contains("序列8") or sequence_band.contains("→8")):
-		return _rejected(REASON_SEQUENCE_LOCKED)
 	var current := get_current_deck_ids()
-	if definition_key in current:
-		return _rejected(REASON_DUPLICATE_CARD)
+	var reason := _card_add_reason(definition_key, current)
+	if reason != REASON_PLAYABLE:
+		return _rejected(reason)
 	current.append(definition_key)
 	_state["current_card_ids"] = current
 	_state["selected_preset_id"] = ""
@@ -295,6 +292,24 @@ func _confirm_deck() -> DeckCommandResult:
 	return _success()
 
 
+func _required_sequence(definition: Dictionary) -> int:
+	var sequence_band := String(definition.get("sequence_band", "序列9"))
+	return 8 if sequence_band.contains("序列8") or sequence_band.contains("→8") else 9
+
+
+func _card_add_reason(definition_id: String, current_ids: Array[String]) -> StringName:
+	if not _catalog_ids.has(definition_id):
+		return REASON_UNKNOWN_CARD
+	if not _owned_ids.has(definition_id):
+		return REASON_CARD_NOT_OWNED
+	var definition := _battle_content.get_card_definition(StringName(definition_id))
+	if _current_sequence > _required_sequence(definition):
+		return REASON_SEQUENCE_LOCKED
+	if definition_id in current_ids:
+		return REASON_DUPLICATE_CARD
+	return REASON_PLAYABLE
+
+
 func _validate_deck(deck_ids: Array[String]) -> StringName:
 	if deck_ids.is_empty():
 		return REASON_EMPTY_DECK
@@ -310,8 +325,7 @@ func _validate_deck(deck_ids: Array[String]) -> StringName:
 		if not _owned_ids.has(definition_id):
 			return REASON_CARD_NOT_OWNED
 		var definition := _battle_content.get_card_definition(StringName(definition_id))
-		var sequence_band := String(definition.get("sequence_band", "序列9"))
-		if _current_sequence > 8 and (sequence_band.contains("序列8") or sequence_band.contains("→8")):
+		if _current_sequence > _required_sequence(definition):
 			return REASON_SEQUENCE_LOCKED
 	return REASON_PLAYABLE
 

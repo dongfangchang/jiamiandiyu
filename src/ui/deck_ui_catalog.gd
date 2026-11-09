@@ -98,6 +98,8 @@ static func reason_text(reason_code: String) -> String:
 			return "同一张卡不能重复放入牌组。"
 		"card_not_owned":
 			return "这张卡尚未收入收藏。"
+		"sequence_locked":
+			return "当前序列尚未解锁这张卡，请晋升至卡牌所需序列后再加入。"
 		"unknown_card":
 			return "卡牌记录不存在。"
 		"card_not_in_deck":

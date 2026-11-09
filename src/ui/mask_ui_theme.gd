@@ -16,14 +16,7 @@ const C_FOG := Color("#788079")
 
 static func build_theme() -> Theme:
 	var result := Theme.new()
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray([
-		"Microsoft YaHei UI",
-		"Microsoft YaHei",
-		"Noto Sans CJK SC",
-		"Source Han Sans SC",
-	])
-	result.default_font = font
+	result.default_font = preload("res://assets/ui/fonts/NotoSansCJKsc-Regular.otf")
 	result.default_font_size = 16
 	return result
 

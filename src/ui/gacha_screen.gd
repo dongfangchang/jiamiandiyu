@@ -39,8 +39,12 @@ func configure(card_names: Dictionary = {}, card_details: Dictionary = {}) -> vo
 	_render_results(_snapshot_data.get("last_gacha_results", []))
 
 
-func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
+func apply_snapshot(snapshot: ProgressionSnapshot, show_results: bool = false) -> void:
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
+	if not show_results:
+		_snapshot_data["last_gacha_results"] = []
+	if is_instance_valid(_detail_dialog):
+		_detail_dialog.hide()
 	_busy = false
 	_pending_token += 1
 	_update_resources()
@@ -59,7 +63,7 @@ func apply_command_result(result: ProgressionCommandResult) -> void:
 		_set_status(ProgressionCatalog.reason_text(String(result.reason_code)), true)
 		_refresh_buttons()
 		return
-	apply_snapshot(result.snapshot)
+	apply_snapshot(result.snapshot, true)
 	var results: Array = _snapshot_data.get("last_gacha_results", [])
 	var rare_count := 0
 	for value in results:

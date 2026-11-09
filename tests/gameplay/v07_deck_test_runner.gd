@@ -30,6 +30,7 @@ func _ready() -> void:
 	_test_unowned_preset_is_reported()
 	_test_new_card_upgrade_reaches_battle_content()
 	_test_all_formal_cards_initialize_battle()
+	_test_sequence_locked_card_view()
 
 	if _failures.is_empty():
 		print("V07_DECK_TESTS_OK checks=%d" % _checks)
@@ -352,6 +353,25 @@ func _test_all_formal_cards_initialize_battle() -> void:
 		initialized.accepted,
 		"all 16 formal cards should pass BattleEngine validation"
 	)
+
+
+func _test_sequence_locked_card_view() -> void:
+	var owned := _starter_ids()
+	owned.append("card.skill.lantern_step")
+	var engine := _new_engine(owned)
+	_check(engine.initialize(owned, {}, 9).accepted, "sequence nine deck initializes")
+	for card in engine.get_snapshot().data.cards:
+		if card.definition_id == "card.skill.lantern_step":
+			_check(card.owned and not card.can_add, "owned lantern step is not addable at sequence nine")
+			_check(card.add_reason_code == "sequence_locked" and card.required_sequence == 8, "locked card explains the required sequence")
+	var before := engine.export_persistent_state()
+	var rejected := engine.submit(DeckCommandScript.add_card(&"card.skill.lantern_step"))
+	_check(not rejected.accepted and rejected.reason_code == &"sequence_locked", "adding sequence eight card remains rejected")
+	_check(engine.export_persistent_state() == before, "rejected sequence card does not mutate deck")
+	for card in engine.set_current_sequence(8).data.cards:
+		if card.definition_id == "card.skill.lantern_step":
+			_check(card.can_add and card.add_reason_code == "playable", "advancement refreshes addability")
+	_check(engine.submit(DeckCommandScript.add_card(&"card.skill.lantern_step")).accepted, "advanced player can add owned lantern step")
 
 
 func _new_engine(owned_ids: Array) -> DeckEngine:

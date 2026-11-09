@@ -63,6 +63,8 @@ func _test_identity_and_deck() -> void:
 		"new game opens route selection"
 	)
 	_app.get_current_screen().choose_route("route.v070.first_case")
+	_expect(_app.get_current_route() == &"route_select", "retired route is inaccessible from new-game selection")
+	_expect(_app.start_new_game(424242, &"", &"route.v070.first_case").ok, "legacy route remains loadable for save compatibility")
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"identity", "route choice opens identity selection")
 	_app.get_current_screen().choose_identity(IDENTITY_ID)
@@ -146,6 +148,19 @@ func _test_growth_and_upgrade() -> void:
 		== tickets_before - 2,
 		"single draw deducts two tickets"
 	)
+	_expect(_app.get_current_screen().get_result_count() == 1, "new draw displays one result")
+	_expect(_app.get_current_screen().inspect_result(0), "new draw opens card details")
+	_expect(not _app.get_current_screen().get_detail_text().contains("点击查看这张回响的规则"), "newly collected card has its description")
+	_app.get_current_screen().back_requested.emit()
+	await _wait_frames(2)
+	_app.get_current_screen().gacha_requested.emit()
+	await _wait_frames(2)
+	_expect(_app.get_current_screen().get_result_count() == 0, "new gacha page starts empty after returning")
+	_expect(int(_app.get_progression_snapshot().data.get("divination_tickets", 0)) == tickets_before - 2, "reentering gacha does not repeat the purchase")
+	_app.get_current_screen().request_draw(1)
+	await _wait_frames(2)
+	_expect(_app.get_current_screen().get_result_count() == 1, "a new draw after reentry displays its result")
+	_expect(int(_app.get_progression_snapshot().data.get("divination_tickets", 0)) == tickets_before - 4, "second draw charges exactly once")
 	_app.get_current_screen().back_requested.emit()
 	await _wait_frames(2)
 	_app.get_current_screen().upgrade_requested.emit()

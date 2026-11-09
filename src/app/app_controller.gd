@@ -1003,6 +1003,7 @@ func _on_draw_requested(pull_count: int) -> void:
 	var result: ProgressionCommandResult = _session.submit_progression(
 		ProgressionCommandScript.draw_gacha(pull_count)
 	)
+	_screen.configure(_build_card_names(), _build_card_details())
 	_screen.apply_command_result(result)
 
 
@@ -1265,6 +1266,8 @@ func _format_card_effects(definition: Dictionary) -> String:
 				))
 			"reveal_intent":
 				parts.append("揭示敌人意图")
+			"prepare_ritual":
+				parts.append("获得 %d 层仪式准备" % int(effect.get("amount", 1)))
 			"risk":
 				parts.append("污染 %+d" % int(effect.get("amount", 0)))
 			"discard":

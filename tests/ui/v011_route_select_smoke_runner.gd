@@ -30,17 +30,37 @@ func _ready() -> void:
 	screen.route_selected.connect(func(route_id: StringName) -> void:
 		selected.append(route_id)
 	)
-	screen.choose_route("route.v070.mirror_watch")
+	screen.choose_route("route.v028.first_stage")
 	_expect(
-		selected == [&"route.v070.mirror_watch"],
+		selected == [&"route.v028.first_stage"],
 		"choosing a route should emit its stable ID once"
 	)
+	for planned_id in ["chapter.planned.tingen", "chapter.planned.backlund", "chapter.planned.sea", "route.v070.mirror_watch"]:
+		screen.choose_route(planned_id)
+		_expect(selected.size() == 1, "planned and retired chapters must not start: " + planned_id)
+	var planned_buttons := _count_disabled_plans(screen)
+	_expect(planned_buttons == 3, "all future chapter buttons should be visibly disabled")
+	var returned := [false]
+	screen.back_requested.connect(func() -> void: returned[0] = true)
+	var back: Button = screen.get("_back_button")
+	_expect(not back.disabled, "return to title must remain enabled")
+	back.pressed.emit()
+	_expect(returned[0], "return to title should emit its navigation signal")
 	screen.choose_route("route.missing")
 	_expect(
 		selected.size() == 1,
 		"unknown route choices must not emit"
 	)
 	_finish()
+
+
+func _count_disabled_plans(root: Node) -> int:
+	var count := 0
+	if root is Button and (root as Button).text == "规划中 · 尚未开放" and (root as Button).disabled:
+		count += 1
+	for child in root.get_children():
+		count += _count_disabled_plans(child)
+	return count
 
 
 func _contains_internal_id(root: Node) -> bool:
