@@ -2,6 +2,7 @@ extends Control
 
 signal hub_requested
 signal retry_requested
+signal potion_requested(potion_id: StringName)
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
@@ -15,6 +16,9 @@ var _save_label: Label
 var _result_icon: TextureRect
 var _hub_button: Button
 var _retry_button: Button
+var _potion_button: Button
+var _potion_label: Label
+var _potion_id := ""
 
 
 func _ready() -> void:
@@ -27,6 +31,25 @@ func show_result(snapshot: RouteSnapshot, save_state: String = "pending") -> voi
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
 	_save_state = save_state
 	_render_result()
+
+
+func set_potion_state(progression_data: Dictionary) -> void:
+	if not is_instance_valid(_potion_button):
+		return
+	var digestion: Dictionary = progression_data.get("digestion", {})
+	var inventory: Array = progression_data.get("potion_inventory", [])
+	_potion_id = String(digestion.get("potion_id", ""))
+	var owned := _potion_id in inventory
+	var ready := bool(digestion.get("ready", false))
+	_potion_label.visible = owned
+	_potion_button.visible = owned
+	_potion_button.disabled = not owned or not ready
+	if owned:
+		_potion_label.text = "章节战利品：小丑魔药 · 扮演消化度 %d / %d" % [
+			int(digestion.get("progress", 0)),
+			int(digestion.get("required", 1)),
+		]
+		_potion_button.text = "服用魔药并晋升" if ready else "消化度不足，暂不能服用"
 
 
 func set_save_state(save_state: String) -> void:
@@ -111,6 +134,9 @@ func _build() -> void:
 	column.add_child(_detail_label)
 	_save_label = UiTheme.wrapped_label("", 16, UiTheme.C_GOLD)
 	column.add_child(_save_label)
+	_potion_label = UiTheme.wrapped_label("", 15, UiTheme.C_GOLD)
+	_potion_label.visible = false
+	column.add_child(_potion_label)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
@@ -119,6 +145,9 @@ func _build() -> void:
 	column.add_child(footer)
 	_retry_button = UiTheme.button("重新探索", _on_retry, false, 160)
 	footer.add_child(_retry_button)
+	_potion_button = UiTheme.button("服用魔药并晋升", _on_potion, false, 190)
+	_potion_button.visible = false
+	footer.add_child(_potion_button)
 	_hub_button = UiTheme.button("返回白昼档案", _on_hub, true, 180)
 	footer.add_child(_hub_button)
 
@@ -229,3 +258,9 @@ func _on_hub() -> void:
 
 func _on_retry() -> void:
 	retry_requested.emit()
+
+
+func _on_potion() -> void:
+	if _potion_id.is_empty() or _potion_button.disabled:
+		return
+	potion_requested.emit(StringName(_potion_id))

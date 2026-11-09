@@ -18,8 +18,14 @@
         "card.skill.whisper"
       ],
       "enemy_slots": [
-        {"enemy_id": "enemy.weeping_tenant", "lane_index": 0},
-        {"enemy_id": "enemy.candle_moth", "lane_index": 2}
+        {
+          "enemy_id": "enemy.weeping_tenant",
+          "lane_index": 0
+        },
+        {
+          "enemy_id": "enemy.candle_moth",
+          "lane_index": 2
+        }
       ]
     },
     {
@@ -37,8 +43,14 @@
         "card.skill.whisper"
       ],
       "enemy_slots": [
-        {"enemy_id": "enemy.candle_moth", "lane_index": 0},
-        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 1}
+        {
+          "enemy_id": "enemy.candle_moth",
+          "lane_index": 0
+        },
+        {
+          "enemy_id": "enemy.mirror_hound_echo",
+          "lane_index": 1
+        }
       ]
     },
     {
@@ -56,7 +68,10 @@
         "card.skill.whisper"
       ],
       "enemy_slots": [
-        {"enemy_id": "enemy.mirror_baron", "lane_index": 1}
+        {
+          "enemy_id": "enemy.mirror_baron",
+          "lane_index": 1
+        }
       ]
     },
     {
@@ -74,8 +89,14 @@
         "card.skill.second_sight"
       ],
       "enemy_slots": [
-        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 0},
-        {"enemy_id": "enemy.mirror_hound", "lane_index": 2}
+        {
+          "enemy_id": "enemy.mirror_hound_echo",
+          "lane_index": 0
+        },
+        {
+          "enemy_id": "enemy.mirror_hound",
+          "lane_index": 2
+        }
       ]
     },
     {
@@ -93,8 +114,76 @@
         "card.skill.whispered_hunch"
       ],
       "enemy_slots": [
-        {"enemy_id": "enemy.mirror_baron", "lane_index": 1},
-        {"enemy_id": "enemy.mirror_hound_echo", "lane_index": 2}
+        {
+          "enemy_id": "enemy.mirror_baron",
+          "lane_index": 1
+        },
+        {
+          "enemy_id": "enemy.mirror_hound_echo",
+          "lane_index": 2
+        }
+      ]
+    },
+    {
+      "tier": "normal",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "id": "encounter.v028.tenant_trace",
+      "display_name_zh": "哭泣房客的余波",
+      "waves": [
+        {
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.weeping_tenant",
+              "lane_index": 1
+            }
+          ]
+        },
+        {
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.candle_moth",
+              "lane_index": 1
+            }
+          ]
+        },
+        {
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.mirror_hound",
+              "lane_index": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tier": "normal",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "id": "encounter.v028.boundary",
+      "display_name_zh": "镜廊边界",
+      "enemy_slots": [
+        {
+          "enemy_id": "enemy.mirror_hound_echo",
+          "lane_index": 1
+        }
       ]
     }
   ]

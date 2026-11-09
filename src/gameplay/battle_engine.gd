@@ -41,6 +41,8 @@ var _outcome_reason: StringName = &""
 
 var _player: Dictionary = {}
 var _enemies: Array[Dictionary] = []
+var _pending_enemy_waves: Dictionary = {}
+var _current_wave: int = 0
 var _draw_pile: Array[Dictionary] = []
 var _discard_pile: Array[Dictionary] = []
 var _hand: Array[Dictionary] = []
@@ -131,6 +133,14 @@ func initialize(
 	var occupied_lanes: Dictionary = {}
 	for enemy_source in enemy_configs:
 		var enemy: Dictionary = enemy_source.duplicate(true)
+		var wave_index := int(enemy.get("wave_index", 0))
+		if wave_index > _current_wave:
+			var pending: Array = _pending_enemy_waves.get(wave_index, [])
+			pending.append(enemy)
+			_pending_enemy_waves[wave_index] = pending
+			continue
+		if wave_index < _current_wave:
+			continue
 		if not _validate_enemy_state(enemy):
 			return _initialization_error(&"enemy_state_invalid")
 		var lane_index: int = int(enemy["lane_index"])
@@ -354,6 +364,11 @@ func _end_turn() -> BattleCommandResult:
 		_revision += 1
 		return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
 
+	if _all_enemies_defeated() and _activate_next_wave():
+		_round_number += 1
+		_begin_round(_turn_draw_to_hand_size)
+		_revision += 1
+		return BattleCommandResult.new(true, &"ok", _pending_events.duplicate(), get_snapshot())
 	if _all_enemies_defeated():
 		_finish_battle(OUTCOME_VICTORY, &"enemies_defeated")
 		_revision += 1
@@ -881,6 +896,8 @@ func _shuffle_array(values: Array) -> void:
 
 
 func _check_outcome_after_player_action() -> void:
+	if _all_enemies_defeated() and _activate_next_wave():
+		return
 	if _all_enemies_defeated():
 		_finish_battle(OUTCOME_VICTORY, &"enemies_defeated")
 	elif not _is_alive(_player):
@@ -903,6 +920,46 @@ func _all_enemies_defeated() -> bool:
 	for enemy in _enemies:
 		if _is_alive(enemy):
 			return false
+	return true
+
+
+func _activate_next_wave() -> bool:
+	if _pending_enemy_waves.is_empty():
+		return false
+	var next_wave := -1
+	for wave_value in _pending_enemy_waves.keys():
+		var candidate := int(wave_value)
+		if candidate > _current_wave and (next_wave < 0 or candidate < next_wave):
+			next_wave = candidate
+	if next_wave < 0:
+		return false
+	_current_wave = next_wave
+	var next_enemies: Array = _pending_enemy_waves[next_wave]
+	_pending_enemy_waves.erase(next_wave)
+	for enemy_source in next_enemies:
+		var enemy: Dictionary = enemy_source.duplicate(true)
+		if not _validate_enemy_state(enemy):
+			return false
+		var phase_source: Variant = enemy.get("phases", [])
+		enemy["phases"] = phase_source.duplicate(true) if phase_source is Array else []
+		if not _validate_enemy_phases(enemy["phases"]):
+			return false
+		enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0))
+		enemy["block"] = int(enemy.get("block", 0))
+		enemy["statuses"] = []
+		enemy["intent"] = {}
+		enemy["defeated_announced"] = false
+		enemy["phases"] = enemy.get("phases", []).duplicate(true)
+		enemy["triggered_phases"] = []
+		_enemies.append(enemy)
+	_enemies.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["lane_index"]) < int(b["lane_index"])
+	)
+	_emit(&"EnemyWaveArrived", {
+		"wave_index": _current_wave,
+		"enemy_count": next_enemies.size(),
+	})
+	_generate_enemy_intents()
 	return true
 
 
@@ -1123,6 +1180,8 @@ func _reset_runtime() -> void:
 	_chain_count = 0
 	_player = {}
 	_enemies.clear()
+	_pending_enemy_waves.clear()
+	_current_wave = 0
 	_draw_pile.clear()
 	_discard_pile.clear()
 	_hand.clear()

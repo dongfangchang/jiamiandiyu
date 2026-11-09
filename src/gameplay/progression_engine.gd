@@ -34,6 +34,8 @@ var _starter_card_ids: Array[String] = []
 var _gacha_pool_by_rarity: Dictionary = {}
 var _reward_options: Array[Dictionary] = []
 var _upgrade_definitions: Dictionary = {}
+var _potion_definitions_by_id: Dictionary = {}
+var _digestion_rules: Dictionary = {}
 var _balance_error: StringName = &""
 
 
@@ -96,6 +98,10 @@ func submit(command: ProgressionCommand) -> ProgressionCommandResult:
 			result = _draw_gacha(command.pull_count)
 		ProgressionCommand.UPGRADE_CARD:
 			result = _upgrade_card(command.definition_id)
+		ProgressionCommand.RECORD_PERFORMANCE:
+			result = _record_performance(command.definition_id)
+		ProgressionCommand.CONSUME_POTION:
+			result = _consume_potion(command.potion_id)
 		_:
 			return _rejected(&"invalid_command")
 	if result.accepted:
@@ -162,6 +168,8 @@ func get_snapshot() -> ProgressionSnapshot:
 		"reward_options": reward_views,
 		"last_battle_outcome": String(_state.get("last_battle_outcome", "")),
 		"last_gacha_results": _state.get("last_gacha_results", []).duplicate(true),
+		"digestion": _digestion_snapshot(),
+		"potion_inventory": _state.get("potion_inventory", []).duplicate(true),
 	})
 
 
@@ -226,6 +234,34 @@ func apply_reward_bundle(reward_amounts: Dictionary) -> ProgressionCommandResult
 	_revision += 1
 	_state["revision"] = _revision
 	return _success()
+
+
+func grant_potion(potion_id: StringName) -> ProgressionCommandResult:
+	if StringName(_state.get("phase", PHASE_INIT_ERROR)) == PHASE_INIT_ERROR:
+		return _rejected(&"not_initialized")
+	var key := String(potion_id)
+	if not _potion_definitions_by_id.has(key):
+		return _rejected(&"potion_not_supported")
+	var inventory: Array = _state.get("potion_inventory", [])
+	if key in inventory:
+		return _rejected(&"potion_already_owned")
+	inventory.append(key)
+	_state["potion_inventory"] = inventory
+	_emit(&"PotionLooted", {
+		"potion_id": key,
+		"display_name_zh": String(_potion_definitions_by_id[key].get("display_name_zh", key)),
+	})
+	_revision += 1
+	_state["revision"] = _revision
+	return _success()
+
+
+func record_card_performance(definition_id: StringName) -> ProgressionCommandResult:
+	return _record_performance(definition_id)
+
+
+func consume_potion(potion_id: StringName) -> ProgressionCommandResult:
+	return _consume_potion(potion_id)
 
 
 func get_card_levels() -> Dictionary:
@@ -444,6 +480,68 @@ func _upgrade_card(definition_id: StringName) -> ProgressionCommandResult:
 	return _success()
 
 
+func _record_performance(definition_id: StringName) -> ProgressionCommandResult:
+	if StringName(_state.get("phase", PHASE_INIT_ERROR)) == PHASE_INIT_ERROR:
+		return _rejected(&"not_initialized")
+	var digestion: Dictionary = _state.get("digestion", {}).duplicate(true)
+	if bool(digestion.get("consumed", false)):
+		return _success()
+	var definition: Dictionary = _content.get_card_definition(definition_id)
+	if definition.is_empty():
+		return _rejected(&"unknown_card")
+	var card_tags: Array = definition.get("mechanic_tags", [])
+	var eligible_tags: Array = _digestion_rules.get("eligible_mechanic_tags", [])
+	var matched := false
+	for tag in card_tags:
+		if String(tag) in eligible_tags:
+			matched = true
+			break
+	if not matched:
+		return _success()
+	var before := int(digestion.get("progress", 0))
+	var gain := maxi(1, int(definition.get("acting_value", 1)))
+	digestion["progress"] = mini(
+		int(digestion.get("required", 1)),
+		before + gain
+	)
+	_state["digestion"] = digestion
+	_emit(&"PotionDigestionAdvanced", {
+		"definition_id": String(definition_id),
+		"before": before,
+		"after": int(digestion["progress"]),
+		"gain": int(digestion["progress"]) - before,
+		"potion_id": String(digestion.get("potion_id", "")),
+	})
+	return _success()
+
+
+func _consume_potion(potion_id: StringName) -> ProgressionCommandResult:
+	if StringName(_state.get("phase", PHASE_INIT_ERROR)) != PHASE_HUB:
+		return _rejected(&"wrong_phase")
+	var key := String(potion_id)
+	var inventory: Array = _state.get("potion_inventory", [])
+	if not key in inventory:
+		return _rejected(&"potion_not_owned")
+	var digestion: Dictionary = _state.get("digestion", {})
+	if bool(digestion.get("consumed", false)) or String(digestion.get("potion_id", "")) != key:
+		return _rejected(&"potion_not_ready")
+	if int(digestion.get("progress", 0)) < int(digestion.get("required", 1)):
+		return _rejected(&"digestion_insufficient")
+	inventory.erase(key)
+	_state["potion_inventory"] = inventory
+	digestion["consumed"] = true
+	digestion["progress"] = 0
+	_state["digestion"] = digestion
+	_state["sequence"] = int(digestion.get("to_sequence", 8))
+	_emit(&"PotionConsumed", {
+		"potion_id": key,
+		"from_sequence": int(digestion.get("from_sequence", 9)),
+		"to_sequence": int(digestion.get("to_sequence", 8)),
+		"sequence_name_zh": String(digestion.get("to_sequence_name_zh", "小丑")),
+	})
+	return _success()
+
+
 func _apply_victory_resources() -> void:
 	var identity_id := String(_state.get("identity_id", ""))
 	var identity: Dictionary = _identities_by_id.get(identity_id, {})
@@ -637,6 +735,32 @@ func _load_content() -> bool:
 			if not bonuses is Array or bonuses.is_empty():
 				return false
 			_upgrade_definitions[definition_id] = upgrade.duplicate(true)
+	var potion_values: Variant = _content.get_potion_definitions()
+	if not potion_values is Array or potion_values.is_empty():
+		potion_values = [{
+			"id": "potion.seer_to_clown",
+			"display_name_zh": "小丑魔药",
+			"sequence_from": 9,
+			"sequence_to": 8,
+		}]
+	for potion_value in potion_values:
+		if not potion_value is Dictionary:
+			return false
+		var potion: Dictionary = potion_value
+		var potion_id := String(potion.get("id", ""))
+		if potion_id.is_empty() or _potion_definitions_by_id.has(potion_id):
+			return false
+		_potion_definitions_by_id[potion_id] = potion.duplicate(true)
+	_digestion_rules = _content.get_digestion_rules().duplicate(true)
+	if _digestion_rules.is_empty():
+		_digestion_rules = {
+			"potion_id": "potion.seer_to_clown",
+			"from_sequence": 9,
+			"to_sequence": 8,
+			"to_sequence_name_zh": "小丑",
+			"required": 8,
+			"eligible_mechanic_tags": ["占卜", "预感", "意图揭示", "标记"],
+		}
 
 	# Every gacha entry must have a meaningful upgrade path. Otherwise duplicates
 	# can produce fragments that the player can never spend.
@@ -712,6 +836,9 @@ func _new_state() -> Dictionary:
 		"reward_option_ids": [],
 		"last_battle_outcome": "",
 		"last_gacha_results": [],
+		"potion_inventory": [],
+		"sequence": 9,
+		"digestion": _new_digestion_state(),
 		"revision": 1,
 	}
 
@@ -751,8 +878,20 @@ func _restore_state(value: Dictionary) -> ProgressionCommandResult:
 			max_level = int(upgrade_value.get("max_level", 0))
 		if int(normalized[definition_id]["level"]) > max_level:
 			return _restore_error(&"card_level_invalid")
+	var digestion: Variant = restored.get("digestion", _new_digestion_state())
+	if not digestion is Dictionary:
+		return _restore_error(&"digestion_invalid")
+	var potion_inventory: Variant = restored.get("potion_inventory", [])
+	if not potion_inventory is Array:
+		return _restore_error(&"potion_inventory_invalid")
+	for potion_id in potion_inventory:
+		if not _potion_definitions_by_id.has(String(potion_id)):
+			return _restore_error(&"potion_invalid")
 	restored["phase"] = String(phase)
 	restored["collection"] = normalized
+	restored["digestion"] = digestion.duplicate(true)
+	restored["potion_inventory"] = potion_inventory.duplicate()
+	restored["sequence"] = int(restored.get("sequence", 9))
 	_state = restored
 	return ProgressionCommandResult.new(true, &"ok", [], get_snapshot())
 
@@ -814,4 +953,26 @@ func _reset_runtime() -> void:
 	_gacha_pool_by_rarity.clear()
 	_reward_options.clear()
 	_upgrade_definitions.clear()
+	_potion_definitions_by_id.clear()
+	_digestion_rules.clear()
 	_balance_error = &""
+
+
+func _new_digestion_state() -> Dictionary:
+	var rule := _digestion_rules
+	return {
+		"potion_id": String(rule.get("potion_id", "potion.seer_to_clown")),
+		"from_sequence": int(rule.get("from_sequence", 9)),
+		"to_sequence": int(rule.get("to_sequence", 8)),
+		"to_sequence_name_zh": String(rule.get("to_sequence_name_zh", "小丑")),
+		"progress": 0,
+		"required": int(rule.get("required", 8)),
+		"consumed": false,
+	}
+
+
+func _digestion_snapshot() -> Dictionary:
+	var value: Dictionary = _state.get("digestion", _new_digestion_state())
+	var result := value.duplicate(true)
+	result["ready"] = int(result.get("progress", 0)) >= int(result.get("required", 1))
+	return result

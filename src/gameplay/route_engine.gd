@@ -132,6 +132,7 @@ func get_snapshot() -> RouteSnapshot:
 		"revision": _revision,
 		"route_id": String(_route_id),
 		"display_name_zh": String(_route.get("display_name_zh", _route_id)),
+		"chapter_potion_id": String(_route.get("chapter_potion_id", "")),
 		"phase": String(phase),
 		"current_node_id": current_node_id,
 		"available_node_id": available_id,
@@ -218,6 +219,12 @@ func get_sequence_state() -> SequenceState:
 		),
 		"advancement_state": sequence_state,
 	})
+
+
+func mark_sequence_advanced() -> void:
+	_state["sequence_state"] = "completed"
+	_revision += 1
+	_state["revision"] = _revision
 
 
 func get_available_node_id() -> StringName:
@@ -700,15 +707,8 @@ func _load_route() -> bool:
 	if _route_id != route_id:
 		return false
 	var nodes_value: Variant = _route.get("nodes")
-	if not nodes_value is Array or nodes_value.size() != 5:
+	if not nodes_value is Array or nodes_value.size() < 3 or nodes_value.size() > 12:
 		return false
-	var expected_types: Array[StringName] = [
-		NODE_NORMAL,
-		NODE_ELITE,
-		NODE_REST,
-		NODE_BOSS,
-		NODE_RITUAL,
-	]
 	var seen_types: Dictionary = {}
 	for value in nodes_value:
 		if not value is Dictionary:
@@ -718,7 +718,7 @@ func _load_route() -> bool:
 		if node_id.is_empty() or _node_by_id.has(node_id):
 			return false
 		var node_type := StringName(node.get("type", ""))
-		if node_type not in expected_types or seen_types.has(node_type):
+		if node_type not in [NODE_NORMAL, NODE_ELITE, NODE_REST, NODE_BOSS, NODE_RITUAL]:
 			return false
 		seen_types[node_type] = true
 		if node.get("type") in ["normal", "elite", "boss"]:
@@ -731,7 +731,7 @@ func _load_route() -> bool:
 				return false
 		_nodes.append(node)
 		_node_by_id[node_id] = node
-	if seen_types.size() != expected_types.size():
+	if not seen_types.has(NODE_RITUAL) or not seen_types.has(NODE_BOSS):
 		return false
 	var options_value: Variant = _route.get("rest_options")
 	if not options_value is Array or options_value.size() < 2:

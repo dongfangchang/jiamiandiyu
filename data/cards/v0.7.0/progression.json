@@ -220,6 +220,23 @@
       "target_definition_id": "card.skill.ink_dart"
     }
   ],
+  "digestion_rules": {
+    "potion_id": "potion.seer_to_clown",
+    "from_sequence": 9,
+    "to_sequence": 8,
+    "to_sequence_name_zh": "小丑",
+    "required": 8,
+    "eligible_mechanic_tags": ["占卜", "预感", "意图揭示", "标记", "灵性视觉", "仪式", "推演"]
+  },
+  "potion_definitions": [
+    {
+      "id": "potion.seer_to_clown",
+      "display_name_zh": "小丑魔药",
+      "sequence_from": 9,
+      "sequence_to": 8,
+      "description_zh": "完成第一阶段调查并消化足够的占卜家扮演后，才可服用的序列 8 魔药。"
+    }
+  ],
   "upgrade_definitions": {
     "card.skill.ink_dart": {
       "max_level": 3,

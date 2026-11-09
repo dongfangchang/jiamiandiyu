@@ -1045,7 +1045,22 @@ func _show_route_result() -> void:
 	screen.show_result(_session.get_route_snapshot(), save_state)
 	screen.hub_requested.connect(_show_hub)
 	screen.retry_requested.connect(_on_route_retry_requested)
+	screen.potion_requested.connect(_on_potion_requested)
+	screen.set_potion_state(_session.get_progression_snapshot().data)
 	_set_route(ROUTE_ROUTE_RESULT)
+
+
+func _on_potion_requested(potion_id: StringName) -> void:
+	if _session == null:
+		return
+	var result: ProgressionCommandResult = _session.consume_potion(potion_id)
+	if not result.accepted:
+		_show_start_error(InfrastructureResult.failure(
+			result.reason_code,
+			"魔药当前不可服用。"
+		))
+		return
+	_show_current_state()
 
 
 func _on_route_retry_requested() -> void:

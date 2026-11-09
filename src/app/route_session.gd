@@ -119,6 +119,24 @@ func get_progression_snapshot() -> ProgressionSnapshot:
 	return progression.get_snapshot()
 
 
+func record_card_performance(definition_id: StringName) -> ProgressionCommandResult:
+	var result := progression.submit(
+		ProgressionCommandScript.record_performance(definition_id)
+	)
+	return result
+
+
+func consume_potion(potion_id: StringName) -> ProgressionCommandResult:
+	var result := progression.submit(
+		ProgressionCommandScript.consume_potion(potion_id)
+	)
+	if result.accepted:
+		if _route_engine != null:
+			_route_engine.mark_sequence_advanced()
+		save_checkpoint("potion_consumed")
+	return result
+
+
 func get_route_snapshot() -> RouteSnapshot:
 	if _route_engine == null:
 		return RouteSnapshot.new({
@@ -327,6 +345,11 @@ func submit_battle(command: BattleCommand) -> BattleCommandResult:
 	var result: BattleCommandResult = _battle_session.submit(command)
 	if not result.accepted or result.snapshot == null:
 		return result
+	for event in result.events:
+		if event.type == &"CardPlayed":
+			record_card_performance(
+				StringName(event.data.get("definition_id", ""))
+			)
 	var outcome := String(result.snapshot.data.get("outcome", ""))
 	if outcome not in ["victory", "defeat"]:
 		return result
@@ -358,6 +381,12 @@ func submit_route(command: RouteCommand) -> RouteCommandResult:
 		return RouteCommandResult.new(false, &"route_not_initialized")
 	var result: RouteCommandResult = _route_engine.submit(command)
 	if result.accepted:
+		if String(result.snapshot.data.get("phase", "")) == "completed":
+			var potion_id := StringName(
+				result.snapshot.data.get("chapter_potion_id", "")
+			)
+			if not potion_id.is_empty():
+				progression.grant_potion(potion_id)
 		save_checkpoint("route")
 	return result
 

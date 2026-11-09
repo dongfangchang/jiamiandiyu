@@ -13,7 +13,7 @@
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "display_name_zh", "deck_definition_ids", "enemy_slots"],
+        "required": ["id", "display_name_zh", "deck_definition_ids"],
         "properties": {
           "id": {"type": "string", "pattern": "^encounter\\."},
           "display_name_zh": {"type": "string", "minLength": 1},
@@ -33,6 +33,30 @@
               "properties": {
                 "enemy_id": {"type": "string", "pattern": "^enemy\\."},
                 "lane_index": {"type": "integer", "minimum": 0, "maximum": 2}
+              }
+            }
+          },
+          "waves": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "required": ["enemy_slots"],
+              "properties": {
+                "enemy_slots": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "object",
+                    "required": ["enemy_id", "lane_index"],
+                    "properties": {
+                      "enemy_id": {"type": "string", "pattern": "^enemy\\."},
+                      "lane_index": {"type": "integer", "minimum": 0, "maximum": 2}
+                    }
+                  }
+                }
               }
             }
           }

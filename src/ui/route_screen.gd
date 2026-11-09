@@ -11,6 +11,7 @@ const RouteCommandResultScript := preload("res://src/core/route_command_result.g
 
 var _snapshot_data: Dictionary = {}
 var _nodes_row: HBoxContainer
+var _nodes_scroll: ScrollContainer
 var _status_label: Label
 var _resource_label: Label
 var _route_label: Label
@@ -185,10 +186,18 @@ func _build() -> void:
 	divider.custom_minimum_size = Vector2(0, 1)
 	column.add_child(divider)
 
+	_nodes_scroll = ScrollContainer.new()
+	_nodes_scroll.name = "ChapterMapScroll"
+	_nodes_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_nodes_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_nodes_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_nodes_scroll.follow_focus = true
+	column.add_child(_nodes_scroll)
 	_nodes_row = HBoxContainer.new()
 	_nodes_row.add_theme_constant_override("separation", 12)
 	_nodes_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(_nodes_row)
+	_nodes_row.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_nodes_scroll.add_child(_nodes_row)
 
 	var footer := UiTheme.padded_panel(
 		_build_footer(),
@@ -254,7 +263,7 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_LINE
 	)
 	panel.custom_minimum_size = Vector2(280, 0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.set_meta("node_id", node_id)
 	panel.set_meta("node_state", state)

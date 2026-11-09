@@ -10,6 +10,8 @@ var _starter_card_ids: Array = []
 var _gacha_pool: Array = []
 var _reward_options: Array = []
 var _upgrade_definitions: Dictionary = {}
+var _potion_definitions: Array = []
+var _digestion_rules: Dictionary = {}
 var _battle_content: BattleContentPort
 
 
@@ -25,6 +27,8 @@ func _init(document: Dictionary, battle_content: BattleContentPort) -> void:
 	_gacha_pool = document.get("gacha_pool", []).duplicate(true)
 	_reward_options = document.get("reward_options", []).duplicate(true)
 	_upgrade_definitions = document.get("upgrade_definitions", {}).duplicate(true)
+	_potion_definitions = document.get("potion_definitions", []).duplicate(true)
+	_digestion_rules = document.get("digestion_rules", {}).duplicate(true)
 
 
 func get_identity_options() -> Array:
@@ -42,6 +46,12 @@ func has_card_definition(definition_id: StringName) -> bool:
 	return not _battle_content.get_card_definition(definition_id).is_empty()
 
 
+func get_card_definition(definition_id: StringName) -> Dictionary:
+	if _battle_content == null:
+		return {}
+	return _battle_content.get_card_definition(definition_id)
+
+
 func get_starter_card_ids() -> Array:
 	return _starter_card_ids.duplicate(true)
 
@@ -57,3 +67,11 @@ func get_reward_options() -> Array:
 func get_upgrade_definition(definition_id: StringName) -> Dictionary:
 	var value: Variant = _upgrade_definitions.get(String(definition_id), {})
 	return value.duplicate(true) if value is Dictionary else {}
+
+
+func get_potion_definitions() -> Array:
+	return _potion_definitions.duplicate(true)
+
+
+func get_digestion_rules() -> Dictionary:
+	return _digestion_rules.duplicate(true)

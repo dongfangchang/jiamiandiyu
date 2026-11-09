@@ -159,32 +159,42 @@ func resolve_encounter(encounter_id: StringName) -> InfrastructureResult:
 	for value in encounter.get("deck_definition_ids", []):
 		deck_ids.append(String(value))
 	var enemy_configs: Array[Dictionary] = []
-	for slot_value in encounter.get("enemy_slots", []):
-		var slot: Dictionary = slot_value
-		var enemy_id := String(slot.get("enemy_id", ""))
-		var enemy: Dictionary = _enemies_by_id.get(enemy_id, {})
-		var lane_index := int(slot.get("lane_index", -1))
-		enemy_configs.append({
-			"id": "%s.enemy.%d" % [String(encounter_id), lane_index],
-			"definition_id": enemy_id,
-			"display_name_zh": String(enemy.get("display_name_zh", enemy_id)),
-			"tier": String(enemy.get("tier", "normal")),
-			"threat": String(enemy.get("threat", "")),
-			"lane_index": lane_index,
-			"hp": int(enemy.get("base_health", 0)),
-			"max_hp": int(enemy.get("base_health", 0)),
-			"base_attack": int(enemy.get("base_attack", 0)),
-			"phases": (
-				enemy.get("phases", []).duplicate(true)
-				if enemy.get("phases", []) is Array
-				else []
-			),
-		})
+	var waves: Array = encounter.get("waves", [])
+	if waves.is_empty():
+		waves = [{"enemy_slots": encounter.get("enemy_slots", [])}]
+	for wave_index in range(waves.size()):
+		var wave_value: Variant = waves[wave_index]
+		if not wave_value is Dictionary:
+			continue
+		var wave: Dictionary = wave_value
+		for slot_value in wave.get("enemy_slots", []):
+			var slot: Dictionary = slot_value
+			var enemy_id := String(slot.get("enemy_id", ""))
+			var enemy: Dictionary = _enemies_by_id.get(enemy_id, {})
+			var lane_index := int(slot.get("lane_index", -1))
+			enemy_configs.append({
+				"id": "%s.wave.%d.enemy.%d" % [String(encounter_id), wave_index, lane_index],
+				"definition_id": enemy_id,
+				"display_name_zh": String(enemy.get("display_name_zh", enemy_id)),
+				"tier": String(enemy.get("tier", "normal")),
+				"threat": String(enemy.get("threat", "")),
+				"lane_index": lane_index,
+				"hp": int(enemy.get("base_health", 0)),
+				"max_hp": int(enemy.get("base_health", 0)),
+				"base_attack": int(enemy.get("base_attack", 0)),
+				"phases": (
+					enemy.get("phases", []).duplicate(true)
+					if enemy.get("phases", []) is Array
+					else []
+				),
+				"wave_index": wave_index,
+			})
 	return InfrastructureResultScript.success({
 		"id": String(encounter_id),
 		"display_name_zh": String(encounter.get("display_name_zh", encounter_id)),
 		"deck_definition_ids": deck_ids,
 		"enemy_configs": enemy_configs,
+		"enemy_waves": waves.size(),
 	})
 
 
@@ -205,35 +215,38 @@ func _validate_encounter_references(encounter: Dictionary) -> InfrastructureResu
 				{"encounter": encounter_id, "card": String(value)}
 			)
 
+	var waves_value: Variant = encounter.get("waves", [])
+	if waves_value is Array and not waves_value.is_empty():
+		for wave_value in waves_value:
+			if not wave_value is Dictionary:
+				return InfrastructureResultScript.failure(&"encounter_wave_invalid", "Encounter wave must be an object.", {"id": encounter_id})
+			var wave_slots: Variant = wave_value.get("enemy_slots", [])
+			if not _validate_enemy_slots(encounter_id, wave_slots):
+				return InfrastructureResultScript.failure(&"encounter_wave_slots_invalid", "Encounter wave must define valid enemy slots.", {"id": encounter_id})
+		return InfrastructureResultScript.success()
 	var slots: Variant = encounter.get("enemy_slots")
-	if not slots is Array or slots.is_empty() or slots.size() > 3:
+	if not _validate_enemy_slots(encounter_id, slots):
 		return InfrastructureResultScript.failure(
 			&"encounter_enemy_slots_invalid",
 			"Encounter must define one to three enemy slots.",
 			{"id": encounter_id}
 		)
+	return InfrastructureResultScript.success()
+
+
+func _validate_enemy_slots(encounter_id: String, slots: Variant) -> bool:
+	if not slots is Array or slots.is_empty() or slots.size() > 3:
+		return false
 	var occupied_lanes: Dictionary = {}
 	for value in slots:
 		if not value is Dictionary:
-			return InfrastructureResultScript.failure(
-				&"encounter_enemy_slot_invalid",
-				"Enemy slot must be an object.",
-				{"id": encounter_id}
-			)
+			return false
 		var slot: Dictionary = value
 		var enemy_id := String(slot.get("enemy_id", ""))
 		var lane_index := int(slot.get("lane_index", -1))
 		if not _enemies_by_id.has(enemy_id):
-			return InfrastructureResultScript.failure(
-				&"encounter_enemy_missing",
-				"Encounter references a missing enemy.",
-				{"encounter": encounter_id, "enemy": enemy_id}
-			)
+			return false
 		if lane_index < 0 or lane_index > 2 or occupied_lanes.has(lane_index):
-			return InfrastructureResultScript.failure(
-				&"encounter_lane_invalid",
-				"Enemy lanes must be unique values from 0 to 2.",
-				{"encounter": encounter_id, "lane": lane_index}
-			)
+			return false
 		occupied_lanes[lane_index] = true
-	return InfrastructureResultScript.success()
+	return true

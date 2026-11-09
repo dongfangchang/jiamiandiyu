@@ -2,12 +2,12 @@
 
 ## 指针
 
-- 当前版本：`v0.27.0`
-- 阶段：攻击体系与战斗记录窗口
-- 当前版本文档：`docs/versions/v0.27.0.md`
+- 当前版本：`v0.28.0`
+- 阶段：第一阶段扮演消化、魔药战利品与章节地图
+- 当前版本文档：`docs/versions/v0.28.0.md`
 - 当前文档状态：执行中
 - 更新日期：2026-11-09
-- 前一版本：`v0.26.0`，验证中；构筑联动与战斗反馈继续纳入回归门
+- 前一版本：`v0.27.0`，已完成攻击体系与战斗记录窗口；本版本继续纳入兼容回归
 
 ## 强制阅读
 
@@ -15,7 +15,7 @@
 2. `docs/PROJECT_CHARTER.md`
 3. `docs/TEAM_PROTOCOL.md`
 4. `docs/ARCHITECTURE_CONTRACT.md`
-5. `docs/versions/v0.27.0.md`
+5. `docs/versions/v0.28.0.md`
 
 ## 当前冻结规则
 
@@ -55,7 +55,7 @@
 - `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
 - 产品经理：`product_manager_v2`。
-- 角色报告路径：`docs/reports/v0.27.0/<role>.md`。
+- 角色报告路径：`docs/reports/v0.28.0/<role>.md`。
 
 ## 当前验证结果
 

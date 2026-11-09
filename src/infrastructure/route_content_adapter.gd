@@ -129,7 +129,7 @@ func _load_rituals(document: Dictionary) -> bool:
 
 func _validate_route(route: Dictionary, catalog: CampaignContentCatalog) -> bool:
 	var nodes_value: Variant = route.get("nodes")
-	if not nodes_value is Array or nodes_value.size() != EXPECTED_NODE_TYPES.size():
+	if not nodes_value is Array or nodes_value.size() < 3 or nodes_value.size() > 12:
 		return false
 	var seen_node_ids: Dictionary = {}
 	var seen_node_types: Dictionary = {}
@@ -141,7 +141,7 @@ func _validate_route(route: Dictionary, catalog: CampaignContentCatalog) -> bool
 		if node_id.is_empty() or seen_node_ids.has(node_id):
 			return false
 		var node_type := String(node.get("type", ""))
-		if node_type not in EXPECTED_NODE_TYPES or seen_node_types.has(node_type):
+		if node_type not in EXPECTED_NODE_TYPES:
 			return false
 		seen_node_ids[node_id] = true
 		seen_node_types[node_type] = true
@@ -164,6 +164,8 @@ func _validate_route(route: Dictionary, catalog: CampaignContentCatalog) -> bool
 		if option_id.is_empty() or seen_rest_ids.has(option_id):
 			return false
 		seen_rest_ids[option_id] = true
+	if not seen_node_types.has("ritual") or not seen_node_types.has("boss"):
+		return false
 	return true
 
 

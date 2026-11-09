@@ -39,8 +39,8 @@
           },
           "nodes": {
             "type": "array",
-            "minItems": 5,
-            "maxItems": 5,
+            "minItems": 3,
+            "maxItems": 12,
             "x-uniqueBy": "id",
             "items": {
               "type": "object",

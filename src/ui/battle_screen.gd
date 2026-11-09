@@ -1118,6 +1118,11 @@ func _format_event(event: BattleEvent) -> String:
 				int(data.get("block_bonus", 0)),
 				int(data.get("heal", 0)),
 			]
+		"EnemyWaveArrived":
+			return "第 %d 波异常抵达：%d 个目标进入战场。" % [
+				int(data.get("wave_index", 0)) + 1,
+				int(data.get("enemy_count", 0)),
+			]
 		"IntentRevealed":
 			return "%s 的意图被揭示。" % _enemy_name_by_actor(
 				StringName(data.get("enemy_id", ""))

@@ -9,6 +9,7 @@
       "id": "route.v070.first_case",
       "display_name_zh": "廷根旧宅调查",
       "description_zh": "沿镜厅留下的旧痕稳步推进，在休整后迎战男爵并完成晋升仪式。",
+      "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
         "max_hp": 54,
@@ -31,27 +32,61 @@
           "id": "rest.bandage",
           "display_name_zh": "包扎伤口",
           "description_zh": "恢复生命，但无法驱散跟随你的目光。",
-          "effects": {"hp_delta": 12, "corruption_delta": 0, "attention_delta": 0}
+          "effects": {
+            "hp_delta": 12,
+            "corruption_delta": 0,
+            "attention_delta": 0
+          }
         },
         {
           "id": "rest.seal_echo",
           "display_name_zh": "封锁回声",
           "description_zh": "引来更多注视，封锁旧宅回声，并让下一场战斗获得额外灵性上限。",
-          "effects": {"hp_delta": 0, "corruption_delta": -2, "attention_delta": 1, "max_spirit_delta": 1}
+          "effects": {
+            "hp_delta": 0,
+            "corruption_delta": -2,
+            "attention_delta": 1,
+            "max_spirit_delta": 1
+          }
         }
       ],
       "nodes": [
-        {"id": "route.v070.node.first_hunt", "type": "normal", "display_name_zh": "雨夜双影", "encounter_id": "encounter.first_hunt"},
-        {"id": "route.v070.node.mirror_pursuit", "type": "elite", "display_name_zh": "回声追猎", "encounter_id": "encounter.mirror_pursuit"},
-        {"id": "route.v070.node.old_house_rest", "type": "rest", "display_name_zh": "旧宅喘息"},
-        {"id": "route.v070.node.mirror_baron", "type": "boss", "display_name_zh": "镜厅男爵", "encounter_id": "encounter.mirror_baron"},
-        {"id": "route.v070.node.ascension", "type": "ritual", "display_name_zh": "被篡改的讣告", "ritual_id": "ritual.v070.tampered_obituary"}
+        {
+          "id": "route.v070.node.first_hunt",
+          "type": "normal",
+          "display_name_zh": "雨夜双影",
+          "encounter_id": "encounter.first_hunt"
+        },
+        {
+          "id": "route.v070.node.mirror_pursuit",
+          "type": "elite",
+          "display_name_zh": "回声追猎",
+          "encounter_id": "encounter.mirror_pursuit"
+        },
+        {
+          "id": "route.v070.node.old_house_rest",
+          "type": "rest",
+          "display_name_zh": "旧宅喘息"
+        },
+        {
+          "id": "route.v070.node.mirror_baron",
+          "type": "boss",
+          "display_name_zh": "镜厅男爵",
+          "encounter_id": "encounter.mirror_baron"
+        },
+        {
+          "id": "route.v070.node.ascension",
+          "type": "ritual",
+          "display_name_zh": "被篡改的讣告",
+          "ritual_id": "ritual.v070.tampered_obituary"
+        }
       ]
     },
     {
       "id": "route.v070.broken_procession",
       "display_name_zh": "破碎游行",
       "description_zh": "双影与首领同行，路线更短、压力更集中，适合已有卡组的挑战。",
+      "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
         "max_hp": 54,
@@ -74,27 +109,61 @@
           "id": "rest.bandage",
           "display_name_zh": "包扎伤口",
           "description_zh": "恢复生命，但破碎仪式会继续侵蚀精神。",
-          "effects": {"hp_delta": 12, "corruption_delta": 0, "attention_delta": 0}
+          "effects": {
+            "hp_delta": 12,
+            "corruption_delta": 0,
+            "attention_delta": 0
+          }
         },
         {
           "id": "rest.seal_echo",
           "display_name_zh": "封锁回声",
           "description_zh": "压低污染，换来下一战更多灵性，同时增加被注视。",
-          "effects": {"hp_delta": 0, "corruption_delta": -2, "attention_delta": 1, "max_spirit_delta": 1}
+          "effects": {
+            "hp_delta": 0,
+            "corruption_delta": -2,
+            "attention_delta": 1,
+            "max_spirit_delta": 1
+          }
         }
       ],
       "nodes": [
-        {"id": "route.v070.broken.node.first_hunt", "type": "normal", "display_name_zh": "破碎雨夜", "encounter_id": "encounter.first_hunt"},
-        {"id": "route.v070.broken.node.twin_pursuit", "type": "elite", "display_name_zh": "双影追猎", "encounter_id": "encounter.v070.twin_pursuit"},
-        {"id": "route.v070.broken.node.old_house_rest", "type": "rest", "display_name_zh": "破碎旧宅"},
-        {"id": "route.v070.broken.node.mirror_baron", "type": "boss", "display_name_zh": "破碎游行", "encounter_id": "encounter.v070.broken_baron"},
-        {"id": "route.v070.broken.node.ascension", "type": "ritual", "display_name_zh": "被篡改的讣告·残页", "ritual_id": "ritual.v070.fractured_obituary"}
+        {
+          "id": "route.v070.broken.node.first_hunt",
+          "type": "normal",
+          "display_name_zh": "破碎雨夜",
+          "encounter_id": "encounter.first_hunt"
+        },
+        {
+          "id": "route.v070.broken.node.twin_pursuit",
+          "type": "elite",
+          "display_name_zh": "双影追猎",
+          "encounter_id": "encounter.v070.twin_pursuit"
+        },
+        {
+          "id": "route.v070.broken.node.old_house_rest",
+          "type": "rest",
+          "display_name_zh": "破碎旧宅"
+        },
+        {
+          "id": "route.v070.broken.node.mirror_baron",
+          "type": "boss",
+          "display_name_zh": "破碎游行",
+          "encounter_id": "encounter.v070.broken_baron"
+        },
+        {
+          "id": "route.v070.broken.node.ascension",
+          "type": "ritual",
+          "display_name_zh": "被篡改的讣告·残页",
+          "ritual_id": "ritual.v070.fractured_obituary"
+        }
       ]
     },
     {
       "id": "route.v070.mirror_watch",
       "display_name_zh": "镜廊巡夜",
       "description_zh": "先追双影再深入旧宅；前置休整与不同的精英顺序改变资源节奏。",
+      "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
         "max_hp": 54,
@@ -117,21 +186,143 @@
           "id": "rest.bandage",
           "display_name_zh": "包扎伤口",
           "description_zh": "在巡夜中途恢复生命，继续维持被注视的代价。",
-          "effects": {"hp_delta": 12, "corruption_delta": 0, "attention_delta": 0}
+          "effects": {
+            "hp_delta": 12,
+            "corruption_delta": 0,
+            "attention_delta": 0
+          }
         },
         {
           "id": "rest.seal_echo",
           "display_name_zh": "封锁回声",
           "description_zh": "压低污染并为下一战换取更高灵性上限。",
-          "effects": {"hp_delta": 0, "corruption_delta": -2, "attention_delta": 1, "max_spirit_delta": 1}
+          "effects": {
+            "hp_delta": 0,
+            "corruption_delta": -2,
+            "attention_delta": 1,
+            "max_spirit_delta": 1
+          }
         }
       ],
       "nodes": [
-        {"id": "route.v070.mirror_watch.node.first_hunt", "type": "normal", "display_name_zh": "双影巡夜", "encounter_id": "encounter.v070.twin_pursuit"},
-        {"id": "route.v070.mirror_watch.node.rest", "type": "rest", "display_name_zh": "巡夜歇脚"},
-        {"id": "route.v070.mirror_watch.node.elite", "type": "elite", "display_name_zh": "旧宅回声", "encounter_id": "encounter.mirror_pursuit"},
-        {"id": "route.v070.mirror_watch.node.boss", "type": "boss", "display_name_zh": "破碎男爵", "encounter_id": "encounter.v070.broken_baron"},
-        {"id": "route.v070.mirror_watch.node.ascension", "type": "ritual", "display_name_zh": "残页讣告", "ritual_id": "ritual.v070.fractured_obituary"}
+        {
+          "id": "route.v070.mirror_watch.node.first_hunt",
+          "type": "normal",
+          "display_name_zh": "双影巡夜",
+          "encounter_id": "encounter.v070.twin_pursuit"
+        },
+        {
+          "id": "route.v070.mirror_watch.node.rest",
+          "type": "rest",
+          "display_name_zh": "巡夜歇脚"
+        },
+        {
+          "id": "route.v070.mirror_watch.node.elite",
+          "type": "elite",
+          "display_name_zh": "旧宅回声",
+          "encounter_id": "encounter.mirror_pursuit"
+        },
+        {
+          "id": "route.v070.mirror_watch.node.boss",
+          "type": "boss",
+          "display_name_zh": "破碎男爵",
+          "encounter_id": "encounter.v070.broken_baron"
+        },
+        {
+          "id": "route.v070.mirror_watch.node.ascension",
+          "type": "ritual",
+          "display_name_zh": "残页讣告",
+          "ritual_id": "ritual.v070.fractured_obituary"
+        }
+      ]
+    },
+    {
+      "id": "route.v028.first_stage",
+      "display_name_zh": "廷根异常调查·第一阶段",
+      "description_zh": "沿着灵视捕捉到的异常痕迹推进；房客、怨影与镜廊边界会在同一事件中逐层出现。",
+      "chapter_potion_id": "potion.seer_to_clown",
+      "initial_run_state": {
+        "hp": 54,
+        "max_hp": 54,
+        "spirit": 3,
+        "max_spirit": 3,
+        "corruption": 0,
+        "max_corruption": 10,
+        "attention": 0,
+        "max_attention": 10
+      },
+      "sequence": {
+        "pathway_id": "seer",
+        "pathway_name_zh": "占卜家",
+        "current_sequence": 9,
+        "next_sequence": 8,
+        "next_sequence_name_zh": "小丑"
+      },
+      "rest_options": [
+        {
+          "id": "rest.bandage",
+          "display_name_zh": "包扎伤口",
+          "description_zh": "恢复生命，但无法驱散跟随你的目光。",
+          "effects": {
+            "hp_delta": 12,
+            "corruption_delta": 0,
+            "attention_delta": 0
+          }
+        },
+        {
+          "id": "rest.seal_echo",
+          "display_name_zh": "封锁回声",
+          "description_zh": "引来更多注视，封锁旧宅回声，并让下一场战斗获得额外灵性上限。",
+          "effects": {
+            "hp_delta": 0,
+            "corruption_delta": -2,
+            "attention_delta": 1,
+            "max_spirit_delta": 1
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "route.v028.first_stage.node.first_hunt",
+          "type": "normal",
+          "display_name_zh": "雨夜灵视",
+          "encounter_id": "encounter.first_hunt"
+        },
+        {
+          "id": "route.v028.first_stage.node.tenant_trace",
+          "type": "normal",
+          "display_name_zh": "哭泣房客的余波",
+          "encounter_id": "encounter.v028.tenant_trace"
+        },
+        {
+          "id": "route.v028.first_stage.node.rest",
+          "type": "rest",
+          "display_name_zh": "占卜后的喘息"
+        },
+        {
+          "id": "route.v028.first_stage.node.mirror_pursuit",
+          "type": "elite",
+          "display_name_zh": "回声追猎",
+          "encounter_id": "encounter.mirror_pursuit"
+        },
+        {
+          "id": "route.v028.first_stage.node.boundary",
+          "type": "normal",
+          "display_name_zh": "镜廊边界",
+          "encounter_id": "encounter.v028.boundary"
+        },
+        {
+          "id": "route.v028.first_stage.node.baron",
+          "type": "boss",
+          "display_name_zh": "镜厅男爵",
+          "encounter_id": "encounter.mirror_baron"
+        },
+        {
+          "id": "route.v028.first_stage.node.ascension",
+          "type": "ritual",
+          "display_name_zh": "小丑魔药的扮演仪式",
+          "ritual_id": "ritual.v070.tampered_obituary"
+        }
       ]
     }
   ]
