@@ -15,7 +15,7 @@
 2. `docs/PROJECT_CHARTER.md`
 3. `docs/TEAM_PROTOCOL.md`
 4. `docs/ARCHITECTURE_CONTRACT.md`
-5. `docs/versions/v0.29.1.md`
+5. `docs/versions/v0.30.0.md`
 
 ## 当前冻结规则
 
