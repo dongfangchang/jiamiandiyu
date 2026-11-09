@@ -229,6 +229,7 @@ func submit_progression(command: ProgressionCommand) -> ProgressionCommandResult
 	var result: ProgressionCommandResult = progression.submit(command)
 	if not result.accepted:
 		return result
+	_sync_deck_from_progression(result.snapshot)
 	if command.type == ProgressionCommand.SELECT_IDENTITY and _route_engine == null:
 		var initialized := initialize({})
 		if not initialized.ok:
@@ -240,6 +241,20 @@ func submit_progression(command: ProgressionCommand) -> ProgressionCommandResult
 			)
 	save_checkpoint("progression")
 	return result
+
+
+func _sync_deck_from_progression(snapshot: ProgressionSnapshot) -> void:
+	if deck_engine == null or snapshot == null:
+		return
+	var owned_ids: Array[String] = []
+	for card_value in snapshot.data.get("collection", []):
+		if (
+			card_value is Dictionary
+			and int(card_value.get("copies", 0)) > 0
+		):
+			owned_ids.append(String(card_value.get("definition_id", "")))
+	deck_engine.refresh_owned_card_ids(owned_ids)
+	deck_engine.set_current_sequence(int(snapshot.data.get("sequence", 9)))
 
 
 func query_card_play(

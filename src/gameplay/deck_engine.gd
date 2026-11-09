@@ -117,6 +117,15 @@ func set_current_sequence(sequence: int) -> DeckSnapshot:
 	return get_snapshot()
 
 
+func refresh_owned_card_ids(owned_card_ids: Array) -> DeckSnapshot:
+	_owned_ids.clear()
+	for value in owned_card_ids:
+		var definition_id := String(value)
+		if _catalog_ids.has(definition_id):
+			_owned_ids[definition_id] = true
+	return get_snapshot()
+
+
 func get_snapshot() -> DeckSnapshot:
 	var current_ids := get_current_deck_ids()
 	var reason := _validate_deck(current_ids)

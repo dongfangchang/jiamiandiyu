@@ -77,6 +77,7 @@ var _pressure_label: Label
 var _chain_label: Label
 var _pile_label: Label
 var _status_label: Label
+var _player_status_label: Label
 var _health_meter: VBoxContainer
 var _spirit_meter: VBoxContainer
 var _corruption_meter: VBoxContainer
@@ -396,6 +397,7 @@ func _build_header() -> Control:
 	title_block.add_child(_pile_label)
 
 	_health_meter = _meter_with_value("生命", "—", UiTheme.C_TEXT, "health")
+	_health_meter.tooltip_text = "护盾只保护本回合；下一回合开始时清除。"
 	_spirit_meter = _meter_with_value("灵性", "—", UiTheme.C_GOLD, "spirit")
 	_corruption_meter = _meter_with_value("污染", "—", UiTheme.C_DANGER_TEXT, "corruption")
 	_attention_meter = _meter_with_value("被注视", "—", UiTheme.C_DANGER_TEXT, "attention")
@@ -435,6 +437,8 @@ func _build_status_strip() -> Control:
 		UiTheme.C_LINE
 	)
 	_status_label = status
+	_player_status_label = UiTheme.label("状态：无持续状态", 12, UiTheme.C_GOLD)
+	content.add_child(_player_status_label)
 	return strip
 
 
@@ -456,9 +460,16 @@ func _build_battlefield(panel: PanelContainer) -> void:
 	))
 
 	_lanes_row = HBoxContainer.new()
-	_lanes_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_lanes_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	_lanes_row.add_theme_constant_override("separation", 10)
-	column.add_child(_lanes_row)
+	var enemy_scroll := ScrollContainer.new()
+	enemy_scroll.name = "EnemyStatusScroll"
+	enemy_scroll.custom_minimum_size = Vector2(0, 220)
+	enemy_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	enemy_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	enemy_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	enemy_scroll.add_child(_lanes_row)
+	column.add_child(enemy_scroll)
 
 
 func _build_side_panel(panel: PanelContainer) -> void:
@@ -601,9 +612,24 @@ func _render_snapshot() -> void:
 		"%d / %d%s" % [
 			int(player.get("hp", 0)),
 			int(player.get("max_hp", 0)),
-			"  护盾 %d" % int(player.get("block", 0)) if int(player.get("block", 0)) > 0 else "",
+			"  护盾 %d（本回合）" % int(player.get("block", 0)) if int(player.get("block", 0)) > 0 else "",
 		]
 	)
+	var status_texts: Array[String] = []
+	for status_value in player.get("statuses", []):
+		if not status_value is Dictionary:
+			continue
+		var status: Dictionary = status_value
+		var status_id := StringName(status.get("status_id", ""))
+		var stacks := int(status.get("stacks", 0))
+		match status_id:
+			&"foresight":
+				status_texts.append("预见（下次攻击 -1）")
+			&"ritual_preparation":
+				status_texts.append("仪式准备 %d/3（强化下次标记）" % stacks)
+			_:
+				status_texts.append("%s ×%d" % [status_id, stacks])
+	_player_status_label.text = "状态：" + ("、".join(status_texts) if not status_texts.is_empty() else "无持续状态")
 	_set_meter(_spirit_meter, "%d / %d" % [
 		int(player.get("spirit", 0)),
 		int(player.get("max_spirit", 0)),
@@ -697,8 +723,18 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 		var pressure_bonus := int(enemy.get("pressure_bonus", 0))
 		var phase_count := int(enemy.get("triggered_phase_count", 0))
 		if pressure_bonus > 0 or phase_count > 0:
+			var phase_text := ""
+			var triggered_phases: Array = enemy.get("triggered_phases", [])
+			if not triggered_phases.is_empty() and triggered_phases[-1] is Dictionary:
+				var phase: Dictionary = triggered_phases[-1]
+				phase_text = "阶段 %d：%s（已生效）" % [
+					phase_count,
+					String(phase.get("display_name_zh", "强化")),
+				]
+			if phase_text.is_empty() and phase_count > 0:
+				phase_text = "阶段 %d：效果已生效" % phase_count
 			column.add_child(UiTheme.badge(
-				"强化 +%d" % pressure_bonus if pressure_bonus > 0 else "阶段已触发 %d" % phase_count,
+				phase_text + (" · 强化 +%d" % pressure_bonus if pressure_bonus > 0 else "") if not phase_text.is_empty() else "强化 +%d" % pressure_bonus,
 				UiTheme.C_DANGER_TEXT,
 				UiTheme.C_DANGER
 			))

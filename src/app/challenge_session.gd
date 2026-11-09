@@ -240,8 +240,23 @@ func submit_challenge(command: ChallengeCommand) -> ChallengeCommandResult:
 func submit_progression(command: ProgressionCommand) -> ProgressionCommandResult:
 	var result := progression.submit(command)
 	if result.accepted:
+		_sync_deck_from_progression(result.snapshot)
 		save_checkpoint("challenge_progression")
 	return result
+
+
+func _sync_deck_from_progression(snapshot: ProgressionSnapshot) -> void:
+	if deck_engine == null or snapshot == null:
+		return
+	var owned_ids: Array[String] = []
+	for card_value in snapshot.data.get("collection", []):
+		if (
+			card_value is Dictionary
+			and int(card_value.get("copies", 0)) > 0
+		):
+			owned_ids.append(String(card_value.get("definition_id", "")))
+	deck_engine.refresh_owned_card_ids(owned_ids)
+	deck_engine.set_current_sequence(int(snapshot.data.get("sequence", 9)))
 
 
 func begin_challenge_battle() -> InfrastructureResult:

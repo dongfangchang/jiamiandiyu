@@ -241,6 +241,12 @@ func get_snapshot() -> BattleSnapshot:
 	for enemy in _enemies:
 		if _is_alive(enemy):
 			max_pressure = maxi(max_pressure, int(enemy.get("pressure_bonus", 0)))
+		var triggered_phase_views: Array[Dictionary] = []
+		var phases: Array = enemy.get("phases", [])
+		for phase_index_value in enemy.get("triggered_phases", []):
+			var phase_index := int(phase_index_value)
+			if phase_index >= 0 and phase_index < phases.size():
+				triggered_phase_views.append(phases[phase_index].duplicate(true))
 		enemy_views.append({
 			"actor_id": String(enemy["id"]),
 			"definition_id": String(enemy["definition_id"]),
@@ -252,6 +258,7 @@ func get_snapshot() -> BattleSnapshot:
 			"intent": enemy["intent"].duplicate(true),
 			"phases": enemy.get("phases", []).duplicate(true),
 			"triggered_phase_count": enemy.get("triggered_phases", []).size(),
+			"triggered_phases": triggered_phase_views,
 			"pressure_bonus": int(enemy.get("pressure_bonus", 0)),
 		})
 

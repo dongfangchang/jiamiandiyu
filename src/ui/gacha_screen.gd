@@ -16,6 +16,7 @@ var _ticket_label: Label
 var _pity_label: Label
 var _cost_label: Label
 var _guidance_label: Label
+var _history_label: Label
 var _status_label: Label
 var _single_button: Button
 var _triple_button: Button
@@ -41,6 +42,7 @@ func configure(card_names: Dictionary = {}, card_details: Dictionary = {}) -> vo
 
 func apply_snapshot(snapshot: ProgressionSnapshot, show_results: bool = false) -> void:
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
+	var latest_results: Array = _snapshot_data.get("last_gacha_results", [])
 	if not show_results:
 		_snapshot_data["last_gacha_results"] = []
 	if is_instance_valid(_detail_dialog):
@@ -49,6 +51,7 @@ func apply_snapshot(snapshot: ProgressionSnapshot, show_results: bool = false) -
 	_pending_token += 1
 	_update_resources()
 	_render_results(_snapshot_data.get("last_gacha_results", []))
+	_update_history_label(latest_results)
 	_set_status("祈愿结果由灵界规则结算，界面只呈现回响。")
 
 
@@ -198,6 +201,10 @@ func _build_bottom_controls() -> VBoxContainer:
 	content.add_theme_constant_override("separation", 10)
 	_guidance_label = UiTheme.wrapped_label("抽取说明等待档案。", 13, UiTheme.C_PAPER)
 	content.add_child(_guidance_label)
+	_history_label = UiTheme.label("抽卡记录：暂无", 12, UiTheme.C_PAPER_DEEP)
+	_history_label.clip_text = true
+	_history_label.tooltip_text = "最近一次祈愿的结算记录"
+	content.add_child(_history_label)
 	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
 	content.add_child(_status_label)
 	var row := HBoxContainer.new()
@@ -245,6 +252,25 @@ func _render_results(results_value: Variant) -> void:
 			_result_card_nodes.append(result_card)
 			_result_row.add_child(result_card)
 			_result_count += 1
+
+
+func _update_history_label(results_value: Variant) -> void:
+	if not is_instance_valid(_history_label):
+		return
+	var results: Array = results_value if results_value is Array else []
+	if results.is_empty():
+		_history_label.text = "抽卡记录：暂无"
+		return
+	var names: Array[String] = []
+	for result_value in results:
+		if not result_value is Dictionary:
+			continue
+		var result: Dictionary = result_value
+		var card_name := get_card_name(String(result.get("definition_id", "")))
+		if bool(result.get("duplicate", false)):
+			card_name += "（重复）"
+		names.append(card_name)
+	_history_label.text = "最近抽卡：" + "、".join(names)
 
 
 func _show_empty_results() -> void:

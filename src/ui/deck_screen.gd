@@ -500,7 +500,7 @@ func _build_card_tile(card: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if in_deck else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(245, 112)
+	panel.custom_minimum_size = Vector2(245, 132)
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 7)
 	pad.add_theme_constant_override("margin_top", 7)
@@ -540,6 +540,16 @@ func _build_card_tile(card: Dictionary) -> Control:
 		11,
 		UiTheme.C_MUTED
 	))
+	var description := String(card.get("description_zh", "")).strip_edges()
+	if not description.is_empty():
+		var summary := description.left(26)
+		if description.length() > 26:
+			summary += "…"
+		var effect_label := UiTheme.label(summary, 10, UiTheme.C_PAPER_DEEP)
+		effect_label.clip_text = true
+		effect_label.custom_minimum_size = Vector2(0, 17)
+		effect_label.tooltip_text = description
+		info.add_child(effect_label)
 	info.add_child(UiTheme.badge(
 		ownership_text,
 		UiTheme.C_GOLD if owned else UiTheme.C_MUTED,
@@ -605,9 +615,18 @@ func _build_deck_row(index: int, card: Dictionary, filled: bool) -> Control:
 		14,
 		UiTheme.C_TEXT if filled else UiTheme.C_MUTED
 	)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.add_child(name_label)
 	if filled:
+		var description := String(card.get("description_zh", "")).strip_edges()
+		var summary := description.left(18)
+		if description.length() > 18:
+			summary += "…"
+		var effect_label := UiTheme.label(summary, 10, UiTheme.C_PAPER_DEEP)
+		effect_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		effect_label.clip_text = true
+		effect_label.tooltip_text = description
+		line.add_child(effect_label)
+		row.tooltip_text = description
 		line.add_child(UiTheme.label(
 			"等级 %d" % int(_levels.get(definition_id, 0)),
 			11,
