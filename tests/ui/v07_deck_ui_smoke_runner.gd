@@ -73,6 +73,8 @@ func _test_deck_screen() -> void:
 	_expect(screen.get_current_deck_count() == 8, "deck screen renders eight current cards")
 	_expect(screen.get_selected_preset_id() == "deck.preset.ward", "deck screen retains selected preset")
 	_expect(screen.is_confirm_enabled(), "legal snapshot enables confirm")
+	_expect(screen.inspect_card("card.skill.warding_circle"), "deck card opens detail dialog")
+	_expect(screen.get_card_detail_text().contains("费用") and screen.get_card_detail_text().contains("目标"), "card detail exposes cost and target")
 
 	screen.set_filter("owned")
 	_expect(screen.get_card_count() == 8, "owned filter reads snapshot ownership")

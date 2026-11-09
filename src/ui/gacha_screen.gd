@@ -17,6 +17,7 @@ var _pity_label: Label
 var _cost_label: Label
 var _guidance_label: Label
 var _history_label: Label
+var _history_option: OptionButton
 var _status_label: Label
 var _single_button: Button
 var _triple_button: Button
@@ -38,6 +39,7 @@ func configure(card_names: Dictionary = {}, card_details: Dictionary = {}) -> vo
 	_card_names = card_names.duplicate(true)
 	_card_details = card_details.duplicate(true)
 	_render_results(_snapshot_data.get("last_gacha_results", []))
+	_update_history_dropdown(_snapshot_data.get("gacha_history", []))
 
 
 func apply_snapshot(snapshot: ProgressionSnapshot, show_results: bool = false) -> void:
@@ -51,7 +53,11 @@ func apply_snapshot(snapshot: ProgressionSnapshot, show_results: bool = false) -
 	_pending_token += 1
 	_update_resources()
 	_render_results(_snapshot_data.get("last_gacha_results", []))
-	_update_history_label(latest_results)
+	var history_value: Variant = _snapshot_data.get("gacha_history", [])
+	if not history_value is Array or history_value.is_empty():
+		if not latest_results.is_empty():
+			history_value = [{"draw_index": 1, "pull_count": latest_results.size(), "results": latest_results}]
+	_update_history_dropdown(history_value)
 	_set_status("祈愿结果由灵界规则结算，界面只呈现回响。")
 
 
@@ -138,6 +144,10 @@ func get_detail_text() -> String:
 	return _detail_dialog.dialog_text if is_instance_valid(_detail_dialog) else ""
 
 
+func get_history_count() -> int:
+	return _history_option.item_count - 1 if is_instance_valid(_history_option) and _history_option.item_count > 0 else 0
+
+
 func _build() -> void:
 	UiTheme.add_background(self, ProgressionCatalog.GACHA_BACKGROUND, UiTheme.C_BG, 0.28)
 	var safe := MarginContainer.new()
@@ -205,6 +215,12 @@ func _build_bottom_controls() -> VBoxContainer:
 	_history_label.clip_text = true
 	_history_label.tooltip_text = "最近一次祈愿的结算记录"
 	content.add_child(_history_label)
+	_history_option = OptionButton.new()
+	_history_option.name = "GachaHistoryDropdown"
+	_history_option.custom_minimum_size = Vector2(240, 34)
+	_history_option.text = "抽卡记录（0）"
+	_history_option.item_selected.connect(_on_history_selected)
+	content.add_child(_history_option)
 	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
 	content.add_child(_status_label)
 	var row := HBoxContainer.new()
@@ -248,29 +264,50 @@ func _render_results(results_value: Variant) -> void:
 		return
 	for result_value in results:
 		if result_value is Dictionary:
-			var result_card := _build_result_card(result_value)
+			var result_card := _build_result_card(result_value, _result_count)
 			_result_card_nodes.append(result_card)
 			_result_row.add_child(result_card)
 			_result_count += 1
 
 
-func _update_history_label(results_value: Variant) -> void:
-	if not is_instance_valid(_history_label):
+func _update_history_dropdown(history_value: Variant) -> void:
+	if not is_instance_valid(_history_option):
 		return
-	var results: Array = results_value if results_value is Array else []
-	if results.is_empty():
-		_history_label.text = "抽卡记录：暂无"
-		return
+	_history_option.clear()
+	_history_option.add_item("抽卡记录（%d 次）" % (history_value.size() if history_value is Array else 0))
+	_history_option.set_item_disabled(0, true)
+	var history: Array = history_value if history_value is Array else []
+	for index in range(history.size()):
+		if not history[index] is Dictionary:
+			continue
+		var entry: Dictionary = history[index]
+		var results: Array = entry.get("results", [])
+		_history_option.add_item("第 %d 次 · %d 张 · %s" % [
+			int(entry.get("draw_index", index + 1)),
+			int(entry.get("pull_count", results.size())),
+			_history_summary(results),
+		])
+		_history_option.set_item_metadata(_history_option.item_count - 1, entry.duplicate(true))
+	_history_option.select(0)
+	_history_option.disabled = history.is_empty()
+	_history_label.text = "抽卡记录：暂无" if history.is_empty() else "抽卡记录已保存，可从下拉框查看"
+
+
+func _history_summary(results: Array) -> String:
 	var names: Array[String] = []
 	for result_value in results:
-		if not result_value is Dictionary:
-			continue
-		var result: Dictionary = result_value
-		var card_name := get_card_name(String(result.get("definition_id", "")))
-		if bool(result.get("duplicate", false)):
-			card_name += "（重复）"
-		names.append(card_name)
-	_history_label.text = "最近抽卡：" + "、".join(names)
+		if result_value is Dictionary:
+			names.append(get_card_name(String(result_value.get("definition_id", ""))))
+	return "、".join(names) if not names.is_empty() else "无结果"
+
+
+func _on_history_selected(index: int) -> void:
+	if not is_instance_valid(_history_option) or index <= 0:
+		return
+	var entry: Variant = _history_option.get_item_metadata(index)
+	if entry is Dictionary:
+		var results: Array = entry.get("results", [])
+		_history_label.text = "第 %d 次：%s" % [int(entry.get("draw_index", index)), _history_summary(results)]
 
 
 func _show_empty_results() -> void:
@@ -287,7 +324,7 @@ func _show_empty_results() -> void:
 	_result_count = 0
 
 
-func _build_result_card(result: Dictionary) -> Control:
+func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 	var definition_id := String(result.get("definition_id", ""))
 	var rarity := String(result.get("rarity", ""))
 	var panel := UiTheme.panel(
@@ -299,11 +336,7 @@ func _build_result_card(result: Dictionary) -> Control:
 	panel.modulate.a = 0.0
 	panel.scale = Vector2(0.92, 0.92)
 	panel.pivot_offset = Vector2(146, 202)
-	panel.tree_entered.connect(func() -> void:
-		var tween := panel.create_tween().set_parallel(true)
-		tween.tween_property(panel, "modulate:a", 1.0, 0.24)
-		tween.tween_property(panel, "scale", Vector2.ONE, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	)
+	panel.set_meta("revealed", false)
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -318,12 +351,23 @@ func _build_result_card(result: Dictionary) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	pad.add_child(column)
-	var art := TextureRect.new()
-	art.texture = load(ProgressionCatalog.card_art(definition_id))
-	art.custom_minimum_size = Vector2(0, 190)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	column.add_child(art)
+	var flip_area := Control.new()
+	flip_area.custom_minimum_size = Vector2(0, 190)
+	flip_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_child(flip_area)
+	var back := TextureRect.new()
+	back.texture = load(ProgressionCatalog.CARD_BACK)
+	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	flip_area.add_child(back)
+	var front := TextureRect.new()
+	front.texture = load(ProgressionCatalog.card_art(definition_id))
+	front.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	front.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	front.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	front.visible = false
+	flip_area.add_child(front)
 	column.add_child(UiTheme.center_label(
 		get_card_name(definition_id),
 		22,
@@ -341,7 +385,28 @@ func _build_result_card(result: Dictionary) -> Control:
 		14,
 		UiTheme.C_DANGER_TEXT if duplicate else UiTheme.C_PAPER
 	))
+	call_deferred("_play_result_flip", panel, flip_area, back, front, flip_index)
 	return panel
+
+
+func _play_result_flip(panel, flip_area, back, front, flip_index: int) -> void:
+	await get_tree().create_timer(float(flip_index) * 0.42).timeout
+	if not is_instance_valid(panel):
+		return
+	var entrance: Tween = panel.create_tween().set_parallel(true)
+	entrance.tween_property(panel, "modulate:a", 1.0, 0.18)
+	entrance.tween_property(panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await entrance.finished
+	if not is_instance_valid(flip_area):
+		return
+	var flip: Tween = flip_area.create_tween()
+	flip.tween_property(flip_area, "scale:x", 0.04, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	flip.tween_callback(func() -> void:
+		back.visible = false
+		front.visible = true
+		panel.set_meta("revealed", true)
+	)
+	flip.tween_property(flip_area, "scale:x", 1.0, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _show_card_detail(result: Dictionary) -> void:

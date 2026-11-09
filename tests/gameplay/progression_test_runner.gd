@@ -269,6 +269,14 @@ func _test_gacha_cost_duplicate_and_replay() -> void:
 		if event.type == &"GachaCardDrawn":
 			draw_event_count += 1
 	_check(draw_event_count == 3, "triple gacha should emit three draw events")
+	_check(
+		first_result.snapshot.data.get("gacha_history", []).size() == 1,
+		"gacha history should persist the completed draw"
+	)
+	_check(
+		int(first_result.snapshot.data.gacha_history[0].get("pull_count", 0)) == 3,
+		"gacha history should retain pull count"
+	)
 	var duplicate_found := false
 	for result_value in first_result.snapshot.data["last_gacha_results"]:
 		if bool(result_value["duplicate"]):

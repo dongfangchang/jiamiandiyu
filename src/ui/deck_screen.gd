@@ -29,6 +29,7 @@ var _back_button: Button
 var _reset_button: Button
 var _clear_button: Button
 var _action_buttons: Array[Button] = []
+var _card_detail_dialog: AcceptDialog
 
 
 func _ready() -> void:
@@ -178,6 +179,18 @@ func get_deck_state_text() -> String:
 
 func get_background_path() -> String:
 	return DeckCatalog.BACKGROUND
+
+
+func inspect_card(definition_id: String) -> bool:
+	for card in _card_views():
+		if String(card.get("definition_id", "")) == definition_id:
+			_show_card_detail(card)
+			return true
+	return false
+
+
+func get_card_detail_text() -> String:
+	return _card_detail_dialog.dialog_text if is_instance_valid(_card_detail_dialog) else ""
 
 
 func is_confirm_enabled() -> bool:
@@ -500,7 +513,12 @@ func _build_card_tile(card: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if in_deck else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(245, 132)
+	panel.custom_minimum_size = Vector2(245, 88)
+	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	panel.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_show_card_detail(card)
+	)
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 7)
 	pad.add_theme_constant_override("margin_top", 7)
@@ -510,46 +528,15 @@ func _build_card_tile(card: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	pad.add_child(row)
-	var art := TextureRect.new()
-	art.texture = load(DeckCatalog.card_art(definition_id))
-	art.custom_minimum_size = Vector2(108, 72)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	row.add_child(art)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)
 	row.add_child(info)
 	info.add_child(UiTheme.label(
 		String(card.get("display_name_zh", definition_id)),
-		16,
+		15,
 		UiTheme.C_TEXT if owned else UiTheme.C_MUTED
 	))
-	info.add_child(UiTheme.label(
-		"等级 %d  ·  灵性 %d" % [
-			int(_levels.get(definition_id, 0)),
-			int(card.get("cost_spirit", 0)),
-		],
-		11,
-		UiTheme.C_GOLD if owned else UiTheme.C_MUTED
-	))
-	info.add_child(UiTheme.label(
-		"目标：" + DeckCatalog.target_text(
-			String(card.get("target_type", ""))
-		),
-		11,
-		UiTheme.C_MUTED
-	))
-	var description := String(card.get("description_zh", "")).strip_edges()
-	if not description.is_empty():
-		var summary := description.left(26)
-		if description.length() > 26:
-			summary += "…"
-		var effect_label := UiTheme.label(summary, 10, UiTheme.C_PAPER_DEEP)
-		effect_label.clip_text = true
-		effect_label.custom_minimum_size = Vector2(0, 17)
-		effect_label.tooltip_text = description
-		info.add_child(effect_label)
 	info.add_child(UiTheme.badge(
 		ownership_text,
 		UiTheme.C_GOLD if owned else UiTheme.C_MUTED,
@@ -570,8 +557,29 @@ func _build_card_tile(card: Dictionary) -> Control:
 	button.tooltip_text = DeckCatalog.reason_text(add_reason) if not in_deck and not can_add else ""
 	info.add_child(button)
 	_action_buttons.append(button)
-	panel.tooltip_text = String(card.get("description_zh", ""))
+	panel.tooltip_text = "点击查看卡牌功能、费用与目标"
 	return panel
+
+
+func _show_card_detail(card: Dictionary) -> void:
+	if not is_instance_valid(_card_detail_dialog):
+		_card_detail_dialog = AcceptDialog.new()
+		_card_detail_dialog.title = "卡牌详情"
+		_card_detail_dialog.ok_button_text = "关闭"
+		add_child(_card_detail_dialog)
+	var definition_id := String(card.get("definition_id", ""))
+	var ownership := "已拥有" if bool(card.get("owned", false)) else "尚未拥有"
+	var placement := "已编入出战牌组" if bool(card.get("in_deck", false)) else "未编入出战牌组"
+	_card_detail_dialog.dialog_text = "【%s】\n%s · %s\n\n费用：%d 灵性\n目标：%s\n等级：%d\n\n%s" % [
+		String(card.get("display_name_zh", definition_id)),
+		ownership,
+		placement,
+		int(card.get("cost_spirit", 0)),
+		DeckCatalog.target_text(String(card.get("target_type", ""))),
+		int(_levels.get(definition_id, 0)),
+		String(card.get("description_zh", "暂无功能说明")),
+	]
+	_card_detail_dialog.popup_centered(Vector2(500, 340))
 
 
 func _render_deck() -> void:
@@ -617,21 +625,13 @@ func _build_deck_row(index: int, card: Dictionary, filled: bool) -> Control:
 	)
 	line.add_child(name_label)
 	if filled:
-		var description := String(card.get("description_zh", "")).strip_edges()
-		var summary := description.left(18)
-		if description.length() > 18:
-			summary += "…"
-		var effect_label := UiTheme.label(summary, 10, UiTheme.C_PAPER_DEEP)
-		effect_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		effect_label.clip_text = true
-		effect_label.tooltip_text = description
-		line.add_child(effect_label)
-		row.tooltip_text = description
-		line.add_child(UiTheme.label(
-			"等级 %d" % int(_levels.get(definition_id, 0)),
-			11,
-			UiTheme.C_GOLD
-		))
+		var ownership_label := UiTheme.badge("已拥有", UiTheme.C_GOLD, UiTheme.C_LINE)
+		line.add_child(ownership_label)
+		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		row.gui_input.connect(func(event: InputEvent) -> void:
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				_show_card_detail(card)
+		)
 		var remove := UiTheme.button(
 			"移出",
 			func() -> void: request_remove_card(definition_id),

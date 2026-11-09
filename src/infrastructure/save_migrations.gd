@@ -47,6 +47,7 @@ static func migrate_v1_to_v2(document: Dictionary) -> Dictionary:
 			"reward_option_ids": [],
 			"last_battle_outcome": "",
 			"last_gacha_results": [],
+			"gacha_history": [],
 			"revision": 1,
 			"migrated_from_v1": true,
 		}

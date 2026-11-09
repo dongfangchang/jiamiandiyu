@@ -169,6 +169,7 @@ func get_snapshot() -> ProgressionSnapshot:
 		"reward_options": reward_views,
 		"last_battle_outcome": String(_state.get("last_battle_outcome", "")),
 		"last_gacha_results": _state.get("last_gacha_results", []).duplicate(true),
+		"gacha_history": _state.get("gacha_history", []).duplicate(true),
 		"digestion": _digestion_snapshot(),
 		"potion_inventory": _state.get("potion_inventory", []).duplicate(true),
 	})
@@ -439,6 +440,13 @@ func _draw_gacha(pull_count: int) -> ProgressionCommandResult:
 		pull_results.append(pull_result)
 		_emit(&"GachaCardDrawn", pull_result.duplicate(true))
 	_state["last_gacha_results"] = pull_results
+	var gacha_history: Array = _state.get("gacha_history", [])
+	gacha_history.append({
+		"draw_index": gacha_history.size() + 1,
+		"pull_count": pull_count,
+		"results": pull_results.duplicate(true),
+	})
+	_state["gacha_history"] = gacha_history
 	_emit(&"GachaCompleted", {
 		"pull_count": pull_count,
 		"cost": cost,
@@ -860,6 +868,7 @@ func _new_state() -> Dictionary:
 		"reward_option_ids": [],
 		"last_battle_outcome": "",
 		"last_gacha_results": [],
+		"gacha_history": [],
 		"potion_inventory": [],
 		"sequence": 9,
 		"digestion": _new_digestion_state(),
@@ -911,10 +920,14 @@ func _restore_state(value: Dictionary) -> ProgressionCommandResult:
 	for potion_id in potion_inventory:
 		if not _potion_definitions_by_id.has(String(potion_id)):
 			return _restore_error(&"potion_invalid")
+	var gacha_history: Variant = restored.get("gacha_history", [])
+	if not gacha_history is Array:
+		return _restore_error(&"gacha_history_invalid")
 	restored["phase"] = String(phase)
 	restored["collection"] = normalized
 	restored["digestion"] = digestion.duplicate(true)
 	restored["potion_inventory"] = potion_inventory.duplicate()
+	restored["gacha_history"] = gacha_history.duplicate(true)
 	restored["sequence"] = int(restored.get("sequence", 9))
 	_state = restored
 	return ProgressionCommandResult.new(true, &"ok", [], get_snapshot())

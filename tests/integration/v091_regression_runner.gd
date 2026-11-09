@@ -220,6 +220,7 @@ func _test_gacha_exit_during_pending() -> void:
 		String(screen.get_card_name("card.skill.coffin_nail")) == "棺钉",
 		"gacha result should show the Chinese card name"
 	)
+	_expect(screen.get_history_count() == 1, "gacha history dropdown keeps the completed draw")
 	screen.request_draw(1)
 	screen.request_draw(1)
 	_expect(
