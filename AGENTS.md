@@ -222,7 +222,7 @@ v0.14.0 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.14.0/<role>.md` 记录本版本工作。
 - 战斗页在 1600×900 使用原布局；较小视口必须提供滚动降级，不能裁掉操作入口。
 
-v0.32.0 当前所有权：
+v0.32.0 已关闭所有权（保留历史）：
 
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
@@ -236,6 +236,48 @@ v0.32.0 当前所有权：
 - `docs/**`、`AGENTS.md`：产品经理。
 - 所有角色在 `docs/reports/v0.32.0/<role>.md` 记录本版本工作。
 - 继承 v0.31 未推送基线；不推远程、不解冻小丑、不扩第二途径。
+
+v0.33.0 已关闭所有权（保留历史）：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计。
+- `data/decks/**`：玩法设计（本版本可写预设引导字段）。
+- `data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计；本版本默认只读。
+- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计；本版本默认只读。
+- `data/schema/**`：本地数据层；本版本默认只读（`decks.schema.json` 已允许 additionalProperties）。
+- `art/**`：美术；本版本不要求正式立绘。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- `docs/**`、`AGENTS.md`：产品经理。
+- 所有角色在 `docs/reports/v0.33.0/<role>.md` 记录本版本工作。
+- 不解冻小丑、不扩第二途径；推送须用户明确要求。
+
+v0.34.0 已关闭所有权（保留历史）：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层；本版本默认只读。
+- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计；仅当策略快照字段不足时最小改动。
+- `data/decks/**`、`data/cards/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计；本版本默认只读。
+- `data/enemies/v0.7.0/enemies.json`：本版本临时授权数值设计为单一写入者（仅战斗数值字段：生命/攻击/护盾/阶段数值）；玩法不同时修改。
+- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
+- `data/schema/**`：本地数据层；本版本默认只读。
+- `art/**`：美术；本版本不要求正式立绘。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- `docs/**`、`AGENTS.md`：产品经理。
+- 所有角色在 `docs/reports/v0.34.0/<role>.md` 记录本版本工作。
+- 不解冻小丑、不扩第二途径；主路径禁止新增原生 OptionButton。
+
+v0.35.0 当前所有权：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI（本版主责：拖放打出、悬停大卡、物件化 HUD、意图姿态）。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层；本版本默认只读。
+- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计；本版本默认只读。
+- `data/**`：对应所有者；本版本默认只读。
+- `art/**`：美术；本版本不要求正式立绘。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- `docs/**`、`AGENTS.md`：产品经理。
+- 所有角色在 `docs/reports/v0.35.0/<role>.md` 记录本版本工作。
+- 不解冻小丑、不扩第二途径；拖放只提交既有 BattleCommand；主路径禁止新增原生 OptionButton。
 
 ## 5. 协作与同步
 

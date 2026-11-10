@@ -306,7 +306,10 @@ func _render_header() -> void:
 		description if not description.is_empty() else "只依据界面中的线索完成三步仪式。"
 	)
 	var source := String(_snapshot_data.get("source_zh", ""))
-	UiTheme.set_clip_text(_source_label, ("原著出处：" + source) if not source.is_empty() else "")
+	UiTheme.set_clip_text(_source_label, "")
+	_source_label.visible = false
+	_title_label.tooltip_text = ("出处：" + source) if not source.is_empty() else String(_snapshot_data.get("description_zh", ""))
+	_description_label.tooltip_text = _title_label.tooltip_text
 	var titles: Array = _snapshot_data.get("step_titles", [])
 	var step_index := int(_snapshot_data.get("step_index", 0))
 	var status := String(_snapshot_data.get("status", "inactive"))
@@ -352,31 +355,23 @@ func _render_snapshot() -> void:
 		26,
 		UiTheme.C_TEXT
 	))
-	_step_panel.add_child(UiTheme.wrapped_label(
-		String(step.get("clue_zh", "")),
-		16,
-		UiTheme.C_PAPER
-	))
+	var clue := String(step.get("clue_zh", ""))
 	var lore := String(step.get("lore_zh", ""))
-	if not lore.is_empty():
-		_step_panel.add_child(UiTheme.wrapped_label("原著：" + lore, 13, UiTheme.C_PAPER_DEEP))
-	_step_panel.add_child(UiTheme.wrapped_label(
-		"污染 %d  ·  灵性 %d  ·  错误 %d  ·  提示 %d" % [
+	var clue_label := UiTheme.clip_label(clue, 15, UiTheme.C_PAPER)
+	clue_label.tooltip_text = lore if not lore.is_empty() else clue
+	_step_panel.add_child(clue_label)
+	_step_panel.add_child(UiTheme.clip_label(
+		"污染 %d · 灵性 %d · 错 %d" % [
 			int(_snapshot_data.get("corruption", 0)),
 			int(_snapshot_data.get("spirit", 0)),
 			int(_snapshot_data.get("errors", 0)),
-			int(_snapshot_data.get("hints_used", 0)),
 		],
-		14,
+		13,
 		UiTheme.C_MUTED
 	))
 	var hint_text := String(_snapshot_data.get("hint_text", ""))
 	if not hint_text.is_empty():
-		_step_panel.add_child(UiTheme.wrapped_label(
-			"提示：%s" % hint_text,
-			14,
-			UiTheme.C_GOLD
-		))
+		_step_panel.add_child(UiTheme.clip_label("提示：" + hint_text, 13, UiTheme.C_GOLD))
 	_art_rect.texture = load(RouteCatalog.ritual_step_art(
 		String(step.get("type", ""))
 	))

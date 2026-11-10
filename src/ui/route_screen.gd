@@ -178,22 +178,22 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label("调查路线 · 占卜家序列 9", 12, UiTheme.C_GOLD))
-	_route_label = UiTheme.clip_label("廷根值夜者", 33, UiTheme.C_TEXT)
+	heading.add_child(UiTheme.label("调查路线 · 序列 9", 12, UiTheme.C_GOLD))
+	_route_label = UiTheme.clip_label("廷根值夜者", 30, UiTheme.C_TEXT)
 	heading.add_child(_route_label)
-	_chapter_label = UiTheme.clip_label("", 15, UiTheme.C_GOLD)
+	_chapter_label = UiTheme.clip_label("", 14, UiTheme.C_GOLD)
 	heading.add_child(_chapter_label)
-	# Chapter summary and the per-node goal change as the player advances;
-	# both live in fixed-height viewports so the map below never shrinks.
-	var summary_box := UiTheme.fixed_text("", 13, UiTheme.C_MUTED, 40)
-	summary_box.name = "ChapterSummaryBox"
-	_chapter_summary_label = UiTheme.fixed_text_label(summary_box)
-	heading.add_child(summary_box)
-	var goal_box := UiTheme.fixed_text("", 13, UiTheme.C_PAPER, 40)
+	# One decision line only; long chapter/lore text stays in tooltips.
+	var goal_box := UiTheme.fixed_text("", 13, UiTheme.C_PAPER, 28)
 	goal_box.name = "CurrentGoalBox"
 	_current_goal_label = UiTheme.fixed_text_label(goal_box)
 	heading.add_child(goal_box)
-	_challenge_label = UiTheme.clip_label("沿固定线索推进。战斗只在节点边界留下检查点。", 13, UiTheme.C_MUTED)
+	var summary_box := UiTheme.fixed_text("", 12, UiTheme.C_MUTED, 1)
+	summary_box.name = "ChapterSummaryBox"
+	summary_box.visible = false
+	_chapter_summary_label = UiTheme.fixed_text_label(summary_box)
+	heading.add_child(summary_box)
+	_challenge_label = UiTheme.clip_label("节点边界才存档", 12, UiTheme.C_MUTED)
 	heading.add_child(_challenge_label)
 	_resource_label = UiTheme.label("", 15, UiTheme.C_PAPER)
 	_resource_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -249,21 +249,25 @@ func _render_snapshot() -> void:
 		String(_snapshot_data.get("chapter_title_zh", "章节")),
 		String(_snapshot_data.get("chapter_phase_zh", "调查推进")),
 	])
-	_chapter_summary_label.text = String(
+	var chapter_summary := String(
 		_snapshot_data.get("chapter_summary_zh", "沿线索推进调查。")
 	)
+	_chapter_summary_label.text = chapter_summary
 	var current_node := _find_node(String(_snapshot_data.get("current_node_id", "")))
 	var current_goal := String(current_node.get("investigation_goal_zh", ""))
 	var reward_hint := String(current_node.get("reward_hint_zh", ""))
-	var current_guidance := ""
-	if not current_goal.is_empty():
-		current_guidance = "当前调查目标：" + current_goal
-	if not reward_hint.is_empty():
-		current_guidance += ("\n推进收益：" if not current_guidance.is_empty() else "推进收益：") + reward_hint
 	var source := String(current_node.get("source_zh", ""))
-	if not source.is_empty():
-		current_guidance += ("\n原著：" if not current_guidance.is_empty() else "原著：") + source
+	var current_guidance := current_goal if not current_goal.is_empty() else "选择可进入的节点"
+	if not reward_hint.is_empty():
+		current_guidance = "%s · %s" % [current_guidance, reward_hint]
 	_current_goal_label.text = current_guidance
+	_current_goal_label.tooltip_text = "\n".join([
+		chapter_summary,
+		("目标：" + current_goal) if not current_goal.is_empty() else "",
+		("收益：" + reward_hint) if not reward_hint.is_empty() else "",
+		("出处：" + source) if not source.is_empty() else "",
+	].filter(func(value: String) -> bool: return not value.is_empty()))
+	_chapter_label.tooltip_text = chapter_summary
 	_update_resources()
 	for child in _nodes_row.get_children():
 		child.queue_free()
@@ -347,21 +351,20 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_MUTED
 	))
 	var source := String(node.get("source_zh", ""))
-	column.add_child(UiTheme.clip_label(
-		("原著 · " + source) if not source.is_empty() else " ",
-		12,
-		UiTheme.C_PAPER_DEEP
-	))
 	var goal := String(node.get("investigation_goal_zh", ""))
 	var beat := String(node.get("narrative_beat_zh", ""))
-	var story := ""
-	if not beat.is_empty():
-		story = beat
-	if not goal.is_empty():
-		story += ("\n" if not story.is_empty() else "") + "目标：" + goal
-	var story_box := UiTheme.fixed_text(story, 12, UiTheme.C_PAPER, 112)
+	var story := beat if not beat.is_empty() else (goal if not goal.is_empty() else " ")
+	var story_box := UiTheme.fixed_text(story, 12, UiTheme.C_PAPER, 48)
 	story_box.name = "NodeStoryBox"
+	var story_label := UiTheme.fixed_text_label(story_box)
+	if is_instance_valid(story_label):
+		story_label.tooltip_text = "\n".join([
+			beat,
+			("目标：" + goal) if not goal.is_empty() else "",
+			("出处：" + source) if not source.is_empty() else "",
+		].filter(func(value: String) -> bool: return not value.is_empty()))
 	column.add_child(story_box)
+	panel.tooltip_text = story_label.tooltip_text if is_instance_valid(story_label) else ""
 	if node_type == "boss" and ResourceLoader.exists(RouteCatalog.BOSS_ART):
 		var boss := TextureRect.new()
 		boss.texture = load(RouteCatalog.BOSS_ART)

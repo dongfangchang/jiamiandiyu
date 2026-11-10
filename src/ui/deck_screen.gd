@@ -23,7 +23,7 @@ var _content_scroll: ScrollContainer
 var _scroll_hint_label: Label
 var _collection_grid: GridContainer
 var _deck_list: VBoxContainer
-var _filter_option: OptionButton
+var _filter_tabs: HBoxContainer
 var _confirm_button: Button
 var _back_button: Button
 var _reset_button: Button
@@ -98,8 +98,9 @@ func set_filter(mode: String) -> void:
 	if mode not in ["all", "owned", "unowned", "deck"]:
 		return
 	_filter_mode = mode
-	if is_instance_valid(_filter_option):
-		_filter_option.select(
+	if is_instance_valid(_filter_tabs):
+		UiTheme.set_archive_tab_selected(
+			_filter_tabs,
 			["all", "owned", "unowned", "deck"].find(_filter_mode)
 		)
 	if not _snapshot_data.is_empty():
@@ -309,22 +310,22 @@ func _build_header() -> HBoxContainer:
 		UiTheme.C_GOLD
 	))
 	heading.add_child(UiTheme.label("出战牌组", 34, UiTheme.C_TEXT))
-	heading.add_child(UiTheme.wrapped_label(
-		"从已收容的回响中选择 8 张唯一卡牌。抽卡与升级从下一次战斗开始生效。",
-		14,
+	heading.add_child(UiTheme.clip_label(
+		"选 8 张唯一回响出战。详情点卡查看。",
+		13,
 		UiTheme.C_MUTED
 	))
-	_filter_option = OptionButton.new()
-	_filter_option.custom_minimum_size = Vector2(180, 42)
-	_filter_option.add_item("全部回响")
-	_filter_option.add_item("仅已拥有")
-	_filter_option.add_item("未拥有")
-	_filter_option.add_item("当前牌组")
-	_filter_option.item_selected.connect(func(index: int) -> void:
-		set_filter(["all", "owned", "unowned", "deck"][index])
+	_filter_tabs = UiTheme.archive_tab_row(
+		["全部", "已拥有", "未拥有", "牌组内"],
+		["all", "owned", "unowned", "deck"].find(_filter_mode),
+		func(index: int) -> void:
+			if _busy:
+				return
+			set_filter(["all", "owned", "unowned", "deck"][index]),
+		72.0
 	)
-	_filter_option.disabled = _busy
-	header.add_child(_filter_option)
+	_filter_tabs.name = "DeckFilterTabs"
+	header.add_child(_filter_tabs)
 	return header
 
 
@@ -403,7 +404,8 @@ func _build_preset(preset: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(300, 112)
+	## Default face: name + tag + one strategy hook. Matchup detail lives in tooltip.
+	panel.custom_minimum_size = Vector2(280, 96)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.clip_contents = true
 	var pad := MarginContainer.new()
@@ -417,38 +419,48 @@ func _build_preset(preset: Dictionary) -> Control:
 	pad.add_child(row)
 	var text := VBoxContainer.new()
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text.add_theme_constant_override("separation", 1)
+	text.add_theme_constant_override("separation", 2)
 	row.add_child(text)
 	text.add_child(UiTheme.clip_label(
 		String(preset.get("display_name_zh", preset_id)),
 		16,
 		UiTheme.C_GOLD if selected else UiTheme.C_TEXT
 	))
-	var guidance: Dictionary = DeckCatalog.preset_guidance(preset_id)
+	var guidance := _preset_guidance_view(preset)
 	text.add_child(UiTheme.clip_label(
 		String(guidance.get("tag", "")),
 		12,
 		UiTheme.C_GOLD if selected else UiTheme.C_PAPER
 	))
 	text.add_child(UiTheme.clip_label(
-		_preset_cost_summary(preset),
-		11,
-		UiTheme.C_PAPER
-	))
-	text.add_child(UiTheme.clip_label(
-		String(guidance.get("when", preset.get("description_zh", ""))),
+		String(guidance.get("when", "")),
 		11,
 		UiTheme.C_MUTED
 	))
 	text.add_child(UiTheme.clip_label(
-		"可直接确认出战"
-			if bool(preset.get("legal", false))
-			else ("含尚未解锁序列的卡牌，载入后需替换"
-				if String(preset.get("reason_code", "")) == "sequence_locked"
-				else "载入后需补齐收藏卡或换回可用预设"),
+		_preset_cost_summary(preset),
 		10,
-		UiTheme.C_GOLD if bool(preset.get("legal", false)) else UiTheme.C_DANGER_TEXT
+		UiTheme.C_PAPER_DEEP
 	))
+	var legal := bool(preset.get("legal", false))
+	var legal_hint := "可出战" if legal else (
+		"含未解锁序列卡" if String(preset.get("reason_code", "")) == "sequence_locked" else "需补齐收藏"
+	)
+	text.add_child(UiTheme.clip_label(
+		legal_hint,
+		10,
+		UiTheme.C_GOLD if legal else UiTheme.C_DANGER_TEXT
+	))
+	panel.tooltip_text = "适合：%s\n慎用：%s" % [
+		String(guidance.get("best_against", "")),
+		String(guidance.get("caution", "")),
+	]
+	panel.mouse_filter = Control.MOUSE_FILTER_PASS
+	panel.set_meta("preset_id", preset_id)
+	panel.set_meta("guidance_tag", String(guidance.get("tag", "")))
+	panel.set_meta("guidance_best_against", String(guidance.get("best_against", "")))
+	panel.set_meta("guidance_caution", String(guidance.get("caution", "")))
+	panel.set_meta("guidance_combo", String(guidance.get("when", "")))
 	var load_button := UiTheme.button(
 		"已载入" if selected else "载入此组",
 		func() -> void: request_select_preset(preset_id),
@@ -468,6 +480,50 @@ func _build_preset(preset: Dictionary) -> Control:
 	row.add_child(save_button)
 	_action_buttons.append(save_button)
 	return panel
+
+
+func _preset_guidance_view(preset: Dictionary) -> Dictionary:
+	## Snapshot fields from data/decks are the single source; catalog is fallback only.
+	var fallback: Dictionary = DeckCatalog.preset_guidance(String(preset.get("id", "")))
+	return {
+		"tag": _first_non_empty([
+			preset.get("strategy_tag_zh", ""),
+			fallback.get("tag", ""),
+		]),
+		"when": _first_non_empty([
+			preset.get("combo_focus_zh", ""),
+			fallback.get("when", ""),
+			preset.get("description_zh", ""),
+		]),
+		"best_against": _first_non_empty([
+			preset.get("best_against_zh", ""),
+			fallback.get("best_against", ""),
+		]),
+		"caution": _first_non_empty([
+			preset.get("caution_zh", ""),
+			fallback.get("caution", ""),
+		]),
+	}
+
+
+func _first_non_empty(values: Array) -> String:
+	for value in values:
+		var text := String(value).strip_edges()
+		if not text.is_empty():
+			return text
+	return ""
+
+
+func get_preset_guidance(preset_id: String) -> Dictionary:
+	for child in _preset_row.get_children():
+		if child.has_meta("preset_id") and String(child.get_meta("preset_id")) == preset_id:
+			return {
+				"tag": String(child.get_meta("guidance_tag")),
+				"when": String(child.get_meta("guidance_combo")),
+				"best_against": String(child.get_meta("guidance_best_against")),
+				"caution": String(child.get_meta("guidance_caution")),
+			}
+	return {}
 
 
 func _preset_cost_summary(preset: Dictionary) -> String:
@@ -706,8 +762,10 @@ func _refresh_buttons() -> void:
 			button.disabled = _busy or not legal
 		else:
 			button.disabled = _busy or not bool(button.get_meta("action_enabled", true))
-	if is_instance_valid(_filter_option):
-		_filter_option.disabled = _busy
+	if is_instance_valid(_filter_tabs) and _filter_tabs.has_meta("tab_buttons"):
+		for button_value in _filter_tabs.get_meta("tab_buttons"):
+			if button_value is Button:
+				(button_value as Button).disabled = _busy
 
 
 func _show_empty() -> void:

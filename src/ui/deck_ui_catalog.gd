@@ -28,22 +28,31 @@ const PRESET_NAMES := {
 	"deck.preset.echo": "值夜者小队",
 }
 
+## Fallback only. Authoritative guidance lives in data/decks and deck snapshots.
 const PRESET_GUIDANCE := {
 	"deck.preset.ward": {
 		"tag": "稳守 / 射击",
 		"when": "入职时的标准配置：先用灵视看清意图，再用左轮与猎魔子弹处理。",
+		"best_against": "前半普通战。",
+		"caution": "高压首领缺少封印物爆发。",
 	},
 	"deck.preset.oracle": {
 		"tag": "仪式 / 兑现",
 		"when": "先用灵性之墙、银质匕首叠满仪式准备，再一次打出驱邪仪式。",
+		"best_against": "灵体与不死目标。",
+		"caution": "叠不起仪式时输出断档。",
 	},
 	"deck.preset.burst": {
 		"tag": "控制 / 联动",
 		"when": "2-049 束缚后接左轮，触发原著联动“提利尔仓库”。",
+		"best_against": "需要先束缚的精英。",
+		"caution": "单场一次封印物打错目标会失去联动。",
 	},
 	"deck.preset.echo": {
 		"tag": "队友 / 封印物",
 		"when": "邓恩与伦纳德稳住战线；圣赛琳娜骨灰 + 阳炎符咒触发“守护者”。",
+		"best_against": "老尼尔、梅高欧丝等首领。",
+		"caution": "高费卡多，须为守护者联动留费。",
 	},
 }
 

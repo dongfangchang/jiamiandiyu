@@ -17,7 +17,9 @@ var _pity_label: Label
 var _cost_label: Label
 var _guidance_label: Label
 var _history_label: Label
-var _history_option: OptionButton
+var _history_list: VBoxContainer
+var _history_scroll: ScrollContainer
+var _history_entries: Array = []
 var _status_label: Label
 var _single_button: Button
 var _triple_button: Button
@@ -145,7 +147,7 @@ func get_detail_text() -> String:
 
 
 func get_history_count() -> int:
-	return _history_option.item_count - 1 if is_instance_valid(_history_option) and _history_option.item_count > 0 else 0
+	return _history_entries.size()
 
 
 func _build() -> void:
@@ -213,16 +215,15 @@ func _build_bottom_controls() -> VBoxContainer:
 	guidance_box.name = "GachaGuidanceBox"
 	_guidance_label = UiTheme.fixed_text_label(guidance_box)
 	content.add_child(guidance_box)
-	_history_label = UiTheme.label("抽卡记录：暂无", 12, UiTheme.C_PAPER_DEEP)
-	_history_label.clip_text = true
-	_history_label.tooltip_text = "最近一次祈愿的结算记录"
+	_history_label = UiTheme.clip_label("卷宗记录：暂无", 12, UiTheme.C_PAPER_DEEP)
+	_history_label.tooltip_text = "点选下方蜡封条查看某次祈愿摘要"
 	content.add_child(_history_label)
-	_history_option = OptionButton.new()
-	_history_option.name = "GachaHistoryDropdown"
-	_history_option.custom_minimum_size = Vector2(240, 34)
-	_history_option.text = "抽卡记录（0）"
-	_history_option.item_selected.connect(_on_history_selected)
-	content.add_child(_history_option)
+	_history_list = VBoxContainer.new()
+	_history_list.name = "GachaHistoryList"
+	_history_list.add_theme_constant_override("separation", 4)
+	_history_scroll = UiTheme.fixed_scroll(_history_list, 72)
+	_history_scroll.name = "GachaHistoryScroll"
+	content.add_child(_history_scroll)
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	content.add_child(_status_label)
 	var row := HBoxContainer.new()
@@ -272,26 +273,35 @@ func _render_results(results_value: Variant) -> void:
 
 
 func _update_history_dropdown(history_value: Variant) -> void:
-	if not is_instance_valid(_history_option):
+	if not is_instance_valid(_history_list):
 		return
-	_history_option.clear()
-	_history_option.add_item("抽卡记录（%d 次）" % (history_value.size() if history_value is Array else 0))
-	_history_option.set_item_disabled(0, true)
+	for child in _history_list.get_children():
+		child.free()
+	_history_entries.clear()
 	var history: Array = history_value if history_value is Array else []
+	if history.is_empty():
+		UiTheme.set_clip_text(_history_label, "卷宗记录：暂无")
+		return
+	UiTheme.set_clip_text(_history_label, "卷宗记录 %d 次 · 点选蜡封条查阅" % history.size())
 	for index in range(history.size()):
 		if not history[index] is Dictionary:
 			continue
-		var entry: Dictionary = history[index]
+		var entry: Dictionary = history[index].duplicate(true)
+		_history_entries.append(entry)
 		var results: Array = entry.get("results", [])
-		_history_option.add_item("第 %d 次 · %d 张 · %s" % [
-			int(entry.get("draw_index", index + 1)),
-			int(entry.get("pull_count", results.size())),
-			_history_summary(results),
-		])
-		_history_option.set_item_metadata(_history_option.item_count - 1, entry.duplicate(true))
-	_history_option.select(0)
-	_history_option.disabled = history.is_empty()
-	_history_label.text = "抽卡记录：暂无" if history.is_empty() else "抽卡记录已保存，可从下拉框查看"
+		var captured := _history_entries.size() - 1
+		var seal := UiTheme.seal_button(
+			"第 %d 次 · %d 张" % [
+				int(entry.get("draw_index", index + 1)),
+				int(entry.get("pull_count", results.size())),
+			],
+			func() -> void: _on_history_selected(captured),
+			false,
+			140.0
+		)
+		seal.tooltip_text = _history_summary(results)
+		seal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_history_list.add_child(seal)
 
 
 func _history_summary(results: Array) -> String:
@@ -303,12 +313,15 @@ func _history_summary(results: Array) -> String:
 
 
 func _on_history_selected(index: int) -> void:
-	if not is_instance_valid(_history_option) or index <= 0:
+	if index < 0 or index >= _history_entries.size():
 		return
-	var entry: Variant = _history_option.get_item_metadata(index)
+	var entry: Variant = _history_entries[index]
 	if entry is Dictionary:
 		var results: Array = entry.get("results", [])
-		_history_label.text = "第 %d 次：%s" % [int(entry.get("draw_index", index)), _history_summary(results)]
+		UiTheme.set_clip_text(
+			_history_label,
+			"第 %d 次：%s" % [int(entry.get("draw_index", index + 1)), _history_summary(results)]
+		)
 
 
 func _show_empty_results() -> void:
@@ -458,7 +471,7 @@ func _gacha_guidance(rarity_weights: Dictionary, rare_pity: int) -> String:
 	var rare_weight_text := str(rare_weight)
 	if rare_weight is float and is_equal_approx(float(rare_weight), round(float(rare_weight))):
 		rare_weight_text = str(int(rare_weight))
-	return "抽取说明：稀有回响权重 %s · 保底上限 %d 次" % [rare_weight_text, rare_pity]
+	return "稀有权重 %s · 保底 %d" % [rare_weight_text, rare_pity]
 
 
 func _refresh_buttons() -> void:

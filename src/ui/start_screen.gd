@@ -32,8 +32,8 @@ var _tutorial_overlay: Control
 var _feedback_overlay: Control
 var _feedback_status: Label
 var _feedback_text: TextEdit
-var _feedback_stage: OptionButton
-var _feedback_pacing: OptionButton
+var _feedback_stage_index := 0
+var _feedback_pacing_index := 0
 var _feedback_stuck: CheckButton
 var _tutorial_step := 0
 var _busy := false
@@ -459,29 +459,29 @@ func _open_system_menu() -> void:
 	content.add_child(reduce_flash)
 
 	var scale_row := HBoxContainer.new()
+	scale_row.add_theme_constant_override("separation", 10)
 	content.add_child(scale_row)
 	scale_row.add_child(UiTheme.label("界面缩放", 16, UiTheme.C_TEXT))
-	var scale_option := OptionButton.new()
-	scale_option.add_item("90%")
-	scale_option.add_item("100%")
-	scale_option.add_item("110%")
 	var scale_values: Array[float] = [0.9, 1.0, 1.1]
 	var current_scale := float(_preferences.get("ui_scale", 1.0))
-	scale_option.select(_nearest_index(scale_values, current_scale))
-	scale_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scale_option.item_selected.connect(func(index: int) -> void:
-		_preferences["ui_scale"] = scale_values[clampi(index, 0, 2)]
-		preferences_changed.emit(_preferences.duplicate(true))
+	var scale_tabs := UiTheme.archive_tab_row(
+		["90%", "100%", "110%"],
+		_nearest_index(scale_values, current_scale),
+		func(index: int) -> void:
+			_preferences["ui_scale"] = scale_values[clampi(index, 0, 2)]
+			preferences_changed.emit(_preferences.duplicate(true)),
+		72.0
 	)
-	scale_row.add_child(scale_option)
+	scale_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_row.add_child(scale_tabs)
 
-	content.add_child(UiTheme.wrapped_label(
-		"操作：鼠标选择手牌与目标；Esc 取消当前选择。"
-		+ "\n检查点：仅在节点或战斗结算后保存，战斗中退出会回到最近检查点。"
-		+ "\n存档位置：Godot 的 user://saves；设置与引导状态保存在 user://preferences.json。",
-		14,
+	var help := UiTheme.clip_label(
+		"鼠标选牌与目标 · Esc 取消 · 节点/战后存档",
+		13,
 		UiTheme.C_MUTED
-	))
+	)
+	help.tooltip_text = "检查点仅在节点或战斗结算后保存；战斗中退出回到最近检查点。存档位于 user://saves，设置在 user://preferences.json。"
+	content.add_child(help)
 	content.add_child(UiTheme.button(
 		"重新查看新手引导",
 		_open_tutorial,
@@ -530,32 +530,35 @@ func _open_feedback_form() -> void:
 	center.add_child(panel)
 	content.add_theme_constant_override("separation", 12)
 	content.add_child(UiTheme.label("记录试玩反馈", 28, UiTheme.C_TEXT))
-	content.add_child(UiTheme.wrapped_label(
-		"反馈只保存在本机。不会上传文本、输入记录或系统信息。",
+	content.add_child(UiTheme.clip_label(
+		"仅保存在本机，不上传",
 		13,
 		UiTheme.C_MUTED
 	))
 	var text := TextEdit.new()
-	text.custom_minimum_size = Vector2(0, 190)
+	text.custom_minimum_size = Vector2(0, 160)
 	text.placeholder_text = "哪里有趣、哪里卡住、节奏是否合适……"
 	text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	content.add_child(text)
 	_feedback_text = text
-	var options := HBoxContainer.new()
-	options.add_theme_constant_override("separation", 12)
-	content.add_child(options)
-	var stage := OptionButton.new()
-	for label in ["整体", "牌组", "战斗", "抽卡与升级", "路线与仪式", "挑战"]:
-		stage.add_item(label)
-	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	options.add_child(stage)
-	_feedback_stage = stage
-	var pacing := OptionButton.new()
-	for label in ["节奏合适", "节奏偏快", "节奏偏慢"]:
-		pacing.add_item(label)
-	pacing.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	options.add_child(pacing)
-	_feedback_pacing = pacing
+	_feedback_stage_index = 0
+	_feedback_pacing_index = 0
+	content.add_child(UiTheme.clip_label("反馈范围", 12, UiTheme.C_GOLD))
+	content.add_child(UiTheme.archive_tab_row(
+		["整体", "牌组", "战斗", "成长", "路线", "挑战"],
+		_feedback_stage_index,
+		func(index: int) -> void:
+			_feedback_stage_index = index,
+		78.0
+	))
+	content.add_child(UiTheme.clip_label("节奏感受", 12, UiTheme.C_GOLD))
+	content.add_child(UiTheme.archive_tab_row(
+		["合适", "偏快", "偏慢"],
+		_feedback_pacing_index,
+		func(index: int) -> void:
+			_feedback_pacing_index = index,
+		88.0
+	))
 	var stuck := CheckButton.new()
 	stuck.text = "当前有卡住或无法继续"
 	content.add_child(stuck)
@@ -585,9 +588,9 @@ func _submit_feedback() -> void:
 		return
 	var feedback := {
 		"text": _feedback_text.text,
-		"stage": _feedback_stage_id(_feedback_stage.selected),
-		"stuck": _feedback_stuck.button_pressed,
-		"pacing": _feedback_pacing_id(_feedback_pacing.selected),
+		"stage": _feedback_stage_id(_feedback_stage_index),
+		"stuck": _feedback_stuck.button_pressed if is_instance_valid(_feedback_stuck) else false,
+		"pacing": _feedback_pacing_id(_feedback_pacing_index),
 	}
 	if String(feedback.text).strip_edges().is_empty():
 		_feedback_status.text = "请先写下一句反馈。"
@@ -605,9 +608,9 @@ func _close_feedback_form() -> void:
 		_feedback_overlay = null
 	_feedback_status = null
 	_feedback_text = null
-	_feedback_stage = null
-	_feedback_pacing = null
 	_feedback_stuck = null
+	_feedback_stage_index = 0
+	_feedback_pacing_index = 0
 
 
 func show_feedback_save_state(success: bool, message: String) -> void:

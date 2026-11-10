@@ -174,6 +174,18 @@ func get_snapshot() -> DeckSnapshot:
 			"description_zh": String(
 				preset_content.get("description_zh", "")
 			),
+			"strategy_tag_zh": String(
+				preset_content.get("strategy_tag_zh", "")
+			),
+			"best_against_zh": String(
+				preset_content.get("best_against_zh", "")
+			),
+			"caution_zh": String(
+				preset_content.get("caution_zh", "")
+			),
+			"combo_focus_zh": String(
+				preset_content.get("combo_focus_zh", "")
+			),
 			"card_definition_ids": preset_ids,
 			"legal": preset_reason == REASON_PLAYABLE,
 			"reason_code": String(preset_reason),

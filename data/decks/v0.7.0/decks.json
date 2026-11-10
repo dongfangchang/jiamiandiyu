@@ -50,6 +50,10 @@
       "id": "deck.preset.ward",
       "display_name_zh": "值夜者制式装备",
       "description_zh": "入职时领取的左轮、猎魔子弹与基础占卜：先看清意图，再开枪。",
+      "strategy_tag_zh": "稳守 / 射击",
+      "best_against_zh": "密修会成员、绑匪等前半普通战；需要稳定输出与意图可读性时。",
+      "caution_zh": "面对梅高欧丝等高压首领时，缺少高费封印物爆发，应改用值夜者小队或提利尔仓库。",
+      "combo_focus_zh": "灵视看清意图后，用左轮 / 猎魔子弹处理。",
       "card_definition_ids": [
         "card.skill.ink_dart",
         "card.skill.piercing_omen",
@@ -65,6 +69,10 @@
       "id": "deck.preset.oracle",
       "display_name_zh": "仪式魔法",
       "description_zh": "灵性之墙与银质匕首叠起仪式准备，再以驱邪仪式一次性兑现。",
+      "strategy_tag_zh": "仪式 / 兑现",
+      "best_against_zh": "附身恶灵、骑士怨魂等灵体 / 不死目标；需要仪式终结技的战斗。",
+      "caution_zh": "若开局就被迫硬拼、叠不起仪式准备，输出会断档；短促普通战可改用制式装备。",
+      "combo_focus_zh": "灵性之墙 / 银质匕首叠满准备后，打出驱邪仪式；可衔接伍德家驱灵联动。",
       "card_definition_ids": [
         "card.skill.paper_guard",
         "card.skill.coffin_nail",
@@ -80,6 +88,10 @@
       "id": "deck.preset.burst",
       "display_name_zh": "提利尔仓库",
       "description_zh": "用2-049让敌人动弹不得，再以左轮与猎魔子弹完成原著联动。",
+      "strategy_tag_zh": "控制 / 联动",
+      "best_against_zh": "燕尾服小丑、失控者等需要先束缚再集火的精英战。",
+      "caution_zh": "2-049 为单场一次；打错目标或过早打出会失去联动窗口。",
+      "combo_focus_zh": "2-049 束缚后接左轮 / 猎魔子弹，触发“提利尔仓库”。",
       "card_definition_ids": [
         "card.skill.severed_string",
         "card.skill.ink_dart",
@@ -95,6 +107,10 @@
       "id": "deck.preset.echo",
       "display_name_zh": "值夜者小队",
       "description_zh": "邓恩的梦魇与伦纳德的诗歌稳住战线，圣赛琳娜骨灰与阳炎符咒留给最危险的敌人。",
+      "strategy_tag_zh": "队友 / 封印物",
+      "best_against_zh": "失控的老尼尔、梅高欧丝等首领与高污染挑战；需要队友减伤与封印物终结。",
+      "caution_zh": "高费卡多，贪心乱打会断灵性；必须为“守护者”（骨灰+阳炎）留出手牌与费用。",
+      "combo_focus_zh": "邓恩梦魇 + 伦纳德诗歌稳住战线；圣赛琳娜骨灰 + 阳炎符咒触发“守护者”。",
       "card_definition_ids": [
         "card.skill.omen_chorus",
         "card.skill.whisper",

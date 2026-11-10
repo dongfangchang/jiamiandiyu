@@ -249,3 +249,92 @@ static func fixed_text_label(box: Control) -> Label:
 	if box == null or not box.has_meta("label"):
 		return null
 	return box.get_meta("label") as Label
+
+
+## ---- v0.34 archive controls (diegetic tabs / wax seals) ----
+## Replaces native OptionButton on player-facing screens. Selected seal uses
+## gold border and paper fill; idle seals stay ink-dark with hairline border.
+static func seal_button(
+	text_value: String,
+	on_pressed: Callable,
+	selected: bool = false,
+	min_width: float = 88.0
+) -> Button:
+	var result := Button.new()
+	result.text = text_value
+	result.toggle_mode = false
+	result.custom_minimum_size = Vector2(min_width, 34)
+	result.focus_mode = Control.FOCUS_ALL
+	result.add_theme_font_size_override("font_size", 13)
+	result.add_theme_color_override("font_hover_color", Color("#fff4dc"))
+	result.add_theme_color_override("font_pressed_color", Color("#fff8e8"))
+	result.add_theme_color_override("font_disabled_color", C_MUTED)
+	_apply_seal_selected(result, selected)
+	result.add_theme_stylebox_override("hover", style_box(Color("#2a261c"), C_GOLD, 1, 2))
+	result.add_theme_stylebox_override("pressed", style_box(Color("#3a2f18"), C_GOLD, 2, 2))
+	result.add_theme_stylebox_override("focus", style_box(Color(0, 0, 0, 0), Color("#f3d58a"), 2, 2))
+	result.add_theme_stylebox_override("disabled", style_box(Color("#181711"), Color("#514a3b"), 1, 2))
+	result.pressed.connect(on_pressed)
+	return result
+
+
+static func _apply_seal_selected(button: Button, selected: bool) -> void:
+	if not is_instance_valid(button):
+		return
+	button.add_theme_color_override(
+		"font_color",
+		Color("#fff8e8") if selected else C_PAPER
+	)
+	button.add_theme_stylebox_override(
+		"normal",
+		style_box(
+			Color("#3a2f18") if selected else C_SURFACE,
+			C_GOLD if selected else C_LINE,
+			2 if selected else 1,
+			2
+		)
+	)
+
+
+static func archive_tab_row(
+	labels: Array,
+	selected_index: int,
+	on_selected: Callable,
+	min_width: float = 88.0
+) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	row.set_meta("tab_buttons", [])
+	var buttons: Array = []
+	for index in range(labels.size()):
+		var label_text := String(labels[index])
+		var captured := index
+		var tab := seal_button(
+			label_text,
+			func() -> void:
+				_select_archive_tab(row, captured)
+				on_selected.call(captured),
+			index == selected_index,
+			min_width
+		)
+		tab.set_meta("tab_index", index)
+		row.add_child(tab)
+		buttons.append(tab)
+	row.set_meta("tab_buttons", buttons)
+	return row
+
+
+static func set_archive_tab_selected(row: HBoxContainer, selected_index: int) -> void:
+	_select_archive_tab(row, selected_index)
+
+
+static func _select_archive_tab(row: HBoxContainer, selected_index: int) -> void:
+	if row == null or not row.has_meta("tab_buttons"):
+		return
+	var buttons: Array = row.get_meta("tab_buttons")
+	for button_value in buttons:
+		if not button_value is Button:
+			continue
+		var button: Button = button_value
+		var index := int(button.get_meta("tab_index", -1))
+		_apply_seal_selected(button, index == selected_index)

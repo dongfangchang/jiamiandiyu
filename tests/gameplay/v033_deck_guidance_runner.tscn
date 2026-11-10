@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/gameplay/v033_deck_guidance_runner.gd" id="1"]
+
+[node name="V033DeckGuidanceRunner" type="Node"]
+script = ExtResource("1")

@@ -7,8 +7,8 @@
       "id": "enemy.candle_moth",
       "display_name_zh": "密修会成员",
       "tier": "normal",
-      "base_health": 14,
-      "base_attack": 3,
+      "base_health": 18,
+      "base_attack": 4,
       "threat": "",
       "traits": [
         "human",
@@ -27,7 +27,7 @@
           "display_name_zh": "退入阴影",
           "damage_delta": -2,
           "description_zh": "后撤并戒备，获得护盾。",
-          "block": 4
+          "block": 5
         }
       ],
       "phases": []
@@ -36,8 +36,8 @@
       "id": "enemy.tingen.kidnapper",
       "display_name_zh": "绑匪",
       "tier": "normal",
-      "base_health": 8,
-      "base_attack": 3,
+      "base_health": 12,
+      "base_attack": 4,
       "threat": "",
       "traits": [
         "human"
@@ -57,8 +57,8 @@
       "id": "enemy.mirror_hound",
       "display_name_zh": "失控的瑞尔·比伯",
       "tier": "normal",
-      "base_health": 22,
-      "base_attack": 5,
+      "base_health": 28,
+      "base_attack": 6,
       "threat": "",
       "traits": [
         "lost_control",
@@ -131,8 +131,8 @@
       "id": "enemy.weeping_tenant",
       "display_name_zh": "附身恶灵",
       "tier": "normal",
-      "base_health": 16,
-      "base_attack": 4,
+      "base_health": 20,
+      "base_attack": 5,
       "threat": "",
       "traits": [
         "spirit"

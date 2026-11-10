@@ -6,6 +6,7 @@ signal battle_finished(snapshot: BattleSnapshot)
 signal exit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
+const BattleTableFeel := preload("res://src/ui/battle_table_feel.gd")
 const BattleCommandScript := preload("res://src/core/battle_command.gd")
 const BattleCommandResultScript := preload("res://src/core/battle_command_result.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
@@ -113,7 +114,6 @@ var _cancel_button: Button
 var _end_turn_button: Button
 var _selection_label: Label
 var _selection_action_button: Button
-var _meter_value_labels: Dictionary = {}
 var _effects_layer: Control
 var _exit_button: Button
 var _exit_confirmation: ConfirmationDialog
@@ -132,10 +132,24 @@ var _intel_detail_label: Label
 var _intel_hint_label: Label
 var _synergy_list: VBoxContainer
 var _synergy_scroll: ScrollContainer
+var _aim_overlay: Control
+var _drag_ghost: PanelContainer
+var _drag_active := false
+var _drag_armed := false
+var _drag_moved := false
+var _drag_press_pos := Vector2.ZERO
+var _drag_card_id: StringName = &""
+var _drag_was_selected := false
+var _hover_card: Control
+var _synergy_hint_ids: Dictionary = {}
+var _aim_from := Vector2.ZERO
+var _aim_to := Vector2.ZERO
+var _aim_valid := false
 
-const HAND_PANEL_HEIGHT := 256
+const HAND_PANEL_HEIGHT := 278
 const HAND_CARD_SIZE := Vector2(242, 196)
-const LANE_HEIGHT := 308
+const LANE_HEIGHT := 320
+const HOVER_LIFT := -18.0
 
 
 func _ready() -> void:
@@ -214,8 +228,13 @@ func apply_command_result(result: BattleCommandResult) -> void:
 func set_pending(value: bool) -> void:
 	_pending = value
 	if _pending:
+		_cancel_drag(false)
 		UiTheme.set_clip_text(_status_label, "正在等待结算……")
 	_refresh_controls()
+
+
+func is_drag_active() -> bool:
+	return _drag_active
 
 
 func is_pending() -> bool:
@@ -299,14 +318,14 @@ func get_enemy_detail_text() -> String:
 	return _enemy_detail_dialog.dialog_text if is_instance_valid(_enemy_detail_dialog) else ""
 
 
-func select_card_instance(card_instance_id: StringName) -> void:
+func select_card_instance(card_instance_id: StringName, allow_toggle: bool = true) -> void:
 	if _pending or _snapshot == null:
 		return
 	var card := _find_hand_card(card_instance_id)
 	if card.is_empty():
 		_show_playability(BattlePlayability.new(false, BattlePlayability.CARD_NOT_IN_HAND))
 		return
-	if _selection_card_id == card_instance_id:
+	if allow_toggle and _selection_card_id == card_instance_id:
 		cancel_selection()
 		return
 	_selection_card_id = card_instance_id
@@ -314,9 +333,16 @@ func select_card_instance(card_instance_id: StringName) -> void:
 	_last_playability = null
 	selection_changed.emit(_selection_card_id, _selection_target_id)
 	if String(card.get("target_type", "none")) == "enemy":
-		UiTheme.set_clip_text(_status_label, "已选择「%s」；请选择敌方列。" % _card_name(StringName(card["definition_id"])))
+		UiTheme.set_clip_text(
+			_status_label,
+			"已选择「%s」· 拖到敌人或点选目标" % _card_name(StringName(card["definition_id"]))
+		)
 	else:
 		_query_current_playability()
+		UiTheme.set_clip_text(
+			_status_label,
+			"已选择「%s」· 拖到战场或点「打出」" % _card_name(StringName(card["definition_id"]))
+		)
 	_refresh_hand_selection()
 	_refresh_selection()
 	_refresh_controls()
@@ -333,6 +359,7 @@ func select_target(enemy_id: StringName) -> void:
 
 
 func cancel_selection() -> void:
+	_cancel_drag(false)
 	_selection_card_id = &""
 	_selection_target_id = &""
 	_last_playability = null
@@ -377,6 +404,14 @@ func _build() -> void:
 	_effects_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_effects_layer.z_index = 50
 	add_child(_effects_layer)
+
+	_aim_overlay = Control.new()
+	_aim_overlay.name = "AimOverlay"
+	_aim_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_aim_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_aim_overlay.z_index = 60
+	_aim_overlay.draw.connect(_draw_aim_overlay)
+	add_child(_aim_overlay)
 
 	_screen_scroll = ScrollContainer.new()
 	_screen_scroll.name = "BattlePageScroll"
@@ -466,13 +501,22 @@ func _build_header() -> Control:
 	_scroll_hint_label = UiTheme.clip_label("", 12, UiTheme.C_GOLD)
 	title_block.add_child(_scroll_hint_label)
 
-	_health_meter = _meter_with_value("生命", "—", UiTheme.C_TEXT, "health", 150)
+	_health_meter = BattleTableFeel.diegetic_meter(
+		"生命", "health", Color("#7a3a3a"), 150.0
+	)
 	_health_meter.tooltip_text = "护盾只保护本回合；下一回合开始时清除。"
-	_spirit_meter = _meter_with_value("灵性", "—", UiTheme.C_GOLD, "spirit")
-	_corruption_meter = _meter_with_value("污染", "—", UiTheme.C_DANGER_TEXT, "corruption")
-	_corruption_meter.tooltip_text = "污染达到上限即失败；达到惩罚线后每回合开始失去 1 点生命。"
-	_attention_meter = _meter_with_value("被注视", "—", UiTheme.C_DANGER_TEXT, "attention")
-	_attention_meter.tooltip_text = "被注视达到追猎线后，所有敌人攻击 +1；达到上限时 +2。"
+	_spirit_meter = BattleTableFeel.diegetic_meter(
+		"灵性", "spirit", Color("#b99750"), 118.0
+	)
+	_spirit_meter.tooltip_text = "烛火：打出牌消耗灵性；回合开始回复。"
+	_corruption_meter = BattleTableFeel.diegetic_meter(
+		"污染", "corruption", Color("#5a2d5e"), 118.0
+	)
+	_corruption_meter.tooltip_text = "墨渍：达到上限即失败；惩罚线后每回合失去 1 生命。"
+	_attention_meter = BattleTableFeel.diegetic_meter(
+		"被注视", "attention", Color("#8a5a28"), 118.0
+	)
+	_attention_meter.tooltip_text = "竖眼：追猎线后敌人攻击 +1；满值 +2。"
 	row.add_child(_health_meter)
 	row.add_child(_spirit_meter)
 	row.add_child(_corruption_meter)
@@ -558,24 +602,20 @@ func _build_battlefield(panel: PanelContainer) -> void:
 	column.add_child(intel_panel)
 	_intel_title_label = UiTheme.clip_label("战场情报", 16, UiTheme.C_TEXT)
 	intel.add_child(_intel_title_label)
-	_intel_detail_label = UiTheme.clip_label("未揭示的意图显示为未知；危险预感会在致命攻击前发出警告。", 13, UiTheme.C_PAPER)
+	_intel_detail_label = UiTheme.clip_label("意图未揭示 · 危险预感将标出重击", 13, UiTheme.C_PAPER)
 	intel.add_child(_intel_detail_label)
 	_intel_hint_label = UiTheme.clip_label("", 13, UiTheme.C_GOLD)
 	intel.add_child(_intel_hint_label)
 
 	_lanes_row = HBoxContainer.new()
+	_lanes_row.name = "EnemyLanesRow"
 	_lanes_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_lanes_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_lanes_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_lanes_row.add_theme_constant_override("separation", 10)
-	var enemy_scroll := ScrollContainer.new()
-	enemy_scroll.name = "EnemyStatusScroll"
-	enemy_scroll.custom_minimum_size = Vector2(0, 120)
-	enemy_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	enemy_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	enemy_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	enemy_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	enemy_scroll.add_child(_lanes_row)
-	column.add_child(enemy_scroll)
+	# At the 1600×900 reference stage, lanes sit without a nested vertical
+	# scroll so the board reads as one table. Small viewports still scroll the
+	# outer BattlePageScroll (ADR-0030 / v0.14).
+	column.add_child(_lanes_row)
 
 
 func _build_side_panel(panel: PanelContainer) -> void:
@@ -608,12 +648,12 @@ func _build_side_panel(panel: PanelContainer) -> void:
 	_cancel_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(_cancel_button)
 
-	var synergy_heading := UiTheme.clip_label("原著联动（同一回合打出所列卡牌即触发）", 13, UiTheme.C_GOLD)
-	synergy_heading.tooltip_text = "联动来自《诡秘之主》第一卷的真实战斗与经历。将鼠标停在条目上可查看原著出处与效果。"
+	var synergy_heading := UiTheme.clip_label("同回合联动", 13, UiTheme.C_GOLD)
+	synergy_heading.tooltip_text = "同一回合凑齐组合即可触发。悬停条目查看效果与出处。"
 	column.add_child(synergy_heading)
 	_synergy_list = VBoxContainer.new()
 	_synergy_list.add_theme_constant_override("separation", 3)
-	_synergy_scroll = UiTheme.fixed_scroll(_synergy_list, 116)
+	_synergy_scroll = UiTheme.fixed_scroll(_synergy_list, 88)
 	_synergy_scroll.name = "SynergyScroll"
 	column.add_child(_synergy_scroll)
 
@@ -649,7 +689,7 @@ func _build_hand_panel(panel: PanelContainer) -> void:
 	column.add_child(heading)
 	heading.add_child(UiTheme.label("手牌", 18, UiTheme.C_TEXT))
 	var tip := UiTheme.clip_label(
-		"选择手牌 → 选择目标 → 打出。金色“联动”标签表示可与其他牌触发原著联动；“单场一次”的封印物打出后移出本场。",
+		"拖到敌人/战场打出 · 点选仍可用 · 悬停放大 · 金边=联动缺口",
 		12,
 		UiTheme.C_MUTED
 	)
@@ -736,13 +776,16 @@ func _render_snapshot() -> void:
 		"font_color",
 		UiTheme.C_DANGER_TEXT if pressure > 0 else UiTheme.C_MUTED
 	)
-	_set_meter(
+	BattleTableFeel.set_diegetic_meter(
 		_health_meter,
 		"%d / %d%s" % [
 			int(player.get("hp", 0)),
 			int(player.get("max_hp", 0)),
 			"  盾%d" % int(player.get("block", 0)) if int(player.get("block", 0)) > 0 else "",
-		]
+		],
+		int(player.get("hp", 0)),
+		maxi(1, int(player.get("max_hp", 1))),
+		UiTheme.C_TEXT
 	)
 	var status_texts: Array[String] = []
 	for status_value in player.get("statuses", []):
@@ -766,18 +809,28 @@ func _render_snapshot() -> void:
 		_player_status_label,
 		"状态：" + ("、".join(status_texts) if not status_texts.is_empty() else "无持续状态")
 	)
-	_set_meter(_spirit_meter, "%d / %d" % [
+	BattleTableFeel.set_diegetic_meter(
+		_spirit_meter,
+		"%d / %d" % [int(player.get("spirit", 0)), int(player.get("max_spirit", 0))],
 		int(player.get("spirit", 0)),
-		int(player.get("max_spirit", 0)),
-	])
-	_set_meter(_corruption_meter, "%d / %d" % [
+		maxi(1, int(player.get("max_spirit", 1))),
+		UiTheme.C_GOLD
+	)
+	BattleTableFeel.set_diegetic_meter(
+		_corruption_meter,
+		"%d / %d" % [int(player.get("corruption", 0)), int(player.get("max_corruption", 0))],
 		int(player.get("corruption", 0)),
-		int(player.get("max_corruption", 0)),
-	])
-	_set_meter(_attention_meter, "%d / %d" % [
+		maxi(1, int(player.get("max_corruption", 1))),
+		UiTheme.C_DANGER_TEXT
+	)
+	BattleTableFeel.set_diegetic_meter(
+		_attention_meter,
+		"%d / %d" % [int(player.get("attention", 0)), int(player.get("max_attention", 0))],
 		int(player.get("attention", 0)),
-		int(player.get("max_attention", 0)),
-	])
+		maxi(1, int(player.get("max_attention", 1))),
+		UiTheme.C_DANGER_TEXT
+	)
+	_synergy_hint_ids = BattleTableFeel.missing_definition_ids(data.get("synergies", []))
 	_render_ritual(data.get("ritual", {}))
 	_render_risk(data.get("risk_pressure", {}))
 	_render_lanes(data.get("enemies", []))
@@ -786,6 +839,7 @@ func _render_snapshot() -> void:
 	_render_hand(data.get("hand", []))
 	_refresh_selection()
 	_refresh_controls()
+	call_deferred("_refresh_meter_fills")
 
 
 func _render_ritual(ritual_value: Variant) -> void:
@@ -857,7 +911,7 @@ func _render_intel(data: Dictionary) -> void:
 			current_phase = String(triggered[-1].get("display_name_zh", "强化"))
 			current_desc = String(triggered[-1].get("description_zh", current_desc))
 		var tier_text := "首领" if String(boss.get("tier", "")) == "boss" else "精英"
-		UiTheme.set_clip_text(_intel_title_label, "%s · %s  ·  生命 %d / %d  ·  阶段 %d / %d：%s" % [
+		UiTheme.set_clip_text(_intel_title_label, "%s · %s  %d/%d  阶段 %d/%d %s" % [
 			tier_text,
 			_enemy_display(boss),
 			int(boss.get("hp", 0)),
@@ -867,17 +921,16 @@ func _render_intel(data: Dictionary) -> void:
 			current_phase,
 		])
 		var next_phase: Dictionary = boss.get("next_phase", {})
-		var detail := current_desc
+		var detail := current_desc if not current_desc.is_empty() else _traits_text(boss.get("traits", []))
 		if not next_phase.is_empty():
 			var trigger_text := (
-				"生命 ≤ %d%%" % int(next_phase.get("at_hp_percent", 0))
+				"≤%d%%" % int(next_phase.get("at_hp_percent", 0))
 				if int(next_phase.get("at_hp_percent", -1)) > 0
-				else "第 %d 回合" % int(next_phase.get("at_round", 0))
+				else "回合%d" % int(next_phase.get("at_round", 0))
 			)
-			detail = "%s  ｜  下一阶段（%s）：%s" % [
-				current_desc if not current_desc.is_empty() else "特质：" + _traits_text(boss.get("traits", [])),
-				trigger_text,
+			detail = "下一阶段 %s（%s）" % [
 				String(next_phase.get("display_name_zh", "")),
+				trigger_text,
 			]
 		UiTheme.set_clip_text(_intel_detail_label, detail)
 		var hint := ""
@@ -885,27 +938,30 @@ func _render_intel(data: Dictionary) -> void:
 			hint = String(triggered[-1].get("counter_hint_zh", ""))
 		if hint.is_empty() and not next_phase.is_empty():
 			hint = String(next_phase.get("counter_hint_zh", ""))
-		UiTheme.set_clip_text(_intel_hint_label, ("应对：" + hint) if not hint.is_empty() else "")
+		UiTheme.set_clip_text(_intel_hint_label, hint)
+		_intel_title_label.tooltip_text = current_desc
+		_intel_detail_label.tooltip_text = current_desc
+		_intel_hint_label.tooltip_text = hint
 		_intel_title_label.add_theme_color_override("font_color", UiTheme.C_DANGER_TEXT if tier_text == "首领" else UiTheme.C_TEXT)
 		return
 	var trait_counts := {}
 	for enemy in living:
 		for trait_value in enemy.get("traits", []):
 			trait_counts[String(trait_value)] = true
-	UiTheme.set_clip_text(_intel_title_label, "战场情报  ·  第 %d 波%s  ·  存活敌人 %d" % [
+	UiTheme.set_clip_text(_intel_title_label, "第 %d 波 · 存活 %d%s" % [
 		int(data.get("current_wave", 0)) + 1,
-		("（后续 %d 波）" % int(data.get("pending_wave_count", 0))) if int(data.get("pending_wave_count", 0)) > 0 else "",
 		living.size(),
+		(" · 后继 %d" % int(data.get("pending_wave_count", 0))) if int(data.get("pending_wave_count", 0)) > 0 else "",
 	])
 	_intel_title_label.add_theme_color_override("font_color", UiTheme.C_TEXT)
-	UiTheme.set_clip_text(_intel_detail_label, "敌方特质：" + (_traits_text(trait_counts.keys()) if not trait_counts.is_empty() else "普通"))
+	UiTheme.set_clip_text(_intel_detail_label, "特质：" + (_traits_text(trait_counts.keys()) if not trait_counts.is_empty() else "普通"))
 	var advice := ""
 	if trait_counts.has("spirit") or trait_counts.has("undead"):
-		advice = "灵体/不死：驱邪仪式、银质匕首、太阳圣徽与阳炎符咒更有效。"
+		advice = "策略：仪式/净化克灵体"
 	elif trait_counts.has("filth"):
-		advice = "污秽：猎魔子弹与净化类封印物造成额外伤害。"
+		advice = "策略：猎魔子弹与净化"
 	elif trait_counts.has("lost_control"):
-		advice = "失控者：3-0611 安静发丝可以让他们安静下来。"
+		advice = "策略：安静发丝控场"
 	UiTheme.set_clip_text(_intel_hint_label, advice)
 
 
@@ -922,8 +978,8 @@ func _render_synergies(synergies_value: Variant) -> void:
 			_synergy_list.add_child(_build_synergy_row(synergy_value))
 			shown += 1
 	if shown == 0:
-		_synergy_list.add_child(UiTheme.wrapped_label(
-			"当前牌组没有可触发的原著联动。可在牌组中搭配“提利尔仓库”（2-049 + 左轮）等组合。",
+		_synergy_list.add_child(UiTheme.clip_label(
+			"牌组暂无联动组合",
 			12,
 			UiTheme.C_MUTED
 		))
@@ -936,29 +992,32 @@ func _build_synergy_row(synergy: Dictionary) -> Control:
 		if bool(value):
 			done += 1
 	var triggered := bool(synergy.get("triggered_this_turn", false))
-	var names: Array[String] = []
+	var missing: Array[String] = []
+	var index := 0
 	for group in synergy.get("requires", []):
-		var group_names: Array[String] = []
-		for card_id in group:
-			var name := _card_name_or_empty(StringName(card_id))
-			if not name.is_empty():
-				group_names.append(name)
-		names.append("/".join(group_names) if not group_names.is_empty() else "？")
+		var group_satisfied := index < satisfied.size() and bool(satisfied[index])
+		if not group_satisfied:
+			var group_names: Array[String] = []
+			for card_id in group:
+				var name := _card_name_or_empty(StringName(card_id))
+				if not name.is_empty():
+					group_names.append(name)
+			missing.append("/".join(group_names) if not group_names.is_empty() else "？")
+		index += 1
 	var color := UiTheme.C_MUTED
-	var state := "%d / %d" % [done, satisfied.size()]
+	var state := "%d/%d" % [done, satisfied.size()]
+	var face := String(synergy.get("display_name_zh", ""))
 	if triggered:
 		color = UiTheme.C_GOLD
-		state = "已触发"
+		state = "齐"
+		face = "%s · 已兑现" % face
 	elif done > 0:
 		color = UiTheme.C_PAPER
+		face = "%s · 差 %s" % [face, " + ".join(missing)]
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	row.set_meta("synergy_id", String(synergy.get("id", "")))
-	var label := UiTheme.clip_label(
-		"%s：%s" % [String(synergy.get("display_name_zh", "")), " + ".join(names)],
-		12,
-		color
-	)
+	var label := UiTheme.clip_label(face, 12, color)
 	label.tooltip_text = "%s\n效果：%s\n出处：%s" % [
 		String(synergy.get("display_name_zh", "")),
 		String(synergy.get("bonus_text_zh", "")),
@@ -966,7 +1025,7 @@ func _build_synergy_row(synergy: Dictionary) -> Control:
 	]
 	row.add_child(label)
 	var badge := UiTheme.badge(state, color, UiTheme.C_GOLD if triggered else UiTheme.C_LINE)
-	badge.custom_minimum_size = Vector2(58, 0)
+	badge.custom_minimum_size = Vector2(44, 0)
 	badge.clip_text = true
 	row.add_child(badge)
 	return row
@@ -1027,6 +1086,7 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			unknown.add_child(UiTheme.center_label("未知存在", 16, UiTheme.C_MUTED))
 			art_holder = unknown
 		art_holder.custom_minimum_size = Vector2(0, 90)
+		art_holder.name = "EnemyArtHolder"
 		column.add_child(art_holder)
 		var name_label := UiTheme.clip_label(
 			_enemy_display(enemy),
@@ -1056,19 +1116,20 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 		)
 		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		column.add_child(hp_label)
-		var intent_label := UiTheme.clip_label(_intent_text(enemy), 13, UiTheme.C_PAPER)
-		intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		column.add_child(intent_label)
 		var intent: Dictionary = enemy.get("intent", {})
 		var danger := alive and bool(intent.get("danger", false))
+		var intent_row := _build_intent_row(enemy, alive, danger)
+		column.add_child(intent_row)
 		var warn_label := UiTheme.clip_label(
-			"危险预感：灵性在警告你！" if danger else _traits_line(enemy),
+			"危险预感！" if danger else _traits_line(enemy),
 			12,
 			UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED
 		)
 		warn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		if danger:
 			warn_label.tooltip_text = "占卜家的危险预感：这次攻击可能非常致命。闪避、束缚或削弱它。"
+			if art_holder is CanvasItem:
+				(art_holder as CanvasItem).modulate = Color(1.15, 0.72, 0.72, 1.0) if alive else Color(0.42, 0.42, 0.42, 0.7)
 		column.add_child(warn_label)
 		var phase_count := int(enemy.get("triggered_phase_count", 0))
 		var pressure_bonus := int(enemy.get("pressure_bonus", 0))
@@ -1133,24 +1194,53 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 	return panel
 
 
+func _build_intent_row(enemy: Dictionary, alive: bool, danger: bool) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "IntentRow"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 6)
+	var intent: Dictionary = enemy.get("intent", {})
+	var revealed := bool(intent.get("revealed", false))
+	var visible: Dictionary = intent.get("visible_fields", {}) if revealed else {}
+	var icon_id := (
+		BattleTableFeel.intent_icon_id(String(intent.get("intent_id", "attack")), visible)
+		if revealed and alive
+		else "persona"
+	)
+	row.add_child(_status_icon(icon_id, 22))
+	var intent_label := UiTheme.clip_label(_intent_text(enemy), 13, UiTheme.C_DANGER_TEXT if danger else UiTheme.C_PAPER)
+	intent_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	intent_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row.add_child(intent_label)
+	if danger:
+		var badge := UiTheme.badge("危", UiTheme.C_DANGER_TEXT, UiTheme.C_DANGER)
+		badge.custom_minimum_size = Vector2(28, 0)
+		row.add_child(badge)
+	return row
+
+
 func _intent_text(enemy: Dictionary) -> String:
 	if int(enemy.get("hp", 0)) <= 0:
 		return "已被击败"
 	var intent: Dictionary = enemy.get("intent", {})
 	if not bool(intent.get("revealed", false)):
-		return "意图：未知（灵视或占卜可揭示）"
+		return "意图未知"
 	var visible: Dictionary = intent.get("visible_fields", {})
+	var intent_id := String(intent.get("intent_id", "attack"))
+	var kind := BattleTableFeel.intent_short_zh(intent_id, visible)
 	var name := String(visible.get("display_name_zh", ""))
-	var text := "意图：%s攻击 %d" % [
+	var text := "%s%s" % [
 		(name + " · ") if not name.is_empty() else "",
-		int(visible.get("damage", 0)),
+		kind,
 	]
+	if int(visible.get("damage", 0)) > 0:
+		text += " %d" % int(visible.get("damage", 0))
 	if int(visible.get("corruption", 0)) > 0:
-		text += " · 污染+%d" % int(visible.get("corruption", 0))
+		text += " · 污+%d" % int(visible.get("corruption", 0))
 	if int(visible.get("attention", 0)) > 0:
-		text += " · 注视+%d" % int(visible.get("attention", 0))
+		text += " · 视+%d" % int(visible.get("attention", 0))
 	if int(visible.get("block", 0)) > 0:
-		text += " · 护盾+%d" % int(visible.get("block", 0))
+		text += " · 盾+%d" % int(visible.get("block", 0))
 	return text
 
 
@@ -1254,17 +1344,27 @@ func _build_hand_card(card: Dictionary) -> Control:
 	var definition_id := StringName(card.get("definition_id", ""))
 	var detail: Dictionary = _card_details.get(String(definition_id), {}) if _card_details.get(String(definition_id), {}) is Dictionary else {}
 	var selected := instance_id == _selection_card_id
-	var border := UiTheme.C_GOLD if selected else UiTheme.C_LINE
+	var synergy_hint := _synergy_hint_ids.has(String(definition_id))
+	var border := (
+		UiTheme.C_GOLD
+		if selected or synergy_hint
+		else UiTheme.C_LINE
+	)
 	var panel := UiTheme.panel(
-		Color("#272318") if selected else Color("#1b1a15"),
+		Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15")),
 		border
 	)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.set_meta("battle_instance_id", String(instance_id))
+	panel.set_meta("battle_definition_id", String(definition_id))
+	panel.set_meta("synergy_hint", synergy_hint)
+	panel.set_meta("hover_scaled", false)
+	panel.pivot_offset = HAND_CARD_SIZE * 0.5
 	panel.custom_minimum_size = HAND_CARD_SIZE
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	panel.clip_contents = true
+	panel.z_as_relative = false
 
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 3)
@@ -1344,17 +1444,20 @@ func _build_hand_card(card: Dictionary) -> Control:
 	chip_label.name = "CardChips"
 	column.add_child(chip_label)
 	var source := String(detail.get("source_zh", ""))
-	panel.tooltip_text = "%s\n点击整张卡牌选择；再选择目标并打出%s" % [
-		effect_text,
-		"\n出处：" + source if not source.is_empty() else "",
-	]
+	var hint_bits: Array[String] = [effect_text, "拖到敌人或战场打出；点选仍可用"]
+	if synergy_hint:
+		hint_bits.append("联动缺口：打出可推进本回合原著联动")
+	if not source.is_empty():
+		hint_bits.append("出处：" + source)
+	panel.tooltip_text = "\n".join(hint_bits)
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
 	var select_button := UiTheme.button(
 		"已选择" if selected else "选择手牌",
-		select_card_instance.bind(instance_id),
+		func() -> void:
+			select_card_instance(instance_id, true),
 		not _pending
 	)
 	select_button.name = "SelectButton"
@@ -1362,6 +1465,8 @@ func _build_hand_card(card: Dictionary) -> Control:
 	select_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(select_button)
 	panel.gui_input.connect(_on_hand_card_input.bind(instance_id))
+	panel.mouse_entered.connect(_on_hand_card_hover.bind(panel, true))
+	panel.mouse_exited.connect(_on_hand_card_hover.bind(panel, false))
 	_make_card_descendants_mouse_transparent(panel, select_button)
 	return panel
 
@@ -1370,12 +1475,43 @@ func _on_hand_card_input(
 	event: InputEvent,
 	instance_id: StringName
 ) -> void:
-	if (
-		event is InputEventMouseButton
-		and event.button_index == MOUSE_BUTTON_LEFT
-		and event.pressed
-	):
-		select_card_instance(instance_id)
+	if _pending or not _is_player_action_phase():
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_drag_was_selected = _selection_card_id == instance_id
+			_drag_armed = true
+			_drag_moved = false
+			_drag_card_id = instance_id
+			_drag_press_pos = get_global_mouse_position()
+			select_card_instance(instance_id, false)
+			accept_event()
+		elif not _drag_active and _drag_armed and _drag_card_id == instance_id:
+			_drag_armed = false
+			if _drag_was_selected and not _drag_moved:
+				cancel_selection()
+			accept_event()
+
+
+func _on_hand_card_hover(panel: Control, entering: bool) -> void:
+	if not is_instance_valid(panel) or _drag_active:
+		return
+	if entering:
+		_hover_card = panel
+		_set_hand_card_hover(panel, true)
+	else:
+		if _hover_card == panel:
+			_hover_card = null
+		_set_hand_card_hover(panel, false)
+
+
+func _set_hand_card_hover(panel: Control, hovered: bool) -> void:
+	if not is_instance_valid(panel):
+		return
+	panel.z_index = 20 if hovered else 0
+	panel.scale = Vector2.ONE * (BattleTableFeel.HOVER_SCALE if hovered else 1.0)
+	panel.position.y = HOVER_LIFT if hovered else 0.0
+	panel.set_meta("hover_scaled", hovered)
 
 
 func _make_card_descendants_mouse_transparent(
@@ -1463,24 +1599,38 @@ func _refresh_target_highlights() -> void:
 		var panel := lane as PanelContainer
 		var alive := bool(panel.get_meta("battle_alive", false))
 		var highlighted := enemy_target and alive and not _pending
+		var aimed := (
+			_drag_active
+			and highlighted
+			and _aim_valid
+			and StringName(panel.get_meta("battle_actor_id", "")) == StringName(
+				_drop_target_at(get_global_mouse_position()).get("actor_id", "")
+			)
+		)
 		var border := (
-			UiTheme.C_GOLD
-			if highlighted
-			else (UiTheme.C_DANGER if alive else UiTheme.C_LINE)
+			Color("#f3d58a")
+			if aimed
+			else (
+				UiTheme.C_GOLD
+				if highlighted
+				else (UiTheme.C_DANGER if alive else UiTheme.C_LINE)
+			)
 		)
 		panel.add_theme_stylebox_override(
 			"panel",
 			UiTheme.style_box(
-				Color("#262116") if highlighted else Color("#201e18"),
+				Color("#3a2f18") if aimed else (Color("#262116") if highlighted else Color("#201e18")),
 				border,
-				2 if highlighted else 1,
+				3 if aimed else (2 if highlighted else 1),
 				8
 			)
 		)
 		var target_button := _find_named_button(panel, "TargetButton")
 		if target_button != null:
 			target_button.disabled = not highlighted
-			target_button.text = "选择目标" if highlighted else "选择此目标"
+			target_button.text = (
+				"对准中" if aimed else ("拖放/点选" if highlighted else "选择此目标")
+			)
 
 
 func _refresh_hand_selection() -> void:
@@ -1495,12 +1645,13 @@ func _refresh_hand_selection() -> void:
 			""
 		))
 		var selected := instance_id == _selection_card_id
+		var synergy_hint := bool(panel.get_meta("synergy_hint", false))
 		panel.add_theme_stylebox_override(
 			"panel",
 			UiTheme.style_box(
-				Color("#272318") if selected else Color("#1b1a15"),
-				UiTheme.C_GOLD if selected else UiTheme.C_LINE,
-				1,
+				Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15")),
+				UiTheme.C_GOLD if selected or synergy_hint else UiTheme.C_LINE,
+				2 if selected or synergy_hint else 1,
 				8
 			)
 		)
@@ -1762,34 +1913,223 @@ func _is_player_action_phase() -> bool:
 	)
 
 
-func _meter_with_value(
-	title: String,
-	value_text: String,
-	color: Color,
-	icon_id: String,
-	width: float = 112.0
-) -> VBoxContainer:
-	var result := VBoxContainer.new()
-	result.add_theme_constant_override("separation", 2)
-	result.custom_minimum_size = Vector2(width, 48)
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 5)
-	title_row.add_child(_status_icon(icon_id, 18))
-	title_row.add_child(UiTheme.label(title, 12, UiTheme.C_MUTED))
-	result.add_child(title_row)
-	var value_label := UiTheme.clip_label(value_text, 21, color)
-	value_label.name = "MeterValue"
-	result.add_child(value_label)
-	_meter_value_labels[title] = value_label
-	return result
-
-
-func _set_meter(meter: VBoxContainer, value_text: String) -> void:
-	if not is_instance_valid(meter):
+func _refresh_meter_fills() -> void:
+	if _snapshot == null:
 		return
-	var value_label := meter.get_node_or_null("MeterValue") as Label
-	if is_instance_valid(value_label):
-		UiTheme.set_clip_text(value_label, value_text)
+	var player: Dictionary = _snapshot.data.get("player", {})
+	BattleTableFeel.set_diegetic_meter(
+		_health_meter,
+		"%d / %d%s" % [
+			int(player.get("hp", 0)),
+			int(player.get("max_hp", 0)),
+			"  盾%d" % int(player.get("block", 0)) if int(player.get("block", 0)) > 0 else "",
+		],
+		int(player.get("hp", 0)),
+		maxi(1, int(player.get("max_hp", 1))),
+		UiTheme.C_TEXT
+	)
+	BattleTableFeel.set_diegetic_meter(
+		_spirit_meter,
+		"%d / %d" % [int(player.get("spirit", 0)), int(player.get("max_spirit", 0))],
+		int(player.get("spirit", 0)),
+		maxi(1, int(player.get("max_spirit", 1))),
+		UiTheme.C_GOLD
+	)
+	BattleTableFeel.set_diegetic_meter(
+		_corruption_meter,
+		"%d / %d" % [int(player.get("corruption", 0)), int(player.get("max_corruption", 0))],
+		int(player.get("corruption", 0)),
+		maxi(1, int(player.get("max_corruption", 1))),
+		UiTheme.C_DANGER_TEXT
+	)
+	BattleTableFeel.set_diegetic_meter(
+		_attention_meter,
+		"%d / %d" % [int(player.get("attention", 0)), int(player.get("max_attention", 0))],
+		int(player.get("attention", 0)),
+		maxi(1, int(player.get("max_attention", 1))),
+		UiTheme.C_DANGER_TEXT
+	)
+
+
+func _input(event: InputEvent) -> void:
+	if not _drag_armed and not _drag_active:
+		return
+	if event is InputEventMouseMotion:
+		var motion := event as InputEventMouseMotion
+		if _drag_armed and not _drag_active:
+			if _drag_press_pos.distance_to(motion.global_position) >= BattleTableFeel.DRAG_THRESHOLD_PX:
+				_start_drag(_drag_card_id)
+		if _drag_active:
+			_update_drag_aim(motion.global_position)
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton:
+		var button := event as InputEventMouseButton
+		if button.button_index == MOUSE_BUTTON_LEFT and not button.pressed:
+			if _drag_active:
+				_finish_drag(button.global_position)
+				get_viewport().set_input_as_handled()
+			_drag_armed = false
+		elif button.button_index == MOUSE_BUTTON_RIGHT and button.pressed:
+			_cancel_drag(true)
+			get_viewport().set_input_as_handled()
+
+
+func _start_drag(instance_id: StringName) -> void:
+	if _pending or instance_id.is_empty() or not _is_player_action_phase():
+		_drag_armed = false
+		return
+	var card := _find_hand_card(instance_id)
+	if card.is_empty():
+		_drag_armed = false
+		return
+	_drag_active = true
+	_drag_moved = true
+	_drag_card_id = instance_id
+	select_card_instance(instance_id, false)
+	_clear_hand_hover()
+	_spawn_drag_ghost(card)
+	_update_drag_aim(get_global_mouse_position())
+	UiTheme.set_clip_text(_status_label, "拖向目标松手打出 · 右键取消")
+
+
+func _spawn_drag_ghost(card: Dictionary) -> void:
+	_clear_drag_ghost()
+	_drag_ghost = UiTheme.panel(Color("#2a2418"), UiTheme.C_GOLD)
+	_drag_ghost.name = "DragGhost"
+	_drag_ghost.custom_minimum_size = Vector2(168, 72)
+	_drag_ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_drag_ghost.z_index = 80
+	var label := UiTheme.center_label(
+		_card_name(StringName(card.get("definition_id", ""))),
+		15,
+		UiTheme.C_TEXT
+	)
+	_drag_ghost.add_child(_pad(label, 10))
+	add_child(_drag_ghost)
+	_drag_ghost.global_position = get_global_mouse_position() - Vector2(84, 36)
+
+
+func _clear_drag_ghost() -> void:
+	if is_instance_valid(_drag_ghost):
+		_drag_ghost.queue_free()
+	_drag_ghost = null
+
+
+func _update_drag_aim(global_pos: Vector2) -> void:
+	if is_instance_valid(_drag_ghost):
+		_drag_ghost.global_position = global_pos - Vector2(84, 36)
+	var source_panel := _find_hand_panel(_drag_card_id)
+	_aim_from = (
+		source_panel.get_global_rect().get_center()
+		if is_instance_valid(source_panel)
+		else global_pos
+	)
+	var drop := _drop_target_at(global_pos)
+	_aim_to = global_pos
+	_aim_valid = bool(drop.get("valid", false))
+	if drop.has("actor_id") and not String(drop.get("actor_id", "")).is_empty():
+		var lane := _find_lane_panel(StringName(drop.get("actor_id", "")))
+		if is_instance_valid(lane):
+			_aim_to = lane.get_global_rect().get_center()
+	if is_instance_valid(_aim_overlay):
+		_aim_overlay.queue_redraw()
+	_refresh_target_highlights()
+
+
+func _finish_drag(global_pos: Vector2) -> void:
+	var drop := _drop_target_at(global_pos)
+	var card := _find_hand_card(_drag_card_id)
+	_cancel_drag(false)
+	if card.is_empty() or _pending:
+		return
+	var target_type := String(card.get("target_type", "none"))
+	if target_type == "enemy":
+		var actor_id := StringName(drop.get("actor_id", ""))
+		if actor_id.is_empty() or not bool(drop.get("valid", false)):
+			UiTheme.set_clip_text(_status_label, "未对准敌人 · 可点选目标或继续拖放")
+			return
+		select_target(actor_id)
+		play_selected()
+		return
+	if bool(drop.get("valid", false)) or drop.get("kind", "") == "board":
+		play_selected()
+	else:
+		UiTheme.set_clip_text(_status_label, "松手位置无效 · 拖到战场中央或点「打出」")
+
+
+func _cancel_drag(restore_status: bool) -> void:
+	_drag_active = false
+	_drag_armed = false
+	_drag_moved = false
+	_drag_card_id = &""
+	_aim_valid = false
+	_clear_drag_ghost()
+	if is_instance_valid(_aim_overlay):
+		_aim_overlay.queue_redraw()
+	if restore_status and is_instance_valid(_status_label):
+		UiTheme.set_clip_text(_status_label, "已取消拖放。")
+
+
+func _drop_target_at(global_pos: Vector2) -> Dictionary:
+	if not is_instance_valid(_lanes_row):
+		return {"valid": false, "kind": "none"}
+	for lane in _lanes_row.get_children():
+		if not lane is Control:
+			continue
+		var panel := lane as Control
+		if not panel.get_global_rect().has_point(global_pos):
+			continue
+		var alive := bool(panel.get_meta("battle_alive", false))
+		var actor_id := String(panel.get_meta("battle_actor_id", ""))
+		if alive and not actor_id.is_empty():
+			return {"valid": true, "kind": "enemy", "actor_id": actor_id}
+		return {"valid": false, "kind": "empty_lane"}
+	var battlefield := find_child("BattlefieldPanel", true, false) as Control
+	if is_instance_valid(battlefield) and battlefield.get_global_rect().has_point(global_pos):
+		return {"valid": true, "kind": "board"}
+	var hand := find_child("HandPanel", true, false) as Control
+	if is_instance_valid(hand) and hand.get_global_rect().has_point(global_pos):
+		return {"valid": false, "kind": "hand"}
+	return {"valid": true, "kind": "board"}
+
+
+func _find_hand_panel(instance_id: StringName) -> Control:
+	if not is_instance_valid(_hand_row):
+		return null
+	for child in _hand_row.get_children():
+		if child is Control and StringName(child.get_meta("battle_instance_id", "")) == instance_id:
+			return child as Control
+	return null
+
+
+func _find_lane_panel(actor_id: StringName) -> Control:
+	if not is_instance_valid(_lanes_row):
+		return null
+	for child in _lanes_row.get_children():
+		if child is Control and StringName(child.get_meta("battle_actor_id", "")) == actor_id:
+			return child as Control
+	return null
+
+
+func _clear_hand_hover() -> void:
+	if is_instance_valid(_hover_card):
+		_set_hand_card_hover(_hover_card, false)
+	_hover_card = null
+	if not is_instance_valid(_hand_row):
+		return
+	for child in _hand_row.get_children():
+		if child is Control and bool(child.get_meta("hover_scaled", false)):
+			_set_hand_card_hover(child as Control, false)
+
+
+func _draw_aim_overlay() -> void:
+	if not _drag_active or not is_instance_valid(_aim_overlay):
+		return
+	var local_from := _aim_overlay.get_global_transform_with_canvas().affine_inverse() * _aim_from
+	var local_to := _aim_overlay.get_global_transform_with_canvas().affine_inverse() * _aim_to
+	var color := UiTheme.C_GOLD if _aim_valid else UiTheme.C_MUTED
+	_aim_overlay.draw_line(local_from, local_to, color, 3.0, true)
+	_aim_overlay.draw_circle(local_to, 7.0, color)
 
 
 func _status_icon(icon_id: String, size: int) -> TextureRect:
