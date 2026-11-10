@@ -11,6 +11,7 @@ const REQUIRED_FIELDS := [
 	"rules_text_zh",
 	"flavor_text_zh",
 	"art_status",
+	"source_zh",
 ]
 
 var _checks := 0
@@ -48,7 +49,8 @@ func _ready() -> void:
 						String(effect_value.get("effect_id", "")) in [
 							"damage", "block", "heal", "draw", "spirit", "apply_status",
 							"remove_status", "discard", "reveal_intent", "risk",
-							"prepare_ritual",
+							"prepare_ritual", "damage_all", "reveal_all", "lose_hp",
+							"steal_attack",
 						],
 						"%s should keep a registered runtime effect" % card.get("id", "")
 					)

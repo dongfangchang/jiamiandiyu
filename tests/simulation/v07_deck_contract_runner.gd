@@ -176,11 +176,11 @@ func _test_upgrade_effect_in_battle_content() -> void:
 		&"card.skill.ink_dart"
 	)
 	_expect(
-		int(base_card["effects"][0]["amount"]) == 4,
+		int(base_card["effects"][0]["amount"]) == 5,
 		"base ink dart amount"
 	)
 	_expect(
-		int(upgraded_card["effects"][0]["amount"]) == 5,
+		int(upgraded_card["effects"][0]["amount"]) == 6,
 		"level 1 ink dart amount is one higher"
 	)
 

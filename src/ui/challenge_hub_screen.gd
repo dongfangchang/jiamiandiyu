@@ -107,7 +107,7 @@ func _build() -> void:
 	root.add_theme_constant_override("separation", 18)
 	safe.add_child(root)
 	root.add_child(UiTheme.label(
-		"镜厅档案 · 挑战",
+		"值夜者档案 · 挑战",
 		12,
 		UiTheme.C_GOLD
 	))
@@ -128,7 +128,7 @@ func _build() -> void:
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 12)
 	root.add_child(footer)
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(_status_label)
 	footer.add_child(UiTheme.button(
@@ -326,7 +326,7 @@ func _refresh_buttons() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

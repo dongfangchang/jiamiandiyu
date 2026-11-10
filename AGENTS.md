@@ -212,7 +212,7 @@ v0.13.0 已关闭所有权（保留历史）：
 - 所有角色在 `docs/reports/v0.13.0/<role>.md` 记录本版本工作。
 - 新卡必须同时具备卡牌定义、抽卡池、牌组目录、升级定义和正式卡图。
 
-v0.14.0 当前所有权：
+v0.14.0 已关闭所有权（保留历史）：
 
 - `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
 - `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
@@ -221,6 +221,21 @@ v0.14.0 当前所有权：
 - `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - 所有角色在 `docs/reports/v0.14.0/<role>.md` 记录本版本工作。
 - 战斗页在 1600×900 使用原布局；较小视口必须提供滚动降级，不能裁掉操作入口。
+
+v0.32.0 当前所有权：
+
+- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
+- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
+- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计。
+- `data/cards/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`、`data/decks/**`：玩法设计；本版本默认只读，除非试玩暴露规则语义错误。
+- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
+- `data/enemies/v0.7.0/enemies.json`：本版本临时授权数值设计为单一写入者（仅战斗数值字段）；玩法不同时修改。
+- `data/schema/**`：本地数据层；本版本默认只读。
+- `art/**`：美术；本版本不要求正式立绘交付。
+- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
+- `docs/**`、`AGENTS.md`：产品经理。
+- 所有角色在 `docs/reports/v0.32.0/<role>.md` 记录本版本工作。
+- 继承 v0.31 未推送基线；不推远程、不解冻小丑、不扩第二途径。
 
 ## 5. 协作与同步
 

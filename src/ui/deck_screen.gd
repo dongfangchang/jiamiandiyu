@@ -225,8 +225,9 @@ func _build() -> void:
 	_preset_row = HBoxContainer.new()
 	_preset_row.add_theme_constant_override("separation", 10)
 	root.add_child(_preset_row)
-	_scroll_hint_label = UiTheme.label("", 12, UiTheme.C_GOLD)
-	_scroll_hint_label.visible = false
+	# Always-reserved hint line: changing its text never moves the content.
+	_scroll_hint_label = UiTheme.clip_label("", 12, UiTheme.C_GOLD)
+	_scroll_hint_label.custom_minimum_size = Vector2(24, 18)
 	root.add_child(_scroll_hint_label)
 
 	_content_scroll = ScrollContainer.new()
@@ -285,7 +286,7 @@ func _build() -> void:
 	deck_column.add_child(UiTheme.label("当前出战牌组", 18, UiTheme.C_TEXT))
 	_deck_count_label = UiTheme.label("0 / 8", 26, UiTheme.C_GOLD)
 	deck_column.add_child(_deck_count_label)
-	_deck_state_label = UiTheme.wrapped_label("", 13, UiTheme.C_PAPER)
+	_deck_state_label = UiTheme.clip_label("", 13, UiTheme.C_PAPER)
 	deck_column.add_child(_deck_state_label)
 	_deck_list = VBoxContainer.new()
 	_deck_list.add_theme_constant_override("separation", 5)
@@ -330,9 +331,9 @@ func _build_header() -> HBoxContainer:
 func _build_footer() -> HBoxContainer:
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
-	_status_label = UiTheme.wrapped_label("", 13, UiTheme.C_MUTED)
-	_status_label.custom_minimum_size = Vector2(0, 34)
-	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_status_label = UiTheme.clip_label("", 13, UiTheme.C_MUTED)
+	_status_label.custom_minimum_size = Vector2(24, 34)
+	_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	footer.add_child(_status_label)
 	_clear_button = UiTheme.button("清空", request_clear_deck, true, 86)
 	_reset_button = UiTheme.button("恢复初始", request_reset_default, true, 118)
@@ -366,11 +367,11 @@ func _render() -> void:
 	var reason := DeckCatalog.reason_text(
 		String(_snapshot_data.get("reason_code", ""))
 	)
-	_deck_state_label.text = (
+	UiTheme.set_clip_text(_deck_state_label, (
 		"已确认 · " + reason
 		if bool(_snapshot_data.get("confirmed", false))
 		else reason
-	)
+	))
 	_deck_state_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_GOLD if legal else UiTheme.C_DANGER_TEXT
@@ -402,8 +403,9 @@ func _build_preset(preset: Dictionary) -> Control:
 		Color(0.06, 0.063, 0.051, 0.97),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(338, 112)
+	panel.custom_minimum_size = Vector2(300, 112)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.clip_contents = true
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 12)
 	pad.add_theme_constant_override("margin_top", 8)
@@ -417,28 +419,28 @@ func _build_preset(preset: Dictionary) -> Control:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text.add_theme_constant_override("separation", 1)
 	row.add_child(text)
-	text.add_child(UiTheme.label(
+	text.add_child(UiTheme.clip_label(
 		String(preset.get("display_name_zh", preset_id)),
 		16,
 		UiTheme.C_GOLD if selected else UiTheme.C_TEXT
 	))
 	var guidance: Dictionary = DeckCatalog.preset_guidance(preset_id)
-	text.add_child(UiTheme.label(
+	text.add_child(UiTheme.clip_label(
 		String(guidance.get("tag", "")),
 		12,
 		UiTheme.C_GOLD if selected else UiTheme.C_PAPER
 	))
-	text.add_child(UiTheme.label(
+	text.add_child(UiTheme.clip_label(
 		_preset_cost_summary(preset),
 		11,
 		UiTheme.C_PAPER
 	))
-	text.add_child(UiTheme.wrapped_label(
+	text.add_child(UiTheme.clip_label(
 		String(guidance.get("when", preset.get("description_zh", ""))),
 		11,
 		UiTheme.C_MUTED
 	))
-	text.add_child(UiTheme.label(
+	text.add_child(UiTheme.clip_label(
 		"可直接确认出战"
 			if bool(preset.get("legal", false))
 			else ("含尚未解锁序列的卡牌，载入后需替换"
@@ -532,16 +534,18 @@ func _build_card_tile(card: Dictionary) -> Control:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)
 	row.add_child(info)
-	info.add_child(UiTheme.label(
+	info.add_child(UiTheme.clip_label(
 		String(card.get("display_name_zh", definition_id)),
 		15,
 		UiTheme.C_TEXT if owned else UiTheme.C_MUTED
 	))
-	info.add_child(UiTheme.badge(
+	var ownership_badge := UiTheme.badge(
 		ownership_text,
 		UiTheme.C_GOLD if owned else UiTheme.C_MUTED,
 		UiTheme.C_GOLD if owned else UiTheme.C_LINE
-	))
+	)
+	ownership_badge.clip_text = true
+	info.add_child(ownership_badge)
 	var button := UiTheme.button(
 		"移出牌组" if in_deck else ("加入牌组" if can_add else ("序列未解锁" if add_reason == "sequence_locked" else "尚未拥有")),
 		func() -> void:
@@ -570,16 +574,21 @@ func _show_card_detail(card: Dictionary) -> void:
 	var definition_id := String(card.get("definition_id", ""))
 	var ownership := "已拥有" if bool(card.get("owned", false)) else "尚未拥有"
 	var placement := "已编入出战牌组" if bool(card.get("in_deck", false)) else "未编入出战牌组"
-	_card_detail_dialog.dialog_text = "【%s】\n%s · %s\n\n费用：%d 灵性\n目标：%s\n等级：%d\n\n%s" % [
+	var source := String(card.get("source_zh", ""))
+	var flavor := String(card.get("flavor_text_zh", ""))
+	_card_detail_dialog.dialog_text = "【%s】%s\n%s · %s\n\n费用：%d 灵性\n目标：%s\n等级：%d\n\n%s%s%s" % [
 		String(card.get("display_name_zh", definition_id)),
+		"（单场一次）" if bool(card.get("exhaust", false)) else "",
 		ownership,
 		placement,
 		int(card.get("cost_spirit", 0)),
 		DeckCatalog.target_text(String(card.get("target_type", ""))),
 		int(_levels.get(definition_id, 0)),
 		String(card.get("rules_text_zh", card.get("description_zh", "暂无功能说明"))),
+		("\n\n“%s”" % flavor) if not flavor.is_empty() else "",
+		("\n\n原著出处：" + source) if not source.is_empty() else "",
 	]
-	_card_detail_dialog.popup_centered(Vector2(500, 340))
+	_card_detail_dialog.popup_centered(Vector2(560, 400))
 
 
 func _render_deck() -> void:
@@ -713,8 +722,10 @@ func _refresh_scroll_hint() -> void:
 		return
 	var vertical_bar := _content_scroll.get_v_scroll_bar()
 	var overflow := vertical_bar.max_value > vertical_bar.page + 1.0
-	_scroll_hint_label.visible = overflow
-	_scroll_hint_label.text = "内容超出当前窗口 · 向下滚动查看卡牌与出战操作" if overflow else ""
+	UiTheme.set_clip_text(
+		_scroll_hint_label,
+		"内容超出当前窗口 · 向下滚动查看卡牌与出战操作" if overflow else ""
+	)
 
 
 func _selected_preset_name() -> String:
@@ -736,7 +747,7 @@ func _selected_preset_readiness() -> String:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

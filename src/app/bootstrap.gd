@@ -94,7 +94,10 @@ static func load_battle_ports(
 	var services := create_services(run_seed)
 	return InfrastructureResultScript.success({
 		"services": services,
-		"content": BattleContentAdapterScript.new(cards),
+		"content": BattleContentAdapterScript.new(
+			cards,
+			content_loaded.data.get("synergies", [])
+		),
 		"balance": BattleBalanceAdapterScript.new(balance_loaded.data),
 		"random": services.create_battle_random(random_stream_name),
 	})
@@ -154,7 +157,10 @@ static func load_campaign_ports(run_seed: int, paths: Dictionary = {}) -> Infras
 	return InfrastructureResultScript.success({
 		"services": services,
 		"catalog": catalog,
-		"content": BattleContentAdapterScript.new(cards_result.data.get("cards", [])),
+		"content": BattleContentAdapterScript.new(
+			cards_result.data.get("cards", []),
+			cards_result.data.get("synergies", [])
+		),
 		"balance": BattleBalanceAdapterScript.new(balance_result.data),
 		"random": services.create_battle_random(&"battle.shuffle"),
 	})
@@ -276,7 +282,8 @@ static func start_campaign(
 		)
 
 	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", [])
+		cards_result.data.get("cards", []),
+		cards_result.data.get("synergies", [])
 	)
 	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
 		balance_result.data
@@ -487,7 +494,8 @@ static func start_route(
 			}
 		)
 	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", [])
+		cards_result.data.get("cards", []),
+		cards_result.data.get("synergies", [])
 	)
 	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
 		balance_result.data
@@ -712,7 +720,8 @@ static func start_route_v07(
 			{"errors": route_content.validation_errors()}
 		)
 	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", [])
+		cards_result.data.get("cards", []),
+		cards_result.data.get("synergies", [])
 	)
 	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
 		balance_result.data

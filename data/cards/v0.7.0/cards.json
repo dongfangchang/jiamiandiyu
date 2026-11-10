@@ -1,40 +1,51 @@
 {
   "schema_version": 1,
   "content_version": "v0.7.0",
+  "design_note_zh": "v0.31.0 廷根原著重构：卡牌效果、代价与原著出处见 docs/design/TINGEN_CANON.md；数值预算由 tests/simulation/v031_card_value_audit_runner.gd 审计。",
   "cards": [
     {
       "id": "card.skill.ink_dart",
-      "display_name_zh": "墨刺",
-      "description_zh": "以凝成墨线的灵性刺向一个敌人。",
+      "display_name_zh": "左轮手枪",
+      "description_zh": "黑荆棘安保公司配发的制式左轮手枪。",
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
           "effect_id": "damage",
-          "amount": 4,
+          "amount": 5,
           "target": "enemy"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 3,
+          "target": "enemy",
+          "condition": {
+            "target_has_status": "bound"
+          }
         }
       ],
       "damage_types": [
-        "灵体伤害"
+        "物理伤害"
       ],
       "attack_form": "单体直伤",
       "pathway": "占卜家",
       "sequence_band": "序列9",
-      "target_layer": "灵体层",
+      "target_layer": "肉体层",
       "mechanic_tags": [
-        "灵性投射",
-        "标记触发"
+        "值夜者装备",
+        "射击"
       ],
-      "rules_text_zh": "对一个敌人造成4点灵体伤害。",
-      "flavor_text_zh": "墨线穿过纸面，先抵达的是那道看不见的轮廓。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "造成5点物理伤害；若目标处于束缚，额外造成3点。",
+      "flavor_text_zh": "值夜者配发的左轮。占卜家没有任何战斗强化，能依靠的只有扳机。",
+      "source_zh": "第一卷：克莱恩入职值夜者后领取左轮与子弹，并在高文处练习射击。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
       "id": "card.skill.paper_guard",
-      "display_name_zh": "纸符护持",
-      "description_zh": "叠起一张纸符，抵挡即将到来的伤害。",
+      "display_name_zh": "灵性之墙",
+      "description_zh": "仪式魔法的第一步：构筑灵性之墙，隔绝外界干扰。",
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "self",
@@ -42,207 +53,6 @@
         {
           "effect_id": "block",
           "amount": 5,
-          "target": "self"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "召唤物攻击",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "纸符",
-        "灵体屏障"
-      ],
-      "rules_text_zh": "获得5点护盾，直到下一回合开始。",
-      "flavor_text_zh": "纸页折成一只手，替你按住门后的低语。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.calm_breath",
-      "display_name_zh": "静息",
-      "description_zh": "让急促的呼吸恢复平稳，压住一次污染。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "heal",
-          "amount": 4,
-          "target": "self"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": -1,
-          "target": "self"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "理智",
-        "净化准备"
-      ],
-      "rules_text_zh": "恢复4点生命，并移除1点污染。",
-      "flavor_text_zh": "呼吸落回胸腔，灵魂边缘的污迹暂时退潮。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.focus",
-      "display_name_zh": "凝神",
-      "description_zh": "短暂集中精神，为接下来的牌术腾出灵性。",
-      "category": "skill",
-      "cost_spirit": 0,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "spirit",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "灵性准备",
-        "理智"
-      ],
-      "rules_text_zh": "获得1点灵性；这是本回合的灵性准备牌。",
-      "flavor_text_zh": "把散落在灵界的视线收拢成一根针。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.insight",
-      "display_name_zh": "洞察",
-      "description_zh": "从杂乱的线索中抓住下一张有用的牌。",
-      "category": "skill",
-      "cost_spirit": 0,
-      "target_type": "none",
-      "effects": [
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "占卜",
-        "信息差"
-      ],
-      "rules_text_zh": "抽1张牌。",
-      "flavor_text_zh": "答案没有出现，只是阴影先承认了它。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.omen",
-      "display_name_zh": "凶兆",
-      "description_zh": "在敌人身上留下不祥的记号，强化下一次伤害。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 2,
-          "duration": 2,
-          "max_stacks": 4,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "诅咒攻击",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "标记",
-        "厄运预示"
-      ],
-      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合；标记会在目标下一次受伤时消耗并追加伤害。",
-      "flavor_text_zh": "签文上的墨迹向下渗，像一场尚未降临的厄运。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.whisper",
-      "display_name_zh": "低语",
-      "description_zh": "让敌意短暂迟疑，削弱下一次攻击。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "apply_status",
-          "status_id": "weaken",
-          "stacks": 2,
-          "duration": 1,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "精神幻觉侵蚀",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "削弱",
-        "误导"
-      ],
-      "rules_text_zh": "使一个敌人的下一次攻击降低2点。",
-      "flavor_text_zh": "低语没有改变命运，只让命运迟疑了一拍。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.second_look",
-      "display_name_zh": "再看一眼",
-      "description_zh": "预视敌人的下一步，让隐藏的意图显露。",
-      "category": "skill",
-      "cost_spirit": 0,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "reveal_intent",
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "灵性视觉",
-        "意图揭示"
-      ],
-      "rules_text_zh": "揭示一个敌人的攻击意图。",
-      "flavor_text_zh": "第二眼看见的，往往比第一眼更接近真实。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.warding_circle",
-      "display_name_zh": "守夜圆环",
-      "description_zh": "以一圈盐与旧墨封闭立足之地，承受扑面而来的恶意。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "block",
-          "amount": 4,
           "target": "self"
         },
         {
@@ -252,63 +62,38 @@
         }
       ],
       "damage_types": [],
-      "attack_form": "召唤物攻击",
+      "attack_form": "特殊干涉",
       "pathway": "占卜家",
       "sequence_band": "序列9",
       "target_layer": "灵体层",
       "mechanic_tags": [
         "仪式",
-        "仪式准备",
-        "灵体屏障"
+        "灵性之墙"
       ],
-      "rules_text_zh": "获得4点护盾，并获得1层“仪式准备”（最多3层）。准备达到3层后，下一次施加标记时额外施加1层。",
-      "flavor_text_zh": "粉笔圈住的不是房间，而是房间里某种东西的名字。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "获得5点护盾，并获得1层仪式准备。",
+      "flavor_text_zh": "以祝圣过的银质匕首划出边界，灵性凝成看不见的墙。",
+      "source_zh": "仪式魔法：以银质匕首或圣夜粉构筑灵性之墙。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
-      "id": "card.skill.lantern_step",
-      "display_name_zh": "提灯步",
-      "description_zh": "在昏暗走廊里侧身避开攻击，同时抓住下一件证物。",
+      "id": "card.skill.calm_breath",
+      "display_name_zh": "平复灵性",
+      "description_zh": "灵视用得太久会伤及精神，需要冥想与睡眠恢复。",
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "self",
       "effects": [
         {
-          "effect_id": "block",
+          "effect_id": "heal",
           "amount": 3,
           "target": "self"
         },
         {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "空间攻击",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列9→8",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "错位",
-        "闪避"
-      ],
-      "rules_text_zh": "获得3点护盾并抽1张牌。",
-      "flavor_text_zh": "灯影挪开半步，你便从必中的位置消失。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.whispered_hunch",
-      "display_name_zh": "灵性预感",
-      "description_zh": "尚未发生的答案先一步掠过脑海。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "none",
-      "effects": [
-        {
-          "effect_id": "draw",
-          "count": 2,
-          "target": "none"
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
         }
       ],
       "damage_types": [],
@@ -317,17 +102,18 @@
       "sequence_band": "序列9",
       "target_layer": "灵魂层",
       "mechanic_tags": [
-        "预感",
-        "抽牌"
+        "冥想"
       ],
-      "rules_text_zh": "抽2张牌；这是高收益但消耗灵性的牌序选择。",
-      "flavor_text_zh": "预感敲门两次，第二次通常不是礼貌。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "恢复3点生命，并移除1点污染。",
+      "flavor_text_zh": "反复告诉灵性停下，眉心的抽痛才慢慢退去。",
+      "source_zh": "灵视注意事项：过分使用后需要睡眠恢复。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
-      "id": "card.skill.mirrored_memory",
-      "display_name_zh": "镜中记忆",
-      "description_zh": "从倒影里借来短暂的灵性，并看清一条新的线索。",
+      "id": "card.skill.focus",
+      "display_name_zh": "冥想",
+      "description_zh": "进入冥想状态整理灵性，代价是放下手头的一件事。",
       "category": "skill",
       "cost_spirit": 0,
       "target_type": "self",
@@ -335,819 +121,6 @@
         {
           "effect_id": "spirit",
           "amount": 1,
-          "target": "self"
-        },
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "历史孔隙",
-        "灵性"
-      ],
-      "rules_text_zh": "获得1点灵性并抽1张牌。",
-      "flavor_text_zh": "镜中旧事短暂复燃，留下可供借用的余温。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.fated_echo",
-      "display_name_zh": "命运回声",
-      "description_zh": "让敌人被自己的未来反复标记。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 3,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "诅咒攻击",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "命运回声",
-        "标记"
-      ],
-      "rules_text_zh": "对一个敌人施加3层“标记”，持续2回合。",
-      "flavor_text_zh": "命运的回声晚到一步，却正好落在伤口上。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.piercing_omen",
-      "display_name_zh": "穿刺凶兆",
-      "description_zh": "短促的一击沿着预视中的裂隙刺入，并留下危险记号。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 2,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 2,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [
-        "灵体伤害",
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "单体直伤 + 诅咒",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "灵界穿刺",
-        "标记"
-      ],
-      "rules_text_zh": "造成2点灵体伤害，并施加2层“标记”，持续2回合。",
-      "flavor_text_zh": "预兆先刺破灵体，厄运再沿裂口进入。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.coffin_nail",
-      "display_name_zh": "棺钉",
-      "description_zh": "把灵性凝成一枚沉重的棺钉，钉穿敌人的防线。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 6,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "damage_types": [
-        "物理伤害",
-        "灵体伤害"
-      ],
-      "attack_form": "单体直伤",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列9→8",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "精准投掷",
-        "代价"
-      ],
-      "rules_text_zh": "造成6点伤害；获得1点污染。若目标有标记，改为灵体伤害并消耗标记。",
-      "flavor_text_zh": "棺钉钉入木头，也钉住了某段不该移动的历史。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.second_sight",
-      "display_name_zh": "第二视觉",
-      "description_zh": "让另一双眼睛接过凝视，换取下一步行动与额外灵性。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "reveal_intent",
-          "target": "enemy"
-        },
-        {
-          "effect_id": "spirit",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "灵性视觉",
-        "意图揭示"
-      ],
-      "rules_text_zh": "揭示一个敌人的攻击意图，并获得1点灵性。",
-      "flavor_text_zh": "灵界的第二层薄雾被拨开，露出即将落下的手。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.dream_question",
-      "display_name_zh": "梦问",
-      "description_zh": "在短暂的梦境里先看见敌人下一步，再留下一个薄弱记号。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "reveal_intent",
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 1,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [
-        "灵魂伤害"
-      ],
-      "attack_form": "精神幻觉侵蚀",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "梦境",
-        "标记"
-      ],
-      "rules_text_zh": "揭示一个敌人的攻击意图，并施加1层“标记”，持续2回合。",
-      "flavor_text_zh": "问题进入梦里，答案醒来时已经少了一部分。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.mirror_ward",
-      "display_name_zh": "镜面替身",
-      "description_zh": "让倒影替自己承受恶意，并从旁人的注视中暂时消失。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "block",
-          "amount": 6,
-          "target": "self"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "attention",
-          "amount": -1,
-          "target": "self"
-        }
-      ],
-      "damage_types": [],
-      "attack_form": "命运干涉",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列9→8",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "反射",
-        "被注视"
-      ],
-      "rules_text_zh": "获得6点护盾并移除1点被注视；若本回合闪避过攻击，下一次护盾不被穿透。",
-      "flavor_text_zh": "镜面把注视折回去，代价是你也看见了自己。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.severed_string",
-      "display_name_zh": "断线",
-      "description_zh": "截断敌人与命运的联系，让它的下一击失去力量。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 5,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "weaken",
-          "stacks": 2,
-          "duration": 1,
-          "max_stacks": 2,
-          "target": "enemy"
-        }
-      ],
-      "damage_types": [
-        "灵体伤害"
-      ],
-      "attack_form": "灵体束缚操控",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "断线",
-        "削弱"
-      ],
-      "rules_text_zh": "造成5点灵体伤害，并使目标下一次攻击降低2点。若目标已有标记，改为束缚其行动顺序。",
-      "flavor_text_zh": "看不见的线被剪断，动作便先于意志停下。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.last_rites",
-      "display_name_zh": "临终圣礼",
-      "description_zh": "为尚未死去的自己完成一场简短的告别，换取继续调查的力气。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "heal",
-          "amount": 3,
-          "target": "self"
-        },
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "damage_types": [
-        "净化伤害"
-      ],
-      "attack_form": "净化伤害 + 特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "净化",
-        "续航"
-      ],
-      "rules_text_zh": "恢复3点生命并抽1张牌。",
-      "flavor_text_zh": "最后的祷词不负责拯救，只负责让污秽暂时闭嘴。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.ink_scarlet",
-      "display_name_zh": "猩红墨痕",
-      "description_zh": "以标记为引，刺入敌人的薄弱处。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 3,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 1,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        }
-      ],
-      "synergy_tags": [
-        "mark",
-        "payoff"
-      ],
-      "damage_types": [
-        "灵体伤害",
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "单体直伤 + DOT",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "流血墨痕",
-        "持续侵蚀"
-      ],
-      "rules_text_zh": "造成3点灵体伤害，并施加1层“标记”，持续2回合。",
-      "flavor_text_zh": "红色墨痕沿灵体的裂缝蔓延，像迟到的血。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.echo_reading",
-      "display_name_zh": "回声读本",
-      "description_zh": "从刚刚打出的灵性牌中抽取新的线索。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "none",
-      "effects": [
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "attention",
-          "amount": -1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "占卜",
-        "灵性"
-      ],
-      "rules_text_zh": "抽1张牌，并移除1点被注视。",
-      "flavor_text_zh": "回声重复的不是声音，而是你尚未作出的选择。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.veil_step",
-      "display_name_zh": "帷幕侧行",
-      "description_zh": "避开一击，并让短暂的注视落空。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "block",
-          "amount": 4,
-          "target": "self"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "attention",
-          "amount": -1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [],
-      "attack_form": "空间攻击",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "闪避",
-        "错位"
-      ],
-      "rules_text_zh": "获得4点护盾并移除1点被注视；本回合首次受击时将1点伤害转为空间偏移。",
-      "flavor_text_zh": "帷幕掠过肩头，你的影子比身体先躲开。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.severed_fate",
-      "display_name_zh": "断命线",
-      "description_zh": "切断命运联系，让下一次攻击失去锋芒。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 4,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "weaken",
-          "stacks": 1,
-          "duration": 1,
-          "max_stacks": 2,
-          "target": "enemy"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [
-        "灵体伤害"
-      ],
-      "attack_form": "命运干涉 + 单体直伤",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "命运转嫁",
-        "削弱"
-      ],
-      "rules_text_zh": "造成4点灵体伤害并使目标下一次攻击降低1点；若目标有标记，将1层标记转为你的护盾。",
-      "flavor_text_zh": "命运被剪下一角，落在谁身上只取决于手腕。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.paper_swarm",
-      "display_name_zh": "纸蝶群",
-      "description_zh": "散开的纸蝶带回一张牌，同时划伤敌人。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 2,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [
-        "物理伤害"
-      ],
-      "attack_form": "AOE范围攻击 + 召唤物",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "纸偶",
-        "范围"
-      ],
-      "rules_text_zh": "对所有敌人造成2点物理伤害，并抽1张牌；有标记的目标额外受到1点灵体伤害。",
-      "flavor_text_zh": "纸片飞成一群没有脸的观众，掌声从四面八方落下。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.midnight_ledger",
-      "display_name_zh": "午夜账本",
-      "description_zh": "记下代价，将污染压回账页。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 3,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": -1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [
-        "灵魂伤害",
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "单体直伤 + DOT",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "账目",
-        "污染转移"
-      ],
-      "rules_text_zh": "对一个敌人造成3点灵魂伤害，并移除1点污染。",
-      "flavor_text_zh": "午夜账簿记下的不是姓名，而是每一次迟疑的利息。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.borrowed_breath",
-      "display_name_zh": "借来的呼吸",
-      "description_zh": "借一口未来的气息恢复灵性与生命。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "heal",
-          "amount": 2,
-          "target": "self"
-        },
-        {
-          "effect_id": "spirit",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [],
-      "attack_form": "力量窃取（低强度）",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "借力",
-        "恢复"
-      ],
-      "rules_text_zh": "恢复2点生命并获得1点灵性。",
-      "flavor_text_zh": "借来的呼吸不属于你，却足够撑过下一句咒文。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.glass_thesis",
-      "display_name_zh": "玻璃命题",
-      "description_zh": "看穿敌人的下一步，并将答案留在手中。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "reveal_intent",
-          "target": "enemy"
-        },
-        {
-          "effect_id": "draw",
-          "count": 1,
-          "target": "none"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "推演",
-        "意图揭示"
-      ],
-      "rules_text_zh": "揭示一个敌人的攻击意图并抽1张牌。",
-      "flavor_text_zh": "玻璃上的论证只差一个裂纹，裂纹里藏着结论。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.hungry_symbol",
-      "display_name_zh": "饥饿符号",
-      "description_zh": "喂饱标记，换取更危险的洞察。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 2,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "mark",
-        "payoff"
-      ],
-      "damage_types": [
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "诅咒攻击 + 命运干涉",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "饥饿符号",
-        "代价"
-      ],
-      "rules_text_zh": "对一个敌人施加2层“标记”，持续2回合，并获得1点污染。",
-      "flavor_text_zh": "符号先吃掉一小段命运，再把空出的地方留给你。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.candle_archive",
-      "display_name_zh": "烛火档案",
-      "description_zh": "在火光里整理防线，同时翻开一张旧记录。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "block",
-          "amount": 2,
-          "target": "self"
-        },
-        {
-          "effect_id": "prepare_ritual",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [],
-      "attack_form": "召唤物攻击",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "蜡烛",
-        "灵体屏障"
-      ],
-      "rules_text_zh": "获得2点护盾，并获得1层“仪式准备”（最多3层）。",
-      "flavor_text_zh": "烛火保存一页历史，也保存一口尚未吐出的气。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.omen_chorus",
-      "display_name_zh": "凶兆合唱",
-      "description_zh": "同时留下标记与削弱，准备下一张爆发牌。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "apply_status",
-          "status_id": "mark",
-          "stacks": 1,
-          "duration": 2,
-          "max_stacks": 6,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "weaken",
-          "stacks": 1,
-          "duration": 1,
-          "max_stacks": 2,
-          "target": "enemy"
-        }
-      ],
-      "synergy_tags": [
-        "mark",
-        "payoff"
-      ],
-      "damage_types": [
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "AOE范围攻击 + 诅咒",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "群体预兆",
-        "削弱"
-      ],
-      "rules_text_zh": "对一个敌人施加1层“标记”，并使其下一次攻击降低1点。",
-      "flavor_text_zh": "众声合唱时，最轻的厄运也会变得清晰。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.mirror_shard",
-      "display_name_zh": "镜片反射",
-      "description_zh": "用倒影挡下一部分攻击，再把碎片弹回敌人。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "block",
-          "amount": 2,
-          "target": "self"
-        },
-        {
-          "effect_id": "damage",
-          "amount": 2,
-          "target": "enemy"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [
-        "灵体伤害"
-      ],
-      "attack_form": "单体直伤 + 灵体屏障",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "灵体层",
-      "mechanic_tags": [
-        "反射",
-        "精准投掷"
-      ],
-      "rules_text_zh": "获得2点护盾并对一个敌人造成2点灵体伤害；若护盾被击破，下一张牌费用降低1。",
-      "flavor_text_zh": "镜片飞出时没有方向，只有被命中的那一刻才有。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.closed_eye",
-      "display_name_zh": "闭眼预言",
-      "description_zh": "预见攻击并让敌人的锋芒暂时消退。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "reveal_intent",
-          "target": "enemy"
-        },
-        {
-          "effect_id": "apply_status",
-          "status_id": "weaken",
-          "stacks": 1,
-          "duration": 1,
-          "max_stacks": 2,
-          "target": "enemy"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [],
-      "attack_form": "精神幻觉侵蚀",
-      "pathway": "占卜家",
-      "sequence_band": "序列9",
-      "target_layer": "灵魂层",
-      "mechanic_tags": [
-        "闭眼预判",
-        "削弱"
-      ],
-      "rules_text_zh": "揭示一个敌人的攻击意图，并使其下一次攻击降低1点。",
-      "flavor_text_zh": "闭上眼，世界终于停止伪装成安全的样子。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.last_witness",
-      "display_name_zh": "最后证人",
-      "description_zh": "以一张手牌为证，换取更强的续命。",
-      "category": "skill",
-      "cost_spirit": 1,
-      "target_type": "self",
-      "effects": [
-        {
-          "effect_id": "heal",
-          "amount": 5,
           "target": "self"
         },
         {
@@ -1156,76 +129,304 @@
           "target": "none"
         }
       ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [
-        "净化伤害"
-      ],
-      "attack_form": "净化伤害 + 特殊干涉",
+      "damage_types": [],
+      "attack_form": "特殊干涉",
       "pathway": "占卜家",
       "sequence_band": "序列9",
       "target_layer": "灵魂层",
       "mechanic_tags": [
-        "见证",
-        "净化"
+        "冥想"
       ],
-      "rules_text_zh": "恢复5点生命，并弃置1张牌。",
-      "flavor_text_zh": "见证者最后留下的不是证词，而是一块干净的空白。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "获得1点灵性，然后弃置1张手牌。",
+      "flavor_text_zh": "闭眼，想象，收束注意。",
+      "source_zh": "灵视做法：在冥想状态下开启与退出灵视。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
-      "id": "card.skill.black_thread",
-      "display_name_zh": "黑线缝合",
-      "description_zh": "拆掉敌人的标记，令其无法继续借力。",
+      "id": "card.skill.insight",
+      "display_name_zh": "黄水晶灵摆",
+      "description_zh": "值夜者时期申请到的占卜道具。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 2,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜"
+      ],
+      "rules_text_zh": "抽2张牌。",
+      "flavor_text_zh": "灵摆在掌下悄然画圆，答案藏在顺逆之间。",
+      "source_zh": "克莱恩所持物品：黄水晶灵摆，值夜者时期申请的装备。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.omen",
+      "display_name_zh": "格斗训练",
+      "description_zh": "值夜者安排的格斗与射击训练。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 3,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "值夜者装备"
+      ],
+      "rules_text_zh": "获得3点护盾。",
+      "flavor_text_zh": "高文说：占卜家没有任何战斗强化，那就用汗水补。",
+      "source_zh": "第一卷 7月17日起：克莱恩每天下午接受高文的格斗训练。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.whisper",
+      "display_name_zh": "伦纳德：午夜诗人",
+      "description_zh": "伦纳德·米切尔以午夜诗人的诗歌支援。",
+      "category": "ally",
+      "cost_spirit": 2,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 3,
+          "duration": 1,
+          "target": "all_enemies",
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "block",
+          "amount": 7,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "值夜者",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "值夜者支援"
+      ],
+      "rules_text_zh": "使所有敌人下一次攻击降低3点，获得7点护盾，并移除1点被注视。",
+      "flavor_text_zh": "诗句像夜色一样落下，安抚，也让人迟疑。",
+      "source_zh": "第一卷：值夜者伦纳德·米切尔，序列8午夜诗人。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
+    },
+    {
+      "id": "card.skill.second_look",
+      "display_name_zh": "灵视",
+      "description_zh": "占卜家的基础能力：看见灵体、以太体与非凡物品的灵性光点。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          },
+          "max_stacks": 6
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "灵性视觉",
+        "意图揭示"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图（获得预见）；若目标是灵体或不死，再施加1层标记。",
+      "flavor_text_zh": "轻敲眉心两下，世界褪成以太体的颜色。",
+      "source_zh": "灵视：轻敲眉心两下开启，可看见灵体并判断对方状态。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.warding_circle",
+      "display_name_zh": "驱邪仪式",
+      "description_zh": "仪式魔法的终段：念诵尊名祈求力量，驱逐邪祟。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy",
+          "per_ritual_stack": 3
+        },
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          }
+        }
+      ],
+      "damage_types": [
+        "净化伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "仪式",
+        "驱邪"
+      ],
+      "rules_text_zh": "消耗全部仪式准备：造成4点净化伤害，每层准备额外+3；对灵体或不死目标再造成4点。",
+      "flavor_text_zh": "烛火摇曳，尊名念完，回应从冥冥中降下。",
+      "source_zh": "第一卷 7月15日：克莱恩以仪式魔法驱除附身赛琳娜·伍德的恶灵。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "consumes_ritual": true
+    },
+    {
+      "id": "card.skill.lantern_step",
+      "display_name_zh": "查尼斯门值守",
+      "description_zh": "值夜者轮值看守查尼斯门。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "block",
+          "amount": 6,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "值夜者装备"
+      ],
+      "rules_text_zh": "获得6点护盾，并移除1点被注视。",
+      "flavor_text_zh": "门后封存着太多不该醒来的东西。",
+      "source_zh": "第一卷：克莱恩多次在圣赛琳娜教堂地下的查尼斯门值夜。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.whispered_hunch",
+      "display_name_zh": "通灵",
+      "description_zh": "以通灵仪式与亡者或灵体交流。",
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
-          "effect_id": "remove_status",
-          "status_id": "mark",
-          "stacks": -1,
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 3,
+          "duration": 1,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          },
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "reveal_intent",
           "target": "enemy"
         },
         {
-          "effect_id": "damage",
-          "amount": 4,
-          "target": "enemy"
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
         }
       ],
-      "synergy_tags": [
-        "mark",
-        "payoff"
-      ],
       "damage_types": [
-        "灵体伤害",
-        "净化伤害"
+        "灵魂伤害"
       ],
-      "attack_form": "灵体束缚操控 + 单体直伤",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "灵体层",
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
       "mechanic_tags": [
-        "断线",
-        "净化"
+        "仪式",
+        "通灵"
       ],
-      "rules_text_zh": "移除目标1层标记并造成4点灵体伤害；若移除的是最后一层标记，额外造成1点净化伤害。",
-      "flavor_text_zh": "黑线收紧时，厄运失去名字，伤口却还在。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "揭示意图（获得预见）并获得1层仪式准备；若目标是灵体或不死，使其下一次攻击降低3点。",
+      "flavor_text_zh": "死者也会回答问题，只是答案未必完整。",
+      "source_zh": "第一卷：克莱恩以通灵从西里斯·阿瑞匹斯处得到小丑魔药配方，并为胡德·欧根举行通灵。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
-      "id": "card.skill.false_death",
-      "display_name_zh": "假死",
-      "description_zh": "让倒影代替自己承受代价，但引来更多注视。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "self",
+      "id": "card.skill.mirrored_memory",
+      "display_name_zh": "安提哥努斯家族笔记",
+      "description_zh": "1级封印物，记载安提哥努斯家族的遗产与愚者途径配方，会暗中侵蚀翻阅者。",
+      "category": "artifact",
+      "cost_spirit": 0,
+      "target_type": "none",
       "effects": [
         {
-          "effect_id": "block",
-          "amount": 8,
+          "effect_id": "draw",
+          "count": 3,
+          "target": "none"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": 1,
           "target": "self"
         },
         {
@@ -1235,69 +436,59 @@
           "target": "self"
         }
       ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
       "damage_types": [],
-      "attack_form": "命运干涉",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "假死",
-        "代价"
-      ],
-      "rules_text_zh": "获得8点护盾并增加1点被注视；本回合生命不会因一次攻击降至1点以下。",
-      "flavor_text_zh": "假死不是欺骗死亡，而是让死亡暂时找不到你。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.eclipse",
-      "display_name_zh": "日蚀终幕",
-      "description_zh": "在污染中击出沉重一击。",
-      "category": "skill",
-      "cost_spirit": 3,
-      "target_type": "enemy",
-      "effects": [
-        {
-          "effect_id": "damage",
-          "amount": 7,
-          "target": "enemy"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "payoff"
-      ],
-      "damage_types": [
-        "灵体伤害",
-        "腐蚀污秽伤害"
-      ],
-      "attack_form": "单体直伤 + DOT",
+      "attack_form": "特殊干涉",
       "pathway": "占卜家",
       "sequence_band": "序列9",
-      "target_layer": "灵体层",
+      "target_layer": "灵魂层",
       "mechanic_tags": [
-        "日蚀",
-        "污染代价"
+        "封印物",
+        "推演"
       ],
-      "rules_text_zh": "造成7点灵体伤害，并获得1点污染。",
-      "flavor_text_zh": "光被遮住的瞬间，灵体先承认了自己的形状。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "抽3张牌；污染+1，被注视+1。",
+      "flavor_text_zh": "每个翻阅它的人看到的内容都不一样，而它总在悄悄改变读者。",
+      "source_zh": "第一卷：原主克莱恩与韦尔奇、娜娅因这本笔记自杀，故事由此开始。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
     },
     {
-      "id": "card.skill.red_corridor",
-      "display_name_zh": "红色回廊",
-      "description_zh": "沿着标记的路径突进，并回收一点灵性。",
+      "id": "card.skill.fated_echo",
+      "display_name_zh": "塔罗占卜",
+      "description_zh": "占卜家精通的卡牌占卜。",
       "category": "skill",
-      "cost_spirit": 2,
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "reveal_all",
+          "target": "none"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜"
+      ],
+      "rules_text_zh": "揭示所有敌人的意图（获得预见），并抽1张牌。",
+      "flavor_text_zh": "牌面翻开的顺序，就是命运透露的顺序。",
+      "source_zh": "序列9占卜家：掌握占星术、卡牌占卜、灵摆、灵视等占卜手段。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.piercing_omen",
+      "display_name_zh": "猎魔子弹",
+      "description_zh": "值夜者配发的非凡子弹，专门针对污秽堕落类生物。",
+      "category": "skill",
+      "cost_spirit": 1,
       "target_type": "enemy",
       "effects": [
         {
@@ -1306,72 +497,39 @@
           "target": "enemy"
         },
         {
-          "effect_id": "spirit",
-          "amount": 1,
-          "target": "self"
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "filth",
+              "undead"
+            ]
+          }
         }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
       ],
       "damage_types": [
-        "元素灵性伤害",
-        "灵体伤害"
+        "物理伤害",
+        "净化伤害"
       ],
-      "attack_form": "空间攻击 + 单体直伤",
-      "pathway": "占卜家→小丑",
-      "sequence_band": "序列8·小丑",
-      "target_layer": "肉体层",
-      "mechanic_tags": [
-        "走位",
-        "穿刺"
-      ],
-      "rules_text_zh": "造成4点元素灵性伤害并获得1点灵性；若本回合已闪避或错位，改为灵体伤害并额外造成1点。",
-      "flavor_text_zh": "红色走廊没有尽头，只有每一步都更接近你的影子。",
-      "art_status": "card_back_fallback"
-    },
-    {
-      "id": "card.skill.sealed_answer",
-      "display_name_zh": "封存答案",
-      "description_zh": "打开封印，抽取两张牌，却让污染逼近。",
-      "category": "skill",
-      "cost_spirit": 2,
-      "target_type": "none",
-      "effects": [
-        {
-          "effect_id": "draw",
-          "count": 2,
-          "target": "none"
-        },
-        {
-          "effect_id": "risk",
-          "risk_id": "corruption",
-          "amount": 1,
-          "target": "self"
-        }
-      ],
-      "synergy_tags": [
-        "tempo",
-        "chain"
-      ],
-      "damage_types": [],
-      "attack_form": "特殊干涉",
+      "attack_form": "单体直伤",
       "pathway": "占卜家",
       "sequence_band": "序列9",
-      "target_layer": "灵魂层",
+      "target_layer": "灵体层",
       "mechanic_tags": [
-        "封存信息",
-        "代价"
+        "值夜者装备",
+        "射击"
       ],
-      "rules_text_zh": "抽2张牌，并获得1点污染。",
-      "flavor_text_zh": "答案被封在蜡里，代价是你必须先承认自己不知道。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "造成4点伤害；若目标带有污秽或不死特质，额外造成4点。",
+      "flavor_text_zh": "银白弹壳底部刻着“黑底群星红半月”的小圣徽。",
+      "source_zh": "非凡子弹：值夜者制式猎魔子弹，克莱恩入职时领取十发。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
     },
     {
-      "id": "card.skill.hollow_bell",
-      "display_name_zh": "空心钟",
-      "description_zh": "敲碎标记回声，留下稳定但不致命的伤口。",
+      "id": "card.skill.coffin_nail",
+      "display_name_zh": "银质匕首",
+      "description_zh": "既是仪式工具，也是近身时最后的依靠。",
       "category": "skill",
       "cost_spirit": 1,
       "target_type": "enemy",
@@ -1382,31 +540,1358 @@
           "target": "enemy"
         },
         {
-          "effect_id": "remove_status",
-          "status_id": "mark",
-          "stacks": -1,
-          "target": "enemy"
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 2,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          }
         }
       ],
-      "synergy_tags": [
-        "mark",
-        "payoff"
-      ],
       "damage_types": [
-        "净化伤害",
-        "灵体伤害"
+        "物理伤害",
+        "净化伤害"
       ],
-      "attack_form": "单体直伤 + 净化",
+      "attack_form": "单体直伤",
       "pathway": "占卜家",
       "sequence_band": "序列9",
       "target_layer": "灵体层",
       "mechanic_tags": [
-        "空响",
+        "仪式",
+        "近战"
+      ],
+      "rules_text_zh": "造成3点伤害并获得1层仪式准备；对灵体或不死目标额外造成2点。",
+      "flavor_text_zh": "黑夜女神对应的金属是纯银。",
+      "source_zh": "仪式魔法：祝圣过的银质匕首用于构筑灵性之墙。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.second_sight",
+      "display_name_zh": "灰雾之上",
+      "description_zh": "只有克莱恩能进入的灰雾空间，能让占卜摆脱干扰。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "reveal_all",
+          "target": "none"
+        },
+        {
+          "effect_id": "draw",
+          "count": 2,
+          "target": "none"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜",
+        "愚者"
+      ],
+      "rules_text_zh": "揭示所有敌人的意图（获得预见），抽2张牌，获得1点灵性与1层仪式准备；被注视+1。",
+      "flavor_text_zh": "古老的宫殿悬在灰雾之上，占卜在这里格外清晰。",
+      "source_zh": "第一卷：克莱恩在灰雾之上占卜，并以“愚者”之名召开塔罗会。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
+    },
+    {
+      "id": "card.skill.dream_question",
+      "display_name_zh": "梦境占卜",
+      "description_zh": "借梦境把问题交给灵性回答。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 6
+        }
+      ],
+      "damage_types": [
+        "灵魂伤害"
+      ],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜",
+        "梦境"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图（获得预见），抽1张牌，并施加1层标记。",
+      "flavor_text_zh": "在梦里看见的答案，醒来后仍残留着湿冷的触感。",
+      "source_zh": "第一卷：克莱恩多次以梦境占卜追查线索。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.mirror_ward",
+      "display_name_zh": "魔镜占卜",
+      "description_zh": "高收益但危险的占卜方式，容易招来不该来的存在。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 6
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "占卜"
+      ],
+      "rules_text_zh": "揭示一个敌人的意图（获得预见）并施加2层标记；被注视+1。",
+      "flavor_text_zh": "镜子另一侧也有东西在看你。",
+      "source_zh": "第一卷 7月15日：伍德家的魔镜占卜引来恶灵，克莱恩出手处理。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.severed_string",
+      "display_name_zh": "2-049 安提哥努斯木偶",
+      "description_zh": "2级封印物“安提哥努斯木偶”：周期性减缓附近的人，也会影响使用者。",
+      "category": "artifact",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "bound",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 2
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 6
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "sluggish",
+          "stacks": 1,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 1
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "封印物",
+        "束缚"
+      ],
+      "rules_text_zh": "单场一次。束缚目标2回合（跳过2次行动）并施加2层标记；副作用：下回合你的灵性-1。",
+      "flavor_text_zh": "画着小丑妆的木偶咧嘴笑着，周围的人一个接一个慢下来。",
+      "source_zh": "第一卷 7月12日 提利尔仓库：燕尾服小丑被2-049控制，克莱恩一枪击杀。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.last_rites",
+      "display_name_zh": "邓恩：圣赛琳娜骨灰",
+      "description_zh": "查尼斯门的核心封印，只在最危急时由队长取出。",
+      "category": "ally",
+      "cost_spirit": 2,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "bound",
+          "stacks": 2,
+          "duration": 2,
+          "target": "all_enemies",
+          "max_stacks": 2
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 2,
+          "duration": 1,
+          "target": "all_enemies",
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "值夜者",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "值夜者支援",
+        "封印物"
+      ],
+      "rules_text_zh": "单场一次。束缚所有敌人2回合（各跳过2次行动），并使其下一次攻击降低2点；被注视+1。",
+      "flavor_text_zh": "骨灰盒打开，黑暗与冰冷光滑的黑线涌出。",
+      "source_zh": "第一卷 9月9日：邓恩取出圣赛琳娜骨灰束缚梅高欧丝与她的孩子。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.ink_scarlet",
+      "display_name_zh": "2-105 血管小偷",
+      "description_zh": "2级封印物“血管小偷”：窃取目标的能力，代价是使用者的寿命。",
+      "category": "artifact",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "steal_attack",
+          "amount": 3,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "silenced",
+          "stacks": 1,
+          "duration": 3,
+          "target": "enemy",
+          "max_stacks": 3
+        },
+        {
+          "effect_id": "lose_hp",
+          "amount": 3,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "封印物",
+        "力量窃取"
+      ],
+      "rules_text_zh": "单场一次。本场永久窃取目标3点攻击，并使其3回合内无法发动诅咒；代价：失去3点生命（不会致死）。",
+      "flavor_text_zh": "一截僵硬粗大的血管，佩戴者的寿命在悄悄流走。",
+      "source_zh": "第一卷 9月9日：伦纳德以2-105窃走梅高欧丝的亵渎之言。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.echo_reading",
+      "display_name_zh": "占卜俱乐部的解读",
+      "description_zh": "在占卜俱乐部为人占卜，是消化占卜家魔药的扮演法。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "heal",
+          "amount": 3,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "扮演",
+        "占卜"
+      ],
+      "rules_text_zh": "恢复3点生命、移除1点污染并抽1张牌。是高效的扮演行为。",
+      "flavor_text_zh": "帮别人解读启示，引导他们往好的方向前行。",
+      "source_zh": "第一卷：克莱恩加入占卜俱乐部，以占卜家守则扮演消化魔药。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "acting_value": 2
+    },
+    {
+      "id": "card.skill.veil_step",
+      "display_name_zh": "身体控制与平衡",
+      "description_zh": "小丑拥有近乎非人的平衡感与身体控制。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 4,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 12
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "空间攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "小丑",
+        "身体控制"
+      ],
+      "rules_text_zh": "获得4点闪避。",
+      "flavor_text_zh": "后空翻，落地，像站在钢索上一样稳。",
+      "source_zh": "序列8小丑：除非极端情况，否则几乎不会跌倒。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.severed_fate",
+      "display_name_zh": "预判下一步",
+      "description_zh": "小丑可凭直觉预感目标的下一步行动。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "reveal_intent",
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 3,
+          "duration": 1,
+          "target": "enemy",
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "小丑",
+        "预感",
+        "意图揭示"
+      ],
+      "rules_text_zh": "揭示意图（获得预见），使其下一次攻击降低3点，并抽1张牌。",
+      "flavor_text_zh": "你知道他下一步要做什么，因为你已经在心里演过一遍。",
+      "source_zh": "序列8小丑：甚至可以依靠直觉预感出目标的下一步行动。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.paper_swarm",
+      "display_name_zh": "纸牌连掷",
+      "description_zh": "精准投掷与身体协调的组合。",
+      "category": "skill",
+      "cost_spirit": 2,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "damage_all",
+          "amount": 7
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 1,
+          "duration": 2,
+          "target": "all_enemies",
+          "max_stacks": 6
+        }
+      ],
+      "damage_types": [
+        "物理伤害"
+      ],
+      "attack_form": "AOE范围攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "小丑",
+        "飞牌"
+      ],
+      "rules_text_zh": "对所有敌人造成7点物理伤害并各施加1层标记。",
+      "flavor_text_zh": "一叠纸牌在空中散开，每一张都找到了自己的位置。",
+      "source_zh": "序列8小丑：极大提高身体协调性与投掷精准度。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
+    },
+    {
+      "id": "card.skill.midnight_ledger",
+      "display_name_zh": "老尼尔的神秘学课",
+      "description_zh": "老尼尔传授的仪式魔法与神秘学知识。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "prepare_ritual",
+          "amount": 2,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "仪式",
+        "推演"
+      ],
+      "rules_text_zh": "获得2层仪式准备并抽1张牌。",
+      "flavor_text_zh": "每天两小时，从灵性之墙讲到尊名的三段式。",
+      "source_zh": "第一卷 7月3日起：克莱恩每天跟随老尼尔学习神秘学。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.borrowed_breath",
+      "display_name_zh": "圣夜粉",
+      "description_zh": "经过祝圣的仪式辅助材料，用于加固灵性之墙。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "block",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "仪式",
+        "灵性之墙"
+      ],
+      "rules_text_zh": "获得1层仪式准备与1点护盾。",
+      "flavor_text_zh": "撒下的粉末在灵视中泛起微光。",
+      "source_zh": "仪式魔法：圣夜粉可代替银质匕首祝圣灵性之墙。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.glass_thesis",
+      "display_name_zh": "塔罗会：情报交换",
+      "description_zh": "以“愚者”身份主持塔罗会交换情报与配方。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        },
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "愚者",
+        "推演"
+      ],
+      "rules_text_zh": "抽1张牌并获得1点灵性；被注视+1。",
+      "flavor_text_zh": "正义小姐与倒吊人先生的交易，总能带来下一条线索。",
+      "source_zh": "第一卷：塔罗会由克莱恩、奥黛丽·霍尔与阿尔杰·威尔逊建立。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.hungry_symbol",
+      "display_name_zh": "3-0625 厄运布偶",
+      "description_zh": "3级封印物“厄运布偶”：给附近的人带来厄运，使用者也无法幸免。",
+      "category": "artifact",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 4,
+          "duration": 3,
+          "target": "enemy",
+          "max_stacks": 6
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 2,
+          "duration": 1,
+          "target": "enemy",
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [
+        "腐蚀污秽伤害"
+      ],
+      "attack_form": "DOT持续侵蚀",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "封印物",
+        "厄运"
+      ],
+      "rules_text_zh": "对一个敌人施加4层标记，并使其下一次攻击降低2点；被注视+1。",
+      "flavor_text_zh": "穿着旧式礼服的布偶，衣服上的污渍怎么也洗不掉。",
+      "source_zh": "第一卷 7月21日：查尼斯门后的厄运布偶向克莱恩展示了竖眼符号。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.candle_archive",
+      "display_name_zh": "以灵性点燃烛芯",
+      "description_zh": "占卜家能以灵性摩擦瞬间点燃烛芯，为仪式做准备。",
+      "category": "skill",
+      "cost_spirit": 0,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "prepare_ritual",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "heal",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "仪式"
+      ],
+      "rules_text_zh": "获得1层仪式准备并恢复1点生命。",
+      "flavor_text_zh": "摩擦灵性，烛芯无声亮起——这是占卜家最朴素的本事。",
+      "source_zh": "序列9占卜家：可用灵性瞬间点燃烛芯以便举行仪式。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.omen_chorus",
+      "display_name_zh": "邓恩：梦魇",
+      "description_zh": "邓恩·史密斯以序列7梦魇的力量把敌人拖入噩梦。",
+      "category": "ally",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "bound",
+          "stacks": 1,
+          "duration": 1,
+          "target": "enemy",
+          "max_stacks": 2
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 6
+        },
+        {
+          "effect_id": "damage",
+          "amount": 5,
+          "target": "enemy"
+        }
+      ],
+      "damage_types": [
+        "灵魂伤害"
+      ],
+      "attack_form": "特殊干涉",
+      "pathway": "值夜者",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "值夜者支援",
+        "梦境"
+      ],
+      "rules_text_zh": "使一个敌人陷入梦魇：束缚1回合（跳过下一次行动），施加2层标记并造成5点灵魂伤害。",
+      "flavor_text_zh": "队长的梦境里，没有人能按自己的意志移动。",
+      "source_zh": "第一卷：值夜者队长邓恩·史密斯，序列7梦魇。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
+    },
+    {
+      "id": "card.skill.mirror_shard",
+      "display_name_zh": "闪身反击",
+      "description_zh": "技巧型格斗大师的基本功。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 4,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 12
+        },
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy"
+        }
+      ],
+      "damage_types": [
+        "物理伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "小丑",
+        "身体控制"
+      ],
+      "rules_text_zh": "获得4点闪避，并造成4点物理伤害。",
+      "flavor_text_zh": "躲开的那一刻，反击已经出手。",
+      "source_zh": "序列8小丑：技巧型格斗大师，强化力量、敏捷与速度。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.closed_eye",
+      "display_name_zh": "危险预感",
+      "description_zh": "占卜家依靠灵性直觉察觉危险。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 6,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 12
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 3,
+          "duration": 1,
+          "target": "self",
+          "condition": {
+            "any_enemy_danger": true
+          },
+          "max_stacks": 12
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "预感"
+      ],
+      "rules_text_zh": "获得6点闪避（抵消下一次受到的攻击）；若有敌人意图危险，再+3。",
+      "flavor_text_zh": "灵性在耳边尖叫：别看！会死！",
+      "source_zh": "第一卷 9月9日：灵性警告克莱恩不要用灵视看梅高欧丝。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.last_witness",
+      "display_name_zh": "小丑的微笑",
+      "description_zh": "小丑的扮演守则：能略微预知命运，却对命运无奈，于是笑着。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -2,
+          "target": "self"
+        },
+        {
+          "effect_id": "heal",
+          "amount": 3,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "小丑",
+        "扮演"
+      ],
+      "rules_text_zh": "移除2点污染并恢复3点生命。是高效的扮演行为。",
+      "flavor_text_zh": "用笑脸遮掩所有的悲伤、痛苦、迷茫和沮丧。",
+      "source_zh": "序列8小丑扮演守则；第一卷卷名“小丑”：无力改变命运，仍笑着前行。",
+      "art_status": "card_back_fallback",
+      "rarity": "common",
+      "acting_value": 2
+    },
+    {
+      "id": "card.skill.black_thread",
+      "display_name_zh": "3-0611 安静发丝",
+      "description_zh": "3级封印物“安静发丝”：让接触者安静下来，必须戴手套使用。",
+      "category": "artifact",
+      "cost_spirit": 2,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "bound",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "max_stacks": 2
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "mark",
+          "stacks": 2,
+          "duration": 2,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "lost_control"
+            ]
+          },
+          "max_stacks": 6
+        },
+        {
+          "effect_id": "damage",
+          "amount": 10,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "lost_control"
+            ]
+          }
+        },
+        {
+          "effect_id": "discard",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "封印物",
+        "束缚"
+      ],
+      "rules_text_zh": "单场一次。束缚目标2回合；若目标是失控者，再施加2层标记并造成10点伤害；副作用：弃置1张手牌。",
+      "flavor_text_zh": "深黑长发缠成的饰品，接触者会失去一切欲望。",
+      "source_zh": "第一卷 8月29日：邓恩以3-0611控制失控的老尼尔。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.false_death",
+      "display_name_zh": "小丑的危险预感",
+      "description_zh": "小丑的危险直觉能提前避开致命攻击。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "self",
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 6,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 12
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 4,
+          "duration": 1,
+          "target": "self",
+          "condition": {
+            "any_enemy_danger": true
+          },
+          "max_stacks": 12
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "特殊干涉",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵魂层",
+      "mechanic_tags": [
+        "小丑",
+        "预感"
+      ],
+      "rules_text_zh": "获得6点闪避；若有敌人意图危险，再+4。",
+      "flavor_text_zh": "危险预感被大幅强化，甚至能隐约预知下一刻。",
+      "source_zh": "序列8小丑：危险预感得到极大强化，可依直觉预感目标的下一步行动。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    },
+    {
+      "id": "card.skill.eclipse",
+      "display_name_zh": "阳炎符咒",
+      "description_zh": "以变异太阳圣徽中的神血力量制作的高级符咒，克莱恩只做出了两枚。",
+      "category": "artifact",
+      "cost_spirit": 3,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 16,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 10,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "filth",
+              "undead",
+              "spirit"
+            ]
+          }
+        }
+      ],
+      "damage_types": [
+        "净化伤害",
+        "元素灵性伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "符咒",
         "净化"
       ],
-      "rules_text_zh": "造成3点伤害，并移除目标1层标记。",
-      "flavor_text_zh": "空钟敲响，污秽无处回声，只有灵体留下。",
-      "art_status": "card_back_fallback"
+      "rules_text_zh": "单场一次。造成16点净化伤害；对污秽、不死或灵体目标再造成10点。",
+      "flavor_text_zh": "我要光，于是就有了光。",
+      "source_zh": "第一卷 9月9日：克莱恩以阳炎符咒重创并净化梅高欧丝。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.red_corridor",
+      "display_name_zh": "3-0782 太阳圣徽",
+      "description_zh": "3级封印物“变异的太阳圣徽”：持续净化十五米内的尸体与灵体，长期使用会让人变成只会赞美太阳的傻子。",
+      "category": "artifact",
+      "cost_spirit": 2,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "damage_all",
+          "amount": 6
+        },
+        {
+          "effect_id": "damage_all",
+          "amount": 8,
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead",
+              "filth"
+            ]
+          }
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "sluggish",
+          "stacks": 1,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 1
+        }
+      ],
+      "damage_types": [
+        "净化伤害"
+      ],
+      "attack_form": "AOE范围攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列9",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "封印物",
+        "净化"
+      ],
+      "rules_text_zh": "单场一次。对所有敌人造成6点净化伤害，对灵体、不死与污秽目标再造成8点，并移除1点污染；副作用：下回合你的灵性-1。",
+      "flavor_text_zh": "暗金色的圣徽里藏着一滴永恒烈阳的神血。",
+      "source_zh": "第一卷 8月19日 拉姆德小镇：邓恩以3-0782驱散骑士怨魂。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare",
+      "exhaust": true
+    },
+    {
+      "id": "card.skill.sealed_answer",
+      "display_name_zh": "阿兹克铜哨",
+      "description_zh": "阿兹克·艾格斯赠送的铜哨，能召唤他的信使；副作用是吸引不死生物。",
+      "category": "artifact",
+      "cost_spirit": 1,
+      "target_type": "none",
+      "effects": [
+        {
+          "effect_id": "draw",
+          "count": 2,
+          "target": "none"
+        },
+        {
+          "effect_id": "block",
+          "amount": 3,
+          "target": "self"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "attention",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "damage_types": [],
+      "attack_form": "召唤物攻击",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "灵体层",
+      "mechanic_tags": [
+        "神秘物品",
+        "信使"
+      ],
+      "rules_text_zh": "抽2张牌并获得3点护盾；被注视+1（铜哨会吸引亡灵）。",
+      "flavor_text_zh": "吹响时没有声音，信使却会赶来。",
+      "source_zh": "第一卷 8月31日：克莱恩晋升小丑当天，阿兹克赠予铜哨后返回贝克兰德。",
+      "art_status": "card_back_fallback",
+      "rarity": "rare"
+    },
+    {
+      "id": "card.skill.hollow_bell",
+      "display_name_zh": "飞牌",
+      "description_zh": "小丑能让纸张变得锋利如刀刃并精准掷出。",
+      "category": "skill",
+      "cost_spirit": 1,
+      "target_type": "enemy",
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 7,
+          "target": "enemy"
+        }
+      ],
+      "damage_types": [
+        "物理伤害"
+      ],
+      "attack_form": "单体直伤",
+      "pathway": "占卜家",
+      "sequence_band": "序列8·小丑",
+      "target_layer": "肉体层",
+      "mechanic_tags": [
+        "小丑",
+        "飞牌"
+      ],
+      "rules_text_zh": "造成7点物理伤害。",
+      "flavor_text_zh": "普通的纸牌在小丑手里锋利如刀。",
+      "source_zh": "序列8小丑：飞牌，能将任意纸张掷出并使其锋利如刀。",
+      "art_status": "card_back_fallback",
+      "rarity": "common"
+    }
+  ],
+  "synergies": [
+    {
+      "id": "synergy.tyrell_warehouse",
+      "display_name_zh": "提利尔仓库",
+      "requires": [
+        [
+          "card.skill.severed_string"
+        ],
+        [
+          "card.skill.ink_dart",
+          "card.skill.piercing_omen"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 8,
+          "target": "enemy"
+        }
+      ],
+      "bonus_text_zh": "对目标追加8点伤害。",
+      "source_zh": "第一卷 7月12日 安提哥努斯笔记案：克莱恩诱使燕尾服小丑被2-049控制，随后一枪击杀。"
+    },
+    {
+      "id": "synergy.lamud_exorcism",
+      "display_name_zh": "拉姆德小镇驱邪",
+      "requires": [
+        [
+          "card.skill.red_corridor"
+        ],
+        [
+          "card.skill.second_look",
+          "card.skill.whispered_hunch"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "damage_all",
+          "amount": 4,
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          }
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "bonus_text_zh": "对所有灵体与不死目标追加4点伤害，并移除1点污染。",
+      "source_zh": "第一卷 8月19日：邓恩以3-0782驱散骑士怨魂，克莱恩以灵视辅助。"
+    },
+    {
+      "id": "synergy.old_neil_rest",
+      "display_name_zh": "可怜虫",
+      "requires": [
+        [
+          "card.skill.black_thread"
+        ],
+        [
+          "card.skill.ink_dart",
+          "card.skill.piercing_omen"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 6,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 6,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "lost_control"
+            ]
+          }
+        }
+      ],
+      "bonus_text_zh": "追加6点伤害；若目标是失控者再追加6点。",
+      "source_zh": "第一卷 8月29日：老尼尔失控，邓恩以3-0611控制后与洛耀将其击毙。“如果不能拯救她，那就去陪伴她。”"
+    },
+    {
+      "id": "synergy.guardian",
+      "display_name_zh": "守护者",
+      "requires": [
+        [
+          "card.skill.last_rites"
+        ],
+        [
+          "card.skill.eclipse"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "damage",
+          "amount": 10,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -2,
+          "target": "self"
+        }
+      ],
+      "bonus_text_zh": "对目标追加10点伤害，并移除2点污染。",
+      "source_zh": "第一卷 9月9日 邪神子嗣降临：邓恩以圣赛琳娜骨灰封住梅高欧丝，克莱恩以最后一枚阳炎符咒将其净化。“我们拯救了廷根。”"
+    },
+    {
+      "id": "synergy.blasphemy_stolen",
+      "display_name_zh": "窃走亵渎之言",
+      "requires": [
+        [
+          "card.skill.ink_scarlet"
+        ],
+        [
+          "card.skill.whisper",
+          "card.skill.omen_chorus"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "steal_attack",
+          "amount": 2,
+          "target": "enemy"
+        },
+        {
+          "effect_id": "apply_status",
+          "status_id": "silenced",
+          "stacks": 2,
+          "duration": 3,
+          "target": "enemy",
+          "max_stacks": 5
+        }
+      ],
+      "bonus_text_zh": "再窃取2点攻击，并延长失声2回合。",
+      "source_zh": "第一卷 9月9日：伦纳德以2-105窃走梅高欧丝的亵渎之言，阻止了她的诅咒。"
+    },
+    {
+      "id": "synergy.wood_exorcism",
+      "display_name_zh": "伍德家驱灵",
+      "requires": [
+        [
+          "card.skill.warding_circle"
+        ],
+        [
+          "card.skill.mirror_ward",
+          "card.skill.second_look"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "heal",
+          "amount": 4,
+          "target": "self"
+        },
+        {
+          "effect_id": "damage",
+          "amount": 4,
+          "target": "enemy",
+          "condition": {
+            "target_has_trait": [
+              "spirit",
+              "undead"
+            ]
+          }
+        }
+      ],
+      "bonus_text_zh": "恢复4点生命；若目标是灵体或不死，再追加4点伤害。",
+      "source_zh": "第一卷 7月15日：魔镜占卜招来的恶灵附身赛琳娜·伍德，克莱恩以仪式魔法将其驱除。"
+    },
+    {
+      "id": "synergy.tarot_club",
+      "display_name_zh": "愚者的聚会",
+      "requires": [
+        [
+          "card.skill.second_sight"
+        ],
+        [
+          "card.skill.glass_thesis"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "spirit",
+          "amount": 1,
+          "target": "self"
+        },
+        {
+          "effect_id": "draw",
+          "count": 1,
+          "target": "none"
+        }
+      ],
+      "bonus_text_zh": "获得1点灵性并抽1张牌。",
+      "source_zh": "第一卷 6月28日：克莱恩在灰雾之上以“愚者”身份召来正义与倒吊人，建立塔罗会。"
+    },
+    {
+      "id": "synergy.nighthawks",
+      "display_name_zh": "值夜者小队",
+      "requires": [
+        [
+          "card.skill.omen_chorus"
+        ],
+        [
+          "card.skill.whisper"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "weaken",
+          "stacks": 2,
+          "duration": 1,
+          "target": "all_enemies",
+          "max_stacks": 4
+        },
+        {
+          "effect_id": "block",
+          "amount": 4,
+          "target": "self"
+        }
+      ],
+      "bonus_text_zh": "所有敌人下一次攻击再降低2点，并获得4点护盾。",
+      "source_zh": "第一卷：廷根值夜者小队——队长邓恩·史密斯、伦纳德·米切尔与克莱恩并肩作战。"
+    },
+    {
+      "id": "synergy.clown_smile",
+      "display_name_zh": "小丑",
+      "requires": [
+        [
+          "card.skill.last_witness"
+        ],
+        [
+          "card.skill.false_death",
+          "card.skill.veil_step"
+        ]
+      ],
+      "effects": [
+        {
+          "effect_id": "apply_status",
+          "status_id": "evasion",
+          "stacks": 4,
+          "duration": 1,
+          "target": "self",
+          "max_stacks": 12
+        },
+        {
+          "effect_id": "risk",
+          "risk_id": "corruption",
+          "amount": -1,
+          "target": "self"
+        }
+      ],
+      "bonus_text_zh": "再获得4点闪避，并移除1点污染。",
+      "source_zh": "第一卷《小丑》：无力改变命运，却依然笑着面对——这便是小丑。"
     }
   ]
 }

@@ -48,62 +48,62 @@
   "presets": [
     {
       "id": "deck.preset.ward",
-      "display_name_zh": "守夜档案",
-      "description_zh": "以护盾、治疗和稳定终结牌熬过敌人的第一轮压力。",
+      "display_name_zh": "值夜者制式装备",
+      "description_zh": "入职时领取的左轮、猎魔子弹与基础占卜：先看清意图，再开枪。",
       "card_definition_ids": [
         "card.skill.ink_dart",
+        "card.skill.piercing_omen",
         "card.skill.paper_guard",
-        "card.skill.calm_breath",
-        "card.skill.focus",
-        "card.skill.omen",
-        "card.skill.warding_circle",
+        "card.skill.lantern_step",
         "card.skill.insight",
-        "card.skill.piercing_omen"
+        "card.skill.second_look",
+        "card.skill.calm_breath",
+        "card.skill.focus"
       ]
     },
     {
       "id": "deck.preset.oracle",
-      "display_name_zh": "灵性预感",
-      "description_zh": "依靠额外灵性与抽牌寻找正确的墨刺窗口。",
+      "display_name_zh": "仪式魔法",
+      "description_zh": "灵性之墙与银质匕首叠起仪式准备，再以驱邪仪式一次性兑现。",
       "card_definition_ids": [
-        "card.skill.ink_dart",
-        "card.skill.second_look",
-        "card.skill.focus",
-        "card.skill.insight",
-        "card.skill.whispered_hunch",
-        "card.skill.piercing_omen",
         "card.skill.paper_guard",
-        "card.skill.calm_breath"
+        "card.skill.coffin_nail",
+        "card.skill.warding_circle",
+        "card.skill.second_look",
+        "card.skill.insight",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.piercing_omen"
       ]
     },
     {
       "id": "deck.preset.burst",
-      "display_name_zh": "棺钉凶兆",
-      "description_zh": "用凶兆堆叠与高伤害牌快速击穿首领阶段。",
+      "display_name_zh": "提利尔仓库",
+      "description_zh": "用2-049让敌人动弹不得，再以左轮与猎魔子弹完成原著联动。",
       "card_definition_ids": [
+        "card.skill.severed_string",
         "card.skill.ink_dart",
-        "card.skill.omen",
-        "card.skill.fated_echo",
         "card.skill.piercing_omen",
         "card.skill.dream_question",
-        "card.skill.focus",
+        "card.skill.second_look",
         "card.skill.paper_guard",
-        "card.skill.calm_breath"
+        "card.skill.lantern_step",
+        "card.skill.insight"
       ]
     },
     {
       "id": "deck.preset.echo",
-      "display_name_zh": "镜中余响",
-      "description_zh": "以梦问与标记铺路，用断线控制节奏，并由临终圣礼维持续航。",
+      "display_name_zh": "值夜者小队",
+      "description_zh": "邓恩的梦魇与伦纳德的诗歌稳住战线，圣赛琳娜骨灰与阳炎符咒留给最危险的敌人。",
       "card_definition_ids": [
-        "card.skill.dream_question",
-        "card.skill.second_look",
-        "card.skill.glass_thesis",
+        "card.skill.omen_chorus",
+        "card.skill.whisper",
         "card.skill.last_rites",
-        "card.skill.omen",
-        "card.skill.whispered_hunch",
-        "card.skill.focus",
-        "card.skill.ink_dart"
+        "card.skill.eclipse",
+        "card.skill.dream_question",
+        "card.skill.mirror_ward",
+        "card.skill.ink_dart",
+        "card.skill.paper_guard"
       ]
     }
   ]

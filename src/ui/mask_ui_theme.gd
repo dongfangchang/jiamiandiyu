@@ -178,3 +178,74 @@ static func readable_id(value: String) -> String:
 	if value.is_empty():
 		return "未知"
 	return value.replace("card.", "").replace("skill.", "").replace("artifact.", "").replace("_", " ")
+
+
+## ---- v0.31 layout isolation helpers (ADR-0030 redline) ----
+## A single-line label whose minimum width never grows with its text: long text
+## is trimmed with an ellipsis and the full text stays readable in the tooltip.
+static func clip_label(
+	text_value: String,
+	font_size: int = 14,
+	color: Color = C_TEXT
+) -> Label:
+	var result := label(text_value, font_size, color)
+	result.clip_text = true
+	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	result.autowrap_mode = TextServer.AUTOWRAP_OFF
+	result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	result.custom_minimum_size = Vector2(24, 0)
+	result.tooltip_text = text_value
+	result.mouse_filter = Control.MOUSE_FILTER_PASS
+	return result
+
+
+static func set_clip_text(target: Label, text_value: String) -> void:
+	if not is_instance_valid(target):
+		return
+	target.text = text_value
+	target.tooltip_text = text_value
+
+
+## A fixed-height viewport for dynamic content. Its minimum size is the given
+## height regardless of content, so growth scrolls instead of pushing siblings.
+static func fixed_scroll(
+	content: Control,
+	height: float,
+	horizontal: bool = false
+) -> ScrollContainer:
+	var result := ScrollContainer.new()
+	result.custom_minimum_size = Vector2(0, height)
+	result.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	result.horizontal_scroll_mode = (
+		ScrollContainer.SCROLL_MODE_AUTO
+		if horizontal
+		else ScrollContainer.SCROLL_MODE_DISABLED
+	)
+	result.vertical_scroll_mode = (
+		ScrollContainer.SCROLL_MODE_DISABLED
+		if horizontal
+		else ScrollContainer.SCROLL_MODE_AUTO
+	)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	result.add_child(content)
+	return result
+
+
+## Wrapped text inside a fixed-height scroll viewport. Returns the scroll box;
+## the label is reachable with get_meta("label").
+static func fixed_text(
+	text_value: String,
+	font_size: int,
+	color: Color,
+	height: float
+) -> ScrollContainer:
+	var text_label := wrapped_label(text_value, font_size, color)
+	var box := fixed_scroll(text_label, height)
+	box.set_meta("label", text_label)
+	return box
+
+
+static func fixed_text_label(box: Control) -> Label:
+	if box == null or not box.has_meta("label"):
+		return null
+	return box.get_meta("label") as Label

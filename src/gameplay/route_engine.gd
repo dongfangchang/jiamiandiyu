@@ -128,6 +128,7 @@ func get_snapshot() -> RouteSnapshot:
 			"narrative_beat_zh": String(node.get("narrative_beat_zh", "")),
 			"investigation_goal_zh": String(node.get("investigation_goal_zh", "")),
 			"reward_hint_zh": String(node.get("reward_hint_zh", "")),
+			"source_zh": String(node.get("source_zh", "")),
 			"state": node_state,
 		})
 	var current_node_id := selected_id if not selected_id.is_empty() else available_id
@@ -177,6 +178,9 @@ func get_ritual_snapshot() -> RitualSnapshot:
 		"display_name_zh": String(
 			ritual_definition.get("display_name_zh", ritual_id)
 		),
+		"description_zh": String(ritual_definition.get("description_zh", "")),
+		"source_zh": String(ritual_definition.get("source_zh", "")),
+		"step_titles": _ritual_step_titles(steps),
 		"step_index": step_index,
 		"step_count": step_count,
 		"hints_used": int(ritual_state.get("hints_used", 0)),
@@ -197,6 +201,7 @@ func get_ritual_snapshot() -> RitualSnapshot:
 			"type": String(step.get("type", "")),
 			"title_zh": String(step.get("title_zh", "")),
 			"clue_zh": String(step.get("clue_zh", "")),
+			"lore_zh": String(step.get("lore_zh", "")),
 			"min_selections": int(step.get("min_selections", 1)),
 			"max_selections": int(step.get("max_selections", 1)),
 			"options": _public_ritual_options(step.get("options", [])),
@@ -204,6 +209,14 @@ func get_ritual_snapshot() -> RitualSnapshot:
 	else:
 		snapshot["step"] = {}
 	return RitualSnapshot.new(snapshot)
+
+
+func _ritual_step_titles(steps: Array) -> Array:
+	var titles: Array = []
+	for step_value in steps:
+		if step_value is Dictionary:
+			titles.append(String(step_value.get("title_zh", "")))
+	return titles
 
 
 func get_sequence_state() -> SequenceState:

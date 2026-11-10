@@ -99,7 +99,7 @@ func _test_deck_screen() -> void:
 	_expect(_captured_preset_id == "deck.preset.oracle", "preset selection emits stable id")
 	var loaded_preset := _deck_snapshot_variant("deck.preset.oracle", true, "playable")
 	screen.apply_command_result(DeckCommandResultScript.new(true, &"playable", [], loaded_preset))
-	_expect(screen.get_status_text().contains("已载入「灵性预感」"), "preset load confirms selected name")
+	_expect(screen.get_status_text().contains("已载入「仪式魔法」"), "preset load confirms selected name")
 	_expect(screen.get_status_text().contains("可以确认出战"), "legal preset explains readiness")
 	var unavailable_preset := _deck_snapshot_variant("deck.preset.oracle", false, "card_not_owned")
 	screen.request_select_preset("deck.preset.oracle")
@@ -221,7 +221,7 @@ func _test_challenge_hub() -> void:
 	_captured_challenge_id = ""
 	screen.request_challenge("challenge.v070.broken_procession")
 	_expect(_captured_challenge_id.is_empty(), "locked second challenge emits no command")
-	_expect(screen.get_status_text().contains("镜厅余响"), "lock reason names required challenge")
+	_expect(screen.get_status_text().contains("笔记案"), "lock reason names required challenge")
 
 	screen.apply_snapshots([
 		_challenge_snapshot({}),
@@ -253,7 +253,7 @@ func _test_second_challenge_screen() -> void:
 		"modifiers": _v07_modifiers(),
 	}))
 	_expect(screen.get_challenge_title() == "破碎游行", "second challenge title is snapshot driven")
-	_expect(screen.get_route_text().contains("破碎游行"), "second route variant is visible")
+	_expect(screen.get_route_text().contains("邪神子嗣降临"), "second route variant is visible")
 	_expect(screen.get_emblem_path().ends_with("challenge_broken_procession.png"), "second challenge emblem resolves")
 	_expect(screen.get_modifier_count() == 3, "second challenge renders three modifiers")
 	screen.queue_free()

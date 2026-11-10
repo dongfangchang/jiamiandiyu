@@ -9,6 +9,7 @@ signal main_menu_requested
 signal restart_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
+const DeckCatalog := preload("res://src/ui/deck_ui_catalog.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
@@ -167,7 +168,7 @@ func _build() -> void:
 	_mode_container.add_theme_constant_override("separation", 14)
 	column.add_child(_mode_container)
 
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.custom_minimum_size = Vector2(0, 38)
 	column.add_child(_status_label)
 
@@ -316,7 +317,7 @@ func _build_hub_actions(data: Dictionary, selected: Dictionary) -> VBoxContainer
 		15,
 		UiTheme.C_MUTED
 	))
-	_deck_summary_label = UiTheme.wrapped_label("", 14, UiTheme.C_GOLD)
+	_deck_summary_label = UiTheme.clip_label("", 14, UiTheme.C_GOLD)
 	content.add_child(_deck_summary_label)
 	_deck_button = UiTheme.button(
 		"调整出战牌组",
@@ -437,16 +438,9 @@ func _update_deck_summary() -> void:
 	var preset_id := String(_deck_data.get("selected_preset_id", ""))
 	var legal := bool(_deck_data.get("legal", false))
 	var confirmed := bool(_deck_data.get("confirmed", false))
-	var preset_name := preset_id.get_slice(".", preset_id.get_slice_count(".") - 1)
-	match preset_name:
-		"ward":
-			preset_name = "守夜档案"
-		"oracle":
-			preset_name = "灵性预感"
-		"burst":
-			preset_name = "棺钉凶兆"
-		"":
-			preset_name = "自定义牌组"
+	var preset_name := String(DeckCatalog.PRESET_NAMES.get(preset_id, ""))
+	if preset_name.is_empty():
+		preset_name = "自定义牌组"
 	_deck_summary_label.text = "出战牌组：%s · %d / %d%s%s" % [
 		preset_name,
 		current,
@@ -459,7 +453,7 @@ func _update_deck_summary() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

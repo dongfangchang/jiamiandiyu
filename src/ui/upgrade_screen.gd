@@ -153,7 +153,7 @@ func _build() -> void:
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 14)
 	column.add_child(bottom)
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_status_label)
 	_back_button = UiTheme.button("返回白昼档案", _on_back, true, 160)
@@ -382,7 +382,7 @@ func _on_back() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

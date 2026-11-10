@@ -34,7 +34,8 @@
       "damage": 1,
       "draw": 1,
       "spirit": 1
-    }
+    },
+    "danger_threshold": 9
   },
   "progression": {
     "starting_divination_tickets": 3

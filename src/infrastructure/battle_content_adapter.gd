@@ -2,12 +2,20 @@ class_name BattleContentAdapter
 extends BattleContentPort
 
 var _cards_by_id: Dictionary = {}
+var _synergies: Array = []
 
 
-func _init(card_definitions: Array = []) -> void:
+func _init(card_definitions: Array = [], synergy_definitions: Array = []) -> void:
 	for definition in card_definitions:
 		if definition is Dictionary:
 			_cards_by_id[StringName(definition.get("id", ""))] = definition.duplicate(true)
+	for synergy in synergy_definitions:
+		if synergy is Dictionary:
+			_synergies.append(synergy.duplicate(true))
+
+
+func get_synergies() -> Array:
+	return _synergies.duplicate(true)
 
 
 func get_card_definition(definition_id: StringName) -> Dictionary:

@@ -1,41 +1,189 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "v0.7.0 enemy definitions with phases",
+  "title": "v0.31.0 enemy definitions with traits, intents and HP/round phases",
   "type": "object",
-  "required": ["schema_version", "content_version", "base_cards_version", "enemies"],
+  "required": [
+    "schema_version",
+    "content_version",
+    "base_cards_version",
+    "enemies"
+  ],
   "properties": {
-    "schema_version": {"type": "integer", "const": 1},
-    "content_version": {"type": "string", "minLength": 1},
-    "base_cards_version": {"type": "string", "minLength": 1},
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base_cards_version": {
+      "type": "string",
+      "minLength": 1
+    },
     "enemies": {
       "type": "array",
       "minItems": 1,
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "display_name_zh", "tier", "base_health", "base_attack"],
+        "required": [
+          "id",
+          "display_name_zh",
+          "tier",
+          "base_health",
+          "base_attack"
+        ],
         "properties": {
-          "id": {"type": "string", "pattern": "^enemy\\."},
-          "display_name_zh": {"type": "string", "minLength": 1},
-          "tier": {"type": "string", "enum": ["normal", "elite", "boss"]},
-          "base_health": {"type": "integer", "minimum": 1},
-          "base_attack": {"type": "integer", "minimum": 0},
-          "threat": {"type": "string"},
+          "id": {
+            "type": "string",
+            "pattern": "^enemy\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "elite",
+              "boss"
+            ]
+          },
+          "base_health": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "base_attack": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "threat": {
+            "type": "string"
+          },
           "phases": {
             "type": "array",
             "x-uniqueBy": "id",
             "items": {
               "type": "object",
-              "required": ["id", "display_name_zh", "at_round", "base_attack_bonus", "block_bonus", "heal"],
+              "required": [
+                "id",
+                "display_name_zh",
+                "base_attack_bonus",
+                "block_bonus",
+                "heal"
+              ],
               "properties": {
-                "id": {"type": "string", "pattern": "^phase\\."},
-                "display_name_zh": {"type": "string", "minLength": 1},
-                "at_round": {"type": "integer", "minimum": 1},
-                "base_attack_bonus": {"type": "integer", "minimum": 0},
-                "block_bonus": {"type": "integer", "minimum": 0},
-                "heal": {"type": "integer", "minimum": 0}
+                "id": {
+                  "type": "string",
+                  "pattern": "^phase\\."
+                },
+                "display_name_zh": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "at_round": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "base_attack_bonus": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "block_bonus": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "heal": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "at_hp_percent": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                },
+                "player_corruption": {
+                  "type": "integer"
+                },
+                "player_attention": {
+                  "type": "integer"
+                },
+                "description_zh": {
+                  "type": "string"
+                },
+                "counter_hint_zh": {
+                  "type": "string"
+                },
+                "intents": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "intent_id"
+                    ]
+                  }
+                }
               }
             }
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "human",
+                "beyonder",
+                "spirit",
+                "undead",
+                "filth",
+                "lost_control"
+              ]
+            }
+          },
+          "intents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "intent_id",
+                "display_name_zh"
+              ],
+              "properties": {
+                "intent_id": {
+                  "type": "string",
+                  "enum": [
+                    "attack",
+                    "curse",
+                    "fortify",
+                    "cry"
+                  ]
+                },
+                "display_name_zh": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "damage_delta": {
+                  "type": "integer"
+                },
+                "corruption": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "attention": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "block": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "source_zh": {
+            "type": "string"
           }
         },
         "additionalProperties": true

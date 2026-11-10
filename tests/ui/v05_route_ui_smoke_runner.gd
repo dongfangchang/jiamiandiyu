@@ -317,13 +317,15 @@ func _test_enemy_art_mapping() -> void:
 	var battle = BattleScreenScene.instantiate()
 	add_child(battle)
 	await get_tree().process_frame
+	# v0.31.0 canon re-theme: enemy.mirror_baron is now 失控的老尼尔 (red-eyed
+	# monster art) and enemy.mirror_hound_echo is 燕尾服小丑 (top-hat art).
 	_expect(
-		battle.get_enemy_art_path(&"enemy.mirror_baron").ends_with("enemy-mirror-baron.png"),
-		"boss art mapping is distinct"
+		battle.get_enemy_art_path(&"enemy.mirror_baron").ends_with("enemy-candle-moth.png"),
+		"lost-control Old Neil uses the red-eyed monster art"
 	)
 	_expect(
-		battle.get_enemy_art_path(&"enemy.mirror_hound_echo").ends_with("enemy-mirror-hound.png"),
-		"elite art reuses only the matching hound"
+		battle.get_enemy_art_path(&"enemy.mirror_hound_echo").ends_with("enemy-mirror-baron.png"),
+		"the Suited Clown uses the top-hat art"
 	)
 	battle.queue_free()
 	await get_tree().process_frame

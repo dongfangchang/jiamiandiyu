@@ -32,12 +32,12 @@ func choose_route(route_id: String) -> void:
 	for route in _routes:
 		if String(route.get("id", "")) == route_id:
 			if not bool(route.get("playable", true)):
-				_status_label.text = "此章节仍在规划中，尚未开放。"
+				UiTheme.set_clip_text(_status_label, "此章节仍在规划中，尚未开放。")
 				return
 			route_selected.emit(StringName(route_id))
 			return
 	if is_instance_valid(_status_label):
-		_status_label.text = "这条调查路线不可用。"
+		UiTheme.set_clip_text(_status_label, "这条调查路线不可用。")
 
 
 func request_back() -> void:
@@ -99,7 +99,7 @@ func _build() -> void:
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 12)
 	column.add_child(footer)
-	_status_label = UiTheme.wrapped_label(
+	_status_label = UiTheme.clip_label(
 		"选择一条路线后进入白昼身份选择。",
 		14,
 		UiTheme.C_MUTED

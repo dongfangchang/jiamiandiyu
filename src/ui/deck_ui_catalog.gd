@@ -22,28 +22,28 @@ const V07_CARD_IDS: Array[String] = [
 ]
 
 const PRESET_NAMES := {
-	"deck.preset.ward": "守夜档案",
-	"deck.preset.oracle": "灵性预感",
-	"deck.preset.burst": "棺钉凶兆",
-	"deck.preset.echo": "镜中余响",
+	"deck.preset.ward": "值夜者制式装备",
+	"deck.preset.oracle": "仪式魔法",
+	"deck.preset.burst": "提利尔仓库",
+	"deck.preset.echo": "值夜者小队",
 }
 
 const PRESET_GUIDANCE := {
 	"deck.preset.ward": {
-		"tag": "稳守 / 续航",
-		"when": "适合先熟悉敌方压力，再用护盾和治疗稳住路线。",
+		"tag": "稳守 / 射击",
+		"when": "入职时的标准配置：先用灵视看清意图，再用左轮与猎魔子弹处理。",
 	},
 	"deck.preset.oracle": {
-		"tag": "抽牌 / 灵性",
-		"when": "适合想多看几张牌、寻找关键窗口的回合。",
+		"tag": "仪式 / 兑现",
+		"when": "先用灵性之墙、银质匕首叠满仪式准备，再一次打出驱邪仪式。",
 	},
 	"deck.preset.burst": {
-		"tag": "压制 / 爆发",
-		"when": "适合已经熟悉目标优先级，准备尽快结束首领阶段。",
+		"tag": "控制 / 联动",
+		"when": "2-049 束缚后接左轮，触发原著联动“提利尔仓库”。",
 	},
 	"deck.preset.echo": {
-		"tag": "控制 / 回响",
-		"when": "适合先施加标记和控制，再用续航牌拉长优势。",
+		"tag": "队友 / 封印物",
+		"when": "邓恩与伦纳德稳住战线；圣赛琳娜骨灰 + 阳炎符咒触发“守护者”。",
 	},
 }
 

@@ -112,15 +112,16 @@ func _build_card_content() -> VBoxContainer:
 	content.add_child(UiTheme.label("战后档案", 13, UiTheme.C_GOLD))
 	_result_label = UiTheme.label("等待结算", 56, UiTheme.C_TEXT)
 	content.add_child(_result_label)
-	_detail_label = UiTheme.wrapped_label("", 16, UiTheme.C_PAPER)
-	_detail_label.custom_minimum_size = Vector2(0, 128)
-	content.add_child(_detail_label)
+	var detail_box := UiTheme.fixed_text("", 16, UiTheme.C_PAPER, 128)
+	detail_box.name = "BattleResultDetail"
+	_detail_label = UiTheme.fixed_text_label(detail_box)
+	content.add_child(detail_box)
 
 	var divider := ColorRect.new()
 	divider.color = UiTheme.C_LINE
 	divider.custom_minimum_size = Vector2(0, 1)
 	content.add_child(divider)
-	_save_label = UiTheme.wrapped_label("检查点尚未确认。", 15, UiTheme.C_DANGER_TEXT)
+	_save_label = UiTheme.clip_label("检查点尚未确认。", 15, UiTheme.C_DANGER_TEXT)
 	content.add_child(_save_label)
 
 	var actions := HBoxContainer.new()

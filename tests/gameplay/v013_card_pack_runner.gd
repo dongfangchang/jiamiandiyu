@@ -42,7 +42,7 @@ func _ready() -> void:
 		definition_ids.size() == 40,
 		"all forty card definitions should have unique IDs"
 	)
-	_content = BattleContentAdapterScript.new(cards)
+	_content = BattleContentAdapterScript.new(cards, cards_document.get("synergies", []))
 	_balance = BattleBalanceAdapterScript.new(balance_document)
 	for card_id in NEW_CARD_IDS:
 		_expect(definition_ids.has(card_id), "new card should exist: %s" % card_id)
@@ -60,22 +60,22 @@ func _ready() -> void:
 	)
 	var presets: Array = decks_document.get("presets", [])
 	_expect(presets.size() == 4, "deck content should expose four presets")
-	var echo_preset: Dictionary = {}
+	var squad_preset: Dictionary = {}
 	for preset in presets:
 		if String(preset.get("id", "")) == "deck.preset.echo":
-			echo_preset = preset
-	_expect(not echo_preset.is_empty(), "镜中余响 preset should exist")
-	var echo_ids: Array = echo_preset.get("card_definition_ids", [])
-	_expect(echo_ids.size() == 8, "镜中余响 preset should contain eight unique cards")
+			squad_preset = preset
+	_expect(not squad_preset.is_empty(), "值夜者小队 preset should exist")
+	var squad_ids: Array = squad_preset.get("card_definition_ids", [])
+	_expect(squad_ids.size() == 8, "值夜者小队 preset should contain eight unique cards")
 	for card_id in [
 		"card.skill.dream_question",
 		"card.skill.mirror_ward",
-		"card.skill.severed_string",
 		"card.skill.last_rites",
+		"card.skill.eclipse",
 	]:
 		_expect(
-			card_id in echo_ids,
-			"镜中余响 preset should use new card: %s" % card_id
+			card_id in squad_ids,
+			"值夜者小队 preset should use canon card: %s" % card_id
 		)
 	for card_id in NEW_CARD_IDS:
 		_expect(card_id in gacha_ids, "new card should be in gacha pool: %s" % card_id)
@@ -86,8 +86,9 @@ func _ready() -> void:
 		)
 	_test_dream_question()
 	_test_mirror_ward()
-	_test_severed_string()
-	_test_last_rites()
+	_test_antigonus_puppet()
+	_test_selena_ashes()
+	_test_tyrell_warehouse_synergy()
 	if _failures.is_empty():
 		print("V013_CARD_PACK_OK checks=%d" % _passed)
 		get_tree().quit(0)
@@ -99,29 +100,26 @@ func _ready() -> void:
 
 func _test_dream_question() -> void:
 	var engine = _engine(
-		[&"card.skill.dream_question"],
+		[&"card.skill.dream_question", &"card.skill.ink_dart"],
 		[_enemy(12)],
 		{}
 	)
 	var result = _play(engine, &"card.skill.dream_question", &"enemy.0")
-	_expect(result.accepted, "梦问 should be playable")
+	_expect(result.accepted, "梦境占卜 should be playable")
 	_expect(
-		int(result.snapshot.data.get("player", {}).get("spirit", 0)) == 3,
-		"梦问 should cost no spirit"
+		int(result.snapshot.data.get("player", {}).get("spirit", 0)) == 2,
+		"梦境占卜 should cost one spirit"
 	)
 	_expect(
-		int(result.snapshot.data.get("chain", {}).get("count", -1)) == 0,
-		"zero-cost 梦问 should not advance chain"
+		int(result.snapshot.data.get("chain", {}).get("count", -1)) == 1,
+		"梦境占卜 should advance the chain"
 	)
 	var enemy: Dictionary = result.snapshot.data.get("enemies", [])[0]
 	_expect(
 		bool(enemy.get("intent", {}).get("revealed", false)),
-		"梦问 should reveal enemy intent"
+		"梦境占卜 should reveal enemy intent"
 	)
-	_expect(
-		_has_status(enemy, "mark", 1),
-		"梦问 should apply one mark"
-	)
+	_expect(_has_status(enemy, "mark", 1), "梦境占卜 should apply one mark")
 
 
 func _test_mirror_ward() -> void:
@@ -130,52 +128,63 @@ func _test_mirror_ward() -> void:
 		[_enemy(12)],
 		{"attention": 3}
 	)
-	var result = _play(engine, &"card.skill.mirror_ward")
+	var result = _play(engine, &"card.skill.mirror_ward", &"enemy.0")
 	var player: Dictionary = result.snapshot.data.get("player", {})
-	_expect(int(player.get("block", 0)) == 6, "镜面替身 should grant six block")
-	_expect(
-		int(player.get("attention", 0)) == 2,
-		"镜面替身 should reduce attention by one"
-	)
+	_expect(int(player.get("spirit", 0)) == 3, "魔镜占卜 should cost no spirit")
+	_expect(int(result.snapshot.data.get("chain", {}).get("count", -1)) == 0, "zero-cost 魔镜占卜 should not advance chain")
+	_expect(int(player.get("attention", 0)) == 4, "魔镜占卜 should attract attention")
+	var enemy: Dictionary = result.snapshot.data.get("enemies", [])[0]
+	_expect(_has_status(enemy, "mark", 2), "魔镜占卜 should apply two marks")
 
 
-func _test_severed_string() -> void:
+func _test_antigonus_puppet() -> void:
 	var engine = _engine(
-		[&"card.skill.severed_string"],
-		[_enemy(12)],
+		[&"card.skill.severed_string", &"card.skill.paper_guard"],
+		[_enemy(20)],
 		{}
 	)
 	var result = _play(engine, &"card.skill.severed_string", &"enemy.0")
+	_expect(result.accepted, "2-049 should be playable")
 	var enemy: Dictionary = result.snapshot.data.get("enemies", [])[0]
-	_expect(int(enemy.get("hp", 0)) == 7, "断线 should deal five damage")
-	_expect(_has_status(enemy, "weaken", 2), "断线 should apply two weaken")
+	_expect(_has_status(enemy, "bound", 2), "2-049 should bind for two turns")
+	_expect(int(result.snapshot.data.get("exhaust_pile_count", 0)) == 1, "2-049 is single-use per battle")
+	var hp_before := int(result.snapshot.data.get("player", {}).get("hp", 0))
+	var ended = engine.submit(BattleCommandScript.end_turn())
+	_expect(int(ended.snapshot.data.get("player", {}).get("hp", 0)) == hp_before, "bound enemy skips its attack")
+	_expect(ended.events.any(func(event): return event.type == &"EnemyBound"), "binding is announced")
+	_expect(int(ended.snapshot.data.get("player", {}).get("spirit", 0)) == 2, "2-049 slows its user: next turn spirit -1")
 
 
-func _test_last_rites() -> void:
+func _test_selena_ashes() -> void:
 	var engine = _engine(
-		[
-			&"card.skill.last_rites",
-			&"card.skill.last_rites",
-			&"card.skill.last_rites",
-			&"card.skill.last_rites",
-			&"card.skill.last_rites",
-			&"card.skill.last_rites",
-		],
-		[_enemy(30)],
-		{"hp": 8, "starting_hand_override": 5}
+		[&"card.skill.last_rites"],
+		[_enemy(20), _enemy(20, "enemy.1", 2)],
+		{}
 	)
-	var before_hand: int = engine.get_snapshot().data.get("hand", []).size()
 	var result = _play(engine, &"card.skill.last_rites")
-	var player: Dictionary = result.snapshot.data.get("player", {})
-	_expect(int(player.get("hp", 0)) == 11, "临终圣礼 should heal three")
-	var drew := false
-	for event in result.events:
-		if event.type == &"CardDrawn":
-			drew = true
-	_expect(
-		drew and before_hand >= 5,
-		"临终圣礼 should draw a card"
+	_expect(result.accepted, "圣赛琳娜骨灰 should be playable without a target")
+	for enemy in result.snapshot.data.get("enemies", []):
+		_expect(_has_status(enemy, "bound", 2), "圣赛琳娜骨灰 binds every enemy")
+		_expect(_has_status(enemy, "weaken", 2), "圣赛琳娜骨灰 weakens every enemy")
+	_expect(int(result.snapshot.data.get("player", {}).get("attention", 0)) == 1, "opening the urn draws attention")
+
+
+func _test_tyrell_warehouse_synergy() -> void:
+	var engine = _engine(
+		[&"card.skill.severed_string", &"card.skill.ink_dart"],
+		[_enemy(30)],
+		{}
 	)
+	_play(engine, &"card.skill.severed_string", &"enemy.0")
+	var result = _play(engine, &"card.skill.ink_dart", &"enemy.0")
+	var triggered := false
+	for event in result.events:
+		if event.type == &"SynergyTriggered" and String(event.data.get("synergy_id", "")) == "synergy.tyrell_warehouse":
+			triggered = true
+	_expect(triggered, "2-049 + 左轮 triggers 提利尔仓库")
+	var enemy: Dictionary = result.snapshot.data.get("enemies", [])[0]
+	# 5 base + 2 consumed marks + 3 vs bound + 8 synergy = 18
+	_expect(int(enemy.get("hp", 0)) == 12, "提利尔仓库 resolves to 18 total damage (actual hp=%d)" % int(enemy.get("hp", 0)))
 
 
 func _engine(
@@ -225,11 +234,11 @@ func _play(engine, definition_id: StringName, target_id: StringName = &""):
 	return null
 
 
-func _enemy(hp: int) -> Dictionary:
+func _enemy(hp: int, actor_id: String = "enemy.0", lane: int = 0) -> Dictionary:
 	return {
-		"id": "enemy.0",
+		"id": actor_id,
 		"definition_id": "enemy.test",
-		"lane_index": 0,
+		"lane_index": lane,
 		"hp": hp,
 		"max_hp": hp,
 		"base_attack": 1,

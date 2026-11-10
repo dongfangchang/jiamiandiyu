@@ -26,7 +26,25 @@ const SUPPORTED_EFFECTS: Array[StringName] = [
 	&"reveal_intent",
 	&"risk",
 	&"prepare_ritual",
+	&"damage_all",
+	&"reveal_all",
+	&"lose_hp",
+	&"steal_attack",
 ]
+
+const SUPPORTED_STATUSES: Array[String] = [
+	"mark",
+	"weaken",
+	"foresight",
+	"ritual_preparation",
+	"bound",
+	"evasion",
+	"silenced",
+	"sluggish",
+]
+
+const RITUAL_MAX_STACKS: int = 3
+const DEFAULT_DANGER_THRESHOLD: int = 9
 
 var _content: BattleContentPort
 var _balance: BattleBalancePort
@@ -58,6 +76,15 @@ var _chain_damage: int = 0
 var _chain_draw: int = 0
 var _chain_spirit: int = 0
 var _chain_count: int = 0
+var _exhaust_pile: Array[Dictionary] = []
+var _deck_definition_ids: Array[String] = []
+var _turn_played_ids: Array[String] = []
+var _turn_triggered_synergies: Array[String] = []
+var _turn_last_enemy_target: StringName = &""
+var _synergies: Array[Dictionary] = []
+var _danger_threshold: int = DEFAULT_DANGER_THRESHOLD
+var _attention_hunter_at: int = 0
+var _corruption_penalty_at: int = 0
 
 
 func initialize(
@@ -126,6 +153,15 @@ func initialize(
 		or _chain_spirit < 0
 	):
 		return _initialization_error(&"balance_invalid")
+	var danger_value: Variant = _balance.get_value(&"battle.danger_threshold")
+	if danger_value != null:
+		_danger_threshold = maxi(1, int(danger_value))
+	var attention_thresholds: Variant = _balance.get_value(&"risk.attention_thresholds")
+	if attention_thresholds is Dictionary:
+		_attention_hunter_at = maxi(0, int(attention_thresholds.get("hunter_at", 0)))
+	var corruption_thresholds: Variant = _balance.get_value(&"risk.corruption_thresholds")
+	if corruption_thresholds is Dictionary:
+		_corruption_penalty_at = maxi(0, int(corruption_thresholds.get("penalty_at", 0)))
 
 	_player = player_state.duplicate(true)
 	if not _validate_player_state(_player):
@@ -148,19 +184,7 @@ func initialize(
 		if occupied_lanes.has(lane_index):
 			return _initialization_error(&"enemy_state_invalid")
 		occupied_lanes[lane_index] = true
-		enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0))
-		enemy["block"] = int(enemy.get("block", 0))
-		enemy["statuses"] = []
-		enemy["intent"] = {}
-		enemy["defeated_announced"] = false
-		var phase_source: Variant = enemy.get("phases", [])
-		enemy["phases"] = (
-			phase_source.duplicate(true)
-			if phase_source is Array
-			else phase_source
-		)
-		enemy["triggered_phases"] = []
-		if not _validate_enemy_phases(enemy["phases"]):
+		if not _prepare_enemy_runtime(enemy):
 			return _initialization_error(&"enemy_state_invalid")
 		_enemies.append(enemy)
 	_enemies.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -178,6 +202,9 @@ func initialize(
 			"instance_id": StringName("%s.instance.%03d" % [String(battle_id), instance_index]),
 			"definition_id": definition_id,
 		})
+		if not String(definition_id) in _deck_definition_ids:
+			_deck_definition_ids.append(String(definition_id))
+	_load_synergies()
 
 	_shuffle_array(_draw_pile)
 	_revision = 1
@@ -234,6 +261,9 @@ func get_snapshot() -> BattleSnapshot:
 			"category": String(definition.get("category", "")),
 			"cost_spirit": int(definition.get("cost_spirit", 0)),
 			"target_type": String(definition.get("target_type", "none")),
+			"exhaust": bool(definition.get("exhaust", false)),
+			"consumes_ritual": bool(definition.get("consumes_ritual", false)),
+			"synergy_ids": _synergy_ids_for_card(String(card["definition_id"])),
 		})
 
 	var enemy_views: Array[Dictionary] = []
@@ -250,16 +280,23 @@ func get_snapshot() -> BattleSnapshot:
 		enemy_views.append({
 			"actor_id": String(enemy["id"]),
 			"definition_id": String(enemy["definition_id"]),
+			"display_name_zh": String(enemy.get("display_name_zh", "")),
+			"tier": String(enemy.get("tier", "normal")),
 			"lane_index": int(enemy["lane_index"]),
 			"hp": int(enemy["hp"]),
 			"max_hp": int(enemy["max_hp"]),
 			"block": int(enemy["block"]),
+			"base_attack": int(enemy.get("base_attack", 0)),
+			"threat": String(enemy.get("threat", "")),
+			"traits": enemy.get("traits", []).duplicate(),
 			"statuses": enemy["statuses"].duplicate(true),
 			"intent": enemy["intent"].duplicate(true),
 			"phases": enemy.get("phases", []).duplicate(true),
 			"triggered_phase_count": enemy.get("triggered_phases", []).size(),
 			"triggered_phases": triggered_phase_views,
+			"next_phase": _next_phase_view(enemy),
 			"pressure_bonus": int(enemy.get("pressure_bonus", 0)),
+			"wave_index": int(enemy.get("wave_index", 0)),
 		})
 
 	var revision_value: int = _revision
@@ -287,6 +324,22 @@ func get_snapshot() -> BattleSnapshot:
 		"hand": hand_views,
 		"draw_pile_count": _draw_pile.size(),
 		"discard_pile_count": _discard_pile.size(),
+		"exhaust_pile_count": _exhaust_pile.size(),
+		"played_this_turn": _turn_played_ids.duplicate(),
+		"synergies": _synergy_views(),
+		"ritual": {
+			"stacks": _player_status_stacks(&"ritual_preparation"),
+			"max": RITUAL_MAX_STACKS,
+		},
+		"risk_pressure": {
+			"attention_penalty": _attention_penalty(),
+			"attention_hunter_at": _attention_hunter_at,
+			"corruption_penalty": _corruption_penalty(),
+			"corruption_penalty_at": _corruption_penalty_at,
+		},
+		"danger_threshold": _danger_threshold,
+		"pending_wave_count": _pending_enemy_waves.size(),
+		"current_wave": _current_wave,
 		"enemies": enemy_views,
 		"outcome": String(outcome_value),
 		"outcome_reason": String(outcome_reason_value),
@@ -321,17 +374,31 @@ func _play_card(command: BattleCommand) -> BattleCommandResult:
 	# The card leaves the hand before effects resolve, preventing draw effects
 	# from exposing the same instance twice.
 	_hand.remove_at(card_index)
-	for effect_source in definition["effects"]:
+	var definition_key := String(card["definition_id"])
+	_turn_played_ids.append(definition_key)
+	if not command.target_id.is_empty():
+		_turn_last_enemy_target = command.target_id
+	var resolved_effects: Array = _resolve_ritual_scaling(definition)
+	for effect_source in resolved_effects:
 		if _outcome != OUTCOME_NONE:
 			break
 		var effect: Dictionary = effect_source
 		_apply_effect(effect, definition, command.target_id)
 
-	_discard_pile.append(card)
-	_emit(&"CardDiscarded", {
-		"card_instance_id": String(card["instance_id"]),
-		"reason_code": "played",
-	})
+	if bool(definition.get("exhaust", false)):
+		_exhaust_pile.append(card)
+		_emit(&"CardExhausted", {
+			"card_instance_id": String(card["instance_id"]),
+			"definition_id": definition_key,
+		})
+	else:
+		_discard_pile.append(card)
+		_emit(&"CardDiscarded", {
+			"card_instance_id": String(card["instance_id"]),
+			"reason_code": "played",
+		})
+	if _outcome == OUTCOME_NONE:
+		_check_synergies(definition_key, command.target_id)
 	_check_outcome_after_player_action()
 	if _outcome == OUTCOME_NONE:
 		_advance_chain(int(definition.get("cost_spirit", 0)))
@@ -345,34 +412,14 @@ func _end_turn() -> BattleCommandResult:
 		return _rejected_result(BattlePlayability.WRONG_PHASE)
 	_pending_events.clear()
 	_reset_chain(&"turn_end")
+	_reset_turn_tracking()
 	_phase = PHASE_ENEMY_ACTION
 
 	for enemy in _enemies:
 		if not _is_alive(enemy):
 			continue
 		enemy["block"] = 0
-		var intent: Dictionary = enemy["intent"]
-		var pressure: int = int(enemy.get("pressure_bonus", 0))
-		var raw_damage: int = int(enemy["base_attack"]) + pressure
-		var foresight_index := _find_status_index(_player["statuses"], &"foresight")
-		if foresight_index >= 0:
-			raw_damage = maxi(0, raw_damage - 1)
-			_player["statuses"].remove_at(foresight_index)
-			_emit(&"ForesightConsumed", {
-				"enemy_id": String(enemy["id"]),
-				"reduction": 1,
-			})
-		var weaken_index: int = _find_status_index(enemy["statuses"], &"weaken")
-		if weaken_index >= 0:
-			raw_damage = maxi(0, raw_damage - int(enemy["statuses"][weaken_index]["stacks"]))
-		_emit(&"EnemyActed", {
-			"enemy_id": String(enemy["id"]),
-			"intent_id": String(intent.get("intent_id", "attack")),
-			"damage": raw_damage,
-		})
-		_apply_damage_to_player(raw_damage, String(enemy["id"]))
-		if String(enemy.get("threat", "")) == "corruption" and _is_alive(_player):
-			_apply_risk(&"corruption", 2)
+		_resolve_enemy_action(enemy)
 		if not _is_alive(_player):
 			break
 		if _outcome != OUTCOME_NONE:
@@ -410,9 +457,15 @@ func _end_turn() -> BattleCommandResult:
 
 func _begin_round(draw_target: int) -> void:
 	_phase = PHASE_ROUND_START
+	_reset_turn_tracking()
 	_player["block"] = 0
 	_player["spirit"] = int(_player["max_spirit"])
 	_emit(&"RoundStarted", {"round_number": _round_number})
+	_apply_sluggish()
+	_apply_corruption_round_penalty()
+	if not _is_alive(_player):
+		_finish_battle(OUTCOME_DEFEAT, &"player_died")
+		return
 	_apply_enemy_pressure_if_due()
 	_trigger_due_enemy_phases()
 	_generate_enemy_intents()
@@ -483,55 +536,264 @@ func _trigger_due_enemy_phases() -> void:
 		if not _is_alive(enemy):
 			continue
 		var phases: Array = enemy.get("phases", [])
-		var triggered: Array = enemy.get("triggered_phases", [])
 		for phase_index in range(phases.size()):
-			if phase_index in triggered:
+			if phase_index in enemy.get("triggered_phases", []):
 				continue
 			var phase: Dictionary = phases[phase_index]
+			if phase.has("at_hp_percent"):
+				continue
 			if int(phase.get("at_round", -1)) != _round_number:
 				continue
-			var attack_bonus: int = int(phase.get("base_attack_bonus", 0))
-			var block_bonus: int = int(phase.get("block_bonus", 0))
-			var heal_amount: int = int(phase.get("heal", 0))
-			enemy["base_attack"] = int(enemy["base_attack"]) + attack_bonus
-			enemy["block"] = int(enemy["block"]) + block_bonus
-			if heal_amount > 0:
-				enemy["hp"] = mini(
-					int(enemy["max_hp"]),
-					int(enemy["hp"]) + heal_amount
-				)
-			triggered.append(phase_index)
-			enemy["triggered_phases"] = triggered
-			_emit(&"EnemyPhaseTriggered", {
-				"enemy_id": String(enemy["id"]),
-				"phase_index": phase_index,
-				"phase_id": String(phase.get("id", "")),
-				"display_name_zh": String(
-					phase.get("display_name_zh", phase.get("id", ""))
-				),
-				"round_number": _round_number,
-				"base_attack_bonus": attack_bonus,
-				"block_bonus": block_bonus,
-				"heal": heal_amount,
-			})
+			_trigger_enemy_phase(enemy, phase_index, &"round")
+
+
+func _check_enemy_hp_phases(enemy: Dictionary) -> void:
+	if not _is_alive(enemy):
+		return
+	var phases: Array = enemy.get("phases", [])
+	var max_hp := maxi(1, int(enemy.get("max_hp", 1)))
+	var hp_percent := int(floor(float(int(enemy["hp"])) * 100.0 / float(max_hp)))
+	for phase_index in range(phases.size()):
+		if phase_index in enemy.get("triggered_phases", []):
+			continue
+		var phase: Dictionary = phases[phase_index]
+		if not phase.has("at_hp_percent"):
+			continue
+		if hp_percent > int(phase.get("at_hp_percent", 0)):
+			continue
+		_trigger_enemy_phase(enemy, phase_index, &"hp_threshold")
+
+
+func _trigger_enemy_phase(enemy: Dictionary, phase_index: int, trigger: StringName) -> void:
+	var phases: Array = enemy.get("phases", [])
+	if phase_index < 0 or phase_index >= phases.size():
+		return
+	var phase: Dictionary = phases[phase_index]
+	var triggered: Array = enemy.get("triggered_phases", [])
+	if phase_index in triggered:
+		return
+	var attack_bonus: int = int(phase.get("base_attack_bonus", 0))
+	var block_bonus: int = int(phase.get("block_bonus", 0))
+	var heal_amount: int = int(phase.get("heal", 0))
+	enemy["base_attack"] = int(enemy["base_attack"]) + attack_bonus
+	enemy["block"] = int(enemy["block"]) + block_bonus
+	if heal_amount > 0:
+		enemy["hp"] = mini(
+			int(enemy["max_hp"]),
+			int(enemy["hp"]) + heal_amount
+		)
+	if phase.has("threat"):
+		enemy["threat"] = String(phase.get("threat", ""))
+	var traits: Array = enemy.get("traits", [])
+	for trait_value in phase.get("traits_add", []):
+		if not String(trait_value) in traits:
+			traits.append(String(trait_value))
+	enemy["traits"] = traits
+	if phase.get("intents", null) is Array and not phase["intents"].is_empty():
+		enemy["intents"] = phase["intents"].duplicate(true)
+	triggered.append(phase_index)
+	enemy["triggered_phases"] = triggered
+	_emit(&"EnemyPhaseTriggered", {
+		"enemy_id": String(enemy["id"]),
+		"phase_index": phase_index,
+		"phase_id": String(phase.get("id", "")),
+		"display_name_zh": String(
+			phase.get("display_name_zh", phase.get("id", ""))
+		),
+		"description_zh": String(phase.get("description_zh", "")),
+		"counter_hint_zh": String(phase.get("counter_hint_zh", "")),
+		"trigger": String(trigger),
+		"round_number": _round_number,
+		"base_attack_bonus": attack_bonus,
+		"block_bonus": block_bonus,
+		"heal": heal_amount,
+	})
+	var corruption_delta := int(phase.get("player_corruption", 0))
+	if corruption_delta != 0 and _is_alive(_player):
+		_apply_risk(&"corruption", corruption_delta, "enemy_phase")
+	var attention_delta := int(phase.get("player_attention", 0))
+	if attention_delta != 0 and _is_alive(_player):
+		_apply_risk(&"attention", attention_delta, "enemy_phase")
+	if trigger == &"hp_threshold" and not enemy["intent"].is_empty():
+		_refresh_enemy_intent_damage(enemy)
+
+
+func _next_phase_view(enemy: Dictionary) -> Dictionary:
+	var phases: Array = enemy.get("phases", [])
+	var triggered: Array = enemy.get("triggered_phases", [])
+	for phase_index in range(phases.size()):
+		if phase_index in triggered:
+			continue
+		var phase: Dictionary = phases[phase_index]
+		return {
+			"phase_index": phase_index,
+			"display_name_zh": String(phase.get("display_name_zh", "")),
+			"description_zh": String(phase.get("description_zh", "")),
+			"counter_hint_zh": String(phase.get("counter_hint_zh", "")),
+			"at_round": int(phase.get("at_round", 0)),
+			"at_hp_percent": int(phase.get("at_hp_percent", 0)) if phase.has("at_hp_percent") else -1,
+		}
+	return {}
 
 
 func _generate_enemy_intents() -> void:
 	for enemy in _enemies:
 		if not _is_alive(enemy):
 			continue
-		var damage: int = int(enemy["base_attack"]) + int(enemy.get("pressure_bonus", 0))
+		var template := _current_intent_template(enemy)
+		var intent_id := String(template.get("intent_id", "attack"))
 		enemy["intent"] = {
-			"intent_id": "attack",
+			"intent_id": intent_id,
+			"display_name_zh": String(template.get("display_name_zh", _default_intent_name(intent_id))),
+			"description_zh": String(template.get("description_zh", "")),
+			"damage_delta": int(template.get("damage_delta", 0)),
+			"corruption": int(template.get("corruption", 0)),
+			"attention": int(template.get("attention", 0)),
+			"block": int(template.get("block", 0)),
 			"revealed": false,
 			"visible_fields": {},
-			"damage": damage,
+			"damage": 0,
+			"danger": false,
 		}
+		_refresh_enemy_intent_damage(enemy)
 		_emit(&"IntentGenerated", {
 			"enemy_id": String(enemy["id"]),
-			"intent_id": "attack",
+			"intent_id": intent_id,
 			"visible_fields": {},
+			"danger": bool(enemy["intent"]["danger"]),
 		})
+
+
+func _current_intent_template(enemy: Dictionary) -> Dictionary:
+	var intents: Variant = enemy.get("intents", [])
+	if not intents is Array or intents.is_empty():
+		return {"intent_id": "attack"}
+	var index: int = maxi(0, _round_number - 1) % int(intents.size())
+	var template: Dictionary = intents[index] if intents[index] is Dictionary else {"intent_id": "attack"}
+	if String(template.get("intent_id", "attack")) == "curse" and _find_status_index(enemy["statuses"], &"silenced") >= 0:
+		return {
+			"intent_id": "attack",
+			"display_name_zh": "失声后的扑击",
+			"description_zh": "能力被窃走或压制，只能发动普通攻击。",
+		}
+	return template
+
+
+func _default_intent_name(intent_id: String) -> String:
+	match intent_id:
+		"curse":
+			return "诅咒"
+		"fortify":
+			return "防备"
+		"cry":
+			return "啼哭"
+		_:
+			return "攻击"
+
+
+func _refresh_enemy_intent_damage(enemy: Dictionary) -> void:
+	var intent: Dictionary = enemy.get("intent", {})
+	if intent.is_empty():
+		return
+	var damage: int = maxi(
+		0,
+		int(enemy["base_attack"])
+		+ int(enemy.get("pressure_bonus", 0))
+		+ int(intent.get("damage_delta", 0))
+	)
+	intent["damage"] = damage
+	intent["danger"] = damage + _attention_penalty() >= _danger_threshold or int(intent.get("corruption", 0)) >= 2
+	if bool(intent.get("revealed", false)):
+		intent["visible_fields"] = _intent_visible_fields(intent)
+	enemy["intent"] = intent
+
+
+func _intent_visible_fields(intent: Dictionary) -> Dictionary:
+	return {
+		"damage": int(intent.get("damage", 0)),
+		"intent_id": String(intent.get("intent_id", "attack")),
+		"display_name_zh": String(intent.get("display_name_zh", "")),
+		"corruption": int(intent.get("corruption", 0)),
+		"attention": int(intent.get("attention", 0)),
+		"block": int(intent.get("block", 0)),
+	}
+
+
+func _resolve_enemy_action(enemy: Dictionary) -> void:
+	var intent: Dictionary = enemy["intent"]
+	var bound_index := _find_status_index(enemy["statuses"], &"bound")
+	if bound_index >= 0:
+		var bound_status: Dictionary = enemy["statuses"][bound_index]
+		bound_status["stacks"] = int(bound_status.get("stacks", 1)) - 1
+		if int(bound_status["stacks"]) <= 0:
+			enemy["statuses"].remove_at(bound_index)
+		_emit(&"EnemyBound", {
+			"enemy_id": String(enemy["id"]),
+			"remaining": maxi(0, int(bound_status["stacks"])),
+		})
+		return
+	var intent_block := int(intent.get("block", 0))
+	if intent_block > 0:
+		var block_before := int(enemy["block"])
+		enemy["block"] = block_before + intent_block
+		_emit(&"BlockChanged", {
+			"target_id": String(enemy["id"]),
+			"before": block_before,
+			"after": int(enemy["block"]),
+		})
+	var raw_damage: int = maxi(
+		0,
+		int(enemy["base_attack"])
+		+ int(enemy.get("pressure_bonus", 0))
+		+ int(intent.get("damage_delta", 0))
+	)
+	var attention_bonus := _attention_penalty()
+	if attention_bonus > 0 and raw_damage > 0:
+		raw_damage += attention_bonus
+	var foresight_index := _find_status_index(_player["statuses"], &"foresight")
+	if foresight_index >= 0 and raw_damage > 0:
+		raw_damage = maxi(0, raw_damage - 1)
+		_player["statuses"].remove_at(foresight_index)
+		_emit(&"ForesightConsumed", {
+			"enemy_id": String(enemy["id"]),
+			"reduction": 1,
+		})
+	var weaken_index: int = _find_status_index(enemy["statuses"], &"weaken")
+	if weaken_index >= 0:
+		raw_damage = maxi(0, raw_damage - int(enemy["statuses"][weaken_index]["stacks"]))
+	var evasion_index := _find_status_index(_player["statuses"], &"evasion")
+	if evasion_index >= 0 and raw_damage > 0:
+		var evaded := mini(raw_damage, int(_player["statuses"][evasion_index].get("stacks", 0)))
+		raw_damage -= evaded
+		_player["statuses"].remove_at(evasion_index)
+		_emit(&"AttackEvaded", {
+			"enemy_id": String(enemy["id"]),
+			"evaded": evaded,
+		})
+	_emit(&"EnemyActed", {
+		"enemy_id": String(enemy["id"]),
+		"intent_id": String(intent.get("intent_id", "attack")),
+		"display_name_zh": String(intent.get("display_name_zh", "")),
+		"damage": raw_damage,
+		"attention_bonus": attention_bonus,
+	})
+	_apply_damage_to_player(raw_damage, String(enemy["id"]))
+	if not _is_alive(_player):
+		return
+	var silenced := _find_status_index(enemy["statuses"], &"silenced") >= 0
+	var intent_corruption := int(intent.get("corruption", 0))
+	if intent_corruption > 0 and not silenced:
+		_apply_risk(&"corruption", intent_corruption, "enemy_intent")
+	var intent_attention := int(intent.get("attention", 0))
+	if intent_attention > 0 and _outcome == OUTCOME_NONE:
+		_apply_risk(&"attention", intent_attention, "enemy_intent")
+	if _outcome != OUTCOME_NONE:
+		return
+	var threat := String(enemy.get("threat", ""))
+	if threat == "corruption" and not silenced:
+		_apply_risk(&"corruption", 2, "enemy_threat")
+	elif threat == "attention":
+		_apply_risk(&"attention", 1, "enemy_threat")
 
 
 func _apply_enemy_pressure_if_due() -> bool:
@@ -570,6 +832,10 @@ func _apply_effect(
 ) -> void:
 	var effect_id: StringName = StringName(effect.get("effect_id", ""))
 	var effect_target: StringName = _resolve_effect_target(effect, card_definition, command_target_id)
+	var source_id := String(card_definition.get("id", "effect"))
+
+	if effect_id != &"damage_all" and not _effect_condition_met(effect, command_target_id):
+		return
 
 	match effect_id:
 		&"damage":
@@ -577,7 +843,16 @@ func _apply_effect(
 			if target.is_empty():
 				_emit(&"EffectSkipped", {"effect_id": "damage", "reason_code": "target_missing"})
 				return
-			_apply_damage(target, int(effect["amount"]), String(card_definition["id"]))
+			_apply_damage(target, int(effect["amount"]), source_id)
+		&"damage_all":
+			for enemy in _enemies.duplicate():
+				if _outcome != OUTCOME_NONE:
+					return
+				if not _is_alive(enemy):
+					continue
+				if not _effect_condition_met(effect, StringName(enemy["id"])):
+					continue
+				_apply_damage(enemy, int(effect["amount"]), source_id)
 		&"block":
 			var before_block: int = int(_player["block"])
 			_player["block"] = before_block + int(effect["amount"])
@@ -595,6 +870,19 @@ func _apply_effect(
 				"hp_before": hp_before_heal,
 				"hp_after": int(_player["hp"]),
 			})
+		&"lose_hp":
+			var hp_before_cost: int = int(_player["hp"])
+			var cost: int = mini(maxi(0, int(effect["amount"])), maxi(0, hp_before_cost - 1))
+			_player["hp"] = hp_before_cost - cost
+			_emit(&"DamageApplied", {
+				"source_id": source_id + ".cost",
+				"target_id": String(_player["actor_id"]),
+				"amount": cost,
+				"raw_amount": int(effect["amount"]),
+				"hp_before": hp_before_cost,
+				"hp_after": int(_player["hp"]),
+				"self_cost": true,
+			})
 		&"draw":
 			for _draw_index in range(int(effect["count"])):
 				_draw_one()
@@ -607,6 +895,17 @@ func _apply_effect(
 				"reason_code": "card_effect",
 			})
 		&"apply_status":
+			if String(effect.get("target", "")) == "all_enemies":
+				for enemy in _enemies:
+					if _is_alive(enemy):
+						_apply_status(
+							enemy,
+							StringName(effect["status_id"]),
+							int(effect["stacks"]),
+							int(effect.get("duration", 1)),
+							int(effect.get("max_stacks", 999))
+						)
+				return
 			var status_target: Dictionary = _resolve_actor(effect_target)
 			if status_target.is_empty():
 				_emit(&"EffectSkipped", {
@@ -649,23 +948,50 @@ func _apply_effect(
 					"reason_code": "target_missing",
 				})
 				return
-			reveal_target["intent"]["revealed"] = true
-			reveal_target["intent"]["visible_fields"] = {
-				"damage": int(reveal_target["intent"].get("damage", 0)),
-			}
+			_reveal_enemy_intent(reveal_target)
 			_apply_status(_player, &"foresight", 1, 1, 1)
-			_emit(&"IntentRevealed", {
-				"enemy_id": String(reveal_target["id"]),
-				"revealed_fields": reveal_target["intent"]["visible_fields"].duplicate(true),
+		&"reveal_all":
+			var revealed_any := false
+			for enemy in _enemies:
+				if _is_alive(enemy):
+					_reveal_enemy_intent(enemy)
+					revealed_any = true
+			if revealed_any:
+				_apply_status(_player, &"foresight", 1, 1, 1)
+		&"steal_attack":
+			var steal_target: Dictionary = _resolve_actor(effect_target)
+			if steal_target.is_empty() or steal_target == _player:
+				_emit(&"EffectSkipped", {
+					"effect_id": "steal_attack",
+					"reason_code": "target_missing",
+				})
+				return
+			var attack_before := int(steal_target.get("base_attack", 0))
+			var stolen := mini(attack_before, maxi(0, int(effect["amount"])))
+			steal_target["base_attack"] = attack_before - stolen
+			_refresh_enemy_intent_damage(steal_target)
+			_emit(&"PowerStolen", {
+				"enemy_id": String(steal_target["id"]),
+				"amount": stolen,
+				"before": attack_before,
+				"after": int(steal_target["base_attack"]),
 			})
 		&"prepare_ritual":
+			var ritual_before := _player_status_stacks(&"ritual_preparation")
 			_apply_status(
 				_player,
 				&"ritual_preparation",
 				int(effect.get("amount", 1)),
 				99,
-				3
+				RITUAL_MAX_STACKS
 			)
+			var ritual_after := _player_status_stacks(&"ritual_preparation")
+			if ritual_after > ritual_before:
+				_emit(&"RitualProgressed", {
+					"before": ritual_before,
+					"after": ritual_after,
+					"max": RITUAL_MAX_STACKS,
+				})
 		&"risk":
 			_apply_risk(StringName(effect["risk_id"]), int(effect["amount"]))
 		_:
@@ -673,6 +999,102 @@ func _apply_effect(
 				"effect_id": String(effect_id),
 				"reason_code": "effect_not_registered",
 			})
+
+
+func _reveal_enemy_intent(enemy: Dictionary) -> void:
+	if enemy["intent"].is_empty():
+		return
+	enemy["intent"]["revealed"] = true
+	enemy["intent"]["visible_fields"] = _intent_visible_fields(enemy["intent"])
+	_emit(&"IntentRevealed", {
+		"enemy_id": String(enemy["id"]),
+		"revealed_fields": enemy["intent"]["visible_fields"].duplicate(true),
+	})
+
+
+func _effect_condition_met(effect: Dictionary, target_id: StringName) -> bool:
+	var condition_value: Variant = effect.get("condition", null)
+	if not condition_value is Dictionary or condition_value.is_empty():
+		return true
+	var condition: Dictionary = condition_value
+	var target: Dictionary = {}
+	if not target_id.is_empty() and target_id != StringName(_player["actor_id"]):
+		target = _resolve_actor(target_id)
+	var met := true
+	if condition.has("target_has_trait"):
+		met = met and _actor_has_any_trait(target, condition["target_has_trait"])
+	if condition.has("target_has_status"):
+		met = met and not target.is_empty() and _find_status_index(target["statuses"], StringName(condition["target_has_status"])) >= 0
+	if condition.has("target_intent_revealed"):
+		met = met and not target.is_empty() and bool(target["intent"].get("revealed", false))
+	if condition.has("target_tier"):
+		met = met and not target.is_empty() and String(target.get("tier", "")) in _as_string_array(condition["target_tier"])
+	if condition.has("any_enemy_danger"):
+		var any_danger := false
+		for enemy in _enemies:
+			if _is_alive(enemy) and bool(enemy["intent"].get("danger", false)):
+				any_danger = true
+		met = met and any_danger
+	if condition.has("player_has_status"):
+		met = met and _find_status_index(_player["statuses"], StringName(condition["player_has_status"])) >= 0
+	if met:
+		_emit(&"ConditionMet", {
+			"target_id": String(target_id),
+			"effect_id": String(effect.get("effect_id", "")),
+			"condition": condition.duplicate(true),
+		})
+	return met
+
+
+func _actor_has_any_trait(actor: Dictionary, traits_value: Variant) -> bool:
+	if actor.is_empty():
+		return false
+	var actor_traits: Array = actor.get("traits", [])
+	for trait_id in _as_string_array(traits_value):
+		if trait_id in actor_traits:
+			return true
+	return false
+
+
+func _as_string_array(value: Variant) -> Array[String]:
+	var result: Array[String] = []
+	if value is Array:
+		for item in value:
+			result.append(String(item))
+	elif value != null:
+		result.append(String(value))
+	return result
+
+
+func _resolve_ritual_scaling(definition: Dictionary) -> Array:
+	var effects: Array = definition.get("effects", []).duplicate(true)
+	if not bool(definition.get("consumes_ritual", false)):
+		return effects
+	var stacks := _player_status_stacks(&"ritual_preparation")
+	for index in range(effects.size()):
+		if not effects[index] is Dictionary:
+			continue
+		var effect: Dictionary = effects[index]
+		var per_stack := int(effect.get("per_ritual_stack", 0))
+		if per_stack == 0 or stacks <= 0:
+			continue
+		var field := "amount"
+		if effect.has("count"):
+			field = "count"
+		elif effect.has("stacks"):
+			field = "stacks"
+		effect[field] = int(effect.get(field, 0)) + per_stack * stacks
+		effects[index] = effect
+	var ritual_index := _find_status_index(_player["statuses"], &"ritual_preparation")
+	if ritual_index >= 0:
+		_player["statuses"].remove_at(ritual_index)
+	_emit(&"RitualCompleted", {
+		"definition_id": String(definition.get("id", "")),
+		"stacks": stacks,
+		"max": RITUAL_MAX_STACKS,
+		"complete": stacks >= RITUAL_MAX_STACKS,
+	})
+	return effects
 
 
 func _resolve_effect_target(
@@ -743,6 +1165,8 @@ func _apply_damage(target: Dictionary, base_amount: int, source_id: String) -> v
 	if int(target["hp"]) <= 0 and not bool(target.get("defeated_announced", false)):
 		target["defeated_announced"] = true
 		_emit(&"EnemyDefeated", {"enemy_id": String(target["id"])})
+	elif amount - absorbed > 0:
+		_check_enemy_hp_phases(target)
 
 
 func _apply_damage_to_player(amount: int, source_id: String) -> void:
@@ -774,15 +1198,8 @@ func _apply_status(
 	duration: int,
 	max_stacks: int
 ) -> void:
-	if status_id == &"mark" and target != _player:
-		var ritual_index := _find_status_index(_player["statuses"], &"ritual_preparation")
-		if ritual_index >= 0 and int(_player["statuses"][ritual_index].get("stacks", 0)) >= 3:
-			stacks += 1
-			_player["statuses"].remove_at(ritual_index)
-			_emit(&"RitualPrepared", {
-				"target_id": _actor_id(target),
-				"bonus_mark": 1,
-			})
+	if status_id == &"bound":
+		duration = maxi(duration, stacks)
 	var statuses: Array = target["statuses"]
 	var index: int = _find_status_index(statuses, status_id)
 	if status_id == &"weaken":
@@ -863,7 +1280,7 @@ func _tick_single_status(statuses: Array, index: int) -> void:
 		statuses.remove_at(index)
 
 
-func _apply_risk(risk_id: StringName, amount: int) -> void:
+func _apply_risk(risk_id: StringName, amount: int, reason_code: String = "card_effect") -> void:
 	var current_key: String
 	var max_key: String
 	match risk_id:
@@ -889,7 +1306,7 @@ func _apply_risk(risk_id: StringName, amount: int) -> void:
 		"risk_id": String(risk_id),
 		"before": before,
 		"after": int(_player[current_key]),
-		"reason_code": "card_effect",
+		"reason_code": reason_code,
 	})
 	if current_key == "corruption" and int(_player[current_key]) >= int(_player[max_key]):
 		_emit(&"CorruptionOverflow", {
@@ -988,17 +1405,8 @@ func _activate_next_wave() -> bool:
 		var enemy: Dictionary = enemy_source.duplicate(true)
 		if not _validate_enemy_state(enemy):
 			return false
-		var phase_source: Variant = enemy.get("phases", [])
-		enemy["phases"] = phase_source.duplicate(true) if phase_source is Array else []
-		if not _validate_enemy_phases(enemy["phases"]):
+		if not _prepare_enemy_runtime(enemy):
 			return false
-		enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0))
-		enemy["block"] = int(enemy.get("block", 0))
-		enemy["statuses"] = []
-		enemy["intent"] = {}
-		enemy["defeated_announced"] = false
-		enemy["phases"] = enemy.get("phases", []).duplicate(true)
-		enemy["triggered_phases"] = []
 		_enemies.append(enemy)
 	_enemies.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["lane_index"]) < int(b["lane_index"])
@@ -1072,16 +1480,27 @@ func _validate_enemy_phases(phases_value: Variant) -> bool:
 	if not phases_value is Array:
 		return false
 	var seen_rounds: Dictionary = {}
+	var seen_thresholds: Dictionary = {}
 	for value in phases_value:
 		if not value is Dictionary:
 			return false
 		var phase: Dictionary = value
-		if not _is_positive_integer(phase.get("at_round")):
+		if phase.has("at_hp_percent"):
+			if not _is_integer_number(phase.get("at_hp_percent")):
+				return false
+			var threshold := int(phase["at_hp_percent"])
+			if threshold <= 0 or threshold >= 100 or seen_thresholds.has(threshold):
+				return false
+			seen_thresholds[threshold] = true
+		else:
+			if not _is_positive_integer(phase.get("at_round")):
+				return false
+			var at_round: int = int(phase["at_round"])
+			if seen_rounds.has(at_round):
+				return false
+			seen_rounds[at_round] = true
+		if phase.has("intents") and not phase["intents"] is Array:
 			return false
-		var at_round: int = int(phase["at_round"])
-		if seen_rounds.has(at_round):
-			return false
-		seen_rounds[at_round] = true
 		if not _is_non_negative_integer(phase.get("base_attack_bonus", 0)):
 			return false
 		if not _is_non_negative_integer(phase.get("block_bonus", 0)):
@@ -1119,8 +1538,12 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 	var effect_target: StringName = StringName(effect.get("target", ""))
 	if (
 		not effect_target.is_empty()
-		and effect_target not in [&"self", &"enemy", &"run", &"none"]
+		and effect_target not in [&"self", &"enemy", &"run", &"none", &"all_enemies"]
 	):
+		return false
+	if effect.has("condition") and not effect["condition"] is Dictionary:
+		return false
+	if effect.has("per_ritual_stack") and not _is_integer_number(effect.get("per_ritual_stack")):
 		return false
 	match effect_id:
 		&"damage", &"block", &"heal", &"spirit":
@@ -1130,7 +1553,7 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 		&"apply_status":
 			if not (effect.get("status_id") is String):
 				return false
-			if String(effect["status_id"]) not in ["mark", "weaken", "foresight", "ritual_preparation"]:
+			if String(effect["status_id"]) not in SUPPORTED_STATUSES:
 				return false
 			if not _is_positive_integer(effect.get("stacks")):
 				return false
@@ -1140,10 +1563,12 @@ func _validate_effect_definition(effect: Dictionary) -> bool:
 		&"remove_status":
 			return (
 				effect.get("status_id") is String
-				and String(effect["status_id"]) in ["mark", "weaken", "foresight", "ritual_preparation"]
+				and String(effect["status_id"]) in SUPPORTED_STATUSES
 			)
-		&"reveal_intent":
+		&"reveal_intent", &"reveal_all":
 			return true
+		&"damage_all", &"lose_hp", &"steal_attack":
+			return _is_non_negative_integer(effect.get("amount"))
 		&"risk":
 			return (
 				effect.get("risk_id") is String
@@ -1228,6 +1653,15 @@ func _reset_runtime() -> void:
 	_chain_draw = 0
 	_chain_spirit = 0
 	_chain_count = 0
+	_exhaust_pile.clear()
+	_deck_definition_ids.clear()
+	_turn_played_ids.clear()
+	_turn_triggered_synergies.clear()
+	_turn_last_enemy_target = &""
+	_synergies.clear()
+	_danger_threshold = DEFAULT_DANGER_THRESHOLD
+	_attention_hunter_at = 0
+	_corruption_penalty_at = 0
 	_player = {}
 	_enemies.clear()
 	_pending_enemy_waves.clear()
@@ -1236,3 +1670,207 @@ func _reset_runtime() -> void:
 	_discard_pile.clear()
 	_hand.clear()
 	_pending_events.clear()
+
+
+func _prepare_enemy_runtime(enemy: Dictionary) -> bool:
+	enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0))
+	enemy["block"] = int(enemy.get("block", 0))
+	enemy["statuses"] = []
+	enemy["intent"] = {}
+	enemy["defeated_announced"] = false
+	var phase_source: Variant = enemy.get("phases", [])
+	enemy["phases"] = (
+		phase_source.duplicate(true)
+		if phase_source is Array
+		else phase_source
+	)
+	enemy["triggered_phases"] = []
+	var traits_source: Variant = enemy.get("traits", [])
+	var traits: Array = []
+	if traits_source is Array:
+		for trait_value in traits_source:
+			traits.append(String(trait_value))
+	enemy["traits"] = traits
+	var intents_source: Variant = enemy.get("intents", [])
+	enemy["intents"] = intents_source.duplicate(true) if intents_source is Array else []
+	return _validate_enemy_phases(enemy["phases"])
+
+
+func _load_synergies() -> void:
+	_synergies.clear()
+	if _content == null or not _content.has_method("get_synergies"):
+		return
+	var source: Variant = _content.call("get_synergies")
+	if not source is Array:
+		return
+	for value in source:
+		if not value is Dictionary:
+			continue
+		var synergy: Dictionary = value
+		var groups: Variant = synergy.get("requires", [])
+		if String(synergy.get("id", "")).is_empty() or not groups is Array or groups.is_empty():
+			continue
+		var valid := true
+		for group in groups:
+			if not group is Array or group.is_empty():
+				valid = false
+		for effect in synergy.get("effects", []):
+			if not effect is Dictionary or not _validate_effect_definition(effect):
+				valid = false
+		if valid:
+			_synergies.append(synergy.duplicate(true))
+
+
+func _synergy_ids_for_card(definition_id: String) -> Array:
+	var result: Array = []
+	for synergy in _synergies:
+		for group in synergy.get("requires", []):
+			if definition_id in _as_string_array(group):
+				result.append(String(synergy.get("id", "")))
+				break
+	return result
+
+
+func _synergy_views() -> Array:
+	var views: Array = []
+	for synergy in _synergies:
+		var groups: Array = synergy.get("requires", [])
+		var in_deck := true
+		var satisfied: Array = []
+		var group_views: Array = []
+		for group in groups:
+			var ids := _as_string_array(group)
+			var group_in_deck := false
+			var group_played := false
+			for card_id in ids:
+				if card_id in _deck_definition_ids:
+					group_in_deck = true
+				if card_id in _turn_played_ids:
+					group_played = true
+			in_deck = in_deck and group_in_deck
+			satisfied.append(group_played)
+			group_views.append(ids)
+		views.append({
+			"id": String(synergy.get("id", "")),
+			"display_name_zh": String(synergy.get("display_name_zh", "")),
+			"source_zh": String(synergy.get("source_zh", "")),
+			"bonus_text_zh": String(synergy.get("bonus_text_zh", "")),
+			"requires": group_views,
+			"satisfied": satisfied,
+			"in_deck": in_deck,
+			"triggered_this_turn": String(synergy.get("id", "")) in _turn_triggered_synergies,
+		})
+	return views
+
+
+func _check_synergies(played_definition_id: String, command_target_id: StringName) -> void:
+	for synergy in _synergies:
+		if _outcome != OUTCOME_NONE:
+			return
+		var synergy_id := String(synergy.get("id", ""))
+		if synergy_id in _turn_triggered_synergies:
+			continue
+		var groups: Array = synergy.get("requires", [])
+		var completes := false
+		var all_satisfied := true
+		for group in groups:
+			var ids := _as_string_array(group)
+			if played_definition_id in ids:
+				completes = true
+			var group_played := false
+			for card_id in ids:
+				if card_id in _turn_played_ids:
+					group_played = true
+			all_satisfied = all_satisfied and group_played
+		if not completes or not all_satisfied:
+			continue
+		_turn_triggered_synergies.append(synergy_id)
+		var target_id := _synergy_target(command_target_id)
+		_emit(&"SynergyTriggered", {
+			"synergy_id": synergy_id,
+			"display_name_zh": String(synergy.get("display_name_zh", "")),
+			"source_zh": String(synergy.get("source_zh", "")),
+			"bonus_text_zh": String(synergy.get("bonus_text_zh", "")),
+			"target_id": String(target_id),
+		})
+		var pseudo_definition := {
+			"id": synergy_id,
+			"target_type": "enemy" if not target_id.is_empty() else "self",
+		}
+		for effect_value in synergy.get("effects", []):
+			if _outcome != OUTCOME_NONE:
+				return
+			if effect_value is Dictionary:
+				_apply_effect(effect_value, pseudo_definition, target_id)
+
+
+func _synergy_target(command_target_id: StringName) -> StringName:
+	for candidate in [command_target_id, _turn_last_enemy_target]:
+		if StringName(candidate).is_empty():
+			continue
+		var actor := _resolve_actor(StringName(candidate))
+		if not actor.is_empty() and actor != _player:
+			return StringName(candidate)
+	for enemy in _enemies:
+		if _is_alive(enemy):
+			return StringName(enemy["id"])
+	return &""
+
+
+func _reset_turn_tracking() -> void:
+	_turn_played_ids.clear()
+	_turn_triggered_synergies.clear()
+	_turn_last_enemy_target = &""
+
+
+func _player_status_stacks(status_id: StringName) -> int:
+	if _player.is_empty():
+		return 0
+	var index := _find_status_index(_player.get("statuses", []), status_id)
+	return int(_player["statuses"][index].get("stacks", 0)) if index >= 0 else 0
+
+
+func _attention_penalty() -> int:
+	if _player.is_empty() or _attention_hunter_at <= 0:
+		return 0
+	var attention := int(_player.get("attention", 0))
+	if attention >= int(_player.get("max_attention", 10)):
+		return 2
+	return 1 if attention >= _attention_hunter_at else 0
+
+
+func _corruption_penalty() -> int:
+	if _player.is_empty() or _corruption_penalty_at <= 0:
+		return 0
+	return 1 if int(_player.get("corruption", 0)) >= _corruption_penalty_at else 0
+
+
+func _apply_sluggish() -> void:
+	var index := _find_status_index(_player["statuses"], &"sluggish")
+	if index < 0:
+		return
+	var stacks := int(_player["statuses"][index].get("stacks", 0))
+	_player["statuses"].remove_at(index)
+	var before := int(_player["spirit"])
+	_player["spirit"] = maxi(0, before - stacks)
+	_emit(&"SpiritChanged", {
+		"before": before,
+		"after": int(_player["spirit"]),
+		"reason_code": "sluggish",
+	})
+
+
+func _apply_corruption_round_penalty() -> void:
+	var penalty := _corruption_penalty()
+	if penalty <= 0 or _round_number <= 1:
+		return
+	var hp_before := int(_player["hp"])
+	_player["hp"] = maxi(0, hp_before - penalty)
+	_emit(&"DamageApplied", {
+		"source_id": "corruption.penalty",
+		"target_id": String(_player["actor_id"]),
+		"amount": hp_before - int(_player["hp"]),
+		"raw_amount": penalty,
+		"hp_before": hp_before,
+		"hp_after": int(_player["hp"]),
+	})

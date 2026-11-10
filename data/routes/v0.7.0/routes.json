@@ -7,8 +7,8 @@
   "routes": [
     {
       "id": "route.v070.first_case",
-      "display_name_zh": "廷根旧宅调查",
-      "description_zh": "沿镜厅留下的旧痕稳步推进，在休整后迎战男爵并完成晋升仪式。",
+      "display_name_zh": "值夜者档案：安提哥努斯笔记案",
+      "description_zh": "以序列8的身份重走第一卷前半：密修会、提利尔仓库与老尼尔的失控。",
       "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
@@ -30,8 +30,8 @@
       "rest_options": [
         {
           "id": "rest.bandage",
-          "display_name_zh": "包扎伤口",
-          "description_zh": "恢复生命，但无法驱散跟随你的目光。",
+          "display_name_zh": "值夜者的包扎",
+          "description_zh": "回到黑荆棘安保公司处理伤口；身体恢复了，灵性上的痕迹却还在。",
           "effects": {
             "hp_delta": 12,
             "corruption_delta": 0,
@@ -40,8 +40,8 @@
         },
         {
           "id": "rest.seal_echo",
-          "display_name_zh": "封锁回声",
-          "description_zh": "引来更多注视，封锁旧宅回声，并让下一场战斗获得额外灵性上限。",
+          "display_name_zh": "占卜俱乐部的扮演",
+          "description_zh": "在占卜俱乐部为人解读启示，按占卜家守则消化魔药、压低污染；名声带来更多注视，也让下一战灵性更充沛。",
           "effects": {
             "hp_delta": 0,
             "corruption_delta": -2,
@@ -54,38 +54,38 @@
         {
           "id": "route.v070.node.first_hunt",
           "type": "normal",
-          "display_name_zh": "雨夜双影",
+          "display_name_zh": "密修会的闯入者",
           "encounter_id": "encounter.first_hunt"
         },
         {
           "id": "route.v070.node.mirror_pursuit",
           "type": "elite",
-          "display_name_zh": "回声追猎",
+          "display_name_zh": "提利尔仓库",
           "encounter_id": "encounter.mirror_pursuit"
         },
         {
           "id": "route.v070.node.old_house_rest",
           "type": "rest",
-          "display_name_zh": "旧宅喘息"
+          "display_name_zh": "黑荆棘安保公司"
         },
         {
           "id": "route.v070.node.mirror_baron",
           "type": "boss",
-          "display_name_zh": "镜厅男爵",
+          "display_name_zh": "失控的老尼尔",
           "encounter_id": "encounter.mirror_baron"
         },
         {
           "id": "route.v070.node.ascension",
           "type": "ritual",
-          "display_name_zh": "被篡改的讣告",
-          "ritual_id": "ritual.v070.tampered_obituary"
+          "display_name_zh": "转运仪式",
+          "ritual_id": "ritual.v070.fractured_obituary"
         }
       ]
     },
     {
       "id": "route.v070.broken_procession",
-      "display_name_zh": "破碎游行",
-      "description_zh": "双影与首领同行，路线更短、压力更集中，适合已有卡组的挑战。",
+      "display_name_zh": "值夜者档案：邪神子嗣降临",
+      "description_zh": "1349年9月9日，梅高欧丝来到黑荆棘安保公司。邓恩、伦纳德与克莱恩必须阻止真实造物主的子嗣降临。",
       "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
@@ -107,8 +107,8 @@
       "rest_options": [
         {
           "id": "rest.bandage",
-          "display_name_zh": "包扎伤口",
-          "description_zh": "恢复生命，但破碎仪式会继续侵蚀精神。",
+          "display_name_zh": "值夜者的包扎",
+          "description_zh": "回到黑荆棘安保公司处理伤口；身体恢复了，灵性上的痕迹却还在。",
           "effects": {
             "hp_delta": 12,
             "corruption_delta": 0,
@@ -117,8 +117,8 @@
         },
         {
           "id": "rest.seal_echo",
-          "display_name_zh": "封锁回声",
-          "description_zh": "压低污染，换来下一战更多灵性，同时增加被注视。",
+          "display_name_zh": "占卜俱乐部的扮演",
+          "description_zh": "在占卜俱乐部为人解读启示，按占卜家守则消化魔药、压低污染；名声带来更多注视，也让下一战灵性更充沛。",
           "effects": {
             "hp_delta": 0,
             "corruption_delta": -2,
@@ -131,38 +131,38 @@
         {
           "id": "route.v070.broken.node.first_hunt",
           "type": "normal",
-          "display_name_zh": "破碎雨夜",
-          "encounter_id": "encounter.first_hunt"
+          "display_name_zh": "伍德家的恶灵",
+          "encounter_id": "encounter.v028.boundary"
         },
         {
           "id": "route.v070.broken.node.twin_pursuit",
           "type": "elite",
-          "display_name_zh": "双影追猎",
+          "display_name_zh": "拉姆德小镇驱邪",
           "encounter_id": "encounter.v070.twin_pursuit"
         },
         {
           "id": "route.v070.broken.node.old_house_rest",
           "type": "rest",
-          "display_name_zh": "破碎旧宅"
+          "display_name_zh": "撤离与准备"
         },
         {
           "id": "route.v070.broken.node.mirror_baron",
           "type": "boss",
-          "display_name_zh": "破碎游行",
+          "display_name_zh": "邪神子嗣降临",
           "encounter_id": "encounter.v070.broken_baron"
         },
         {
           "id": "route.v070.broken.node.ascension",
           "type": "ritual",
-          "display_name_zh": "被篡改的讣告·残页",
+          "display_name_zh": "灰雾之上的复苏",
           "ritual_id": "ritual.v070.fractured_obituary"
         }
       ]
     },
     {
       "id": "route.v070.mirror_watch",
-      "display_name_zh": "镜廊巡夜",
-      "description_zh": "先追双影再深入旧宅；前置休整与不同的精英顺序改变资源节奏。",
+      "display_name_zh": "值夜者档案：廷根的巧合",
+      "description_zh": "0-08书写的巧合接连发生：怨魂、失控者与梅高欧丝。",
       "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
@@ -184,8 +184,8 @@
       "rest_options": [
         {
           "id": "rest.bandage",
-          "display_name_zh": "包扎伤口",
-          "description_zh": "在巡夜中途恢复生命，继续维持被注视的代价。",
+          "display_name_zh": "值夜者的包扎",
+          "description_zh": "回到黑荆棘安保公司处理伤口；身体恢复了，灵性上的痕迹却还在。",
           "effects": {
             "hp_delta": 12,
             "corruption_delta": 0,
@@ -194,8 +194,8 @@
         },
         {
           "id": "rest.seal_echo",
-          "display_name_zh": "封锁回声",
-          "description_zh": "压低污染并为下一战换取更高灵性上限。",
+          "display_name_zh": "占卜俱乐部的扮演",
+          "description_zh": "在占卜俱乐部为人解读启示，按占卜家守则消化魔药、压低污染；名声带来更多注视，也让下一战灵性更充沛。",
           "effects": {
             "hp_delta": 0,
             "corruption_delta": -2,
@@ -208,42 +208,42 @@
         {
           "id": "route.v070.mirror_watch.node.first_hunt",
           "type": "normal",
-          "display_name_zh": "双影巡夜",
+          "display_name_zh": "拉姆德小镇驱邪",
           "encounter_id": "encounter.v070.twin_pursuit"
         },
         {
           "id": "route.v070.mirror_watch.node.rest",
           "type": "rest",
-          "display_name_zh": "巡夜歇脚"
+          "display_name_zh": "查尼斯门值夜"
         },
         {
           "id": "route.v070.mirror_watch.node.elite",
           "type": "elite",
-          "display_name_zh": "旧宅回声",
-          "encounter_id": "encounter.mirror_pursuit"
+          "display_name_zh": "码头货船的失控者",
+          "encounter_id": "encounter.v031.cargo_ship"
         },
         {
           "id": "route.v070.mirror_watch.node.boss",
           "type": "boss",
-          "display_name_zh": "破碎男爵",
+          "display_name_zh": "邪神子嗣降临",
           "encounter_id": "encounter.v070.broken_baron"
         },
         {
           "id": "route.v070.mirror_watch.node.ascension",
           "type": "ritual",
-          "display_name_zh": "残页讣告",
+          "display_name_zh": "灰雾之上的复苏",
           "ritual_id": "ritual.v070.fractured_obituary"
         }
       ]
     },
     {
       "id": "route.v028.first_stage",
-      "display_name_zh": "廷根异常调查·第一阶段",
-      "description_zh": "沿着灵视捕捉到的异常痕迹推进；房客、怨影与镜廊边界会在同一事件中逐层出现。",
+      "display_name_zh": "第一卷·小丑：廷根值夜者",
+      "description_zh": "从密修会的闯入到老尼尔的失控，以占卜家的身份经历廷根值夜者的夏天，消化魔药并晋升小丑。",
       "chapter_id": "tingen.case.01",
-      "chapter_title_zh": "廷根：雨夜异常调查",
-      "chapter_phase_zh": "从灵视到证据",
-      "chapter_summary_zh": "占卜家在雨夜捕捉到一条不属于活人的线索。先确认房客的异常，再沿回声追猎进入镜厅，最终以仪式整理证据并获得晋升魔药。",
+      "chapter_title_zh": "第一卷《小丑》：廷根",
+      "chapter_phase_zh": "序列9 占卜家 → 序列8 小丑",
+      "chapter_summary_zh": "1349年夏，克莱恩·莫雷蒂加入黑荆棘安保公司的值夜者。他只有占卜家的灵视、占卜与仪式魔法，没有任何战斗强化；依靠左轮、封印物与队友，一次次处理廷根的非凡事件，并在占卜俱乐部以扮演法消化魔药。",
       "chapter_potion_id": "potion.seer_to_clown",
       "initial_run_state": {
         "hp": 54,
@@ -265,8 +265,8 @@
       "rest_options": [
         {
           "id": "rest.bandage",
-          "display_name_zh": "包扎伤口",
-          "description_zh": "恢复生命，但无法驱散跟随你的目光。",
+          "display_name_zh": "值夜者的包扎",
+          "description_zh": "回到黑荆棘安保公司处理伤口；身体恢复了，灵性上的痕迹却还在。",
           "effects": {
             "hp_delta": 12,
             "corruption_delta": 0,
@@ -275,8 +275,8 @@
         },
         {
           "id": "rest.seal_echo",
-          "display_name_zh": "封锁回声",
-          "description_zh": "引来更多注视，封锁旧宅回声，并让下一场战斗获得额外灵性上限。",
+          "display_name_zh": "占卜俱乐部的扮演",
+          "description_zh": "在占卜俱乐部为人解读启示，按占卜家守则消化魔药、压低污染；名声带来更多注视，也让下一战灵性更充沛。",
           "effects": {
             "hp_delta": 0,
             "corruption_delta": -2,
@@ -289,71 +289,89 @@
         {
           "id": "route.v028.first_stage.node.first_hunt",
           "type": "normal",
-          "display_name_zh": "雨夜灵视",
+          "display_name_zh": "密修会的闯入者",
           "encounter_id": "encounter.first_hunt",
           "chapter_phase": "discovery",
-          "narrative_beat_zh": "灵视让雨幕中的第二道影子短暂显形。",
-          "investigation_goal_zh": "确认异常并保留一条可复核的目击线索。",
-          "reward_hint_zh": "胜利后保留灵视带来的调查优势。"
+          "narrative_beat_zh": "刚加入值夜者的第三天，一名密修会成员潜入莫雷蒂家，觊觎与安提哥努斯家族笔记有关的线索。",
+          "investigation_goal_zh": "用左轮守住家门，撑到值夜者赶来。",
+          "reward_hint_zh": "熟悉基础操作：选牌、选目标、结束回合。",
+          "source_zh": "第一卷 6月30日"
         },
         {
           "id": "route.v028.first_stage.node.tenant_trace",
           "type": "normal",
-          "display_name_zh": "哭泣房客的余波",
+          "display_name_zh": "艾略特绑架案",
           "encounter_id": "encounter.v028.tenant_trace",
           "chapter_phase": "evidence",
-          "narrative_beat_zh": "哭声停止后，三段不同的回声依次从房间深处浮出。",
-          "investigation_goal_zh": "在连续波次中辨认回声的真正来源。",
-          "reward_hint_zh": "连续完成三次清理，减少后续调查的污染压力。"
-        },
-        {
-          "id": "route.v028.first_stage.node.rest",
-          "type": "rest",
-          "display_name_zh": "占卜后的喘息",
-          "chapter_phase": "preparation",
-          "narrative_beat_zh": "短暂的安静让占卜家重新整理灵性和线索。",
-          "investigation_goal_zh": "选择恢复肉身，或封锁回声换取更强的灵性准备。",
-          "reward_hint_zh": "休整选择会影响后续镜廊调查。"
+          "narrative_beat_zh": "灵摆指向一栋废弃建筑，被绑架的小艾略特就在里面。",
+          "investigation_goal_zh": "击退两波普通绑匪；占卜家没有战斗强化，先看清意图再出手。",
+          "reward_hint_zh": "连续波次：第一波清空后才会出现下一波。",
+          "source_zh": "第一卷 7月6日"
         },
         {
           "id": "route.v028.first_stage.node.mirror_pursuit",
           "type": "elite",
-          "display_name_zh": "回声追猎",
+          "display_name_zh": "提利尔仓库",
           "encounter_id": "encounter.mirror_pursuit",
           "chapter_phase": "pursuit",
-          "narrative_beat_zh": "被占卜锁定的回声开始反向追踪灵体。",
-          "investigation_goal_zh": "在镜影逼近前打断追猎，确认镜厅方向。",
-          "reward_hint_zh": "精英战胜利后，晋升仪式线索变得可读。"
+          "narrative_beat_zh": "2-049被送到廷根追查瑞尔·比伯；密修会的燕尾服小丑尾随而来，所有人都被木偶减缓了动作。",
+          "investigation_goal_zh": "先解决失控的瑞尔·比伯，再面对燕尾服小丑；用2-049控制他，然后开枪。",
+          "reward_hint_zh": "原著联动“提利尔仓库”：2-049 + 左轮/猎魔子弹。",
+          "source_zh": "第一卷 7月12日"
         },
         {
           "id": "route.v028.first_stage.node.boundary",
           "type": "normal",
-          "display_name_zh": "镜廊边界",
+          "display_name_zh": "伍德家的恶灵",
           "encounter_id": "encounter.v028.boundary",
           "chapter_phase": "threshold",
-          "narrative_beat_zh": "镜廊边界把肉身脚步和灵体回声分成两条路径。",
-          "investigation_goal_zh": "穿过边界而不让污染和被注视失控。",
-          "reward_hint_zh": "胜利后可直面镜厅中的异常核心。"
+          "narrative_beat_zh": "赛琳娜·伍德的生日宴上，女孩们玩起魔镜占卜，招来的恶灵附在了她身上。",
+          "investigation_goal_zh": "以灵性之墙与驱邪仪式驱除恶灵。",
+          "reward_hint_zh": "原著联动“伍德家驱灵”：驱邪仪式 + 魔镜占卜/灵视。",
+          "source_zh": "第一卷 7月15日"
+        },
+        {
+          "id": "route.v028.first_stage.node.rest",
+          "type": "rest",
+          "display_name_zh": "占卜俱乐部",
+          "chapter_phase": "preparation",
+          "narrative_beat_zh": "占卜家守则：帮助别人解读启示，但不能完全依赖占卜。克莱恩在豪尔斯街的俱乐部里扮演、消化。",
+          "investigation_goal_zh": "选择包扎伤口，或以扮演法消化魔药、压低污染。",
+          "reward_hint_zh": "扮演会推进魔药消化，但也会带来更多注视。",
+          "source_zh": "第一卷 7月8日起"
+        },
+        {
+          "id": "route.v028.first_stage.node.lamud",
+          "type": "elite",
+          "display_name_zh": "拉姆德小镇驱邪",
+          "encounter_id": "encounter.v070.twin_pursuit",
+          "chapter_phase": "pursuit",
+          "narrative_beat_zh": "伊丽莎白的噩梦来自拉姆德小镇的一具黑色骑士铠甲。邓恩申请取出3-0782，带着克莱恩与弗莱前往驱邪。",
+          "investigation_goal_zh": "在骑士怨魂缩回铠甲前，以净化力量将其驱散。",
+          "reward_hint_zh": "原著联动“拉姆德小镇驱邪”：3-0782 + 灵视/通灵。",
+          "source_zh": "第一卷 8月19日"
         },
         {
           "id": "route.v028.first_stage.node.baron",
           "type": "boss",
-          "display_name_zh": "镜厅男爵",
+          "display_name_zh": "失控的老尼尔",
           "encounter_id": "encounter.mirror_baron",
           "chapter_phase": "confrontation",
-          "narrative_beat_zh": "镜厅男爵借回声维持一具不属于自己的尊贵外壳。",
-          "investigation_goal_zh": "击破镜厅核心，确认篡改讣告的源头。",
-          "reward_hint_zh": "首领战胜利后获得小丑魔药战利品资格。"
+          "narrative_beat_zh": "教导克莱恩神秘学的老尼尔，在隐匿贤者的耳语下试图复活亡妻，最终失控成了怪物。",
+          "investigation_goal_zh": "在他彻底异变前，用安静发丝让他安静下来。",
+          "reward_hint_zh": "原著联动“可怜虫”：3-0611 + 左轮/猎魔子弹。胜利后获得小丑魔药。",
+          "source_zh": "第一卷 8月29日"
         },
         {
           "id": "route.v028.first_stage.node.ascension",
           "type": "ritual",
-          "display_name_zh": "小丑魔药的扮演仪式",
+          "display_name_zh": "晋升：小丑",
           "ritual_id": "ritual.v070.tampered_obituary",
           "chapter_phase": "advancement",
-          "narrative_beat_zh": "被篡改的讣告留下三步扮演提示，要求占卜家先读懂再服下魔药。",
-          "investigation_goal_zh": "完成三步仪式，确认第一阶段调查闭环。",
-          "reward_hint_zh": "章节完成后以战利品获得序列8魔药。"
+          "narrative_beat_zh": "老尼尔下葬两天后，克莱恩通过了克雷斯泰·塞西玛的考核，向黑夜女神起誓不泄露扮演法。",
+          "investigation_goal_zh": "回答扮演法与晋升流程的三个问题，确认可以服用小丑魔药。",
+          "reward_hint_zh": "完成后获得小丑魔药；消化度足够即可在结算页服用并晋升。",
+          "source_zh": "第一卷 8月25日—31日"
         }
       ]
     }

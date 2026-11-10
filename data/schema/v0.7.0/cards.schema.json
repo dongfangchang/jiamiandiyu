@@ -1,38 +1,177 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "v0.7.0 seer battle cards",
+  "title": "v0.31.0 seer battle cards with Tingen canon synergies",
   "type": "object",
-  "required": ["schema_version", "content_version", "cards"],
+  "required": [
+    "schema_version",
+    "content_version",
+    "cards"
+  ],
   "properties": {
-    "schema_version": {"type": "integer", "const": 1},
-    "content_version": {"type": "string", "minLength": 1},
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "string",
+      "minLength": 1
+    },
     "cards": {
       "type": "array",
       "minItems": 16,
       "x-uniqueBy": "id",
       "items": {
         "type": "object",
-        "required": ["id", "display_name_zh", "category", "cost_spirit", "target_type", "effects"],
+        "required": [
+          "id",
+          "display_name_zh",
+          "category",
+          "cost_spirit",
+          "target_type",
+          "effects"
+        ],
         "properties": {
-          "id": {"type": "string", "pattern": "^card\\."},
-          "display_name_zh": {"type": "string", "minLength": 1},
-          "description_zh": {"type": "string"},
-          "category": {"type": "string", "enum": ["identity", "skill", "artifact", "echo"]},
-          "cost_spirit": {"type": "integer", "minimum": 0, "maximum": 3},
-          "target_type": {"type": "string", "enum": ["none", "self", "enemy"]},
+          "id": {
+            "type": "string",
+            "pattern": "^card\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description_zh": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "identity",
+              "skill",
+              "artifact",
+              "echo",
+              "ally"
+            ]
+          },
+          "cost_spirit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "target_type": {
+            "type": "string",
+            "enum": [
+              "none",
+              "self",
+              "enemy"
+            ]
+          },
           "effects": {
             "type": "array",
             "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["effect_id"],
+              "required": [
+                "effect_id"
+              ],
               "properties": {
                 "effect_id": {
                   "type": "string",
-                  "enum": ["damage", "block", "heal", "draw", "spirit", "apply_status", "remove_status", "discard", "reveal_intent", "risk", "prepare_ritual"]
+                  "enum": [
+                    "damage",
+                    "block",
+                    "heal",
+                    "draw",
+                    "spirit",
+                    "apply_status",
+                    "remove_status",
+                    "discard",
+                    "reveal_intent",
+                    "risk",
+                    "prepare_ritual",
+                    "damage_all",
+                    "reveal_all",
+                    "lose_hp",
+                    "steal_attack"
+                  ]
+                },
+                "condition": {
+                  "type": "object"
+                },
+                "per_ritual_stack": {
+                  "type": "integer"
                 }
               },
               "additionalProperties": true
+            }
+          },
+          "exhaust": {
+            "type": "boolean"
+          },
+          "consumes_ritual": {
+            "type": "boolean"
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "common",
+              "rare"
+            ]
+          },
+          "source_zh": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "synergies": {
+      "type": "array",
+      "x-uniqueBy": "id",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name_zh",
+          "requires",
+          "effects",
+          "source_zh"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^synergy\\."
+          },
+          "display_name_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bonus_text_zh": {
+            "type": "string"
+          },
+          "requires": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^card\\."
+              }
+            }
+          },
+          "effects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "effect_id"
+              ]
             }
           }
         },

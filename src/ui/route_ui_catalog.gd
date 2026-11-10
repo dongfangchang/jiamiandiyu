@@ -6,7 +6,8 @@ const ROUTE_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png
 const ROUTE_BACKGROUND_DIM := 0.74
 const REST_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png"
 const RITUAL_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png"
-const BOSS_ART := "res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png"
+## Chapter bosses (失控的老尼尔 / 梅高欧丝) share the red-eyed monster art.
+const BOSS_ART := "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-candle-moth.png"
 const ROUTE_ICON_BASE := "res://assets/game/v0.24.0/v0.5.0/icons/"
 const RITUAL_CARD_BASE := "res://assets/game/v0.24.0/v0.5.0/rituals/"
 
@@ -46,7 +47,7 @@ static func node_type_text(node_type: String) -> String:
 		"boss":
 			return "首领战"
 		"ritual":
-			return "晋升仪式"
+			return "仪式"
 		_:
 			return "未知节点"
 

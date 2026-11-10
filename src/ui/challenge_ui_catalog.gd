@@ -20,23 +20,23 @@ const MODIFIER_ICONS_V07 := {
 }
 
 const CHALLENGE_NAMES := {
-	"challenge.v060.mirror_echoes": "镜厅余响",
-	"challenge.v070.broken_procession": "破碎游行",
+	"challenge.v060.mirror_echoes": "值夜者档案：笔记案",
+	"challenge.v070.broken_procession": "值夜者档案：邪神子嗣降临",
 }
 
 const REQUIRED_CHALLENGE_NAMES := {
-	"challenge.v060.mirror_echoes": "镜厅余响",
+	"challenge.v060.mirror_echoes": "值夜者档案：笔记案",
 }
 
 const ROUTE_NAMES := {
-	"route.v070.first_case": "廷根旧宅·第一路线",
-	"route.v070.broken_procession": "破碎游行·双影路线",
-	"route.v050.first_case": "廷根旧宅·第一路线",
+	"route.v070.first_case": "安提哥努斯笔记案",
+	"route.v070.broken_procession": "邪神子嗣降临",
+	"route.v050.first_case": "安提哥努斯笔记案",
 }
 
 const REWARD_NAMES := {
 	"reward.divination_tickets": "灵界占卜券",
-	"reward.ink_dart_fragments": "墨刺残页",
+	"reward.ink_dart_fragments": "左轮手枪残页",
 }
 
 

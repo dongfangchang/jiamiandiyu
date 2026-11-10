@@ -6,8 +6,8 @@
   "challenges": [
     {
       "id": "challenge.v060.mirror_echoes",
-      "display_name_zh": "镜厅余响",
-      "description_zh": "再次进入廷根旧宅，以一条修饰和已有收藏挑战镜厅男爵。",
+      "display_name_zh": "值夜者档案：笔记案",
+      "description_zh": "以序列8的身份重走第一卷前半：密修会的闯入、提利尔仓库与老尼尔的失控。",
       "route_id": "route.v070.first_case",
       "required_sequence": 8,
       "required_challenge_ids": [],
@@ -18,14 +18,16 @@
       "modifiers": [
         {
           "id": "modifier.rushed_reflection",
-          "display_name_zh": "倒影提前",
-          "description_zh": "敌人阶段提前两回合出现，快速构筑会在更早承受首领压力。",
-          "effects": {"phase_round_delta": -2}
+          "display_name_zh": "0-08的安排",
+          "description_zh": "一切巧合都来得更早：敌人的回合阶段提前两回合，血量阶段提前20%。",
+          "effects": {
+            "phase_round_delta": -2
+          }
         },
         {
           "id": "modifier.tainted_margins",
-          "display_name_zh": "染墨页边",
-          "description_zh": "带着四点污染与一点被注视进入路线；每场战斗胜利后污染再增加两点，必须用封锁回声控制失控。",
+          "display_name_zh": "笔记的低语",
+          "description_zh": "安提哥努斯家族笔记仍在暗中影响你：带着4点污染与1点被注视进入；每场战斗胜利后污染再+2，需要在占卜俱乐部扮演来压制。",
           "effects": {
             "starting_corruption_delta": 4,
             "starting_attention_delta": 1,
@@ -34,22 +36,28 @@
         },
         {
           "id": "modifier.fractured_deck",
-          "display_name_zh": "残缺牌组",
-          "description_zh": "所有纸符护持被移出战斗牌组，但完成挑战会额外获得一张占卜券。",
+          "display_name_zh": "灵性透支",
+          "description_zh": "灵性之墙暂时无法构筑（移出战斗牌组），但完成挑战额外获得一张占卜券。",
           "effects": {
-            "remove_definition_ids": ["card.skill.paper_guard"],
-            "completion_reward": {"reward.divination_tickets": 1}
+            "remove_definition_ids": [
+              "card.skill.paper_guard"
+            ],
+            "completion_reward": {
+              "reward.divination_tickets": 1
+            }
           }
         }
       ]
     },
     {
       "id": "challenge.v070.broken_procession",
-      "display_name_zh": "破碎游行",
-      "description_zh": "镜厅的第二场游行把精英与首领同时拖入同一倒影，只有完整构筑能穿过破碎讣告。",
+      "display_name_zh": "值夜者档案：邪神子嗣降临",
+      "description_zh": "1349年9月9日，梅高欧丝来到黑荆棘安保公司。以完整构筑阻止真实造物主的子嗣降临。",
       "route_id": "route.v070.broken_procession",
       "required_sequence": 8,
-      "required_challenge_ids": ["challenge.v060.mirror_echoes"],
+      "required_challenge_ids": [
+        "challenge.v060.mirror_echoes"
+      ],
       "completion_reward": {
         "reward.divination_tickets": 3,
         "reward.ink_dart_fragments": 6
@@ -57,26 +65,30 @@
       "modifiers": [
         {
           "id": "modifier.obituary_echo",
-          "display_name_zh": "讣告回声",
-          "description_zh": "带着两点额外污染进入破碎游行；错误仪式代价更重，但完成后多获得一张占卜券。",
+          "display_name_zh": "兰尔乌斯的预告函",
+          "description_zh": "“我在廷根放了一颗会越来越强的炸弹。”带着2点额外污染进入；仪式错误代价更重，但完成后多获得一张占卜券。",
           "effects": {
             "starting_corruption_delta": 2,
-            "completion_reward": {"reward.divination_tickets": 1}
+            "completion_reward": {
+              "reward.divination_tickets": 1
+            }
           }
         },
         {
           "id": "modifier.twin_shadow",
-          "display_name_zh": "双影同行",
-          "description_zh": "两枚倒影始终跟随你的脚步，初始被注视增加两点，但完成奖励额外增加两块墨刺残页。",
+          "display_name_zh": "不要看",
+          "description_zh": "灵性一直在警告你：初始被注视+2，但完成奖励额外增加两块左轮手枪残页。",
           "effects": {
             "starting_attention_delta": 2,
-            "completion_reward": {"reward.ink_dart_fragments": 2}
+            "completion_reward": {
+              "reward.ink_dart_fragments": 2
+            }
           }
         },
         {
           "id": "modifier.ritual_vigil",
-          "display_name_zh": "通宵守仪",
-          "description_zh": "提前进入敌人阶段，换取下一场战斗更高的灵性上限。",
+          "display_name_zh": "取出骨灰",
+          "description_zh": "邓恩提前取出圣赛琳娜骨灰：敌人阶段提前一回合（血量阶段提前10%），下一场战斗灵性上限+1。",
           "effects": {
             "phase_round_delta": -1,
             "starting_max_spirit_delta": 1

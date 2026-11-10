@@ -41,14 +41,14 @@ func set_potion_state(progression_data: Dictionary) -> void:
 	_potion_id = String(digestion.get("potion_id", ""))
 	var owned := _potion_id in inventory
 	var ready := bool(digestion.get("ready", false))
-	_potion_label.visible = owned
+	_potion_label.modulate = Color(1, 1, 1, 1 if owned else 0)
 	_potion_button.visible = owned
 	_potion_button.disabled = not owned or not ready
 	if owned:
-		_potion_label.text = "章节战利品：小丑魔药 · 扮演消化度 %d / %d" % [
+		UiTheme.set_clip_text(_potion_label, "章节战利品：小丑魔药 · 扮演消化度 %d / %d（在占卜俱乐部扮演、使用占卜/仪式类卡牌可推进）" % [
 			int(digestion.get("progress", 0)),
 			int(digestion.get("required", 1)),
-		]
+		])
 		_potion_button.text = "服用魔药并晋升" if ready else "消化度不足，暂不能服用"
 
 
@@ -129,17 +129,18 @@ func _build() -> void:
 	divider.color = UiTheme.C_LINE
 	divider.custom_minimum_size = Vector2(0, 1)
 	column.add_child(divider)
-	_detail_label = UiTheme.wrapped_label("", 17, UiTheme.C_PAPER)
-	_detail_label.custom_minimum_size = Vector2(0, 180)
-	column.add_child(_detail_label)
-	_save_label = UiTheme.wrapped_label("", 16, UiTheme.C_GOLD)
+	var detail_box := UiTheme.fixed_text("", 17, UiTheme.C_PAPER, 160)
+	detail_box.name = "RouteResultDetail"
+	detail_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_detail_label = UiTheme.fixed_text_label(detail_box)
+	column.add_child(detail_box)
+	_save_label = UiTheme.clip_label("", 16, UiTheme.C_GOLD)
 	column.add_child(_save_label)
-	_potion_label = UiTheme.wrapped_label("", 15, UiTheme.C_GOLD)
-	_potion_label.visible = false
+	# The potion line is always reserved; it only becomes visible in place.
+	_potion_label = UiTheme.clip_label("", 15, UiTheme.C_GOLD)
+	_potion_label.custom_minimum_size = Vector2(24, 24)
+	_potion_label.modulate = Color(1, 1, 1, 0)
 	column.add_child(_potion_label)
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spacer)
 	var footer := HBoxContainer.new()
 	footer.alignment = BoxContainer.ALIGNMENT_END
 	column.add_child(footer)
@@ -198,6 +199,7 @@ func _render_result() -> void:
 	if completed:
 		_detail_label.text += (
 			"\n\n三步仪式已经完成。下一次启动仍会保留序列 8「小丑」。"
+			+ "\n原著：1349年8月31日，克莱恩通过考核、向黑夜女神起誓后晋升小丑。"
 		)
 	else:
 		_detail_label.text += (

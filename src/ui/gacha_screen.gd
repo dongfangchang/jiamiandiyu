@@ -209,8 +209,10 @@ func _build() -> void:
 func _build_bottom_controls() -> VBoxContainer:
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
-	_guidance_label = UiTheme.wrapped_label("抽取说明等待档案。", 13, UiTheme.C_PAPER)
-	content.add_child(_guidance_label)
+	var guidance_box := UiTheme.fixed_text("抽取说明等待档案。", 13, UiTheme.C_PAPER, 38)
+	guidance_box.name = "GachaGuidanceBox"
+	_guidance_label = UiTheme.fixed_text_label(guidance_box)
+	content.add_child(guidance_box)
 	_history_label = UiTheme.label("抽卡记录：暂无", 12, UiTheme.C_PAPER_DEEP)
 	_history_label.clip_text = true
 	_history_label.tooltip_text = "最近一次祈愿的结算记录"
@@ -221,13 +223,12 @@ func _build_bottom_controls() -> VBoxContainer:
 	_history_option.text = "抽卡记录（0）"
 	_history_option.item_selected.connect(_on_history_selected)
 	content.add_child(_history_option)
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	content.add_child(_status_label)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	content.add_child(row)
-	_cost_label = UiTheme.label("祈愿费用未知", 14, UiTheme.C_PAPER)
-	_cost_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_cost_label = UiTheme.clip_label("祈愿费用未知", 14, UiTheme.C_PAPER)
 	row.add_child(_cost_label)
 	_back_button = UiTheme.button("返回白昼档案", _on_back, true, 160)
 	_single_button = UiTheme.button("单抽", func() -> void: request_draw(1), true, 132)
@@ -496,7 +497,7 @@ func _on_draw_timeout(token: int) -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

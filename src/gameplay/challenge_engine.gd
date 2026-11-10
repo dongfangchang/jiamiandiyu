@@ -231,10 +231,19 @@ func prepare_enemy_configs(enemy_configs: Array) -> Array[Dictionary]:
 				if not phase_value is Dictionary:
 					continue
 				var phase: Dictionary = phase_value.duplicate(true)
-				phase["at_round"] = maxi(
-					1,
-					int(phase.get("at_round", 1)) + phase_round_delta
-				)
+				if phase.has("at_hp_percent"):
+					# HP-threshold phases advance earlier by 10 percentage
+					# points per round of delta (negative delta = earlier).
+					phase["at_hp_percent"] = clampi(
+						int(phase.get("at_hp_percent", 50)) - phase_round_delta * 10,
+						1,
+						99
+					)
+				else:
+					phase["at_round"] = maxi(
+						1,
+						int(phase.get("at_round", 1)) + phase_round_delta
+					)
 				phases.append(phase)
 			enemy["phases"] = phases
 		prepared.append(enemy)

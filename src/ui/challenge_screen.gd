@@ -103,7 +103,7 @@ func request_start() -> void:
 		return
 	_busy = true
 	_refresh_buttons()
-	_set_status("正在展开镜厅余响……")
+	_set_status("正在调阅值夜者档案……")
 	challenge_command_requested.emit(ChallengeCommand.start_challenge())
 
 
@@ -190,19 +190,22 @@ func _build() -> void:
 	heading.add_theme_constant_override("separation", 3)
 	header.add_child(heading)
 	_eyebrow_label = UiTheme.label(
-		"镜厅余响 · 可重复挑战",
+		"值夜者档案 · 可重复挑战",
 		12,
 		UiTheme.C_GOLD
 	)
 	heading.add_child(_eyebrow_label)
-	_heading_label = UiTheme.label("镜厅余响", 42, UiTheme.C_TEXT)
+	_heading_label = UiTheme.label("值夜者档案", 42, UiTheme.C_TEXT)
 	heading.add_child(_heading_label)
-	_description_label = UiTheme.wrapped_label(
-		"晋升之后，旧宅仍在记录你的脚步。选择一条修饰，用既有收藏再次挑战镜厅男爵。",
+	var description_box := UiTheme.fixed_text(
+		"晋升小丑之后，重新翻开廷根值夜者的档案。选择一条修饰，用既有收藏重演第一卷的战斗。",
 		15,
-		UiTheme.C_PAPER
+		UiTheme.C_PAPER,
+		46
 	)
-	heading.add_child(_description_label)
+	description_box.name = "ChallengeDescriptionBox"
+	_description_label = UiTheme.fixed_text_label(description_box)
+	heading.add_child(description_box)
 	_requirement_label = UiTheme.label("", 14, UiTheme.C_MUTED)
 	_requirement_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_requirement_label)
@@ -252,7 +255,7 @@ func _build_premise() -> HBoxContainer:
 		13,
 		UiTheme.C_MUTED
 	))
-	_route_label = UiTheme.wrapped_label("路线：等待载入", 12, UiTheme.C_GOLD)
+	_route_label = UiTheme.clip_label("路线：等待载入", 12, UiTheme.C_GOLD)
 	text_column.add_child(_route_label)
 	_reward_label = UiTheme.label("", 15, UiTheme.C_GOLD)
 	_reward_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -263,7 +266,7 @@ func _build_premise() -> HBoxContainer:
 func _build_footer() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_status_label)
 	_exit_button = UiTheme.button("返回白昼档案", request_exit, true, 170)
@@ -291,13 +294,13 @@ func _render() -> void:
 		ChallengeCatalog.challenge_name(challenge_id)
 	))
 	if challenge_id == "challenge.v070.broken_procession":
-		_eyebrow_label.text = "破碎游行 · 第二挑战"
+		_eyebrow_label.text = "邪神子嗣降临 · 第二挑战"
 	else:
-		_eyebrow_label.text = "镜厅余响 · 可重复挑战"
+		_eyebrow_label.text = "安提哥努斯笔记案 · 可重复挑战"
 	_heading_label.text = challenge_name
 	_description_label.text = String(_snapshot_data.get(
 		"description_zh",
-		"选择一条修饰，用既有收藏再次进入镜厅。"
+		"选择一条修饰，用既有收藏重演廷根的战斗。"
 	))
 	_emblem.texture = load(ChallengeCatalog.challenge_emblem(challenge_id))
 	_route_label.text = "路线：" + ChallengeCatalog.route_name(
@@ -434,7 +437,7 @@ func _show_empty() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

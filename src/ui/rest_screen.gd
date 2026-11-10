@@ -107,8 +107,8 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
-	heading.add_child(UiTheme.label("旧宅档案 · 短暂休整", 12, UiTheme.C_GOLD))
-	heading.add_child(UiTheme.label("旧宅喘息", 36, UiTheme.C_TEXT))
+	heading.add_child(UiTheme.label("值夜者档案 · 短暂休整", 12, UiTheme.C_GOLD))
+	heading.add_child(UiTheme.label("休整与扮演", 36, UiTheme.C_TEXT))
 	heading.add_child(UiTheme.label(
 		"伤口、污染和目光都在门外等待。只能优先处理其中一种。",
 		14,
@@ -127,7 +127,7 @@ func _build() -> void:
 	_options_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_options_row)
 
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.custom_minimum_size = Vector2(0, 38)
 	column.add_child(_status_label)
 
@@ -227,7 +227,7 @@ func _show_empty() -> void:
 		return
 	for child in _options_row.get_children():
 		child.queue_free()
-	var empty := UiTheme.center_label("等待旧宅休息节点。", 20, UiTheme.C_MUTED)
+	var empty := UiTheme.center_label("等待休整节点。", 20, UiTheme.C_MUTED)
 	empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	empty.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_options_row.add_child(empty)
@@ -242,7 +242,7 @@ func _refresh_buttons() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

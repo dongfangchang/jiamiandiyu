@@ -4,53 +4,91 @@
   "rituals": [
     {
       "id": "ritual.v070.tampered_obituary",
-      "display_name_zh": "被篡改的讣告",
-      "description_zh": "从矛盾的记录中还原死者真正的名字、时间与封印。",
+      "display_name_zh": "晋升：小丑",
+      "description_zh": "克莱恩已在占卜俱乐部以扮演法消化了占卜家魔药。提交申请、通过考核、起誓保密，然后服下小丑魔药。",
+      "source_zh": "第一卷 8月25日：克莱恩提交魔药消化完成的特别申请；8月31日：通过克雷斯泰·塞西玛的考核，向黑夜女神起誓不泄露扮演法，晋升小丑。",
       "wrong_step_corruption": 2,
       "hint_spirit_cost": 1,
       "steps": [
         {
           "id": "step.names",
           "type": "select_ids",
-          "title_zh": "姓名记录",
-          "clue_zh": "门框上刻着两个相邻的 W；煤灰里只有两只左手印。",
-          "hint_zh": "两个人共享同一个姓氏。",
+          "title_zh": "占卜家的扮演守则",
+          "clue_zh": "考核官要求你说出消化占卜家魔药时遵循的两条守则。只有真正“扮演”过占卜家的人才答得出来。",
+          "lore_zh": "扮演法：魔药需要以扮演对应序列的方式消化，而不是单纯等待。",
+          "hint_zh": "占卜家要引导他人向好，同时对占卜本身保持敬畏。",
           "min_selections": 2,
           "max_selections": 2,
           "options": [
-            {"id": "name.elin_ward", "display_name_zh": "艾琳·沃德"},
-            {"id": "name.thomas_ward", "display_name_zh": "托马斯·沃德"},
-            {"id": "name.mira_finch", "display_name_zh": "米拉·芬奇"}
+            {
+              "id": "rule.guide_others",
+              "display_name_zh": "帮助别人解读启示，引导他们往好的方向前行"
+            },
+            {
+              "id": "rule.not_rely",
+              "display_name_zh": "不能完全依赖占卜，占卜不是万能的"
+            },
+            {
+              "id": "rule.publish_all",
+              "display_name_zh": "占卜结果必须毫无保留地公开"
+            }
           ],
-          "correct_ids": ["name.elin_ward", "name.thomas_ward"]
+          "correct_ids": [
+            "rule.guide_others",
+            "rule.not_rely"
+          ]
         },
         {
           "id": "step.chronology",
           "type": "ordered_ids",
-          "title_zh": "事件顺序",
-          "clue_zh": "死亡墨迹覆盖了出生日期，埋葬印章又压在两者之上。",
-          "hint_zh": "常理中的顺序应先于被覆盖的墨迹。",
+          "title_zh": "晋升流程",
+          "clue_zh": "值夜者的晋升有固定程序：先由本人证明消化完成，再由教会考核与起誓，最后才能服用魔药。",
+          "lore_zh": "8月25日提交特别申请，8月31日通过考核并起誓，同日晋升。",
+          "hint_zh": "申请 → 考核与起誓 → 服用魔药。",
           "min_selections": 3,
           "max_selections": 3,
           "options": [
-            {"id": "event.birth", "display_name_zh": "出生"},
-            {"id": "event.death", "display_name_zh": "死亡"},
-            {"id": "event.burial", "display_name_zh": "埋葬"}
+            {
+              "id": "event.birth",
+              "display_name_zh": "提交魔药消化完成的特别申请"
+            },
+            {
+              "id": "event.death",
+              "display_name_zh": "通过考核，向黑夜女神起誓不泄露扮演法"
+            },
+            {
+              "id": "event.burial",
+              "display_name_zh": "服用小丑魔药"
+            }
           ],
-          "correct_order": ["event.birth", "event.death", "event.burial"]
+          "correct_order": [
+            "event.birth",
+            "event.death",
+            "event.burial"
+          ]
         },
         {
           "id": "step.seal",
           "type": "select_id",
-          "title_zh": "封印符号",
-          "clue_zh": "真正的页角只有一枚倒悬的眼睛，墨色比正文更旧。",
-          "hint_zh": "寻找眼睛向下倒悬的符号。",
+          "title_zh": "小丑的扮演守则",
+          "clue_zh": "服下魔药之前，再确认一次你即将扮演的是什么。小丑能略微预知命运，却对命运感到无奈。",
+          "lore_zh": "第一卷卷名《小丑》：无力改变命运，仍笑着前行。",
+          "hint_zh": "其余两条属于序列7魔术师的守则。",
           "min_selections": 1,
           "max_selections": 1,
           "options": [
-            {"id": "seal.inverted_eye", "display_name_zh": "倒悬之眼"},
-            {"id": "seal.key", "display_name_zh": "无门之钥"},
-            {"id": "seal.broken_moon", "display_name_zh": "破损月轮"}
+            {
+              "id": "seal.inverted_eye",
+              "display_name_zh": "用笑脸遮掩所有的悲伤、痛苦、迷茫和沮丧"
+            },
+            {
+              "id": "seal.key",
+              "display_name_zh": "掌控住目标的注意力"
+            },
+            {
+              "id": "seal.broken_moon",
+              "display_name_zh": "挑战不可能，哪怕结果只是虚假的"
+            }
           ],
           "correct_id": "seal.inverted_eye"
         }
@@ -58,53 +96,91 @@
     },
     {
       "id": "ritual.v070.fractured_obituary",
-      "display_name_zh": "被篡改的讣告·残页",
-      "description_zh": "第二场游行把错误记录钉入仪式，任何误读都会加速污染。",
+      "display_name_zh": "转运仪式",
+      "description_zh": "周明瑞正是在穿越前举行了这个仪式；克莱恩之后再用它进入灰雾之上。任何一步出错都会招来疯狂的呓语。",
+      "source_zh": "第一卷：周明瑞在地球上从一本线装古书开篇读到的转运仪式。四份主食置于房间四角，站在中央逆时针走成方形，每一步念一句尊名。",
       "wrong_step_corruption": 4,
       "hint_spirit_cost": 1,
       "steps": [
         {
           "id": "step.names",
           "type": "select_ids",
-          "title_zh": "残页姓名",
-          "clue_zh": "镜框背面留下两枚相同的 W，第三枚姓名被刻意撕去。",
-          "hint_zh": "被撕去的不是沃德家的成员。",
+          "title_zh": "仪式布置",
+          "clue_zh": "这个仪式不需要蜡烛，只需要食物与正确的位置。",
+          "lore_zh": "之后克莱恩手背出现四个黑点组成的小方块，从此无需准备食物即可直接举行。",
+          "hint_zh": "食物放在四角，人站在中间。",
           "min_selections": 2,
           "max_selections": 2,
           "options": [
-            {"id": "name.elin_ward", "display_name_zh": "艾琳·沃德"},
-            {"id": "name.thomas_ward", "display_name_zh": "托马斯·沃德"},
-            {"id": "name.mira_finch", "display_name_zh": "米拉·芬奇"}
+            {
+              "id": "name.elin_ward",
+              "display_name_zh": "在房间四角各放一份主食"
+            },
+            {
+              "id": "name.thomas_ward",
+              "display_name_zh": "站在房间中央"
+            },
+            {
+              "id": "name.mira_finch",
+              "display_name_zh": "点燃代表神灵与自己的两支蜡烛"
+            }
           ],
-          "correct_ids": ["name.elin_ward", "name.thomas_ward"]
+          "correct_ids": [
+            "name.elin_ward",
+            "name.thomas_ward"
+          ]
         },
         {
           "id": "step.chronology",
           "type": "ordered_ids",
-          "title_zh": "残页时间",
-          "clue_zh": "破碎镜片映出葬礼先于死亡，但纸纤维显示那是第二次套印。",
-          "hint_zh": "按纸纤维本来的层次还原时间。",
+          "title_zh": "四句尊名",
+          "clue_zh": "逆时针走出方形，每一步念一句。称号由“仙”到“天”，由“君”到“帝”，最后是“天尊”。",
+          "lore_zh": "第七卷揭示：这四句是“天地福生玄黄天尊”在西大陆的尊名。",
+          "hint_zh": "仙尊 → 天君 → 上帝 → 天尊。",
           "min_selections": 3,
           "max_selections": 3,
           "options": [
-            {"id": "event.birth", "display_name_zh": "出生"},
-            {"id": "event.death", "display_name_zh": "死亡"},
-            {"id": "event.burial", "display_name_zh": "埋葬"}
+            {
+              "id": "event.birth",
+              "display_name_zh": "第一步：福生玄黄仙尊"
+            },
+            {
+              "id": "event.death",
+              "display_name_zh": "第二步：福生玄黄天君"
+            },
+            {
+              "id": "event.burial",
+              "display_name_zh": "第三步：福生玄黄上帝"
+            }
           ],
-          "correct_order": ["event.birth", "event.death", "event.burial"]
+          "correct_order": [
+            "event.birth",
+            "event.death",
+            "event.burial"
+          ]
         },
         {
           "id": "step.seal",
           "type": "select_id",
-          "title_zh": "残页封印",
-          "clue_zh": "倒悬之眼被镜片割裂，但瞳孔仍指向真正的残页。",
-          "hint_zh": "选择虽然破裂却仍向下注视的符号。",
+          "title_zh": "行走方向",
+          "clue_zh": "第四步念完“福生玄黄天尊”后回到原位，闭眼等待几秒。之前的每一步朝哪个方向走？",
+          "lore_zh": "仪式完成时，耳边响起几乎令人发疯的呓语，然后是无边的灰雾。",
+          "hint_zh": "与钟表指针的方向相反。",
           "min_selections": 1,
           "max_selections": 1,
           "options": [
-            {"id": "seal.inverted_eye", "display_name_zh": "倒悬之眼"},
-            {"id": "seal.key", "display_name_zh": "无门之钥"},
-            {"id": "seal.broken_moon", "display_name_zh": "破损月轮"}
+            {
+              "id": "seal.inverted_eye",
+              "display_name_zh": "逆时针，走成一个方形"
+            },
+            {
+              "id": "seal.key",
+              "display_name_zh": "顺时针，走成一个方形"
+            },
+            {
+              "id": "seal.broken_moon",
+              "display_name_zh": "原地转身四次"
+            }
           ],
           "correct_id": "seal.inverted_eye"
         }

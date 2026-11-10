@@ -5,7 +5,7 @@
   "encounters": [
     {
       "id": "encounter.first_hunt",
-      "display_name_zh": "雨夜双影",
+      "display_name_zh": "密修会的闯入者",
       "tier": "normal",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -17,20 +17,17 @@
         "card.skill.second_look",
         "card.skill.whisper"
       ],
+      "source_zh": "第一卷 6月30日",
       "enemy_slots": [
         {
-          "enemy_id": "enemy.weeping_tenant",
-          "lane_index": 0
-        },
-        {
           "enemy_id": "enemy.candle_moth",
-          "lane_index": 2
+          "lane_index": 1
         }
       ]
     },
     {
       "id": "encounter.mirror_pursuit",
-      "display_name_zh": "回声追猎",
+      "display_name_zh": "提利尔仓库",
       "tier": "elite",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -42,20 +39,29 @@
         "card.skill.second_look",
         "card.skill.whisper"
       ],
-      "enemy_slots": [
+      "source_zh": "第一卷 7月12日",
+      "waves": [
         {
-          "enemy_id": "enemy.candle_moth",
-          "lane_index": 0
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.mirror_hound",
+              "lane_index": 1
+            }
+          ]
         },
         {
-          "enemy_id": "enemy.mirror_hound_echo",
-          "lane_index": 1
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.mirror_hound_echo",
+              "lane_index": 1
+            }
+          ]
         }
       ]
     },
     {
       "id": "encounter.mirror_baron",
-      "display_name_zh": "镜厅男爵",
+      "display_name_zh": "失控的老尼尔",
       "tier": "boss",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -67,6 +73,7 @@
         "card.skill.second_look",
         "card.skill.whisper"
       ],
+      "source_zh": "第一卷 8月29日",
       "enemy_slots": [
         {
           "enemy_id": "enemy.mirror_baron",
@@ -76,7 +83,7 @@
     },
     {
       "id": "encounter.v070.twin_pursuit",
-      "display_name_zh": "双影追猎",
+      "display_name_zh": "拉姆德小镇驱邪",
       "tier": "elite",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -88,20 +95,17 @@
         "card.skill.fated_echo",
         "card.skill.second_sight"
       ],
+      "source_zh": "第一卷 8月19日",
       "enemy_slots": [
         {
-          "enemy_id": "enemy.mirror_hound_echo",
-          "lane_index": 0
-        },
-        {
-          "enemy_id": "enemy.mirror_hound",
-          "lane_index": 2
+          "enemy_id": "enemy.tingen.knight_wraith",
+          "lane_index": 1
         }
       ]
     },
     {
       "id": "encounter.v070.broken_baron",
-      "display_name_zh": "破碎游行",
+      "display_name_zh": "邪神子嗣降临",
       "tier": "boss",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -113,18 +117,17 @@
         "card.skill.mirrored_memory",
         "card.skill.whispered_hunch"
       ],
+      "source_zh": "第一卷 9月9日",
       "enemy_slots": [
         {
-          "enemy_id": "enemy.mirror_baron",
+          "enemy_id": "enemy.tingen.megose",
           "lane_index": 1
-        },
-        {
-          "enemy_id": "enemy.mirror_hound_echo",
-          "lane_index": 2
         }
       ]
     },
     {
+      "id": "encounter.v028.tenant_trace",
+      "display_name_zh": "艾略特绑架案",
       "tier": "normal",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -136,36 +139,33 @@
         "card.skill.second_look",
         "card.skill.whisper"
       ],
-      "id": "encounter.v028.tenant_trace",
-      "display_name_zh": "哭泣房客的余波",
+      "source_zh": "第一卷 7月6日",
       "waves": [
         {
           "enemy_slots": [
             {
-              "enemy_id": "enemy.weeping_tenant",
+              "enemy_id": "enemy.tingen.kidnapper",
               "lane_index": 0
-            }
-          ]
-        },
-        {
-          "enemy_slots": [
+            },
             {
-              "enemy_id": "enemy.candle_moth",
-              "lane_index": 1
-            }
-          ]
-        },
-        {
-          "enemy_slots": [
-            {
-              "enemy_id": "enemy.mirror_hound",
+              "enemy_id": "enemy.tingen.kidnapper",
               "lane_index": 2
+            }
+          ]
+        },
+        {
+          "enemy_slots": [
+            {
+              "enemy_id": "enemy.tingen.kidnapper",
+              "lane_index": 1
             }
           ]
         }
       ]
     },
     {
+      "id": "encounter.v028.boundary",
+      "display_name_zh": "伍德家的恶灵",
       "tier": "normal",
       "deck_definition_ids": [
         "card.skill.ink_dart",
@@ -177,11 +177,32 @@
         "card.skill.second_look",
         "card.skill.whisper"
       ],
-      "id": "encounter.v028.boundary",
-      "display_name_zh": "镜廊边界",
+      "source_zh": "第一卷 7月15日",
       "enemy_slots": [
         {
-          "enemy_id": "enemy.mirror_hound_echo",
+          "enemy_id": "enemy.weeping_tenant",
+          "lane_index": 1
+        }
+      ]
+    },
+    {
+      "id": "encounter.v031.cargo_ship",
+      "display_name_zh": "码头货船的失控者",
+      "tier": "elite",
+      "deck_definition_ids": [
+        "card.skill.ink_dart",
+        "card.skill.paper_guard",
+        "card.skill.calm_breath",
+        "card.skill.focus",
+        "card.skill.insight",
+        "card.skill.omen",
+        "card.skill.second_look",
+        "card.skill.whisper"
+      ],
+      "source_zh": "第一卷 8月16日",
+      "enemy_slots": [
+        {
+          "enemy_id": "enemy.tingen.rampager",
           "lane_index": 1
         }
       ]

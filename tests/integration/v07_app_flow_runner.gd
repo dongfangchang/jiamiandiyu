@@ -278,7 +278,7 @@ func _run_second_challenge() -> void:
 		String(_app.get_route_snapshot().data.get("available_node_id", "")) == SECOND_FIRST_NODE,
 		"second challenge uses its route variant"
 	)
-	await _advance_battle(SECOND_FIRST_NODE, "first_hunt")
+	await _advance_battle(SECOND_FIRST_NODE, "boundary")
 	await _claim_reward("reward.ink_dart_fragments")
 	await _advance_battle(SECOND_ELITE_NODE, "twin_pursuit")
 	await _claim_reward("reward.divination_tickets")

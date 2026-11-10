@@ -97,7 +97,7 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 14)
 	pad.add_child(column)
 	_eyebrow_label = UiTheme.label(
-		"镜厅余响 · 传承",
+		"值夜者档案 · 传承",
 		12,
 		UiTheme.C_GOLD
 	)
@@ -117,7 +117,7 @@ func _build() -> void:
 	_title_label = UiTheme.label("挑战结算", 42, UiTheme.C_TEXT)
 	heading.add_child(_title_label)
 	heading.add_child(UiTheme.wrapped_label(
-		"镜厅留下的只有被你带走的构筑与收藏。",
+		"廷根的档案已经封存，留下的只有你带走的构筑与收藏。",
 		15,
 		UiTheme.C_MUTED
 	))
@@ -125,16 +125,15 @@ func _build() -> void:
 	divider.color = UiTheme.C_LINE
 	divider.custom_minimum_size = Vector2(0, 1)
 	column.add_child(divider)
-	_detail_label = UiTheme.wrapped_label("", 16, UiTheme.C_PAPER)
-	_detail_label.custom_minimum_size = Vector2(0, 170)
-	column.add_child(_detail_label)
-	_reward_label = UiTheme.wrapped_label("", 16, UiTheme.C_GOLD)
+	var detail_box := UiTheme.fixed_text("", 16, UiTheme.C_PAPER, 150)
+	detail_box.name = "ChallengeResultDetail"
+	detail_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_detail_label = UiTheme.fixed_text_label(detail_box)
+	column.add_child(detail_box)
+	_reward_label = UiTheme.clip_label("", 16, UiTheme.C_GOLD)
 	column.add_child(_reward_label)
-	_save_label = UiTheme.wrapped_label("", 15, UiTheme.C_GOLD)
+	_save_label = UiTheme.clip_label("", 15, UiTheme.C_GOLD)
 	column.add_child(_save_label)
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spacer)
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_END
 	actions.add_theme_constant_override("separation", 12)
@@ -156,9 +155,9 @@ func _render() -> void:
 	_result_icon.texture = load(ChallengeCatalog.outcome_icon(completed))
 	var challenge_id := String(_snapshot_data.get("challenge_id", ""))
 	_eyebrow_label.text = (
-		"破碎游行 · 传承"
+		"邪神子嗣降临 · 传承"
 		if challenge_id == "challenge.v070.broken_procession"
-		else "镜厅余响 · 传承"
+		else "安提哥努斯笔记案 · 传承"
 	)
 	var route: Dictionary = _snapshot_data.get("route", {})
 	var run_state: Dictionary = route.get("run_state", {})
@@ -172,7 +171,7 @@ func _render() -> void:
 		+ "序列：占卜家 · %d「%s」\n"
 		+ "剩余生命：%d / %d  ·  污染：%d / %d  ·  被注视：%d / %d"
 	) % [
-		String(_snapshot_data.get("display_name_zh", "镜厅余响")),
+		String(_snapshot_data.get("display_name_zh", "值夜者档案")),
 		String(selected.get("display_name_zh", "未记录")),
 		completed_ids.size(),
 		nodes.size(),
@@ -230,7 +229,7 @@ func _update_save_label() -> void:
 
 func _show_empty() -> void:
 	_title_label.text = "等待挑战结算"
-	_detail_label.text = "镜厅余响尚未结束。"
+	_detail_label.text = "值夜者档案尚未结束。"
 	_reward_label.text = ""
 	_save_label.text = ""
 	_result_icon.texture = null

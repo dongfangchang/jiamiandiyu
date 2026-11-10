@@ -23,6 +23,7 @@ var _result_button: Button
 var _hub_button: Button
 var _buttons_by_node: Dictionary = {}
 var _busy := false
+var _challenge_context_active := false
 
 
 func _ready() -> void:
@@ -85,7 +86,7 @@ func request_ascension() -> void:
 		return
 	_busy = true
 	_refresh_buttons()
-	_set_status("正在展开被篡改的讣告……")
+	_set_status("正在准备晋升仪式……")
 	route_command_requested.emit(RouteCommand.begin_ascension())
 
 
@@ -124,20 +125,23 @@ func set_challenge_context(
 ) -> void:
 	if not is_instance_valid(_challenge_label):
 		return
-	_challenge_label.text = (
+	UiTheme.set_clip_text(
+		_challenge_label,
 		"挑战 · %s  ·  修饰：%s" % [challenge_name, modifier_name]
 	)
-	_challenge_label.visible = true
+	_challenge_label.add_theme_color_override("font_color", UiTheme.C_GOLD)
+	_challenge_context_active = true
 
 
 func clear_challenge_context() -> void:
 	if is_instance_valid(_challenge_label):
-		_challenge_label.text = ""
-		_challenge_label.visible = false
+		UiTheme.set_clip_text(_challenge_label, "沿固定线索推进。战斗只在节点边界留下检查点。")
+		_challenge_label.add_theme_color_override("font_color", UiTheme.C_MUTED)
+		_challenge_context_active = false
 
 
 func get_challenge_context_text() -> String:
-	return _challenge_label.text if is_instance_valid(_challenge_label) else ""
+	return _challenge_label.text if is_instance_valid(_challenge_label) and _challenge_context_active else ""
 
 
 func _build() -> void:
@@ -167,6 +171,7 @@ func _build() -> void:
 		Color(0.045, 0.049, 0.041, 0.92),
 		UiTheme.C_LINE
 	)
+	header_panel.name = "RouteHeader"
 	header_panel.set_meta("route_header", true)
 	column.add_child(header_panel)
 	var heading := VBoxContainer.new()
@@ -174,21 +179,21 @@ func _build() -> void:
 	heading.add_theme_constant_override("separation", 2)
 	header.add_child(heading)
 	heading.add_child(UiTheme.label("调查路线 · 占卜家序列 9", 12, UiTheme.C_GOLD))
-	_route_label = UiTheme.label("廷根旧宅调查", 35, UiTheme.C_TEXT)
+	_route_label = UiTheme.clip_label("廷根值夜者", 33, UiTheme.C_TEXT)
 	heading.add_child(_route_label)
-	_chapter_label = UiTheme.label("", 15, UiTheme.C_GOLD)
+	_chapter_label = UiTheme.clip_label("", 15, UiTheme.C_GOLD)
 	heading.add_child(_chapter_label)
-	_chapter_summary_label = UiTheme.wrapped_label("", 13, UiTheme.C_MUTED)
-	heading.add_child(_chapter_summary_label)
-	_current_goal_label = UiTheme.wrapped_label("", 13, UiTheme.C_PAPER)
-	heading.add_child(_current_goal_label)
-	heading.add_child(UiTheme.label(
-		"沿固定线索推进。战斗只在节点边界留下检查点。",
-		14,
-		UiTheme.C_MUTED
-	))
-	_challenge_label = UiTheme.label("", 13, UiTheme.C_GOLD)
-	_challenge_label.visible = false
+	# Chapter summary and the per-node goal change as the player advances;
+	# both live in fixed-height viewports so the map below never shrinks.
+	var summary_box := UiTheme.fixed_text("", 13, UiTheme.C_MUTED, 40)
+	summary_box.name = "ChapterSummaryBox"
+	_chapter_summary_label = UiTheme.fixed_text_label(summary_box)
+	heading.add_child(summary_box)
+	var goal_box := UiTheme.fixed_text("", 13, UiTheme.C_PAPER, 40)
+	goal_box.name = "CurrentGoalBox"
+	_current_goal_label = UiTheme.fixed_text_label(goal_box)
+	heading.add_child(goal_box)
+	_challenge_label = UiTheme.clip_label("沿固定线索推进。战斗只在节点边界留下检查点。", 13, UiTheme.C_MUTED)
 	heading.add_child(_challenge_label)
 	_resource_label = UiTheme.label("", 15, UiTheme.C_PAPER)
 	_resource_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -203,7 +208,9 @@ func _build() -> void:
 	_nodes_scroll.name = "ChapterMapScroll"
 	_nodes_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_nodes_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_nodes_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# AUTO (not DISABLED) so a tall node column scrolls inside the map
+	# instead of inflating the map's minimum height and pushing the footer.
+	_nodes_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_nodes_scroll.follow_focus = true
 	column.add_child(_nodes_scroll)
 	_nodes_row = HBoxContainer.new()
@@ -224,7 +231,7 @@ func _build() -> void:
 func _build_footer() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	_status_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
+	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_status_label)
 	_hub_button = UiTheme.button("返回白昼档案", _on_hub, true, 158)
@@ -235,13 +242,13 @@ func _build_footer() -> HBoxContainer:
 
 
 func _render_snapshot() -> void:
-	_route_label.text = String(
+	UiTheme.set_clip_text(_route_label, String(
 		_snapshot_data.get("display_name_zh", "未知路线")
-	)
-	_chapter_label.text = "%s  ·  %s" % [
+	))
+	UiTheme.set_clip_text(_chapter_label, "%s  ·  %s" % [
 		String(_snapshot_data.get("chapter_title_zh", "章节")),
 		String(_snapshot_data.get("chapter_phase_zh", "调查推进")),
-	]
+	])
 	_chapter_summary_label.text = String(
 		_snapshot_data.get("chapter_summary_zh", "沿线索推进调查。")
 	)
@@ -253,8 +260,10 @@ func _render_snapshot() -> void:
 		current_guidance = "当前调查目标：" + current_goal
 	if not reward_hint.is_empty():
 		current_guidance += ("\n推进收益：" if not current_guidance.is_empty() else "推进收益：") + reward_hint
+	var source := String(current_node.get("source_zh", ""))
+	if not source.is_empty():
+		current_guidance += ("\n原著：" if not current_guidance.is_empty() else "原著：") + source
 	_current_goal_label.text = current_guidance
-	_current_goal_label.visible = not current_guidance.is_empty()
 	_update_resources()
 	for child in _nodes_row.get_children():
 		child.queue_free()
@@ -292,9 +301,10 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		Color(0.065, 0.068, 0.055, 0.97),
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_LINE
 	)
-	panel.custom_minimum_size = Vector2(280, 0)
+	panel.custom_minimum_size = Vector2(250, 0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.clip_contents = true
 	panel.set_meta("node_id", node_id)
 	panel.set_meta("node_state", state)
 	var pad := MarginContainer.new()
@@ -319,11 +329,13 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		12,
 		UiTheme.C_MUTED
 	))
-	column.add_child(UiTheme.center_label(
+	var title := UiTheme.clip_label(
 		String(node.get("display_name_zh", node_id)),
-		22,
+		20,
 		UiTheme.C_TEXT if state != "locked" else UiTheme.C_MUTED
-	))
+	)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(title)
 	column.add_child(UiTheme.center_label(
 		RouteCatalog.node_type_text(node_type),
 		13,
@@ -334,16 +346,26 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		13,
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_MUTED
 	))
+	var source := String(node.get("source_zh", ""))
+	column.add_child(UiTheme.clip_label(
+		("原著 · " + source) if not source.is_empty() else " ",
+		12,
+		UiTheme.C_PAPER_DEEP
+	))
 	var goal := String(node.get("investigation_goal_zh", ""))
-	if not goal.is_empty():
-		column.add_child(UiTheme.wrapped_label("调查目标：" + goal, 13, UiTheme.C_PAPER))
 	var beat := String(node.get("narrative_beat_zh", ""))
+	var story := ""
 	if not beat.is_empty():
-		column.add_child(UiTheme.wrapped_label(beat, 12, UiTheme.C_MUTED))
+		story = beat
+	if not goal.is_empty():
+		story += ("\n" if not story.is_empty() else "") + "目标：" + goal
+	var story_box := UiTheme.fixed_text(story, 12, UiTheme.C_PAPER, 112)
+	story_box.name = "NodeStoryBox"
+	column.add_child(story_box)
 	if node_type == "boss" and ResourceLoader.exists(RouteCatalog.BOSS_ART):
 		var boss := TextureRect.new()
 		boss.texture = load(RouteCatalog.BOSS_ART)
-		boss.custom_minimum_size = Vector2(0, 112)
+		boss.custom_minimum_size = Vector2(0, 80)
 		boss.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		boss.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		column.add_child(boss)
@@ -431,7 +453,7 @@ func _on_hub() -> void:
 func _set_status(message: String, danger: bool = false) -> void:
 	if not is_instance_valid(_status_label):
 		return
-	_status_label.text = message
+	UiTheme.set_clip_text(_status_label, message)
 	_status_label.add_theme_color_override(
 		"font_color",
 		UiTheme.C_DANGER_TEXT if danger else UiTheme.C_MUTED

@@ -16,6 +16,10 @@ func _init(
 	_card_levels = card_levels.duplicate(true)
 
 
+func get_synergies() -> Array:
+	return _base.get_synergies() if _base != null else []
+
+
 func get_card_definition(definition_id: StringName) -> Dictionary:
 	var definition: Dictionary = _base.get_card_definition(definition_id)
 	if definition.is_empty():

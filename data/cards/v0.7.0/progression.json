@@ -5,8 +5,8 @@
   "identities": [
     {
       "id": "identity.reporter",
-      "display_name_zh": "记者",
-      "description_zh": "维持调查网络，以一篇报道换取更多线索。",
+      "display_name_zh": "占卜俱乐部会员",
+      "description_zh": "在豪尔斯街13号二楼的占卜俱乐部为人解读启示，人脉与线索都从这里来。",
       "passive_text_zh": "进入路线时被注视 -1；每场战斗胜利额外获得 1 占卜券。",
       "battle_modifiers": {
         "starting_attention": -1
@@ -17,8 +17,8 @@
     },
     {
       "id": "identity.doctor",
-      "display_name_zh": "医生",
-      "description_zh": "熟悉身体与污染的边界，以更好的体魄进入战斗。",
+      "display_name_zh": "值夜者文职人员",
+      "description_zh": "黑荆棘安保公司的文职，每天下午在高文手下接受格斗训练，身体更经得起折腾。",
       "passive_text_zh": "进入路线时最大生命 +4。",
       "battle_modifiers": {
         "max_hp_bonus": 4
@@ -27,8 +27,8 @@
     },
     {
       "id": "identity.gravedigger",
-      "display_name_zh": "守墓人",
-      "description_zh": "替遗忘的名字收殓，能从重复的命运中拾取更多残片。",
+      "display_name_zh": "霍伊大学历史系毕业生",
+      "description_zh": "熟悉古代历史与神秘学语言，能从重复的线索里拾取更多残页。",
       "passive_text_zh": "最大灵性 +1；重复回响额外获得 2 残页。",
       "battle_modifiers": {
         "max_spirit_bonus": 1
@@ -73,7 +73,7 @@
     },
     {
       "definition_id": "card.skill.warding_circle",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.lantern_step",
@@ -85,11 +85,11 @@
     },
     {
       "definition_id": "card.skill.mirrored_memory",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.omen",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.whisper",
@@ -97,15 +97,15 @@
     },
     {
       "definition_id": "card.skill.fated_echo",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.piercing_omen",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.coffin_nail",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.second_sight",
@@ -133,7 +133,7 @@
     },
     {
       "definition_id": "card.skill.echo_reading",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.veil_step",
@@ -161,7 +161,7 @@
     },
     {
       "definition_id": "card.skill.hungry_symbol",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.candle_archive",
@@ -169,7 +169,7 @@
     },
     {
       "definition_id": "card.skill.omen_chorus",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.mirror_shard",
@@ -177,7 +177,7 @@
     },
     {
       "definition_id": "card.skill.closed_eye",
-      "rarity": "rare"
+      "rarity": "common"
     },
     {
       "definition_id": "card.skill.last_witness",
@@ -185,7 +185,7 @@
     },
     {
       "definition_id": "card.skill.black_thread",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.false_death",
@@ -197,11 +197,11 @@
     },
     {
       "definition_id": "card.skill.red_corridor",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.sealed_answer",
-      "rarity": "common"
+      "rarity": "rare"
     },
     {
       "definition_id": "card.skill.hollow_bell",
@@ -216,7 +216,7 @@
     },
     {
       "id": "reward.ink_dart_fragments",
-      "display_name_zh": "墨刺残页",
+      "display_name_zh": "左轮手枪残页",
       "kind": "card_fragments",
       "target_definition_id": "card.skill.ink_dart"
     }
@@ -227,7 +227,18 @@
     "to_sequence": 8,
     "to_sequence_name_zh": "小丑",
     "required": 8,
-    "eligible_mechanic_tags": ["占卜", "预感", "意图揭示", "标记", "灵性视觉", "仪式", "推演"]
+    "eligible_mechanic_tags": [
+      "占卜",
+      "预感",
+      "意图揭示",
+      "标记",
+      "灵性视觉",
+      "仪式",
+      "推演",
+      "扮演",
+      "梦境",
+      "通灵"
+    ]
   },
   "potion_definitions": [
     {
@@ -235,7 +246,7 @@
       "display_name_zh": "小丑魔药",
       "sequence_from": 9,
       "sequence_to": 8,
-      "description_zh": "完成第一阶段调查并消化足够的占卜家扮演后，才可服用的序列 8 魔药。"
+      "description_zh": "完成第一卷廷根阶段调查、并以占卜家扮演法完全消化魔药后，才可提交申请服用的序列8魔药。"
     }
   ],
   "upgrade_definitions": {
@@ -270,7 +281,7 @@
       ]
     },
     "card.skill.focus": {
-      "max_level": 3,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 0,
@@ -280,7 +291,7 @@
       ]
     },
     "card.skill.insight": {
-      "max_level": 2,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 0,
@@ -290,20 +301,30 @@
       ]
     },
     "card.skill.omen": {
-      "max_level": 2,
+      "max_level": 3,
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "stacks",
+          "field": "amount",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.whisper": {
+      "max_level": 3,
+      "bonuses": [
+        {
+          "effect_index": 1,
+          "field": "amount",
+          "amount_per_level": 1
+        }
+      ]
+    },
+    "card.skill.second_look": {
       "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
+          "effect_index": 1,
           "field": "stacks",
           "amount_per_level": 1
         }
@@ -320,7 +341,7 @@
       ]
     },
     "card.skill.lantern_step": {
-      "max_level": 2,
+      "max_level": 3,
       "bonuses": [
         {
           "effect_index": 0,
@@ -334,27 +355,27 @@
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "count",
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.mirrored_memory": {
-      "max_level": 2,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "amount",
+          "field": "count",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.fated_echo": {
-      "max_level": 2,
+      "max_level": 1,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "stacks",
+          "effect_index": 1,
+          "field": "count",
           "amount_per_level": 1
         }
       ]
@@ -380,11 +401,11 @@
       ]
     },
     "card.skill.second_sight": {
-      "max_level": 2,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 1,
-          "field": "amount",
+          "field": "count",
           "amount_per_level": 1
         }
       ]
@@ -393,53 +414,48 @@
       "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 1,
+          "effect_index": 2,
           "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.mirror_ward": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "amount",
+          "effect_index": 1,
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.severed_string": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "amount",
+          "effect_index": 1,
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.last_rites": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "amount",
+          "effect_index": 1,
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.ink_scarlet": {
-      "max_level": 3,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 0,
           "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "stacks",
           "amount_per_level": 1
         }
       ]
@@ -449,39 +465,24 @@
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "count",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
           "field": "amount",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.veil_step": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "amount",
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.severed_fate": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
-        {
-          "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
         {
           "effect_index": 1,
           "field": "stacks",
@@ -490,43 +491,28 @@
       ]
     },
     "card.skill.paper_swarm": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
           "effect_index": 0,
           "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "count",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.midnight_ledger": {
-      "max_level": 3,
+      "max_level": 1,
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
           "field": "amount",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.borrowed_breath": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
-        {
-          "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
         {
           "effect_index": 1,
           "field": "amount",
@@ -535,41 +521,31 @@
       ]
     },
     "card.skill.glass_thesis": {
-      "max_level": 3,
+      "max_level": 1,
       "bonuses": [
         {
-          "effect_index": 1,
+          "effect_index": 0,
           "field": "count",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.hungry_symbol": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
           "effect_index": 0,
           "field": "stacks",
           "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "amount",
-          "amount_per_level": 1
         }
       ]
     },
     "card.skill.candle_archive": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
           "effect_index": 1,
-          "field": "count",
+          "field": "amount",
           "amount_per_level": 1
         }
       ]
@@ -578,13 +554,8 @@
       "max_level": 3,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "stacks",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "stacks",
+          "effect_index": 2,
+          "field": "amount",
           "amount_per_level": 1
         }
       ]
@@ -592,11 +563,6 @@
     "card.skill.mirror_shard": {
       "max_level": 3,
       "bonuses": [
-        {
-          "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
         {
           "effect_index": 1,
           "field": "amount",
@@ -608,7 +574,7 @@
       "max_level": 3,
       "bonuses": [
         {
-          "effect_index": 1,
+          "effect_index": 0,
           "field": "stacks",
           "amount_per_level": 1
         }
@@ -618,27 +584,17 @@
       "max_level": 3,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
           "effect_index": 1,
-          "field": "count",
+          "field": "amount",
           "amount_per_level": 1
         }
       ]
     },
     "card.skill.black_thread": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
-          "effect_index": 0,
-          "field": "stacks",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
+          "effect_index": 2,
           "field": "amount",
           "amount_per_level": 1
         }
@@ -649,12 +605,7 @@
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "amount",
+          "field": "stacks",
           "amount_per_level": 1
         }
       ]
@@ -666,24 +617,14 @@
           "effect_index": 0,
           "field": "amount",
           "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "amount",
-          "amount_per_level": 1
         }
       ]
     },
     "card.skill.red_corridor": {
-      "max_level": 3,
+      "max_level": 2,
       "bonuses": [
         {
           "effect_index": 0,
-          "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
           "field": "amount",
           "amount_per_level": 1
         }
@@ -692,11 +633,6 @@
     "card.skill.sealed_answer": {
       "max_level": 3,
       "bonuses": [
-        {
-          "effect_index": 0,
-          "field": "count",
-          "amount_per_level": 1
-        },
         {
           "effect_index": 1,
           "field": "amount",
@@ -710,11 +646,6 @@
         {
           "effect_index": 0,
           "field": "amount",
-          "amount_per_level": 1
-        },
-        {
-          "effect_index": 1,
-          "field": "stacks",
           "amount_per_level": 1
         }
       ]

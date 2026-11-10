@@ -173,7 +173,7 @@ func resolve_encounter(encounter_id: StringName) -> InfrastructureResult:
 			var enemy: Dictionary = _enemies_by_id.get(enemy_id, {})
 			var lane_index := int(slot.get("lane_index", -1))
 			enemy_configs.append({
-				"id": "%s.wave.%d.enemy.%d" % [String(encounter_id), wave_index, lane_index],
+				"id": _runtime_enemy_id(String(encounter_id), wave_index, lane_index),
 				"definition_id": enemy_id,
 				"display_name_zh": String(enemy.get("display_name_zh", enemy_id)),
 				"tier": String(enemy.get("tier", "normal")),
@@ -182,6 +182,16 @@ func resolve_encounter(encounter_id: StringName) -> InfrastructureResult:
 				"hp": int(enemy.get("base_health", 0)),
 				"max_hp": int(enemy.get("base_health", 0)),
 				"base_attack": int(enemy.get("base_attack", 0)),
+				"traits": (
+					enemy.get("traits", []).duplicate()
+					if enemy.get("traits", []) is Array
+					else []
+				),
+				"intents": (
+					enemy.get("intents", []).duplicate(true)
+					if enemy.get("intents", []) is Array
+					else []
+				),
 				"phases": (
 					enemy.get("phases", []).duplicate(true)
 					if enemy.get("phases", []) is Array
@@ -221,32 +231,43 @@ func _validate_encounter_references(encounter: Dictionary) -> InfrastructureResu
 			if not wave_value is Dictionary:
 				return InfrastructureResultScript.failure(&"encounter_wave_invalid", "Encounter wave must be an object.", {"id": encounter_id})
 			var wave_slots: Variant = wave_value.get("enemy_slots", [])
-			if not _validate_enemy_slots(encounter_id, wave_slots):
-				return InfrastructureResultScript.failure(&"encounter_wave_slots_invalid", "Encounter wave must define valid enemy slots.", {"id": encounter_id})
+			var wave_error := _validate_enemy_slots(wave_slots)
+			if not wave_error.is_empty():
+				return InfrastructureResultScript.failure(wave_error, "Encounter wave must define valid enemy slots.", {"id": encounter_id})
 		return InfrastructureResultScript.success()
 	var slots: Variant = encounter.get("enemy_slots")
-	if not _validate_enemy_slots(encounter_id, slots):
+	var slot_error := _validate_enemy_slots(slots)
+	if not slot_error.is_empty():
 		return InfrastructureResultScript.failure(
-			&"encounter_enemy_slots_invalid",
-			"Encounter must define one to three enemy slots.",
+			slot_error,
+			"Encounter must define one to three valid enemy slots.",
 			{"id": encounter_id}
 		)
 	return InfrastructureResultScript.success()
 
 
-func _validate_enemy_slots(encounter_id: String, slots: Variant) -> bool:
+## Single-wave encounters keep the original deterministic "<encounter>.enemy.<lane>"
+## runtime IDs; only later waves carry an explicit wave segment.
+func _runtime_enemy_id(encounter_id: String, wave_index: int, lane_index: int) -> String:
+	if wave_index <= 0:
+		return "%s.enemy.%d" % [encounter_id, lane_index]
+	return "%s.wave.%d.enemy.%d" % [encounter_id, wave_index, lane_index]
+
+
+## Returns an empty code when valid, otherwise the specific rejection code.
+func _validate_enemy_slots(slots: Variant) -> StringName:
 	if not slots is Array or slots.is_empty() or slots.size() > 3:
-		return false
+		return &"encounter_enemy_slots_invalid"
 	var occupied_lanes: Dictionary = {}
 	for value in slots:
 		if not value is Dictionary:
-			return false
+			return &"encounter_enemy_slots_invalid"
 		var slot: Dictionary = value
 		var enemy_id := String(slot.get("enemy_id", ""))
 		var lane_index := int(slot.get("lane_index", -1))
 		if not _enemies_by_id.has(enemy_id):
-			return false
+			return &"encounter_enemy_missing"
 		if lane_index < 0 or lane_index > 2 or occupied_lanes.has(lane_index):
-			return false
+			return &"encounter_lane_invalid"
 		occupied_lanes[lane_index] = true
-	return true
+	return &""

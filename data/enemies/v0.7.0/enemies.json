@@ -4,73 +4,374 @@
   "base_cards_version": "v0.7.0",
   "enemies": [
     {
-      "id": "enemy.weeping_tenant",
-      "display_name_zh": "哭泣的房客",
+      "id": "enemy.candle_moth",
+      "display_name_zh": "密修会成员",
       "tier": "normal",
-      "base_health": 12,
-      "base_attack": 4,
-      "threat": "corruption",
+      "base_health": 14,
+      "base_attack": 3,
+      "threat": "",
+      "traits": [
+        "human",
+        "beyonder"
+      ],
+      "source_zh": "第一卷 6月30日：密修会成员潜入莫雷蒂家，克莱恩以左轮威吓，由邓恩处理。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "匕首突刺",
+          "damage_delta": 1,
+          "description_zh": "贴身突刺。"
+        },
+        {
+          "intent_id": "fortify",
+          "display_name_zh": "退入阴影",
+          "damage_delta": -2,
+          "description_zh": "后撤并戒备，获得护盾。",
+          "block": 4
+        }
+      ],
       "phases": []
     },
     {
-      "id": "enemy.candle_moth",
-      "display_name_zh": "烛焰飞蛾",
+      "id": "enemy.tingen.kidnapper",
+      "display_name_zh": "绑匪",
       "tier": "normal",
       "base_health": 8,
-      "base_attack": 2,
-      "threat": "attention",
+      "base_attack": 3,
+      "threat": "",
+      "traits": [
+        "human"
+      ],
+      "source_zh": "第一卷 7月6日 艾略特绑架案：三个普通绑匪，克莱恩击中其中一人的左肩，其余由伦纳德解决。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "棍棒",
+          "damage_delta": 0,
+          "description_zh": "普通人的殴打。"
+        }
+      ],
       "phases": []
     },
     {
       "id": "enemy.mirror_hound",
-      "display_name_zh": "镜中猎犬",
+      "display_name_zh": "失控的瑞尔·比伯",
       "tier": "normal",
-      "base_health": 14,
+      "base_health": 22,
       "base_attack": 5,
-      "threat": "damage",
+      "threat": "",
+      "traits": [
+        "lost_control",
+        "filth"
+      ],
+      "source_zh": "第一卷 7月12日：瑞尔·比伯受安提哥努斯家族笔记诱惑，在尝试成为非凡者时失控。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "撕咬",
+          "damage_delta": 0,
+          "description_zh": "失控者的本能攻击。"
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "狂乱扑击",
+          "damage_delta": 2,
+          "description_zh": "失去理智的全力扑击。"
+        }
+      ],
       "phases": []
     },
     {
       "id": "enemy.mirror_hound_echo",
-      "display_name_zh": "回声猎犬",
+      "display_name_zh": "燕尾服小丑",
       "tier": "elite",
-      "base_health": 24,
+      "base_health": 34,
       "base_attack": 6,
-      "threat": "damage",
+      "threat": "",
+      "traits": [
+        "human",
+        "beyonder"
+      ],
+      "source_zh": "第一卷 7月12日 提利尔仓库：密修会的序列7魔术师，尾随值夜者争夺安提哥努斯家族笔记，被2-049控制后遭克莱恩击杀。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "空气弹",
+          "damage_delta": 1,
+          "description_zh": "打响指射出堪比左轮的空气弹。"
+        },
+        {
+          "intent_id": "fortify",
+          "display_name_zh": "火焰跳跃",
+          "damage_delta": -3,
+          "description_zh": "借火光闪到另一处，获得护盾。",
+          "block": 6
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "纸人替身后的偷袭",
+          "damage_delta": 2,
+          "description_zh": "替身挡下一击后从侧面出手。"
+        }
+      ],
       "phases": [
         {
-          "id": "phase.echo_howl",
-          "display_name_zh": "回声嚎叫",
-          "at_round": 3,
-          "base_attack_bonus": 1,
-          "block_bonus": 3,
-          "heal": 0
+          "id": "phase.suited_clown_reveal",
+          "display_name_zh": "自曝序列",
+          "at_hp_percent": 50,
+          "base_attack_bonus": 2,
+          "block_bonus": 6,
+          "heal": 0,
+          "description_zh": "“我以前也是占卜家……占卜家的序列8就是小丑。”他试图以情报换取活路，攻势更加狡猾。",
+          "counter_hint_zh": "2-049 能让他动弹不得；随后用左轮完成“提利尔仓库”。"
+        }
+      ]
+    },
+    {
+      "id": "enemy.weeping_tenant",
+      "display_name_zh": "附身恶灵",
+      "tier": "normal",
+      "base_health": 16,
+      "base_attack": 4,
+      "threat": "",
+      "traits": [
+        "spirit"
+      ],
+      "source_zh": "第一卷 7月15日：魔镜占卜招来的恶灵附身赛琳娜·伍德，克莱恩以仪式魔法将其驱除。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "阴冷侵袭",
+          "damage_delta": 0,
+          "description_zh": "冰冷的灵体穿过身体。"
+        },
+        {
+          "intent_id": "curse",
+          "display_name_zh": "附身低语",
+          "damage_delta": -2,
+          "description_zh": "在耳边低语，污染灵性。",
+          "corruption": 1
+        }
+      ],
+      "phases": []
+    },
+    {
+      "id": "enemy.tingen.knight_wraith",
+      "display_name_zh": "骑士怨魂",
+      "tier": "elite",
+      "base_health": 44,
+      "base_attack": 7,
+      "threat": "",
+      "traits": [
+        "spirit",
+        "undead"
+      ],
+      "source_zh": "第一卷 8月19日 拉姆德小镇驱邪：黑色骑士铠甲中的怨魂缠上伊丽莎白，邓恩以3-0782将其驱散。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "锈蚀长剑",
+          "damage_delta": 0,
+          "description_zh": "沉重的骑士斩击。"
+        },
+        {
+          "intent_id": "curse",
+          "display_name_zh": "怨念嘶吼",
+          "damage_delta": -3,
+          "description_zh": "百年的怨念侵蚀灵魂。",
+          "corruption": 1
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "冲锋",
+          "damage_delta": 2,
+          "description_zh": "铠甲带着怨魂冲撞。"
+        }
+      ],
+      "phases": [
+        {
+          "id": "phase.knight_armor",
+          "display_name_zh": "黑色铠甲",
+          "at_hp_percent": 50,
+          "base_attack_bonus": 2,
+          "block_bonus": 10,
+          "heal": 0,
+          "description_zh": "怨魂缩回黑色铠甲，护甲变得坚硬。",
+          "counter_hint_zh": "3-0782 太阳圣徽与灵视组成“拉姆德小镇驱邪”，对灵体与不死造成大量净化伤害。"
+        }
+      ]
+    },
+    {
+      "id": "enemy.tingen.rampager",
+      "display_name_zh": "失控的代罚者",
+      "tier": "elite",
+      "base_health": 40,
+      "base_attack": 8,
+      "threat": "",
+      "traits": [
+        "lost_control",
+        "beyonder"
+      ],
+      "source_zh": "第一卷 8月16日：停靠码头的货船上，一名代罚者失控，克莱恩协助老尼尔解决。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "狂暴重拳",
+          "damage_delta": 0,
+          "description_zh": "失控者毫无章法的重击。"
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "撕裂",
+          "damage_delta": 3,
+          "description_zh": "理智崩溃后的全力撕扯。"
+        }
+      ],
+      "phases": [
+        {
+          "id": "phase.rampager_frenzy",
+          "display_name_zh": "彻底失控",
+          "at_hp_percent": 40,
+          "base_attack_bonus": 3,
+          "block_bonus": 0,
+          "heal": 0,
+          "description_zh": "最后的理智消失，攻击变得更加狂暴。",
+          "counter_hint_zh": "安静发丝对失控者效果极佳；危险预感可提前闪避重击。"
         }
       ]
     },
     {
       "id": "enemy.mirror_baron",
-      "display_name_zh": "镜厅男爵",
+      "display_name_zh": "失控的老尼尔",
       "tier": "boss",
-      "base_health": 38,
-      "base_attack": 5,
-      "threat": "mirror",
-      "phases": [
+      "base_health": 58,
+      "base_attack": 6,
+      "threat": "",
+      "traits": [
+        "lost_control",
+        "filth",
+        "beyonder"
+      ],
+      "source_zh": "第一卷 8月29日：受隐匿贤者耳语影响，老尼尔试图以“生命炼成”复活亡妻莎莉丝特，失败后变为怪物。",
+      "intents": [
         {
-          "id": "phase.polished_mirror",
-          "display_name_zh": "磨亮的镜面",
-          "at_round": 3,
-          "base_attack_bonus": 1,
-          "block_bonus": 5,
-          "heal": 0
+          "intent_id": "attack",
+          "display_name_zh": "扭曲的手臂",
+          "damage_delta": 0,
+          "description_zh": "已经不像人类的手臂。"
         },
         {
-          "id": "phase.broken_reflection",
-          "display_name_zh": "破碎倒影",
-          "at_round": 6,
+          "intent_id": "curse",
+          "display_name_zh": "秘祈人的咒文",
+          "damage_delta": -2,
+          "description_zh": "含混的祈祷声污染周围的灵性。",
+          "corruption": 2
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "红色眼珠的注视",
+          "damage_delta": 1,
+          "description_zh": "那双红色眼珠紧盯着你。"
+        }
+      ],
+      "phases": [
+        {
+          "id": "phase.hidden_sage_whisper",
+          "display_name_zh": "隐匿贤者的耳语",
+          "at_round": 3,
           "base_attack_bonus": 2,
-          "block_bonus": 3,
-          "heal": 4
+          "block_bonus": 5,
+          "heal": 0,
+          "player_corruption": 1,
+          "description_zh": "隐匿贤者的耳语愈发清晰，老尼尔获得护盾，所有人都受到污染。",
+          "counter_hint_zh": "尽快束缚他：3-0611 安静发丝与左轮/猎魔子弹组成“可怜虫”。"
+        },
+        {
+          "id": "phase.life_alchemy",
+          "display_name_zh": "生命炼成的血肉",
+          "at_hp_percent": 40,
+          "base_attack_bonus": 2,
+          "block_bonus": 0,
+          "heal": 8,
+          "threat": "corruption",
+          "description_zh": "为亡妻准备的血肉反噬了他自己：恢复生命，每次攻击都会附带污染。",
+          "counter_hint_zh": "“如果不能拯救她，那就去陪伴她。”——用束缚与净化结束这一切。"
+        }
+      ]
+    },
+    {
+      "id": "enemy.tingen.megose",
+      "display_name_zh": "梅高欧丝",
+      "tier": "boss",
+      "base_health": 84,
+      "base_attack": 7,
+      "threat": "",
+      "traits": [
+        "filth"
+      ],
+      "source_zh": "第一卷 9月9日 邪神子嗣降临：被兰尔乌斯与胡德·欧根诱骗怀上真实造物主子嗣的梅高欧丝，在黑荆棘安保公司彻底异变。",
+      "intents": [
+        {
+          "intent_id": "attack",
+          "display_name_zh": "白色骨刀",
+          "damage_delta": 0,
+          "description_zh": "她的左臂化作妖异又圣洁的白色骨刀。"
+        },
+        {
+          "intent_id": "attack",
+          "display_name_zh": "极速突刺",
+          "damage_delta": 3,
+          "description_zh": "骨刀以难以看清的速度刺来。"
+        }
+      ],
+      "phases": [
+        {
+          "id": "phase.megose_mutation",
+          "display_name_zh": "异变",
+          "at_hp_percent": 75,
+          "base_attack_bonus": 2,
+          "block_bonus": 8,
+          "heal": 0,
+          "description_zh": "肩膀上凸起两个像孩子脑袋一样的血肉，裂痕正在变成眼睛。",
+          "counter_hint_zh": "不要用灵视直视她；以危险预感闪避重击。"
+        },
+        {
+          "id": "phase.megose_blasphemy",
+          "display_name_zh": "亵渎之言",
+          "at_hp_percent": 50,
+          "base_attack_bonus": 1,
+          "block_bonus": 0,
+          "heal": 0,
+          "player_corruption": 1,
+          "intents": [
+            {
+              "intent_id": "curse",
+              "display_name_zh": "亵渎之言",
+              "damage_delta": -2,
+              "description_zh": "以语言诅咒目标，污染直接侵入灵魂。",
+              "corruption": 3
+            },
+            {
+              "intent_id": "attack",
+              "display_name_zh": "白色骨刀",
+              "damage_delta": 1,
+              "description_zh": "骨刀横扫。"
+            }
+          ],
+          "description_zh": "她开始以亵渎之言诅咒在场的每一个人。",
+          "counter_hint_zh": "2-105 血管小偷可窃走亵渎之言（失声）；与伦纳德或邓恩组成“窃走亵渎之言”。"
+        },
+        {
+          "id": "phase.spawn_cry",
+          "display_name_zh": "子嗣的啼哭",
+          "at_hp_percent": 25,
+          "base_attack_bonus": 2,
+          "block_bonus": 0,
+          "heal": 0,
+          "player_attention": 2,
+          "threat": "attention",
+          "description_zh": "真实造物主的子嗣开始降临，啼哭声伤害着所有人，被注视急剧上升。",
+          "counter_hint_zh": "邓恩：圣赛琳娜骨灰 + 阳炎符咒 =“守护者”，一次净化母子。"
         }
       ]
     }
