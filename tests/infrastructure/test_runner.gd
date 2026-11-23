@@ -473,14 +473,14 @@ func _test_game_session_and_checkpoint() -> void:
 
 	var first_card: Dictionary = initial_snapshot.data.hand[0]
 	var enemy_id := StringName(initial_snapshot.data.enemies[0].actor_id)
-	var playability = session.query_card_play(
-		StringName(first_card.instance_id),
-		enemy_id
-	)
+	var first_id := StringName(first_card.instance_id)
+	var first_discards: Array = session.auto_discard_ids_for(first_id)
+	var playability = session.query_card_play(first_id, enemy_id, first_discards)
 	_expect(playability.playable, "fixed encounter card should be playable")
 	var result = session.submit(BattleCommand.play_card(
-		StringName(first_card.instance_id),
-		enemy_id
+		first_id,
+		enemy_id,
+		first_discards
 	))
 	_expect(result.accepted, "session should forward accepted battle commands")
 	_expect(
@@ -872,10 +872,11 @@ func _play_campaign_battle_to_end(campaign) -> String:
 				if String(card.get("target_type", "none")) == "enemy"
 				else &""
 			)
-			if not campaign.query_card_play(instance_id, card_target).playable:
+			var discards: Array = campaign.auto_discard_ids_for(instance_id)
+			if not campaign.query_card_play(instance_id, card_target, discards).playable:
 				continue
 			var played = campaign.submit_battle(
-				BattleCommand.play_card(instance_id, card_target)
+				BattleCommand.play_card(instance_id, card_target, discards)
 			)
 			if played.accepted:
 				acted = true

@@ -60,7 +60,7 @@ func _build() -> void:
 	safe.add_theme_constant_override("margin_left", 72)
 	safe.add_theme_constant_override("margin_top", 54)
 	safe.add_theme_constant_override("margin_right", 72)
-	safe.add_theme_constant_override("margin_bottom", 46)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
@@ -70,14 +70,22 @@ func _build() -> void:
 	header.add_child(UiTheme.label("雾都入口 · 调查路线", 12, UiTheme.C_GOLD))
 	header.add_child(UiTheme.label("选择调查路线", 38, UiTheme.C_TEXT))
 	header.add_child(UiTheme.wrapped_label(
-		"当前开放廷根异常调查·第一阶段。后续章节按廷根、贝克兰德、海上旅程的顺序规划，尚未开放。",
+		"当前开放廷根异常调查·第一阶段（占卜家途径）。"
+		+ "后续章节按廷根、贝克兰德、海上旅程的顺序规划，尚未开放；挑战档案也仍属同一途径。",
 		15,
 		UiTheme.C_MUTED
 	))
+	var pathway := UiTheme.clip_label(
+		"主线：第一卷·小丑 · 廷根值夜者",
+		13,
+		UiTheme.C_GOLD
+	)
+	pathway.name = "MainlineHook"
+	header.add_child(pathway)
 	column.add_child(UiTheme.padded_panel(
 		header,
 		14,
-		Color(0.045, 0.049, 0.041, 0.92),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	))
 	var divider := ColorRect.new()
@@ -123,7 +131,7 @@ func _build_route_card(route: Dictionary) -> Control:
 	var route_id := String(route.get("id", ""))
 	var playable := bool(route.get("playable", true))
 	var panel := UiTheme.panel(
-		Color(0.055, 0.059, 0.048, 0.98),
+		UiTheme.C_MODULE_RAISED,
 		UiTheme.C_GOLD if playable else UiTheme.C_LINE
 	)
 	panel.custom_minimum_size = Vector2(360, 0)

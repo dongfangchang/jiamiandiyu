@@ -558,13 +558,43 @@ func _consume_potion(potion_id: StringName) -> ProgressionCommandResult:
 	digestion["progress"] = 0
 	_state["digestion"] = digestion
 	_state["sequence"] = int(digestion.get("to_sequence", 8))
+	var granted_ids := _grant_sequence_package(
+		_digestion_rules.get("grant_definition_ids", [])
+	)
 	_emit(&"PotionConsumed", {
 		"potion_id": key,
 		"from_sequence": int(digestion.get("from_sequence", 9)),
 		"to_sequence": int(digestion.get("to_sequence", 8)),
 		"sequence_name_zh": String(digestion.get("to_sequence_name_zh", "小丑")),
+		"granted_definition_ids": granted_ids.duplicate(),
 	})
 	return _success()
+
+
+func _grant_sequence_package(definition_ids: Array) -> Array[String]:
+	var granted: Array[String] = []
+	if definition_ids.is_empty():
+		return granted
+	var collection: Dictionary = _state.get("collection", {})
+	for value in definition_ids:
+		var definition_id := String(value)
+		if definition_id.is_empty():
+			continue
+		var definition := _content.get_card_definition(StringName(definition_id))
+		if definition.is_empty():
+			continue
+		var card_state: Dictionary = _card_state(collection, definition_id)
+		if int(card_state.get("copies", 0)) <= 0:
+			card_state["copies"] = 1
+			granted.append(definition_id)
+		collection[definition_id] = card_state
+	_state["collection"] = collection
+	if not granted.is_empty():
+		_emit(&"SequencePackageGranted", {
+			"definition_ids": granted.duplicate(),
+			"sequence": int(_state.get("sequence", 8)),
+		})
+	return granted
 
 
 func _apply_victory_resources() -> void:

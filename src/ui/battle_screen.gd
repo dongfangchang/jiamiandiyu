@@ -7,11 +7,13 @@ signal exit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const BattleTableFeel := preload("res://src/ui/battle_table_feel.gd")
+const TableSfx := preload("res://src/ui/table_sfx.gd")
 const BattleCommandScript := preload("res://src/core/battle_command.gd")
 const BattleCommandResultScript := preload("res://src/core/battle_command_result.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
 const PHASE_NAMES := {
 	"round_start": "回合开始",
@@ -27,29 +29,39 @@ const REASON_NAMES := {
 	"card_not_in_hand": "这张牌已不在手牌中",
 	"insufficient_spirit": "灵性不足",
 	"invalid_target": "目标无效或尚未选择",
+	"need_discard_choice": "请点选手牌作为弃置代价",
+	"invalid_discard_choice": "弃置选择无效，请重选",
 	"battle_ended": "战斗已经结束",
 	"invalid_command": "命令无效",
 	"ok": "命令已完成",
 }
 
 const BATTLE_BACKGROUND := "res://assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png"
-const ART_LANTERN := "res://assets/game/v0.24.0/enemies/enemy-lantern-pursuer.png"
-const ART_TENANT := "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-weeping-tenant.png"
-const ART_MOTH := "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-candle-moth.png"
-const ART_HOUND := "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-mirror-hound.png"
-const ART_TOPHAT := "res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png"
 const ENEMY_ART_BY_DEFINITION := {
-	&"enemy.candle_moth": ART_LANTERN,
-	&"enemy.tingen.kidnapper": ART_LANTERN,
-	&"enemy.mirror_hound": ART_HOUND,
-	&"enemy.tingen.rampager": ART_HOUND,
-	&"enemy.mirror_hound_echo": ART_TOPHAT,
-	&"enemy.weeping_tenant": ART_TENANT,
-	&"enemy.tingen.knight_wraith": ART_TENANT,
-	&"enemy.mirror_baron": ART_MOTH,
-	&"enemy.tingen.megose": ART_MOTH,
+	&"enemy.candle_moth": "res://assets/game/v0.48.0/enemies/enemy-candle-moth.png",
+	&"enemy.tingen.kidnapper": "res://assets/game/v0.48.0/enemies/enemy-tingen-kidnapper.png",
+	&"enemy.mirror_hound": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound.png",
+	&"enemy.tingen.rampager": "res://assets/game/v0.48.0/enemies/enemy-tingen-rampager.png",
+	&"enemy.mirror_hound_echo": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound-echo.png",
+	&"enemy.weeping_tenant": "res://assets/game/v0.48.0/enemies/enemy-weeping-tenant.png",
+	&"enemy.tingen.knight_wraith": "res://assets/game/v0.48.0/enemies/enemy-tingen-knight-wraith.png",
+	&"enemy.mirror_baron": "res://assets/game/v0.48.0/enemies/enemy-mirror-baron.png",
+	&"enemy.tingen.megose": "res://assets/game/v0.48.0/enemies/enemy-tingen-megose.png",
 }
 const RITUAL_SLOT_NAMES := ["灵性之墙", "烛火与祭品", "尊名回应"]
+## Presentation mirror of card.skill.warding_circle rules text (4 + 3×层).
+const RITUAL_CONSUME_BASE_DAMAGE := 4
+const RITUAL_CONSUME_PER_STACK := 3
+## Presentation map: definition_id -> ritual preparation stacks granted.
+const RITUAL_PREPARE_BY_DEFINITION := {
+	&"card.skill.paper_guard": 1,
+	&"card.skill.borrowed_breath": 1,
+	&"card.skill.candle_archive": 1,
+	&"card.skill.coffin_nail": 1,
+	&"card.skill.whispered_hunch": 1,
+	&"card.skill.second_sight": 1,
+	&"card.skill.midnight_ledger": 2,
+}
 const TRAIT_NAMES := {
 	"human": "普通人",
 	"beyonder": "非凡者",
@@ -75,14 +87,36 @@ const CARD_ART_BY_DEFINITION := {
 	&"card.skill.mirror_ward": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
 	&"card.skill.severed_string": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
 	&"card.skill.last_rites": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
+	&"card.skill.veil_step": "res://assets/game/v0.41.0/cards/card_skill_veil_step.png",
+	&"card.skill.severed_fate": "res://assets/game/v0.41.0/cards/card_skill_severed_fate.png",
+	&"card.skill.paper_swarm": "res://assets/game/v0.41.0/cards/card_skill_paper_swarm.png",
+	&"card.skill.mirror_shard": "res://assets/game/v0.41.0/cards/card_skill_mirror_shard.png",
+	&"card.skill.last_witness": "res://assets/game/v0.41.0/cards/card_skill_last_witness.png",
+	&"card.skill.false_death": "res://assets/game/v0.41.0/cards/card_skill_false_death.png",
+	&"card.skill.sealed_answer": "res://assets/game/v0.41.0/cards/card_skill_sealed_answer.png",
+	&"card.skill.hollow_bell": "res://assets/game/v0.41.0/cards/card_skill_hollow_bell.png",
+	&"card.skill.ink_scarlet": "res://assets/game/v0.42.0/cards/card_skill_ink_scarlet.png",
+	&"card.skill.echo_reading": "res://assets/game/v0.42.0/cards/card_skill_echo_reading.png",
+	&"card.skill.midnight_ledger": "res://assets/game/v0.42.0/cards/card_skill_midnight_ledger.png",
+	&"card.skill.borrowed_breath": "res://assets/game/v0.42.0/cards/card_skill_borrowed_breath.png",
+	&"card.skill.glass_thesis": "res://assets/game/v0.42.0/cards/card_skill_glass_thesis.png",
+	&"card.skill.hungry_symbol": "res://assets/game/v0.42.0/cards/card_skill_hungry_symbol.png",
+	&"card.skill.candle_archive": "res://assets/game/v0.42.0/cards/card_skill_candle_archive.png",
+	&"card.skill.omen_chorus": "res://assets/game/v0.42.0/cards/card_skill_omen_chorus.png",
+	&"card.skill.closed_eye": "res://assets/game/v0.42.0/cards/card_skill_closed_eye.png",
+	&"card.skill.black_thread": "res://assets/game/v0.42.0/cards/card_skill_black_thread.png",
+	&"card.skill.eclipse": "res://assets/game/v0.42.0/cards/card_skill_eclipse.png",
+	&"card.skill.red_corridor": "res://assets/game/v0.42.0/cards/card_skill_red_corridor.png",
 }
 const STATUS_ICON_BASE := "res://assets/game/v0.24.0/v0.3.0/status/"
 
 var _snapshot: BattleSnapshot
+var _scene_id := ""
 var _revision := -1
 var _pending := false
 var _selection_card_id: StringName = &""
 var _selection_target_id: StringName = &""
+var _discard_choice_ids: Array[StringName] = []
 var _last_playability: BattlePlayability
 var _playability_handler: Callable
 var _card_labels: Dictionary = {}
@@ -124,7 +158,11 @@ var _screen_scroll: ScrollContainer
 var _content_root: Control
 var _scroll_hint_label: Label
 var _ritual_label: Label
+var _ritual_payoff_label: Label
+var _ritual_tracker: Control
 var _ritual_slots: Array[Label] = []
+var _ritual_slot_panels: Array[PanelContainer] = []
+var _ritual_stacks_shown := -1
 var _risk_label: Label
 var _risk_detail_label: Label
 var _intel_title_label: Label
@@ -145,11 +183,22 @@ var _synergy_hint_ids: Dictionary = {}
 var _aim_from := Vector2.ZERO
 var _aim_to := Vector2.ZERO
 var _aim_valid := false
+var _turn_stamp_label: Label
+var _discard_altar: PanelContainer
+var _discard_altar_label: Label
+var _aim_preview_label: Label
+var _last_phase_key := ""
 
-const HAND_PANEL_HEIGHT := 278
-const HAND_CARD_SIZE := Vector2(242, 196)
-const LANE_HEIGHT := 320
-const HOVER_LIFT := -18.0
+## Heading + always-on discard altar + cards; budgeted so 1600×900 needs no
+## page scroll and SelectButton stays above the fold (BUG-0036).
+## Card width keeps ~7 cards inside the gold frame before horizontal scroll.
+## Height budget: header+status+middle+hand+seps+margins = 900 − SAFE_BOTTOM_REVEAL
+## of bare scene canvas under all chrome.
+const HAND_PANEL_HEIGHT := 292
+const HAND_CARD_SIZE := Vector2(208, 196)
+const HAND_CARD_SEPARATION := 8
+const LANE_HEIGHT := 220
+const HOVER_LIFT := -12.0
 
 
 func _ready() -> void:
@@ -194,6 +243,8 @@ func apply_snapshot(snapshot: BattleSnapshot) -> void:
 	):
 		_selection_card_id = &""
 		_selection_target_id = &""
+		_discard_choice_ids.clear()
+	_prune_discard_choices()
 	_render_snapshot()
 	UiTheme.set_clip_text(_status_label, _snapshot_hint())
 	_refresh_controls()
@@ -209,6 +260,7 @@ func apply_command_result(result: BattleCommandResult) -> void:
 	if result.accepted:
 		_selection_card_id = &""
 		_selection_target_id = &""
+		_discard_choice_ids.clear()
 	for event in result.events:
 		_append_event(_format_event(event))
 		_play_event_feedback(event)
@@ -265,7 +317,19 @@ func get_snapshot_data() -> Dictionary:
 	return _snapshot.to_dictionary() if _snapshot != null else {}
 
 
+func set_scene_id(scene_id: String) -> void:
+	_scene_id = scene_id
+	var path := SceneCatalog.path_for(scene_id, "battle")
+	UiTheme.apply_scene_background(self, path)
+
+
+func get_scene_id() -> String:
+	return _scene_id
+
+
 func get_background_path() -> String:
+	if not _scene_id.is_empty():
+		return SceneCatalog.path_for(_scene_id, "battle")
 	return BATTLE_BACKGROUND
 
 
@@ -291,6 +355,25 @@ func get_visual_effect_count() -> int:
 
 func get_chain_text() -> String:
 	return _chain_label.text if is_instance_valid(_chain_label) else ""
+
+
+func get_turn_stamp_text() -> String:
+	return _turn_stamp_label.text if is_instance_valid(_turn_stamp_label) else ""
+
+
+func is_discard_altar_active() -> bool:
+	return (
+		is_instance_valid(_discard_altar_label)
+		and _discard_altar_label.text.contains("献出")
+	)
+
+
+func get_discard_altar_text() -> String:
+	return _discard_altar_label.text if is_instance_valid(_discard_altar_label) else ""
+
+
+func get_aim_preview_text() -> String:
+	return _aim_preview_label.text if is_instance_valid(_aim_preview_label) else ""
 
 
 func is_exit_confirmation_visible() -> bool:
@@ -328,24 +411,36 @@ func select_card_instance(card_instance_id: StringName, allow_toggle: bool = tru
 	if allow_toggle and _selection_card_id == card_instance_id:
 		cancel_selection()
 		return
+	if _selection_card_id != card_instance_id:
+		_discard_choice_ids.clear()
 	_selection_card_id = card_instance_id
 	_selection_target_id = &""
 	_last_playability = null
 	selection_changed.emit(_selection_card_id, _selection_target_id)
-	if String(card.get("target_type", "none")) == "enemy":
+	var required_discard := _required_discard_for_card(card)
+	if required_discard > 0:
+		UiTheme.set_clip_text(
+			_status_label,
+			"已选择「%s」· 再点选 %d 张手牌弃置" % [
+				_card_name(StringName(card["definition_id"])),
+				required_discard,
+			]
+		)
+	elif String(card.get("target_type", "none")) == "enemy":
 		UiTheme.set_clip_text(
 			_status_label,
 			"已选择「%s」· 拖到敌人或点选目标" % _card_name(StringName(card["definition_id"]))
 		)
 	else:
-		_query_current_playability()
 		UiTheme.set_clip_text(
 			_status_label,
 			"已选择「%s」· 拖到战场或点「打出」" % _card_name(StringName(card["definition_id"]))
 		)
+	_query_current_playability()
 	_refresh_hand_selection()
 	_refresh_selection()
 	_refresh_controls()
+	_refresh_discard_altar()
 
 
 func select_target(enemy_id: StringName) -> void:
@@ -362,6 +457,7 @@ func cancel_selection() -> void:
 	_cancel_drag(false)
 	_selection_card_id = &""
 	_selection_target_id = &""
+	_discard_choice_ids.clear()
 	_last_playability = null
 	if is_instance_valid(_status_label):
 		UiTheme.set_clip_text(_status_label, "已取消选择。")
@@ -369,6 +465,30 @@ func cancel_selection() -> void:
 	_refresh_hand_selection()
 	_refresh_selection()
 	_refresh_controls()
+	_refresh_discard_altar()
+
+
+func toggle_discard_choice(card_instance_id: StringName) -> void:
+	if _pending or _selection_card_id.is_empty() or card_instance_id == _selection_card_id:
+		return
+	var played := _find_hand_card(_selection_card_id)
+	var required := _required_discard_for_card(played)
+	if required <= 0:
+		return
+	if _find_hand_card(card_instance_id).is_empty():
+		return
+	var index := _discard_choice_ids.find(card_instance_id)
+	if index >= 0:
+		_discard_choice_ids.remove_at(index)
+	else:
+		if _discard_choice_ids.size() >= required:
+			_discard_choice_ids.pop_front()
+		_discard_choice_ids.append(card_instance_id)
+	_query_current_playability()
+	_refresh_hand_selection()
+	_refresh_selection()
+	_refresh_controls()
+	_refresh_discard_altar()
 
 
 func play_selected() -> void:
@@ -382,7 +502,8 @@ func play_selected() -> void:
 	set_pending(true)
 	var command := BattleCommandScript.play_card(
 		_selection_card_id,
-		_selection_target_id
+		_selection_target_id,
+		_discard_choice_ids.duplicate()
 	)
 	command_requested.emit(command)
 
@@ -397,7 +518,7 @@ func end_turn() -> void:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, BATTLE_BACKGROUND, UiTheme.C_BG, 0.58)
+	UiTheme.add_background(self, BATTLE_BACKGROUND, UiTheme.C_BG, SceneCatalog.dim_for("battle"))
 	_effects_layer = Control.new()
 	_effects_layer.name = "EffectsLayer"
 	_effects_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -412,6 +533,14 @@ func _build() -> void:
 	_aim_overlay.z_index = 60
 	_aim_overlay.draw.connect(_draw_aim_overlay)
 	add_child(_aim_overlay)
+	_aim_preview_label = UiTheme.label("", 16, UiTheme.C_GOLD)
+	_aim_preview_label.name = "AimPreview"
+	_aim_preview_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_aim_preview_label.z_index = 61
+	_aim_preview_label.visible = false
+	_aim_preview_label.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.02, 1))
+	_aim_preview_label.add_theme_constant_override("outline_size", 4)
+	add_child(_aim_preview_label)
 
 	_screen_scroll = ScrollContainer.new()
 	_screen_scroll.name = "BattlePageScroll"
@@ -420,20 +549,20 @@ func _build() -> void:
 	_screen_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_screen_scroll.follow_focus = true
 	add_child(_screen_scroll)
-	_content_root = Control.new()
+	## MarginContainer reports child minimums to the page scroll. A plain
+	## Control with a fixed 900px size was letting the hand column paint past
+	## the fold while the scrollbar still thought everything "fit".
+	_content_root = MarginContainer.new()
 	_content_root.name = "BattlePageContent"
 	_content_root.custom_minimum_size = Vector2(1600, 900)
 	_content_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_content_root.add_theme_constant_override("margin_left", 24)
+	_content_root.add_theme_constant_override("margin_top", 18)
+	_content_root.add_theme_constant_override("margin_right", 24)
+	## Bare scene-canvas strip under all chrome (SCENE_BRIEF floor band).
+	_content_root.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	_screen_scroll.add_child(_content_root)
-
-	var safe := MarginContainer.new()
-	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	safe.add_theme_constant_override("margin_left", 24)
-	safe.add_theme_constant_override("margin_top", 18)
-	safe.add_theme_constant_override("margin_right", 24)
-	safe.add_theme_constant_override("margin_bottom", 18)
-	_content_root.add_child(safe)
 
 	# Every region below has a fixed or bounded minimum height. Dynamic text
 	# is clipped (with tooltips) or lives inside its own scroll viewport, so a
@@ -441,7 +570,7 @@ func _build() -> void:
 	# (ADR-0030).
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 10)
-	safe.add_child(root)
+	_content_root.add_child(root)
 
 	root.add_child(_build_header())
 	root.add_child(_build_status_strip())
@@ -449,10 +578,16 @@ func _build() -> void:
 	var middle := HBoxContainer.new()
 	middle.name = "BattleMiddle"
 	middle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	## Intel + lane chrome sits above LANE_HEIGHT; keep a hard cap so the hand
+	## band cannot be pushed past the 1600×900 fold.
+	const MIDDLE_HEIGHT := 300
+	middle.custom_minimum_size = Vector2(0, MIDDLE_HEIGHT)
+	middle.custom_maximum_size = Vector2(4096, MIDDLE_HEIGHT)
+	middle.clip_contents = true
 	middle.add_theme_constant_override("separation", 12)
 	root.add_child(middle)
 
-	var battlefield := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
+	var battlefield := UiTheme.module_panel(UiTheme.C_LINE, false)
 	battlefield.name = "BattlefieldPanel"
 	battlefield.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	battlefield.size_flags_stretch_ratio = 2.6
@@ -460,7 +595,7 @@ func _build() -> void:
 	middle.add_child(battlefield)
 	_build_battlefield(battlefield)
 
-	var side := UiTheme.panel(UiTheme.C_SURFACE, UiTheme.C_LINE)
+	var side := UiTheme.module_panel(UiTheme.C_LINE, false)
 	side.name = "SidePanel"
 	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	side.size_flags_stretch_ratio = 1.0
@@ -468,18 +603,31 @@ func _build() -> void:
 	middle.add_child(side)
 	_build_side_panel(side)
 
-	var hand := UiTheme.panel(UiTheme.C_SURFACE, UiTheme.C_GOLD)
+	## Fixed-height slot so ScrollContainer/card mins cannot inflate the page
+	## past the bare canvas floor strip (SAFE_BOTTOM_REVEAL).
+	var hand_slot := Control.new()
+	hand_slot.name = "HandSlot"
+	hand_slot.custom_minimum_size = Vector2(0, HAND_PANEL_HEIGHT)
+	hand_slot.custom_maximum_size = Vector2(4096, HAND_PANEL_HEIGHT)
+	hand_slot.size_flags_vertical = Control.SIZE_SHRINK_END
+	hand_slot.clip_contents = true
+	root.add_child(hand_slot)
+	var hand := UiTheme.panel(UiTheme.C_FROST_HAND, UiTheme.C_GOLD)
 	hand.name = "HandPanel"
-	hand.custom_minimum_size = Vector2(0, HAND_PANEL_HEIGHT)
-	hand.size_flags_vertical = Control.SIZE_SHRINK_END
-	root.add_child(hand)
+	hand.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	## Clip to the gold frame — 7th/8th cards scroll inside, never paint past it.
+	hand.clip_contents = true
+	hand_slot.add_child(hand)
 	_build_hand_panel(hand)
 
 
 func _build_header() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "BattleHeader"
-	row.custom_minimum_size = Vector2(0, 58)
+	## Tall enough for compact diegetic meters (bar + value); never clip HP.
+	row.custom_minimum_size = Vector2(0, 60)
+	row.custom_maximum_size = Vector2(4096, 60)
+	row.clip_contents = true
 	row.add_theme_constant_override("separation", 12)
 
 	var title_block := VBoxContainer.new()
@@ -494,6 +642,14 @@ func _build_header() -> Control:
 	_phase_label = UiTheme.clip_label("等待战斗快照", 12, UiTheme.C_MUTED)
 	_phase_label.size_flags_stretch_ratio = 0.8
 	info_row.add_child(_phase_label)
+	_turn_stamp_label = UiTheme.clip_label(
+		BattleTableFeel.turn_stamp_zh(""),
+		12,
+		UiTheme.C_MUTED
+	)
+	_turn_stamp_label.name = "TurnStamp"
+	_turn_stamp_label.size_flags_stretch_ratio = 0.7
+	info_row.add_child(_turn_stamp_label)
 	_pile_label = UiTheme.clip_label("牌堆 —  ·  弃牌 —", 12, UiTheme.C_MUTED)
 	info_row.add_child(_pile_label)
 	# Reserved line for the small-viewport scroll hint: it sits at the left
@@ -557,25 +713,55 @@ func _build_status_strip() -> Control:
 
 	var ritual := VBoxContainer.new()
 	ritual.name = "RitualTracker"
-	ritual.custom_minimum_size = Vector2(318, 0)
-	ritual.add_theme_constant_override("separation", 3)
+	ritual.custom_minimum_size = Vector2(360, 86)
+	ritual.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ritual.add_theme_constant_override("separation", 2)
 	row.add_child(ritual)
-	_ritual_label = UiTheme.clip_label("仪式准备 0 / 3", 12, UiTheme.C_MUTED)
-	_ritual_label.tooltip_text = "仪式魔法：灵性之墙、烛火与祭品、念诵尊名。消耗全部准备的仪式牌每层额外增强。"
+	_ritual_tracker = ritual
+	_ritual_label = UiTheme.clip_label("仪式烛台 0 / 3", 13, UiTheme.C_MUTED)
+	_ritual_label.tooltip_text = (
+		"叠层：灵性之墙 / 圣夜粉 / 烛芯 / 银质匕首 / 通灵等。\n"
+		+ "兑现：打出「驱邪仪式」消耗全部层数，伤害 4 + 3×层。"
+	)
 	ritual.add_child(_ritual_label)
 	var slots := HBoxContainer.new()
-	slots.add_theme_constant_override("separation", 6)
+	slots.add_theme_constant_override("separation", 8)
 	ritual.add_child(slots)
 	_ritual_slots.clear()
-	for slot_name in RITUAL_SLOT_NAMES:
-		var slot := UiTheme.badge(String(slot_name), UiTheme.C_MUTED, UiTheme.C_LINE)
-		slot.custom_minimum_size = Vector2(98, 0)
+	_ritual_slot_panels.clear()
+	for slot_index in range(RITUAL_SLOT_NAMES.size()):
+		var slot_name := String(RITUAL_SLOT_NAMES[slot_index])
+		var candle := UiTheme.panel(Color("#17140f"), UiTheme.C_LINE)
+		candle.custom_minimum_size = Vector2(108, 40)
+		candle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		candle.add_theme_stylebox_override(
+			"panel",
+			UiTheme.style_box(Color("#17140f"), UiTheme.C_LINE, 2, 6)
+		)
+		var candle_column := VBoxContainer.new()
+		candle_column.add_theme_constant_override("separation", 0)
+		candle.add_child(_pad(candle_column, 3))
+		var flame := UiTheme.center_label("○", 15, UiTheme.C_MUTED)
+		flame.name = "RitualFlame"
+		candle_column.add_child(flame)
+		var slot := UiTheme.center_label(slot_name, 11, UiTheme.C_MUTED)
 		slot.clip_text = true
-		slots.add_child(slot)
+		slot.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		slot.tooltip_text = "第 %d 段：%s" % [slot_index + 1, slot_name]
+		candle_column.add_child(slot)
+		slots.add_child(candle)
+		_ritual_slot_panels.append(candle)
 		_ritual_slots.append(slot)
+	_ritual_payoff_label = UiTheme.clip_label(
+		"驱邪预计 4 伤 · 尚未叠层",
+		12,
+		UiTheme.C_MUTED
+	)
+	_ritual_payoff_label.tooltip_text = "只显示快照层数对应的驱邪文案增强，不另算规则。"
+	ritual.add_child(_ritual_payoff_label)
 
 	var risk := VBoxContainer.new()
-	risk.custom_minimum_size = Vector2(290, 0)
+	risk.custom_minimum_size = Vector2(260, 0)
 	risk.add_theme_constant_override("separation", 2)
 	row.add_child(risk)
 	_risk_label = UiTheme.clip_label("", 12, UiTheme.C_DANGER_TEXT)
@@ -583,9 +769,11 @@ func _build_status_strip() -> Control:
 	_risk_detail_label = UiTheme.clip_label("", 12, UiTheme.C_MUTED)
 	risk.add_child(_risk_detail_label)
 
-	var strip := UiTheme.padded_panel(row, 9, Color("#252118"), UiTheme.C_LINE)
+	var strip := UiTheme.module_padded(row, 8, UiTheme.C_LINE, true)
 	strip.name = "BattleStatusStrip"
-	strip.custom_minimum_size = Vector2(0, 62)
+	strip.custom_minimum_size = Vector2(0, 100)
+	strip.custom_maximum_size = Vector2(4096, 100)
+	strip.clip_contents = true
 	return strip
 
 
@@ -596,9 +784,9 @@ func _build_battlefield(panel: PanelContainer) -> void:
 
 	var intel := VBoxContainer.new()
 	intel.add_theme_constant_override("separation", 1)
-	var intel_panel := UiTheme.padded_panel(intel, 7, Color("#211c14"), UiTheme.C_LINE)
+	var intel_panel := UiTheme.module_padded(intel, 7, UiTheme.C_LINE, false)
 	intel_panel.name = "BossIntelPanel"
-	intel_panel.custom_minimum_size = Vector2(0, 70)
+	intel_panel.custom_minimum_size = Vector2(0, 54)
 	column.add_child(intel_panel)
 	_intel_title_label = UiTheme.clip_label("战场情报", 16, UiTheme.C_TEXT)
 	intel.add_child(_intel_title_label)
@@ -653,7 +841,7 @@ func _build_side_panel(panel: PanelContainer) -> void:
 	column.add_child(synergy_heading)
 	_synergy_list = VBoxContainer.new()
 	_synergy_list.add_theme_constant_override("separation", 3)
-	_synergy_scroll = UiTheme.fixed_scroll(_synergy_list, 88)
+	_synergy_scroll = UiTheme.fixed_scroll(_synergy_list, 64)
 	_synergy_scroll.name = "SynergyScroll"
 	column.add_child(_synergy_scroll)
 
@@ -671,7 +859,7 @@ func _build_side_panel(panel: PanelContainer) -> void:
 	_event_scroll.name = "BattleLogScroll"
 	_event_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_event_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_event_scroll.custom_minimum_size = Vector2(0, 72)
+	_event_scroll.custom_minimum_size = Vector2(0, 56)
 	_event_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_event_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_event_scroll.follow_focus = true
@@ -689,23 +877,43 @@ func _build_hand_panel(panel: PanelContainer) -> void:
 	column.add_child(heading)
 	heading.add_child(UiTheme.label("手牌", 18, UiTheme.C_TEXT))
 	var tip := UiTheme.clip_label(
-		"拖到敌人/战场打出 · 点选仍可用 · 悬停放大 · 金边=联动缺口",
+		"拖放打出 · 点选仍可用 · 弃置代价点选手牌 · 悬停放大",
 		12,
 		UiTheme.C_MUTED
 	)
 	tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	heading.add_child(tip)
 
+	# Fixed-height altar slot so showing/hiding copy never shifts HandPanel rect.
+	var altar_body := HBoxContainer.new()
+	altar_body.add_theme_constant_override("separation", 8)
+	_discard_altar_label = UiTheme.clip_label("", 13, UiTheme.C_DANGER_TEXT)
+	_discard_altar_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	altar_body.add_child(_discard_altar_label)
+	_discard_altar = UiTheme.module_padded(altar_body, 6, UiTheme.C_LINE, false)
+	_discard_altar.name = "DiscardAltar"
+	_discard_altar.custom_minimum_size = Vector2(0, 34)
+	# Always occupy height so show/hide never shifts HandPanel / HandScroll rects.
+	_discard_altar.visible = true
+	column.add_child(_discard_altar)
+	UiTheme.set_clip_text(_discard_altar_label, "祭坛待命 · 需弃置代价的牌会在此点亮")
+	_discard_altar_label.add_theme_color_override("font_color", UiTheme.C_MUTED)
+
 	var scroll := ScrollContainer.new()
 	scroll.name = "HandScroll"
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	## Clip to frame; overflow cards are reached by horizontal scroll only.
+	scroll.clip_contents = true
 	column.add_child(scroll)
 	_hand_row = HBoxContainer.new()
-	_hand_row.add_theme_constant_override("separation", 10)
+	_hand_row.add_theme_constant_override("separation", HAND_CARD_SEPARATION)
 	_hand_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_hand_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	## Shrink — do not vertically stretch cards to the scroll viewport (that
+	## pushed SelectButton past the 1600×900 fold while still "fitting" the page).
+	_hand_row.size_flags_vertical = Control.SIZE_SHRINK_END
+	_hand_row.alignment = BoxContainer.ALIGNMENT_BEGIN
 	scroll.add_child(_hand_row)
 
 
@@ -747,6 +955,7 @@ func _render_snapshot() -> void:
 		_revision,
 		String(data.get("battle_id", "")),
 	]
+	_render_turn_atmosphere(phase, String(data.get("outcome", "")))
 	_round_label.text = "回合 %d / %d" % [round_number, max_rounds]
 	_pressure_label.text = "敌方压力 +%d" % pressure
 	_chain_label.visible = chain_threshold > 0
@@ -839,29 +1048,137 @@ func _render_snapshot() -> void:
 	_render_hand(data.get("hand", []))
 	_refresh_selection()
 	_refresh_controls()
+	_refresh_discard_altar()
 	call_deferred("_refresh_meter_fills")
+
+
+func _render_turn_atmosphere(phase: String, outcome: String) -> void:
+	if not is_instance_valid(_turn_stamp_label):
+		return
+	var stamp := BattleTableFeel.turn_stamp_zh(phase, outcome)
+	UiTheme.set_clip_text(_turn_stamp_label, stamp)
+	_turn_stamp_label.add_theme_color_override(
+		"font_color",
+		BattleTableFeel.turn_stamp_color(phase, outcome)
+	)
+	var phase_key := "%s|%s" % [phase, outcome]
+	if _last_phase_key != "" and phase_key != _last_phase_key and outcome.is_empty():
+		TableSfx.play(self, TableSfx.KIND_TURN)
+		if phase == "player_action":
+			_show_banner("轮到你了", "拖牌落桌 · 点选仍可用", UiTheme.C_GOLD)
+		elif phase in ["enemy_action", "enemy_intent", "resolve_enemy"]:
+			_show_banner("敌方出手", "看清意图，准备下一轮", UiTheme.C_DANGER_TEXT)
+	_last_phase_key = phase_key
+
+
+func _refresh_discard_altar() -> void:
+	if not is_instance_valid(_discard_altar) or not is_instance_valid(_discard_altar_label):
+		return
+	var card := _find_hand_card(_selection_card_id)
+	var required := _required_discard_for_card(card)
+	var active := required > 0 and not _selection_card_id.is_empty() and not _pending
+	if not active:
+		UiTheme.set_clip_text(_discard_altar_label, "祭坛待命 · 需弃置代价的牌会在此点亮")
+		_discard_altar_label.add_theme_color_override("font_color", UiTheme.C_MUTED)
+		_discard_altar.add_theme_stylebox_override(
+			"panel",
+			UiTheme.style_box(Color("#1c1914"), UiTheme.C_LINE, 1, 6)
+		)
+		return
+	var was_active := is_discard_altar_active()
+	UiTheme.set_clip_text(
+		_discard_altar_label,
+		BattleTableFeel.discard_altar_zh(
+			_discard_choice_ids.size(),
+			required,
+			_card_name(StringName(card.get("definition_id", "")))
+		)
+	)
+	_discard_altar_label.add_theme_color_override("font_color", UiTheme.C_DANGER_TEXT)
+	_discard_altar.add_theme_stylebox_override(
+		"panel",
+		UiTheme.style_box(Color("#2a1614"), UiTheme.C_DANGER, 2, 6)
+	)
+	if not was_active:
+		TableSfx.play(self, TableSfx.KIND_ALTAR)
 
 
 func _render_ritual(ritual_value: Variant) -> void:
 	var ritual: Dictionary = ritual_value if ritual_value is Dictionary else {}
 	var stacks := int(ritual.get("stacks", 0))
 	var maximum := maxi(1, int(ritual.get("max", RITUAL_SLOT_NAMES.size())))
-	UiTheme.set_clip_text(_ritual_label, (
-		"仪式准备 %d / %d · 打出“驱邪仪式”一次兑现" % [stacks, maximum]
-		if stacks > 0
-		else "仪式准备 0 / %d · 灵性之墙、圣夜粉、烛芯可积累" % maximum
-	))
-	_ritual_label.add_theme_color_override("font_color", UiTheme.C_GOLD if stacks > 0 else UiTheme.C_MUTED)
+	var payoff := _ritual_payoff_damage(stacks)
+	UiTheme.set_clip_text(
+		_ritual_label,
+		(
+			"仪式烛台 %d / %d · 可打「驱邪」兑现" % [stacks, maximum]
+			if stacks > 0
+			else "仪式烛台 0 / %d · 先叠准备再兑现" % maximum
+		)
+	)
+	_ritual_label.add_theme_color_override(
+		"font_color",
+		UiTheme.C_GOLD if stacks > 0 else UiTheme.C_MUTED
+	)
+	if is_instance_valid(_ritual_payoff_label):
+		UiTheme.set_clip_text(
+			_ritual_payoff_label,
+			(
+				"驱邪预计 %d 伤（4+3×%d）" % [payoff, stacks]
+				if stacks > 0
+				else "驱邪预计 4 伤 · 尚未叠层"
+			)
+		)
+		_ritual_payoff_label.add_theme_color_override(
+			"font_color",
+			UiTheme.C_GOLD if stacks > 0 else UiTheme.C_MUTED
+		)
 	for index in range(_ritual_slots.size()):
-		var slot: Label = _ritual_slots[index]
 		var lit := index < stacks
-		slot.add_theme_color_override("font_color", UiTheme.C_TEXT if lit else UiTheme.C_MUTED)
-		slot.add_theme_stylebox_override("normal", UiTheme.style_box(
-			Color("#4a3b1d") if lit else UiTheme.C_SURFACE,
-			UiTheme.C_GOLD if lit else UiTheme.C_LINE,
-			1,
-			5
-		))
+		var slot: Label = _ritual_slots[index]
+		slot.add_theme_color_override(
+			"font_color",
+			Color("#fff4dc") if lit else UiTheme.C_MUTED
+		)
+		if index < _ritual_slot_panels.size():
+			var panel: PanelContainer = _ritual_slot_panels[index]
+			# Keep border width fixed so StatusStrip layout does not shift when lit.
+			panel.add_theme_stylebox_override(
+				"panel",
+				UiTheme.style_box(
+					Color("#5a4418") if lit else Color("#17140f"),
+					UiTheme.C_GOLD if lit else UiTheme.C_LINE,
+					2,
+					6
+				)
+			)
+			var flame := panel.find_child("RitualFlame", true, false) as Label
+			if is_instance_valid(flame):
+				flame.text = "●" if lit else "○"
+				flame.add_theme_color_override(
+					"font_color",
+					Color("#ffd978") if lit else UiTheme.C_MUTED
+				)
+	if (
+		_ritual_stacks_shown >= 0
+		and stacks > _ritual_stacks_shown
+		and is_instance_valid(_ritual_tracker)
+	):
+		_pulse_control(_ritual_tracker, Color(1.2, 1.1, 0.75, 1))
+	_ritual_stacks_shown = stacks
+
+
+func _ritual_payoff_damage(stacks: int) -> int:
+	return RITUAL_CONSUME_BASE_DAMAGE + RITUAL_CONSUME_PER_STACK * maxi(0, stacks)
+
+
+func _current_ritual_stacks() -> int:
+	if _snapshot == null:
+		return 0
+	var ritual_value: Variant = _snapshot.data.get("ritual", {})
+	if ritual_value is Dictionary:
+		return int(ritual_value.get("stacks", 0))
+	return 0
 
 
 func _render_risk(risk_value: Variant) -> void:
@@ -1053,10 +1370,14 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 	var has_enemy := not enemy.is_empty()
 	var alive := has_enemy and int(enemy.get("hp", 0)) > 0
 	var border := UiTheme.C_DANGER if alive else UiTheme.C_LINE
-	var panel := UiTheme.panel(Color("#201e18"), border)
+	var panel := UiTheme.panel(
+		UiTheme.frost(0.125, 0.118, 0.094, UiTheme.MODULE_RAISED_ALPHA),
+		border
+	)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.custom_minimum_size = Vector2(0, LANE_HEIGHT)
+	panel.custom_maximum_size = Vector2(4096, LANE_HEIGHT)
 	panel.clip_contents = true
 
 	var column := VBoxContainer.new()
@@ -1085,7 +1406,10 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			var unknown := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
 			unknown.add_child(UiTheme.center_label("未知存在", 16, UiTheme.C_MUTED))
 			art_holder = unknown
-		art_holder.custom_minimum_size = Vector2(0, 90)
+		## Cap art so it cannot expand and push the HP line past the lane clip.
+		art_holder.custom_minimum_size = Vector2(0, 64)
+		art_holder.custom_maximum_size = Vector2(4096, 88)
+		art_holder.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		art_holder.name = "EnemyArtHolder"
 		column.add_child(art_holder)
 		var name_label := UiTheme.clip_label(
@@ -1114,7 +1438,9 @@ func _build_lane(lane_index: int, enemy: Dictionary) -> Control:
 			13,
 			UiTheme.C_DANGER_TEXT
 		)
+		hp_label.name = "EnemyHpLabel"
 		hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hp_label.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		column.add_child(hp_label)
 		var intent: Dictionary = enemy.get("intent", {})
 		var danger := alive and bool(intent.get("danger", false))
@@ -1344,14 +1670,21 @@ func _build_hand_card(card: Dictionary) -> Control:
 	var definition_id := StringName(card.get("definition_id", ""))
 	var detail: Dictionary = _card_details.get(String(definition_id), {}) if _card_details.get(String(definition_id), {}) is Dictionary else {}
 	var selected := instance_id == _selection_card_id
+	var marked_discard := instance_id in _discard_choice_ids
 	var synergy_hint := _synergy_hint_ids.has(String(definition_id))
 	var border := (
-		UiTheme.C_GOLD
-		if selected or synergy_hint
-		else UiTheme.C_LINE
+		UiTheme.C_DANGER
+		if marked_discard
+		else (
+			UiTheme.C_GOLD
+			if selected or synergy_hint
+			else UiTheme.C_LINE
+		)
 	)
 	var panel := UiTheme.panel(
-		Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15")),
+		Color("#3a1f1f") if marked_discard else (
+			Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15"))
+		),
 		border
 	)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1362,7 +1695,10 @@ func _build_hand_card(card: Dictionary) -> Control:
 	panel.set_meta("hover_scaled", false)
 	panel.pivot_offset = HAND_CARD_SIZE * 0.5
 	panel.custom_minimum_size = HAND_CARD_SIZE
+	panel.custom_maximum_size = HAND_CARD_SIZE
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	## Clip inner copy, but keep the gold frame/button inside HAND_CARD_SIZE.
 	panel.clip_contents = true
 	panel.z_as_relative = false
 
@@ -1375,15 +1711,15 @@ func _build_hand_card(card: Dictionary) -> Control:
 		var art := TextureRect.new()
 		art.name = "CardArt"
 		art.texture = load(art_path) as Texture2D
-		art.custom_minimum_size = Vector2(0, 30)
+		art.custom_minimum_size = Vector2(0, 26)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		art.modulate = Color(0.94, 0.9, 0.78, 0.92)
 		column.add_child(art)
 	else:
 		var placeholder := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
-		placeholder.custom_minimum_size = Vector2(0, 30)
+		placeholder.custom_minimum_size = Vector2(0, 26)
 		column.add_child(placeholder)
 
 	var title_row := HBoxContainer.new()
@@ -1422,7 +1758,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 		effect_text if not effect_text.is_empty() else "效果由规则层结算。",
 		12,
 		UiTheme.C_PAPER,
-		50
+		40
 	)
 	effect_box.name = "CardEffectBox"
 	effect_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1431,8 +1767,15 @@ func _build_hand_card(card: Dictionary) -> Control:
 	var chips: Array[String] = []
 	if bool(card.get("exhaust", detail.get("exhaust", false))):
 		chips.append("单场一次")
-	if bool(card.get("consumes_ritual", detail.get("consumes_ritual", false))):
-		chips.append("兑现仪式")
+	var prepare_stacks := int(RITUAL_PREPARE_BY_DEFINITION.get(definition_id, 0))
+	if prepare_stacks > 0:
+		chips.append("叠仪式 +%d" % prepare_stacks)
+	var consumes_ritual := bool(card.get("consumes_ritual", detail.get("consumes_ritual", false)))
+	if consumes_ritual:
+		var ritual_now := _current_ritual_stacks()
+		chips.append(
+			"兑现 %d 伤（现有 %d 层）" % [_ritual_payoff_damage(ritual_now), ritual_now]
+		)
 	var synergy_names: Array = detail.get("synergy_names", [])
 	if not synergy_names.is_empty():
 		chips.append("联动：" + "、".join(synergy_names))
@@ -1443,21 +1786,51 @@ func _build_hand_card(card: Dictionary) -> Control:
 	)
 	chip_label.name = "CardChips"
 	column.add_child(chip_label)
+	if prepare_stacks > 0 or consumes_ritual:
+		panel.add_theme_stylebox_override(
+			"panel",
+			UiTheme.style_box(
+				Color("#2a2414") if selected else Color("#221c12"),
+				UiTheme.C_GOLD if selected or consumes_ritual and _current_ritual_stacks() > 0 else (
+					Color("#8a7340") if prepare_stacks > 0 else border
+				),
+				2 if prepare_stacks > 0 or consumes_ritual else 1,
+				8
+			)
+		)
 	var source := String(detail.get("source_zh", ""))
 	var hint_bits: Array[String] = [effect_text, "拖到敌人或战场打出；点选仍可用"]
+	if marked_discard:
+		hint_bits.append("已标记为弃置代价")
 	if synergy_hint:
 		hint_bits.append("联动缺口：打出可推进本回合原著联动")
 	if not source.is_empty():
 		hint_bits.append("出处：" + source)
 	panel.tooltip_text = "\n".join(hint_bits)
+	if marked_discard:
+		column.add_child(UiTheme.clip_label("弃置代价", 12, UiTheme.C_DANGER_TEXT))
 
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
+	var discard_pick_mode := (
+		not _selection_card_id.is_empty()
+		and _required_discard_for_card(_find_hand_card(_selection_card_id)) > 0
+		and instance_id != _selection_card_id
+	)
 	var select_button := UiTheme.button(
-		"已选择" if selected else "选择手牌",
+		(
+			"取消弃置" if marked_discard
+			else (
+				"标记弃置" if discard_pick_mode
+				else ("已选择" if selected else "选择手牌")
+			)
+		),
 		func() -> void:
-			select_card_instance(instance_id, true),
+			if discard_pick_mode:
+				toggle_discard_choice(instance_id)
+			else:
+				select_card_instance(instance_id, true),
 		not _pending
 	)
 	select_button.name = "SelectButton"
@@ -1478,7 +1851,17 @@ func _on_hand_card_input(
 	if _pending or not _is_player_action_phase():
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var discard_pick_mode := (
+			not _selection_card_id.is_empty()
+			and _required_discard_for_card(_find_hand_card(_selection_card_id)) > 0
+			and instance_id != _selection_card_id
+		)
 		if event.pressed:
+			if discard_pick_mode:
+				_drag_armed = false
+				toggle_discard_choice(instance_id)
+				accept_event()
+				return
 			_drag_was_selected = _selection_card_id == instance_id
 			_drag_armed = true
 			_drag_moved = false
@@ -1488,7 +1871,12 @@ func _on_hand_card_input(
 			accept_event()
 		elif not _drag_active and _drag_armed and _drag_card_id == instance_id:
 			_drag_armed = false
-			if _drag_was_selected and not _drag_moved:
+			# Only toggle-off on a second click when no discard tax is pending.
+			if (
+				_drag_was_selected
+				and not _drag_moved
+				and _required_discard_for_card(_find_hand_card(_selection_card_id)) <= 0
+			):
 				cancel_selection()
 			accept_event()
 
@@ -1533,12 +1921,36 @@ func _query_current_playability() -> void:
 		_last_playability = BattlePlayabilityScript.new(false, BattlePlayability.INVALID_TARGET)
 		UiTheme.set_clip_text(_status_label, "玩法查询接口尚未接入。")
 		return
-	var result: Variant = _playability_handler.call(
-		_selection_card_id,
-		_selection_target_id
-	)
+	var discard_ids: Array = _discard_choice_ids.duplicate()
+	var result: Variant
+	# Godot lambdas with defaulted trailing args still report arity 2; support
+	# both legacy 2-arg handlers and 3-arg discard-aware handlers.
+	if _playability_handler.get_argument_count() >= 3:
+		result = _playability_handler.call(
+			_selection_card_id,
+			_selection_target_id,
+			discard_ids
+		)
+	else:
+		result = _playability_handler.call(
+			_selection_card_id,
+			_selection_target_id
+		)
 	if result is BattlePlayability:
 		_last_playability = result
+		# If the handler cannot see discard ids, synthesize the choice gate
+		# from the snapshot so the play button stays honest.
+		if (
+			_playability_handler.get_argument_count() < 3
+			and result.playable
+		):
+			var required := _required_discard_for_card(_find_hand_card(_selection_card_id))
+			if required > discard_ids.size():
+				result = BattlePlayabilityScript.new(
+					false,
+					BattlePlayability.NEED_DISCARD_CHOICE
+				)
+				_last_playability = result
 		_show_playability(result)
 
 
@@ -1559,10 +1971,21 @@ func _refresh_selection() -> void:
 		StringName(card.get("definition_id", ""))
 	) if not card.is_empty() else String(_selection_card_id)
 	var target_text := "未选择目标" if _selection_target_id.is_empty() else _enemy_name_by_actor(_selection_target_id)
+	var required_discard := _required_discard_for_card(card)
+	var discard_text := (
+		"弃置：%d / %d" % [_discard_choice_ids.size(), required_discard]
+		if required_discard > 0
+		else "弃置：无需"
+	)
 	var reason := ""
 	if _last_playability != null:
 		reason = "\n" + _reason_text(_last_playability.reason_code)
-	_selection_label.text = "当前选择：%s\n目标：%s%s" % [card_name, target_text, reason]
+	_selection_label.text = "当前选择：%s\n目标：%s\n%s%s" % [
+		card_name,
+		target_text,
+		discard_text,
+		reason,
+	]
 
 
 func _refresh_controls() -> void:
@@ -1645,19 +2068,35 @@ func _refresh_hand_selection() -> void:
 			""
 		))
 		var selected := instance_id == _selection_card_id
+		var marked_discard := instance_id in _discard_choice_ids
 		var synergy_hint := bool(panel.get_meta("synergy_hint", false))
 		panel.add_theme_stylebox_override(
 			"panel",
 			UiTheme.style_box(
-				Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15")),
-				UiTheme.C_GOLD if selected or synergy_hint else UiTheme.C_LINE,
-				2 if selected or synergy_hint else 1,
+				Color("#3a1f1f") if marked_discard else (
+					Color("#272318") if selected else (Color("#242016") if synergy_hint else Color("#1b1a15"))
+				),
+				UiTheme.C_DANGER if marked_discard else (
+					UiTheme.C_GOLD if selected or synergy_hint else UiTheme.C_LINE
+				),
+				2 if selected or marked_discard or synergy_hint else 1,
 				8
 			)
 		)
 		var select_button := _find_named_button(panel, "SelectButton")
 		if select_button != null:
-			select_button.text = "已选择" if selected else "选择手牌"
+			var discard_pick_mode := (
+				not _selection_card_id.is_empty()
+				and _required_discard_for_card(_find_hand_card(_selection_card_id)) > 0
+				and not selected
+			)
+			select_button.text = (
+				"取消弃置" if marked_discard
+				else (
+					"标记弃置" if discard_pick_mode
+					else ("已选择" if selected else "选择手牌")
+				)
+			)
 
 
 func _set_buttons_disabled(control: Node, disabled: bool) -> void:
@@ -1687,6 +2126,30 @@ func _find_hand_card(card_instance_id: StringName) -> Dictionary:
 		if card_value is Dictionary and StringName(card_value.get("instance_id", "")) == card_instance_id:
 			return card_value
 	return {}
+
+
+func _required_discard_for_card(card: Dictionary) -> int:
+	if card.is_empty():
+		return 0
+	var declared := int(card.get("required_discard", 0))
+	if _snapshot == null:
+		return declared
+	var hand: Variant = _snapshot.data.get("hand", [])
+	var hand_size: int = hand.size() if hand is Array else 0
+	return mini(declared, maxi(0, hand_size - 1))
+
+
+func _prune_discard_choices() -> void:
+	if _discard_choice_ids.is_empty():
+		return
+	var kept: Array[StringName] = []
+	for id in _discard_choice_ids:
+		if id == _selection_card_id:
+			continue
+		if _find_hand_card(id).is_empty():
+			continue
+		kept.append(id)
+	_discard_choice_ids = kept
 
 
 func _enemy_name_by_actor(actor_id: StringName) -> String:
@@ -2031,9 +2494,40 @@ func _update_drag_aim(global_pos: Vector2) -> void:
 		var lane := _find_lane_panel(StringName(drop.get("actor_id", "")))
 		if is_instance_valid(lane):
 			_aim_to = lane.get_global_rect().get_center()
+	_update_aim_preview(drop)
 	if is_instance_valid(_aim_overlay):
 		_aim_overlay.queue_redraw()
 	_refresh_target_highlights()
+
+
+func _update_aim_preview(drop: Dictionary) -> void:
+	if not is_instance_valid(_aim_preview_label):
+		return
+	if not _drag_active:
+		_aim_preview_label.visible = false
+		_aim_preview_label.text = ""
+		return
+	var card := _find_hand_card(_drag_card_id)
+	var effect := get_card_effect_text(StringName(card.get("definition_id", "")))
+	var preview := BattleTableFeel.clip_aim_preview(effect)
+	if bool(drop.get("valid", false)) and String(drop.get("kind", "")) == "enemy":
+		preview = "将落在 · %s\n%s" % [
+			_enemy_name_by_actor(StringName(drop.get("actor_id", ""))),
+			preview,
+		]
+	elif bool(drop.get("valid", false)):
+		preview = "落桌打出\n%s" % preview
+	else:
+		preview = "未对准\n%s" % preview
+	_aim_preview_label.text = preview
+	_aim_preview_label.visible = true
+	_aim_preview_label.add_theme_color_override(
+		"font_color",
+		UiTheme.C_GOLD if _aim_valid else UiTheme.C_MUTED
+	)
+	_aim_preview_label.reset_size()
+	var size := _aim_preview_label.get_combined_minimum_size()
+	_aim_preview_label.global_position = _aim_to + Vector2(-size.x * 0.5, -56)
 
 
 func _finish_drag(global_pos: Vector2) -> void:
@@ -2064,8 +2558,12 @@ func _cancel_drag(restore_status: bool) -> void:
 	_drag_card_id = &""
 	_aim_valid = false
 	_clear_drag_ghost()
+	if is_instance_valid(_aim_preview_label):
+		_aim_preview_label.visible = false
+		_aim_preview_label.text = ""
 	if is_instance_valid(_aim_overlay):
 		_aim_overlay.queue_redraw()
+	_refresh_target_highlights()
 	if restore_status and is_instance_valid(_status_label):
 		UiTheme.set_clip_text(_status_label, "已取消拖放。")
 
@@ -2208,6 +2706,7 @@ func _play_event_feedback(event: BattleEvent) -> void:
 	var data := event.data
 	match String(event.type):
 		"CardPlayed":
+			TableSfx.play(self, TableSfx.KIND_CARD_PLAY)
 			_play_card_cast(
 				StringName(data.get("definition_id", "")),
 				StringName(data.get("target_id", ""))
@@ -2217,10 +2716,12 @@ func _play_event_feedback(event: BattleEvent) -> void:
 			var amount := int(data.get("amount", 0))
 			var anchor := _actor_anchor(target_id)
 			if anchor != null and amount > 0:
-				_show_floating_text(anchor, "受到伤害  -%d" % amount, UiTheme.C_DANGER_TEXT)
+				TableSfx.play(self, TableSfx.KIND_DAMAGE)
+				_show_floating_text(anchor, "-%d" % amount, UiTheme.C_DANGER_TEXT, 34)
 				_flash_actor(anchor, UiTheme.C_DANGER)
 				_shake_actor(anchor)
 				_pulse_control(anchor, Color(1.25, 0.48, 0.42, 1))
+				_show_impact_ring(anchor.get_global_rect().get_center(), UiTheme.C_DANGER)
 		"Healed":
 			var target_id := StringName(data.get("target_id", ""))
 			var amount := int(data.get("amount", 0))
@@ -2252,10 +2753,42 @@ func _play_event_feedback(event: BattleEvent) -> void:
 		"ForesightConsumed":
 			_show_floating_text(_health_meter, "预见：伤害 -%d" % int(data.get("reduction", 0)), UiTheme.C_GOLD)
 		"RitualProgressed":
-			_show_floating_text(_health_meter, "仪式准备 %d/3" % int(data.get("after", 0)), UiTheme.C_GOLD)
+			var after_stacks := int(data.get("after", 0))
+			var ritual_anchor: Control = (
+				_ritual_tracker if is_instance_valid(_ritual_tracker) else _health_meter
+			)
+			TableSfx.play(self, TableSfx.KIND_RITUAL)
+			_show_floating_text(
+				ritual_anchor,
+				"烛台点亮 %d/3" % after_stacks,
+				UiTheme.C_GOLD
+			)
+			if is_instance_valid(_ritual_tracker):
+				_pulse_control(_ritual_tracker, Color(1.25, 1.12, 0.7, 1))
+			if after_stacks >= 3:
+				_show_banner(
+					"三段已齐",
+					"打出「驱邪仪式」即可兑现 · 预计 %d 伤害" % _ritual_payoff_damage(after_stacks),
+					UiTheme.C_GOLD
+				)
 		"RitualCompleted":
-			if bool(data.get("complete", false)):
-				_show_banner("仪式完成", "灵性之墙 · 烛火与祭品 · 尊名回应 —— 力量降下。", UiTheme.C_GOLD)
+			var spent := int(data.get("stacks", 0))
+			TableSfx.play(self, TableSfx.KIND_RITUAL)
+			_show_banner(
+				"仪式兑现 · 消耗 %d 层" % spent,
+				"驱邪伤害按 4 + 3×%d = %d 结算；烛台清空，可再叠。" % [
+					spent,
+					_ritual_payoff_damage(spent),
+				],
+				UiTheme.C_GOLD
+			)
+			if is_instance_valid(_ritual_tracker):
+				_flash_actor(_ritual_tracker, UiTheme.C_GOLD)
+				_show_floating_text(
+					_ritual_tracker,
+					"兑现 -%d 层" % spent,
+					UiTheme.C_GOLD
+				)
 		"SynergyTriggered":
 			_show_banner(
 				"原著联动 · %s" % String(data.get("display_name_zh", "")),
@@ -2313,7 +2846,8 @@ func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:
 		_effects_layer.size.x * 0.24,
 		_effects_layer.size.y * 0.78
 	)
-	var end := target.get_global_rect().get_center() - _effects_layer.global_position
+	var end_global := target.get_global_rect().get_center()
+	var end := end_global - _effects_layer.global_position
 	var card_visual := TextureRect.new()
 	card_visual.texture = load(get_card_art_path(definition_id)) as Texture2D
 	card_visual.custom_minimum_size = Vector2(130, 92)
@@ -2326,28 +2860,61 @@ func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:
 	_visual_effect_count += 1
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(card_visual, "position", end, 0.25)
-	tween.tween_property(card_visual, "scale", Vector2(0.35, 0.35), 0.25)
-	tween.tween_property(card_visual, "rotation", 0.22, 0.25)
-	tween.chain().tween_property(card_visual, "modulate:a", 0.0, 0.18)
+	tween.tween_property(card_visual, "position", end, 0.22)
+	tween.tween_property(card_visual, "scale", Vector2(0.42, 0.42), 0.22)
+	tween.tween_property(card_visual, "rotation", 0.18, 0.22)
+	tween.chain().tween_callback(
+		func() -> void:
+			_show_impact_ring(end_global, UiTheme.C_GOLD)
+			_flash_actor(target, UiTheme.C_GOLD)
+	)
+	tween.chain().tween_property(card_visual, "modulate:a", 0.0, 0.16)
 	tween.chain().tween_callback(card_visual.queue_free)
 
 
-func _show_floating_text(anchor: Control, text_value: String, color: Color) -> void:
+func _show_impact_ring(global_center: Vector2, color: Color) -> void:
+	if not is_instance_valid(_effects_layer):
+		return
+	var ring := ColorRect.new()
+	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ring.color = Color(color.r, color.g, color.b, 0.55)
+	ring.size = Vector2(18, 18)
+	ring.position = global_center - _effects_layer.global_position - ring.size * 0.5
+	_effects_layer.add_child(ring)
+	_visual_effect_count += 1
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(ring, "size", Vector2(92, 92), 0.28)
+	tween.tween_property(
+		ring,
+		"position",
+		global_center - _effects_layer.global_position - Vector2(46, 46),
+		0.28
+	)
+	tween.tween_property(ring, "modulate:a", 0.0, 0.28)
+	tween.chain().tween_callback(ring.queue_free)
+
+
+func _show_floating_text(
+	anchor: Control,
+	text_value: String,
+	color: Color,
+	font_size: int = 26
+) -> void:
 	if not is_instance_valid(_effects_layer) or not is_instance_valid(anchor):
 		return
-	var label := UiTheme.label(text_value, 26, color)
+	var label := UiTheme.label(text_value, font_size, color)
 	label.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.02, 1))
-	label.add_theme_constant_override("outline_size", 5)
-	label.size = Vector2(180, 44)
+	label.add_theme_constant_override("outline_size", 6)
+	label.size = Vector2(200, 48)
 	var center := anchor.get_global_rect().get_center() - _effects_layer.global_position
-	label.position = center - Vector2(90, 18)
+	label.position = center - Vector2(100, 20)
 	_effects_layer.add_child(label)
 	_visual_effect_count += 1
 	var tween := create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(label, "position", label.position + Vector2(0, -58), 0.7)
-	tween.tween_property(label, "modulate:a", 0.0, 0.7)
+	tween.tween_property(label, "position", label.position + Vector2(0, -64), 0.75)
+	tween.tween_property(label, "modulate:a", 0.0, 0.75)
 	tween.chain().tween_callback(label.queue_free)
 
 

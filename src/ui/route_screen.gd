@@ -19,6 +19,7 @@ var _chapter_label: Label
 var _chapter_summary_label: Label
 var _current_goal_label: Label
 var _challenge_label: Label
+var _progress_label: Label
 var _result_button: Button
 var _hub_button: Button
 var _buttons_by_node: Dictionary = {}
@@ -95,6 +96,14 @@ func get_node_count() -> int:
 	return nodes.size() if nodes is Array else 0
 
 
+func get_progress_text() -> String:
+	return _progress_label.text if is_instance_valid(_progress_label) else ""
+
+
+func get_current_goal_text() -> String:
+	return _current_goal_label.text if is_instance_valid(_current_goal_label) else ""
+
+
 func get_node_state(index: int) -> String:
 	var nodes: Array = _snapshot_data.get("nodes", [])
 	if index < 0 or index >= nodes.size() or not nodes[index] is Dictionary:
@@ -109,10 +118,6 @@ func is_node_button_enabled(node_id: String) -> bool:
 
 func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
-
-
-func get_current_goal_text() -> String:
-	return _current_goal_label.text if is_instance_valid(_current_goal_label) else ""
 
 
 func get_background_path() -> String:
@@ -156,7 +161,7 @@ func _build() -> void:
 	safe.add_theme_constant_override("margin_left", 48)
 	safe.add_theme_constant_override("margin_top", 34)
 	safe.add_theme_constant_override("margin_right", 48)
-	safe.add_theme_constant_override("margin_bottom", 30)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -165,12 +170,7 @@ func _build() -> void:
 
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 18)
-	var header_panel := UiTheme.padded_panel(
-		header,
-		14,
-		Color(0.045, 0.049, 0.041, 0.92),
-		UiTheme.C_LINE
-	)
+	var header_panel := UiTheme.module_padded(header, 14, UiTheme.C_LINE, false)
 	header_panel.name = "RouteHeader"
 	header_panel.set_meta("route_header", true)
 	column.add_child(header_panel)
@@ -183,16 +183,16 @@ func _build() -> void:
 	heading.add_child(_route_label)
 	_chapter_label = UiTheme.clip_label("", 14, UiTheme.C_GOLD)
 	heading.add_child(_chapter_label)
-	# One decision line only; long chapter/lore text stays in tooltips.
-	var goal_box := UiTheme.fixed_text("", 13, UiTheme.C_PAPER, 28)
-	goal_box.name = "CurrentGoalBox"
-	_current_goal_label = UiTheme.fixed_text_label(goal_box)
-	heading.add_child(goal_box)
-	var summary_box := UiTheme.fixed_text("", 12, UiTheme.C_MUTED, 1)
-	summary_box.name = "ChapterSummaryBox"
-	summary_box.visible = false
-	_chapter_summary_label = UiTheme.fixed_text_label(summary_box)
-	heading.add_child(summary_box)
+	# Chapter intro expands in place at 1600×900; no micro-scroll viewport.
+	_chapter_summary_label = UiTheme.flow_text("", 13, UiTheme.C_MUTED, 2)
+	_chapter_summary_label.name = "ChapterSummaryBox"
+	heading.add_child(_chapter_summary_label)
+	_current_goal_label = UiTheme.flow_text("", 13, UiTheme.C_PAPER, 2)
+	_current_goal_label.name = "CurrentGoalBox"
+	heading.add_child(_current_goal_label)
+	_progress_label = UiTheme.clip_label("主线进度 —", 13, UiTheme.C_GOLD)
+	_progress_label.name = "RouteProgress"
+	heading.add_child(_progress_label)
 	_challenge_label = UiTheme.clip_label("节点边界才存档", 12, UiTheme.C_MUTED)
 	heading.add_child(_challenge_label)
 	_resource_label = UiTheme.label("", 15, UiTheme.C_PAPER)
@@ -219,12 +219,7 @@ func _build() -> void:
 	_nodes_row.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_nodes_scroll.add_child(_nodes_row)
 
-	var footer := UiTheme.padded_panel(
-		_build_footer(),
-		13,
-		Color(0.055, 0.058, 0.047, 0.96),
-		UiTheme.C_LINE
-	)
+	var footer := UiTheme.module_padded(_build_footer(), 13, UiTheme.C_LINE, false)
 	column.add_child(footer)
 
 
@@ -234,7 +229,7 @@ func _build_footer() -> HBoxContainer:
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_status_label)
-	_hub_button = UiTheme.button("返回白昼档案", _on_hub, true, 158)
+	_hub_button = UiTheme.button("回日记", _on_hub, true, 158)
 	_result_button = UiTheme.button("查看路线结算", _on_result, false, 158)
 	row.add_child(_hub_button)
 	row.add_child(_result_button)
@@ -253,6 +248,8 @@ func _render_snapshot() -> void:
 		_snapshot_data.get("chapter_summary_zh", "沿线索推进调查。")
 	)
 	_chapter_summary_label.text = chapter_summary
+	_chapter_summary_label.tooltip_text = chapter_summary
+	_chapter_summary_label.visible = not chapter_summary.is_empty()
 	var current_node := _find_node(String(_snapshot_data.get("current_node_id", "")))
 	var current_goal := String(current_node.get("investigation_goal_zh", ""))
 	var reward_hint := String(current_node.get("reward_hint_zh", ""))
@@ -269,10 +266,29 @@ func _render_snapshot() -> void:
 	].filter(func(value: String) -> bool: return not value.is_empty()))
 	_chapter_label.tooltip_text = chapter_summary
 	_update_resources()
+	var nodes: Array = _snapshot_data.get("nodes", [])
+	var cleared := 0
+	var next_name := ""
+	for node_value in nodes:
+		if not node_value is Dictionary:
+			continue
+		var node_state := String(node_value.get("state", ""))
+		if node_state in ["cleared", "completed", "done"]:
+			cleared += 1
+		elif node_state == "available" and next_name.is_empty():
+			next_name = String(node_value.get("display_name_zh", ""))
+	if is_instance_valid(_progress_label):
+		UiTheme.set_clip_text(
+			_progress_label,
+			(
+				"主线进度 %d / %d · 当前线索：%s" % [cleared, nodes.size(), next_name]
+				if not next_name.is_empty()
+				else "主线进度 %d / %d" % [cleared, nodes.size()]
+			)
+		)
 	for child in _nodes_row.get_children():
 		child.queue_free()
 	_buttons_by_node.clear()
-	var nodes: Array = _snapshot_data.get("nodes", [])
 	for index in range(nodes.size()):
 		if nodes[index] is Dictionary:
 			_nodes_row.add_child(_build_node(nodes[index], index))
@@ -281,7 +297,11 @@ func _render_snapshot() -> void:
 	_result_button.disabled = _busy or outcome.is_empty()
 	_hub_button.disabled = false
 	if phase == "map":
-		_set_status("选择当前可进入的路线节点。")
+		_set_status(
+			"可调查：「%s」。" % next_name
+			if not next_name.is_empty()
+			else "选择当前可进入的路线节点。"
+		)
 	elif phase == "battle_pending":
 		_set_status("战斗节点已经选定，等待战斗结算。")
 	elif phase == "rest_pending":
@@ -301,13 +321,14 @@ func _build_node(node: Dictionary, index: int) -> Control:
 	var node_id := String(node.get("id", ""))
 	var state := String(node.get("state", "locked"))
 	var node_type := String(node.get("type", ""))
+	## Module frost — do not expand-fill the map canvas like a wireframe slab.
 	var panel := UiTheme.panel(
-		Color(0.065, 0.068, 0.055, 0.97),
+		UiTheme.C_MODULE_RAISED if state == "available" else UiTheme.C_MODULE,
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_LINE
 	)
 	panel.custom_minimum_size = Vector2(250, 0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.clip_contents = true
 	panel.set_meta("node_id", node_id)
 	panel.set_meta("node_state", state)
@@ -350,21 +371,25 @@ func _build_node(node: Dictionary, index: int) -> Control:
 		13,
 		UiTheme.C_GOLD if state == "available" else UiTheme.C_MUTED
 	))
+	if state == "available":
+		var next_badge := UiTheme.badge("可调查", UiTheme.C_GOLD, UiTheme.C_GOLD)
+		next_badge.name = "NextStepBadge"
+		column.add_child(next_badge)
+	elif state in ["cleared", "completed", "done"]:
+		column.add_child(UiTheme.badge("已归档", UiTheme.C_MUTED, UiTheme.C_LINE))
 	var source := String(node.get("source_zh", ""))
 	var goal := String(node.get("investigation_goal_zh", ""))
 	var beat := String(node.get("narrative_beat_zh", ""))
 	var story := beat if not beat.is_empty() else (goal if not goal.is_empty() else " ")
-	var story_box := UiTheme.fixed_text(story, 12, UiTheme.C_PAPER, 48)
-	story_box.name = "NodeStoryBox"
-	var story_label := UiTheme.fixed_text_label(story_box)
-	if is_instance_valid(story_label):
-		story_label.tooltip_text = "\n".join([
-			beat,
-			("目标：" + goal) if not goal.is_empty() else "",
-			("出处：" + source) if not source.is_empty() else "",
-		].filter(func(value: String) -> bool: return not value.is_empty()))
-	column.add_child(story_box)
-	panel.tooltip_text = story_label.tooltip_text if is_instance_valid(story_label) else ""
+	var story_label := UiTheme.flow_text(story, 12, UiTheme.C_PAPER, 3)
+	story_label.name = "NodeStoryBox"
+	story_label.tooltip_text = "\n".join([
+		beat,
+		("目标：" + goal) if not goal.is_empty() else "",
+		("出处：" + source) if not source.is_empty() else "",
+	].filter(func(value: String) -> bool: return not value.is_empty()))
+	column.add_child(story_label)
+	panel.tooltip_text = story_label.tooltip_text
 	if node_type == "boss" and ResourceLoader.exists(RouteCatalog.BOSS_ART):
 		var boss := TextureRect.new()
 		boss.texture = load(RouteCatalog.BOSS_ART)
@@ -378,7 +403,7 @@ func _build_node(node: Dictionary, index: int) -> Control:
 	var action_text := (
 		"开始晋升"
 		if node_type == "ritual"
-		else ("进入休息" if node_type == "rest" else "前往节点")
+		else ("进入休息" if node_type == "rest" else "调查线索")
 	)
 	var button := UiTheme.button(
 		action_text,

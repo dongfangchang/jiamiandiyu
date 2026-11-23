@@ -1,13 +1,12 @@
 extends RefCounted
 
-const ROUTE_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png"
-## The route map is a light parchment asset; keep its presentation in the
-## same ink-dark range as the rest of the UI while preserving node contrast.
-const ROUTE_BACKGROUND_DIM := 0.74
-const REST_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png"
-const RITUAL_BACKGROUND := "res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png"
+const ROUTE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+## Quiet rain-night canvas under route chrome.
+const ROUTE_BACKGROUND_DIM := 0.32
+const REST_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const RITUAL_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 ## Chapter bosses (失控的老尼尔 / 梅高欧丝) share the red-eyed monster art.
-const BOSS_ART := "res://assets/game/v0.24.0/v0.3.0/enemies/enemy-candle-moth.png"
+const BOSS_ART := "res://assets/game/v0.48.0/enemies/enemy-mirror-baron.png"
 const ROUTE_ICON_BASE := "res://assets/game/v0.24.0/v0.5.0/icons/"
 const RITUAL_CARD_BASE := "res://assets/game/v0.24.0/v0.5.0/rituals/"
 

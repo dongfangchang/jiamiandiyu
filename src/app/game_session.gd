@@ -111,9 +111,14 @@ func get_snapshot() -> BattleSnapshot:
 
 func query_card_play(
 	card_instance_id: StringName,
-	target_id: StringName = &""
+	target_id: StringName = &"",
+	discard_ids: Array = []
 ) -> BattlePlayability:
-	return _engine.query_card_play(card_instance_id, target_id)
+	return _engine.query_card_play(card_instance_id, target_id, discard_ids)
+
+
+func auto_discard_ids_for(card_instance_id: StringName) -> Array[StringName]:
+	return _engine.auto_discard_ids_for(card_instance_id)
 
 
 func submit(command: BattleCommand) -> BattleCommandResult:

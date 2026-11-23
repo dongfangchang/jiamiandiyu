@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "content_version": "v0.55.0",
+  "volume_id": "diary.tingen.volume_1",
+  "route_id": "route.v028.first_stage",
+  "display_name_zh": "第一卷·小丑：廷根值夜者",
+  "carrier_zh": "罗塞尔日记",
+  "pen_zh": "阿勒苏霍德之笔",
+  "base_notes_zh": [
+    "廷根的雨比阳光诚实。砖缝里总有未干的脚印。",
+    "值夜者——黑夜女神的眼与刃。红手套意味着：你已听见过不该听见的。",
+    "占卜不可尽信。尽信则盲。灵摆会撒谎，恐惧更会。",
+    "左轮、火柴、安提哥努斯的影子。三样东西，足够撑过一个雨夜。",
+    "（旁注，字迹发颤）别把扮演法写进公开报告。也别让 0-08 看见你的真名。"
+  ],
+  "pages": [
+    {
+      "page_index": 0,
+      "title_zh": "初入值夜 · 家门与废屋",
+      "spread_label_zh": "其一",
+      "clues": [
+        {
+          "clue_id": "clue.tingen.first_hunt",
+          "node_id": "route.v028.first_stage.node.first_hunt",
+          "kind": "main",
+          "text_zh": "「莫雷蒂家的窗夜里裂开一道缝。密修会的脚步比雨声更轻——他们在找一个还活着的名字。」",
+          "margin_note_zh": "家门。左轮。撑到支援。别让他们进厨房。"
+        },
+        {
+          "clue_id": "clue.tingen.tenant_trace",
+          "node_id": "route.v028.first_stage.node.tenant_trace",
+          "kind": "main",
+          "text_zh": "「灵摆指向废弃楼。艾略特还在里面呼吸；第二波脚步会跟着第一波的血腥味来。」",
+          "margin_note_zh": "两波。先意图，后扳机。救人比清场优先。"
+        },
+        {
+          "clue_id": "clue.tingen.mirror_pursuit",
+          "node_id": "route.v028.first_stage.node.mirror_pursuit",
+          "kind": "main",
+          "text_zh": "「提利尔仓库。2-049 与燕尾服小丑同场——空气像浸了胶水，连呼吸都慢半拍。」",
+          "margin_note_zh": "先比伯，后小丑。木偶比魔术师更近。"
+        },
+        {
+          "clue_id": "clue.tingen.boundary",
+          "node_id": "route.v028.first_stage.node.boundary",
+          "kind": "main",
+          "text_zh": "「伍德家的魔镜游戏不是玩笑。恶灵喜欢女孩们的笑声，也喜欢镜子里多出来的那一张脸。」",
+          "margin_note_zh": "灵性之墙。驱邪。别回头看镜面。"
+        }
+      ]
+    },
+    {
+      "page_index": 1,
+      "title_zh": "扮演 · 拉姆德 · 老尼尔",
+      "spread_label_zh": "其二",
+      "clues": [
+        {
+          "clue_id": "clue.tingen.rest",
+          "node_id": "route.v028.first_stage.node.rest",
+          "kind": "main",
+          "text_zh": "「豪尔斯街的占卜俱乐部：帮人解启示，引导他们往好的方向；也记住——占卜不是万能的，不能完全依赖。蜡烛一灭，扮演就开始。」",
+          "margin_note_zh": "占卜家守则两条：引导向好；不可尽信占卜。注视会涨。别聊真名。"
+        },
+        {
+          "clue_id": "clue.tingen.lamud",
+          "node_id": "route.v028.first_stage.node.lamud",
+          "kind": "main",
+          "text_zh": "「拉姆德教堂。黑色骑士铠甲会在夜里呼吸——那不是风，是封存物在试探边界。」",
+          "margin_note_zh": "3-0782。净化。圣水先于勇气。"
+        },
+        {
+          "clue_id": "clue.tingen.baron",
+          "node_id": "route.v028.first_stage.node.baron",
+          "kind": "main",
+          "text_zh": "「教导我的人听见了隐匿贤者。他想复活亡妻——知识已经把他的影子撕开了。」",
+          "margin_note_zh": "安静发丝。结束他的痛苦。别听第二句低语。"
+        },
+        {
+          "clue_id": "clue.tingen.ascension",
+          "node_id": "route.v028.first_stage.node.ascension",
+          "kind": "main",
+          "text_zh": "「考核三问：①占卜家两条扮演守则；②申请→考核起誓→服用魔药；③小丑以笑脸遮掩悲伤与迷茫（其余是魔术师的）。向黑夜女神起誓不外泄扮演法，然后——小丑。」",
+          "margin_note_zh": "答错涨污染，顶满只退回本叶可重考，不灭章。灵性可换提示。合卷前再读俱乐部旁注。"
+        }
+      ]
+    }
+  ]
+}

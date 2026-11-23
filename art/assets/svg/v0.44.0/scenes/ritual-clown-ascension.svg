@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111612"/>
+      <stop offset=".55" stop-color="#28302a"/>
+      <stop offset="1" stop-color="#0d110f"/>
+    </linearGradient>
+    <radialGradient id="paperGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E4CA84"/>
+      <stop offset=".5" stop-color="#B99750"/>
+      <stop offset="1" stop-color="#69532D"/>
+    </linearGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="44" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+  <rect width="1600" height="900" fill="url(#crosshatch)"/>
+  <rect width="1600" height="900" fill="url(#paperGlow)"/>
+  <rect width="1600" height="900" fill="url(#hatch)" opacity=".2"/>
+  <!-- safe-zone guide (invisible structure only via low opacity frame) -->
+  <rect x="320" y="120" width="960" height="660" fill="none" stroke="#B99750" stroke-width="1" opacity=".08"/>
+  
+    <path d="M0 650 H1600 V900 H0Z" fill="#0a0c0b"/>
+    <ellipse cx="800" cy="480" rx="280" ry="120" fill="#1a1610" stroke="#B99750" stroke-width="3" opacity=".7"/>
+    <!-- goddess hint: moon disk -->
+    <circle cx="800" cy="220" r="70" fill="none" stroke="#B99750" stroke-width="4" opacity=".55"/>
+    <circle cx="800" cy="220" r="40" fill="#E8DFC9" opacity=".12"/>
+    <!-- potion cup -->
+    <path d="M760 420 L780 520 H820 L840 420 Z" fill="#E8DFC9" stroke="#211D18" stroke-width="3" opacity=".7"/>
+    <ellipse cx="800" cy="420" rx="40" ry="12" fill="#7A2828" opacity=".5" stroke="#B99750" stroke-width="2"/>
+    <!-- restrained clown makeup hint: smile arc -->
+    <path d="M720 340 C760 380 840 380 880 340" fill="none" stroke="#7A2828" stroke-width="4" opacity=".35"/>
+    <path d="M400 160 H1200 M400 160 V560 M1200 160 V560" fill="none" stroke="#788079" stroke-width="2" opacity=".25"/>
+    <path d="M560 280 H1040 M560 360 H1040" stroke="#B99750" stroke-width="1" opacity=".2"/>
+  
+</svg>

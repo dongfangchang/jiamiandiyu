@@ -1,0 +1,174 @@
+{
+  "manifest_version": 1,
+  "source_dir": "res://art/assets/raster/v0.85.0/props",
+  "output_dir": "res://assets/ui/diary/props",
+  "_doc": {
+    "key": "flood_dark = 从边界洪水填充扣掉深色底；flood_light = 扣掉浅色底；none = 整幅材质不抠图",
+    "tolerance": "与背景采样色的距离阈值(0-1)，越大扣得越狠",
+    "feather": "边缘羽化像素，消锯齿",
+    "trim": "true = 裁掉透明边并按 pad 留边",
+    "添加新素材": "在 props[] 里加一行，把文件放进 source_dir，再跑 art/tools/key_props.tscn",
+    "variants": "从同一张源图派生多个着色版本（如蜡封三态），避免美术重画三遍",
+    "also_out": "额外输出路径，用于喂给已经写死某路径的代码"
+  },
+  "props": [
+    {
+      "id": "desk_wood",
+      "src": "prop-desk-wood.png",
+      "key": "none",
+      "out": "desk-wood.png",
+      "also_out": [
+        "res://assets/ui/diary/desk_wood.png"
+      ]
+    },
+    {
+      "id": "parchment_sheet",
+      "src": "prop-parchment-sheet.png",
+      "key": "flood_dark",
+      "tolerance": 0.16,
+      "feather": 2,
+      "trim": true,
+      "out": "parchment-sheet.png"
+    },
+    {
+      "id": "wax_seal",
+      "src": "prop-wax-seal.png",
+      "key": "flood_dark",
+      "tolerance": 0.18,
+      "feather": 2,
+      "trim": true,
+      "pad": 8,
+      "out": "wax-seal.png",
+      "variants": [
+        {
+          "out": "res://assets/ui/diary/wax_seal_available.png",
+          "tint": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "note": "可启：原色鲜红"
+        },
+        {
+          "out": "res://assets/ui/diary/wax_seal_completed.png",
+          "tint": [
+            0.62,
+            0.52,
+            0.45
+          ],
+          "note": "已阅：褐暗哑光"
+        },
+        {
+          "out": "res://assets/ui/diary/wax_seal_locked.png",
+          "tint": [
+            0.42,
+            0.4,
+            0.42
+          ],
+          "desaturate": 0.8,
+          "note": "墨封：灰黑蒙尘"
+        }
+      ]
+    },
+    {
+      "id": "token_available",
+      "src": "prop-token-available.png",
+      "key": "flood_dark",
+      "tolerance": 0.2,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "token-available.png"
+    },
+    {
+      "id": "token_failed",
+      "src": "prop-token-failed.png",
+      "key": "flood_dark",
+      "tolerance": 0.2,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "token-failed.png"
+    },
+    {
+      "id": "token_silence",
+      "src": "prop-token-silence.png",
+      "key": "flood_dark",
+      "tolerance": 0.2,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "token-silence.png"
+    },
+    {
+      "id": "token_archive",
+      "src": "prop-token-archive.png",
+      "key": "flood_dark",
+      "tolerance": 0.2,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "token-archive.png"
+    },
+    {
+      "id": "corner_ornament",
+      "src": "prop-corner-ornament.png",
+      "key": "flood_light",
+      "tolerance": 0.14,
+      "feather": 1,
+      "trim": true,
+      "pad": 4,
+      "out": "corner-ornament.png"
+    },
+    {
+      "id": "bookmark",
+      "src": "prop-bookmark.png",
+      "key": "flood_dark",
+      "tolerance": 0.1,
+      "feather": 2,
+      "trim": true,
+      "pad": 4,
+      "out": "bookmark.png"
+    },
+    {
+      "id": "candle",
+      "src": "prop-candle.png",
+      "key": "flood_dark",
+      "tolerance": 0.07,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "candle.png"
+    },
+    {
+      "id": "inkwell",
+      "src": "prop-inkwell.png",
+      "key": "flood_dark",
+      "tolerance": 0.05,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "inkwell.png"
+    },
+    {
+      "id": "quill_pen",
+      "src": "prop-quill-pen.png",
+      "key": "flood_dark",
+      "tolerance": 0.09,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "quill-pen.png"
+    },
+    {
+      "id": "open_journal",
+      "src": "prop-open-journal.png",
+      "key": "flood_dark",
+      "tolerance": 0.1,
+      "feather": 2,
+      "trim": true,
+      "pad": 4,
+      "out": "open-journal.png"
+    }
+  ]
+}

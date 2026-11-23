@@ -25,7 +25,10 @@
 ## 3. 单一事实源与版本
 
 - 产品目标、范围、角色边界和开发路径由 `docs/CURRENT_VERSION.md` 及当前版本文档共同约束。
-- 每个版本必须新建一个版本文件，例如 `docs/versions/v0.2.0.md`。历史版本不覆盖、不删除；修订通过新版本或 ADR 记录。
+- 需要单独验收的切片可新建 `docs/versions/vX.Y.Z.md`。
+- **版本减负（2026-11-23）**：`VERSION_INDEX` 只留里程碑大变化 + 最近三版；其余只在 `VERSION_LOG` 一行。
+- 掉出索引的历史详档与报告 → 移入 `docs/archive/`，**禁止直接删除**（复盘用）。
+- 修订通过新版本或 ADR 记录；禁止静默改写仍保留的详档结论。
 - 只有产品经理可编辑：
   - `AGENTS.md`
   - `docs/CURRENT_VERSION.md`
@@ -52,232 +55,27 @@
 
 共享契约 `src/core/**`、数据 schema、`project.godot`、全局资源注册表和公共事件定义属于跨角色文件。修改前必须在角色报告中提出请求，并由产品经理指定单一负责人。
 
-v0.2.0 临时所有权：
+历史关闭版所有权**不再在本文件展开**（见 `docs/VERSION_LOG.md`）。本文件只保留**当前版**与**上一版验收残留**。
 
-- `src/core/**`：玩法设计唯一负责人。
-- `data/schema/**`：本地数据层唯一负责人。
-- 其他角色发现需要修改时只能提交请求，不得并行修改。
+v0.84.0 验证阶段所有权（验收继续保留）：
 
-v0.3.0 已关闭所有权（保留历史）：
+- `src/ui/**`、`scenes/ui/**`、`tests/ui/**`：UI（BRIEF P0：DeskWorld / 跨页一关 / 滑翻 / 蜡封）。
+- `docs/**`、`AGENTS.md`、`project.godot`：产品经理 / 主协调者。
+- 其余默认只读。
+- 报告：`docs/reports/v0.84.0/<role>.md`。
+- 禁新卡 / 第二途径 / 路线树；主路径禁止新增原生 OptionButton。
+- 严格按 `DIARY_DESK_3D_BRIEF`；不改规则 / ID。
 
-- `src/core/**`：玩法设计唯一负责人。
-- `data/cards/**`、`data/enemies/**`、`data/encounters/**`：玩法设计唯一负责人。
-- `data/schema/**`：本地数据层唯一负责人。
-- `tests/integration/**`：主协调者负责最终集成验证；具体角色提供测试数据或诊断，不并行编辑。
-- `assets/game/**`：主协调者负责一次受控资源迁移与路径更新；迁移完成后其他角色只读。
-- UI、玩法、数值和数据层继续只编辑各自目录及 `docs/reports/v0.3.0/<role>.md`。
+v0.85.0 当前所有权：
 
-v0.4.0 已关闭所有权（保留历史）：
-
-- `src/core/**`：玩法设计唯一负责人。
-- `data/cards/**`、`data/enemies/**`、`data/encounters/**`：玩法设计唯一负责人。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/schema/**`：本地数据层唯一负责人。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
-- `art/**`：美术独占；正式 PNG 只能由主协调者受控迁移到 `assets/game/**`。
-- `tests/integration/**` 与 `assets/game/**`：主协调者。
-- 所有角色在 `docs/reports/v0.4.0/<role>.md` 记录本版本工作。
-- UI 与美术是独立角色。美术提交候选资产和制作记录，UI 必须从实际游戏界面审稿并明确通过、退回或仅 UI 适配；美术不得自行验收。
-
-v0.5.0 已关闭所有权（保留历史）：
-
-- `src/core/**`：玩法设计唯一负责人。
-- `data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`：玩法设计。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/schema/**`：本地数据层唯一负责人。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
-- `art/**`：美术独占；正式 PNG 只能由主协调者受控迁移到 `assets/game/**`。
-- `tests/integration/**`、`assets/game/**`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.5.0/<role>.md` 记录本版本工作。
-- UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
-
-v0.6.0 已关闭所有权（保留历史）：
-
-- `src/core/**`：玩法设计唯一负责人。
-- `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/schema/**`：本地数据层唯一负责人。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
-- `art/**`：美术独占；正式资产由主协调者迁移到 `assets/game/v0.6.0/**`。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.6.0/<role>.md` 记录本版本工作。
-- UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
-
-v0.7.0 当前所有权：
-
-- `src/core/**`：玩法设计唯一负责人。
-- `src/gameplay/**`、`tests/gameplay/**`、`data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`、`data/decks/**`：玩法设计。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/schema/**`：本地数据层唯一负责人。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：本地数据层开发。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI 设计。
-- `art/**`：美术独占；正式资产由主协调者迁移到 `assets/game/v0.7.0/**`。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.7.0/<role>.md` 记录本版本工作。
-- UI 与美术保持独立；美术提交候选，UI 在实际界面审稿后才可通过。
-
-v0.9.1 已关闭所有权（保留历史）：
-
-- 自 2026-11-08 起，`product_manager_v2` 接替旧产品经理负责当前及后续版本；历史文档不删除。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- 测试角色入口及显示映射由应用/数据层负责，玩法只提供只读语义。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者；不得同时修改同一文件。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：新产品经理。
-- `tests/integration/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.9.1/<role>.md` 记录本版本工作。
-
-v0.9.2 已关闭所有权（保留历史）：
-
-- 自 2026-11-08 起，`product_manager_v2` 继续负责当前及后续版本的质量制度、版本文档和验收；历史文档不删除。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者；不得同时修改同一文件。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：当前产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.9.2/<role>.md` 记录本版本工作。
-- 日常迭代按修改面选择最小测试集；版本门必须通过全量 QA、破坏性专项、截图和独立构建。
-
-v0.9.3 已关闭所有权（保留历史）：
-
-- 自 2026-11-08 起，`product_manager_v2` 继续负责当前及后续版本的质量制度、版本文档和验收；历史文档不删除。
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者；不得同时修改同一文件。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：当前产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.9.3/<role>.md` 记录本版本工作。
-- 返回、退出和取消不得被领域结算的 pending 状态永久禁用；重复结算仍必须由单次命令保护。
-
-v0.9.4 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.9.4/<role>.md` 记录本版本工作。
-- S3 显示与文案问题不得冻结不相关角色；只有 S1/数据破坏/持续崩溃触发全局暂停。
-
-v0.10.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.10.0/<role>.md` 记录本版本工作。
-- 战斗连携只通过 `battle.chain` 配置；UI 读取快照字段，不自行计算触发或伤害。
-
-v0.10.1 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.10.1/<role>.md` 记录本版本工作。
-- 连携事件必须描述真实完成的结算；非阻断缺口进入补丁或候选池，不冻结不相关功能。
-
-v0.11.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.11.0/<role>.md` 记录本版本工作。
-- 手牌整卡可点击；选项按钮被裁切属于 S1 操作阻断，必须用实际鼠标路径回归。
-
-v0.12.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.12.0/<role>.md` 记录本版本工作。
-- 身份收益的唯一定义仍位于 progression 数据；UI 只显示快照文本和修正。
-
-v0.13.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.13.0/<role>.md` 记录本版本工作。
-- 新卡必须同时具备卡牌定义、抽卡池、牌组目录、升级定义和正式卡图。
-
-v0.14.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`data/**`：玩法或对应数据所有者。
-- `docs/bugs/**`、`docs/qa/**`、`docs/versions/**`、`docs/decisions/**`：产品经理。
-- `tests/integration/**`、`tools/run_v091_qa.ps1`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- 所有角色在 `docs/reports/v0.14.0/<role>.md` 记录本版本工作。
-- 战斗页在 1600×900 使用原布局；较小视口必须提供滚动降级，不能裁掉操作入口。
-
-v0.32.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计。
-- `data/cards/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`、`data/decks/**`：玩法设计；本版本默认只读，除非试玩暴露规则语义错误。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/enemies/v0.7.0/enemies.json`：本版本临时授权数值设计为单一写入者（仅战斗数值字段）；玩法不同时修改。
-- `data/schema/**`：本地数据层；本版本默认只读。
-- `art/**`：美术；本版本不要求正式立绘交付。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
 - `docs/**`、`AGENTS.md`：产品经理。
-- 所有角色在 `docs/reports/v0.32.0/<role>.md` 记录本版本工作。
-- 继承 v0.31 未推送基线；不推远程、不解冻小丑、不扩第二途径。
+- `art/assets/raster/v0.85.0/**`：美术源及候选图由美术负责。
+- 日记相关 `src/ui/**`、`scenes/ui/**`、`tests/ui/**`：UI，负责接入和真窗口审稿。
+- `assets/game/v0.85.0/diary/**`、`assets/ui/diary/**`、`assets/ui/fonts/**`、`art/ASSET_MANIFEST.md`、`project.godot`：主协调者负责迁入和登记本版正式资产。
+- 报告：`docs/reports/v0.85.0/<role>.md`。
+- 保留 v0.84 的关版验收。按 `ART_BRIEF_V085.md` 交付日记美术和字体，冻结玩法、数值及存档变更。
 
-v0.33.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层。
-- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计。
-- `data/decks/**`：玩法设计（本版本可写预设引导字段）。
-- `data/cards/**`、`data/enemies/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计；本版本默认只读。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计；本版本默认只读。
-- `data/schema/**`：本地数据层；本版本默认只读（`decks.schema.json` 已允许 additionalProperties）。
-- `art/**`：美术；本版本不要求正式立绘。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- `docs/**`、`AGENTS.md`：产品经理。
-- 所有角色在 `docs/reports/v0.33.0/<role>.md` 记录本版本工作。
-- 不解冻小丑、不扩第二途径；推送须用户明确要求。
-
-v0.34.0 已关闭所有权（保留历史）：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层；本版本默认只读。
-- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计；仅当策略快照字段不足时最小改动。
-- `data/decks/**`、`data/cards/**`、`data/encounters/**`、`data/routes/**`、`data/rituals/**`、`data/challenges/**`：玩法设计；本版本默认只读。
-- `data/enemies/v0.7.0/enemies.json`：本版本临时授权数值设计为单一写入者（仅战斗数值字段：生命/攻击/护盾/阶段数值）；玩法不同时修改。
-- `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`：数值设计。
-- `data/schema/**`：本地数据层；本版本默认只读。
-- `art/**`：美术；本版本不要求正式立绘。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- `docs/**`、`AGENTS.md`：产品经理。
-- 所有角色在 `docs/reports/v0.34.0/<role>.md` 记录本版本工作。
-- 不解冻小丑、不扩第二途径；主路径禁止新增原生 OptionButton。
-
-v0.35.0 当前所有权：
-
-- `src/ui/**`、`scenes/ui/**`、`assets/ui/**`、`tests/ui/**`：UI（本版主责：拖放打出、悬停大卡、物件化 HUD、意图姿态）。
-- `src/app/**`、`src/infrastructure/**`、`tests/infrastructure/**`：应用/数据层；本版本默认只读。
-- `src/core/**`、`src/gameplay/**`、`tests/gameplay/**`：玩法设计；本版本默认只读。
-- `data/**`：对应所有者；本版本默认只读。
-- `art/**`：美术；本版本不要求正式立绘。
-- `tests/integration/**`、`assets/game/**`、`build/**`、`export_presets.cfg`、`project.godot`：主协调者。
-- `docs/**`、`AGENTS.md`：产品经理。
-- 所有角色在 `docs/reports/v0.35.0/<role>.md` 记录本版本工作。
-- 不解冻小丑、不扩第二途径；拖放只提交既有 BattleCommand；主路径禁止新增原生 OptionButton。
+当前指针：以 `docs/CURRENT_VERSION.md` 为准。
 
 ## 5. 协作与同步
 

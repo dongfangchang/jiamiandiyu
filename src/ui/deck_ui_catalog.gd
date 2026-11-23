@@ -1,10 +1,12 @@
 extends RefCounted
 
-const BACKGROUND := "res://assets/game/v0.24.0/v0.7.0/scenes/deck_archive.png"
+const BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
 const V07_CARD_DIR := "res://assets/game/v0.24.0/v0.7.0/cards/"
 const V013_CARD_DIR := "res://assets/game/v0.24.0/v0.13.0/cards/"
 const V03_CARD_DIR := "res://assets/game/v0.24.0/v0.3.0/cards/"
+const V041_CARD_DIR := "res://assets/game/v0.41.0/cards/"
+const V042_CARD_DIR := "res://assets/game/v0.42.0/cards/"
 
 const V07_CARD_IDS: Array[String] = [
 	"card.skill.warding_circle",
@@ -21,11 +23,38 @@ const V07_CARD_IDS: Array[String] = [
 	"card.skill.last_rites",
 ]
 
+const V041_CARD_IDS: Array[String] = [
+	"card.skill.veil_step",
+	"card.skill.severed_fate",
+	"card.skill.paper_swarm",
+	"card.skill.mirror_shard",
+	"card.skill.last_witness",
+	"card.skill.false_death",
+	"card.skill.sealed_answer",
+	"card.skill.hollow_bell",
+]
+
+const V042_CARD_IDS: Array[String] = [
+	"card.skill.ink_scarlet",
+	"card.skill.echo_reading",
+	"card.skill.midnight_ledger",
+	"card.skill.borrowed_breath",
+	"card.skill.glass_thesis",
+	"card.skill.hungry_symbol",
+	"card.skill.candle_archive",
+	"card.skill.omen_chorus",
+	"card.skill.closed_eye",
+	"card.skill.black_thread",
+	"card.skill.eclipse",
+	"card.skill.red_corridor",
+]
+
 const PRESET_NAMES := {
 	"deck.preset.ward": "值夜者制式装备",
 	"deck.preset.oracle": "仪式魔法",
 	"deck.preset.burst": "提利尔仓库",
 	"deck.preset.echo": "值夜者小队",
+	"deck.preset.clown": "小丑技能包",
 }
 
 ## Fallback only. Authoritative guidance lives in data/decks and deck snapshots.
@@ -54,12 +83,26 @@ const PRESET_GUIDANCE := {
 		"best_against": "老尼尔、梅高欧丝等首领。",
 		"caution": "高费卡多，须为守护者联动留费。",
 	},
+	"deck.preset.clown": {
+		"tag": "闪避 / 飞牌",
+		"when": "小丑的微笑 + 危险预感 / 身体控制，触发联动“小丑”；飞牌与纸牌收割。",
+		"best_against": "需要先躲开危险意图的精英与挑战。",
+		"caution": "仅序列 8；高压首领缺少队友封印物爆发。",
+	},
 }
 
 
 static func card_art(definition_id: String) -> String:
 	var suffix := definition_id.get_slice(".", definition_id.get_slice_count(".") - 1)
 	if not suffix.is_empty():
+		if definition_id in V042_CARD_IDS:
+			var gap_path := V042_CARD_DIR + "card_skill_%s.png" % suffix
+			if ResourceLoader.exists(gap_path):
+				return gap_path
+		if definition_id in V041_CARD_IDS:
+			var clown_path := V041_CARD_DIR + "card_skill_%s.png" % suffix
+			if ResourceLoader.exists(clown_path):
+				return clown_path
 		if definition_id in [
 			"card.skill.dream_question",
 			"card.skill.mirror_ward",

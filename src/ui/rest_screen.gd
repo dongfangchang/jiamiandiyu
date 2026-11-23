@@ -4,13 +4,17 @@ signal route_command_requested(command: RouteCommand)
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RouteCommandResultScript := preload("res://src/core/route_command_result.gd")
 
 var _snapshot_data: Dictionary = {}
+var _scene_id := ""
 var _options_row: HBoxContainer
 var _status_label: Label
 var _resource_label: Label
+var _chapter_hook_label: Label
+var _chapter_summary_label: Label
 var _buttons_by_rest: Dictionary = {}
 var _busy := false
 
@@ -83,18 +87,32 @@ func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
 
 
+func set_scene_id(scene_id: String) -> void:
+	_scene_id = scene_id
+	UiTheme.apply_scene_background(
+		self,
+		SceneCatalog.path_for(scene_id, "rest")
+	)
+
+
+func get_scene_id() -> String:
+	return _scene_id
+
+
 func get_background_path() -> String:
+	if not _scene_id.is_empty():
+		return SceneCatalog.path_for(_scene_id, "rest")
 	return RouteCatalog.REST_BACKGROUND
 
 
 func _build() -> void:
-	UiTheme.add_background(self, RouteCatalog.REST_BACKGROUND, UiTheme.C_BG, 0.43)
+	UiTheme.add_background(self, RouteCatalog.REST_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 72)
 	safe.add_theme_constant_override("margin_top", 42)
 	safe.add_theme_constant_override("margin_right", 72)
-	safe.add_theme_constant_override("margin_bottom", 38)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -114,6 +132,12 @@ func _build() -> void:
 		14,
 		UiTheme.C_MUTED
 	))
+	_chapter_hook_label = UiTheme.clip_label("", 13, UiTheme.C_GOLD)
+	_chapter_hook_label.name = "RestChapterHook"
+	heading.add_child(_chapter_hook_label)
+	_chapter_summary_label = UiTheme.flow_text("", 12, UiTheme.C_MUTED, 2)
+	_chapter_summary_label.name = "RestChapterSummary"
+	heading.add_child(_chapter_summary_label)
 	_resource_label = UiTheme.label("", 15, UiTheme.C_PAPER)
 	_resource_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_resource_label)
@@ -134,6 +158,19 @@ func _build() -> void:
 
 func _render_options() -> void:
 	_update_resources()
+	if is_instance_valid(_chapter_hook_label):
+		var chapter := String(_snapshot_data.get("chapter_phase_zh", ""))
+		var summary := String(_snapshot_data.get("chapter_summary_zh", ""))
+		var hook := chapter if not chapter.is_empty() else "休整后继续调查"
+		UiTheme.set_clip_text(
+			_chapter_hook_label,
+			"休整后回到：%s" % hook
+		)
+		if is_instance_valid(_chapter_summary_label):
+			_chapter_summary_label.text = summary
+			_chapter_summary_label.tooltip_text = summary
+			_chapter_summary_label.visible = not summary.is_empty()
+
 	for child in _options_row.get_children():
 		child.queue_free()
 	_buttons_by_rest.clear()
@@ -156,7 +193,7 @@ func _render_options() -> void:
 
 func _build_option(option: Dictionary) -> Control:
 	var rest_id := String(option.get("id", ""))
-	var panel := UiTheme.panel(Color(0.065, 0.068, 0.055, 0.97), UiTheme.C_GOLD)
+	var panel := UiTheme.panel(UiTheme.C_MODULE_RAISED, UiTheme.C_GOLD)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.set_meta("rest_id", rest_id)

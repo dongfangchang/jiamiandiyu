@@ -57,7 +57,7 @@
     <text x="1288" y="562" fill="#9f967f" font-size="15">祈愿券</text><text x="1495" y="562" fill="#e8dfc9" font-size="22" text-anchor="end">3</text>
     <text x="1288" y="604" fill="#9f967f" font-size="15">扮演进度</text><text x="1495" y="604" fill="#e8dfc9" font-size="22" text-anchor="end">2 / 4</text>
     <rect x="1288" y="660" width="220" height="62" rx="6" fill="#b99750"/>
-    <text x="1398" y="699" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">前往地图</text>
-    <text x="1288" y="757" fill="#788079" font-size="13">危险阈值文案与颜色必须由快照 severity 决定。</text>
+    <text x="1398" y="699" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">打开日记</text>
+    <text x="1288" y="757" fill="#788079" font-size="13">出口进罗塞尔日记，不进城市地图 / 路线树。</text>
   </g>
 </svg>

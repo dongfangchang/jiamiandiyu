@@ -727,25 +727,17 @@ func _choose_command(engine, snapshot, strategy: Dictionary):
 		for card in snapshot.data["hand"]:
 			if StringName(card["definition_id"]) != definition_id:
 				continue
+			var instance_id := StringName(card["instance_id"])
 			var target_id := _target_for_card(snapshot.data, card)
-			if engine.query_card_play(
-				StringName(card["instance_id"]),
-				target_id
-			).playable:
-				return BattleCommandScript.play_card(
-					StringName(card["instance_id"]),
-					target_id
-				)
+			var discards: Array = engine.auto_discard_ids_for(instance_id)
+			if engine.query_card_play(instance_id, target_id, discards).playable:
+				return BattleCommandScript.play_card(instance_id, target_id, discards)
 	for card in snapshot.data["hand"]:
+		var instance_id := StringName(card["instance_id"])
 		var target_id := _target_for_card(snapshot.data, card)
-		if engine.query_card_play(
-			StringName(card["instance_id"]),
-			target_id
-		).playable:
-			return BattleCommandScript.play_card(
-				StringName(card["instance_id"]),
-				target_id
-			)
+		var discards: Array = engine.auto_discard_ids_for(instance_id)
+		if engine.query_card_play(instance_id, target_id, discards).playable:
+			return BattleCommandScript.play_card(instance_id, target_id, discards)
 	return BattleCommandScript.end_turn()
 
 

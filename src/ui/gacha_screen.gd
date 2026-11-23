@@ -5,6 +5,7 @@ signal back_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
+const TableSfx := preload("res://src/ui/table_sfx.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
 
@@ -29,6 +30,7 @@ var _result_count := 0
 var _pending_token := 0
 var _detail_dialog: AcceptDialog
 var _result_card_nodes: Array[Control] = []
+var _empty_state_label: Label
 
 
 func _ready() -> void:
@@ -150,14 +152,18 @@ func get_history_count() -> int:
 	return _history_entries.size()
 
 
+func get_empty_state_text() -> String:
+	return _empty_state_label.text if is_instance_valid(_empty_state_label) else ""
+
+
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.GACHA_BACKGROUND, UiTheme.C_BG, 0.28)
+	UiTheme.add_background(self, ProgressionCatalog.GACHA_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 68)
 	safe.add_theme_constant_override("margin_top", 38)
 	safe.add_theme_constant_override("margin_right", 68)
-	safe.add_theme_constant_override("margin_bottom", 34)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -202,7 +208,7 @@ func _build() -> void:
 	var status_panel := UiTheme.padded_panel(
 		_build_bottom_controls(),
 		14,
-		Color(0.055, 0.06, 0.047, 0.96),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	)
 	column.add_child(status_panel)
@@ -211,10 +217,9 @@ func _build() -> void:
 func _build_bottom_controls() -> VBoxContainer:
 	var content := VBoxContainer.new()
 	content.add_theme_constant_override("separation", 10)
-	var guidance_box := UiTheme.fixed_text("抽取说明等待档案。", 13, UiTheme.C_PAPER, 38)
-	guidance_box.name = "GachaGuidanceBox"
-	_guidance_label = UiTheme.fixed_text_label(guidance_box)
-	content.add_child(guidance_box)
+	_guidance_label = UiTheme.flow_text("抽取说明等待档案。", 13, UiTheme.C_PAPER, 2)
+	_guidance_label.name = "GachaGuidanceBox"
+	content.add_child(_guidance_label)
 	_history_label = UiTheme.clip_label("卷宗记录：暂无", 12, UiTheme.C_PAPER_DEEP)
 	_history_label.tooltip_text = "点选下方蜡封条查看某次祈愿摘要"
 	content.add_child(_history_label)
@@ -231,7 +236,7 @@ func _build_bottom_controls() -> VBoxContainer:
 	content.add_child(row)
 	_cost_label = UiTheme.clip_label("祈愿费用未知", 14, UiTheme.C_PAPER)
 	row.add_child(_cost_label)
-	_back_button = UiTheme.button("返回白昼档案", _on_back, true, 160)
+	_back_button = UiTheme.button("回日记", _on_back, true, 160)
 	_single_button = UiTheme.button("单抽", func() -> void: request_draw(1), true, 132)
 	_triple_button = UiTheme.button("三连", func() -> void: request_draw(3), true, 132)
 	row.add_child(_back_button)
@@ -325,28 +330,58 @@ func _on_history_selected(index: int) -> void:
 
 
 func _show_empty_results() -> void:
+	var pack := UiTheme.panel(UiTheme.frost(0.06, 0.062, 0.05, UiTheme.CARD_ALPHA), UiTheme.C_GOLD)
+	pack.name = "GachaEmptyPack"
+	pack.custom_minimum_size = Vector2(320, 380)
+	var pack_pad := MarginContainer.new()
+	pack_pad.add_theme_constant_override("margin_left", 16)
+	pack_pad.add_theme_constant_override("margin_top", 16)
+	pack_pad.add_theme_constant_override("margin_right", 16)
+	pack_pad.add_theme_constant_override("margin_bottom", 16)
+	pack.add_child(pack_pad)
+	var pack_column := VBoxContainer.new()
+	pack_column.add_theme_constant_override("separation", 10)
+	pack_pad.add_child(pack_column)
 	var back := TextureRect.new()
 	back.texture = load(ProgressionCatalog.CARD_BACK)
-	back.custom_minimum_size = Vector2(260, 366)
+	back.custom_minimum_size = Vector2(0, 220)
 	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_result_row.add_child(back)
-	var hint := UiTheme.center_label("尚未抽取回响", 20, UiTheme.C_PAPER)
-	hint.custom_minimum_size = Vector2(260, 0)
-	hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_result_row.add_child(hint)
+	pack_column.add_child(back)
+	pack_column.add_child(UiTheme.center_label("待启封的回响", 20, UiTheme.C_TEXT))
+	_empty_state_label = UiTheme.wrapped_label(_empty_pack_copy(), 14, UiTheme.C_PAPER)
+	_empty_state_label.name = "GachaEmptyState"
+	_empty_state_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pack_column.add_child(_empty_state_label)
+	_result_row.add_child(pack)
 	_result_count = 0
+
+
+func _empty_pack_copy() -> String:
+	var tickets := int(_snapshot_data.get("divination_tickets", 0))
+	var costs: Dictionary = _snapshot_data.get("gacha_costs", {})
+	var single_cost := int(costs.get("single", 0))
+	if single_cost <= 0:
+		return "祈愿费用尚未载入。稍后再试。"
+	if tickets < single_cost:
+		return "占卜券不足（%d / %d）· 完成战斗或奖励后再来启封。" % [tickets, single_cost]
+	return "点下方「单抽」或「三连」翻开回响。"
 
 
 func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 	var definition_id := String(result.get("definition_id", ""))
 	var rarity := String(result.get("rarity", ""))
+	var duplicate := bool(result.get("duplicate", false))
+	var fragments := int(result.get("fragments", 0))
 	var panel := UiTheme.panel(
-		Color(0.07, 0.072, 0.058, 0.97),
+		UiTheme.frost(0.07, 0.072, 0.058, UiTheme.CARD_ALPHA),
 		UiTheme.C_GOLD if rarity == "rare" else UiTheme.C_LINE
 	)
+	panel.name = "GachaResultCard"
 	panel.custom_minimum_size = Vector2(292, 404)
 	panel.set_meta("gacha_result", result.duplicate(true))
+	panel.set_meta("rarity", rarity)
+	panel.set_meta("duplicate", duplicate)
 	panel.modulate.a = 0.0
 	panel.scale = Vector2(0.92, 0.92)
 	panel.pivot_offset = Vector2(146, 202)
@@ -365,8 +400,16 @@ func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	pad.add_child(column)
+	var rarity_bar := UiTheme.badge(
+		ProgressionCatalog.rarity_text(rarity),
+		UiTheme.C_GOLD if rarity == "rare" else UiTheme.C_PAPER,
+		UiTheme.C_GOLD if rarity == "rare" else UiTheme.C_LINE
+	)
+	rarity_bar.name = "RarityBanner"
+	rarity_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_child(rarity_bar)
 	var flip_area := Control.new()
-	flip_area.custom_minimum_size = Vector2(0, 190)
+	flip_area.custom_minimum_size = Vector2(0, 176)
 	flip_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(flip_area)
 	var back := TextureRect.new()
@@ -387,18 +430,14 @@ func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 		22,
 		UiTheme.C_TEXT
 	))
-	column.add_child(UiTheme.center_label(
-		ProgressionCatalog.rarity_text(rarity),
-		13,
-		UiTheme.C_GOLD if rarity == "rare" else UiTheme.C_MUTED
-	))
-	var duplicate := bool(result.get("duplicate", false))
-	var fragments := int(result.get("fragments", 0))
-	column.add_child(UiTheme.center_label(
-		"重复回响 · 残页 +%d" % fragments if duplicate else "首次收容",
-		14,
-		UiTheme.C_DANGER_TEXT if duplicate else UiTheme.C_PAPER
-	))
+	var outcome := UiTheme.badge(
+		"残页 +%d" % fragments if duplicate else "新卡 · 首次收容",
+		UiTheme.C_DANGER_TEXT if duplicate else UiTheme.C_GOLD,
+		UiTheme.C_DANGER if duplicate else UiTheme.C_GOLD
+	)
+	outcome.name = "OutcomeBadge"
+	outcome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	column.add_child(outcome)
 	call_deferred("_play_result_flip", panel, flip_area, back, front, flip_index)
 	return panel
 
@@ -413,6 +452,7 @@ func _play_result_flip(panel, flip_area, back, front, flip_index: int) -> void:
 	await entrance.finished
 	if not is_instance_valid(flip_area):
 		return
+	TableSfx.play(self, TableSfx.KIND_FLIP)
 	var flip: Tween = flip_area.create_tween()
 	flip.tween_property(flip_area, "scale:x", 0.04, 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	flip.tween_callback(func() -> void:
@@ -456,12 +496,17 @@ func _update_resources() -> void:
 		int(_snapshot_data.get("rare_pity", 0)),
 	]
 	_guidance_label.text = _gacha_guidance(rarity_weights, int(_snapshot_data.get("rare_pity", 0)))
-	_cost_label.text = "单抽 %d 券  ·  三连 %d 券  ·  三连按三次独立抽取结算" % [
+	var cost_line := "单抽 %d 券  ·  三连 %d 券  ·  三连按三次独立抽取结算" % [
 		single_cost,
 		triple_cost,
 	]
+	if tickets < single_cost and single_cost > 0:
+		cost_line += "  ·  券不足"
+	_cost_label.text = cost_line
 	_single_button.disabled = _busy or single_cost <= 0 or tickets < single_cost
 	_triple_button.disabled = _busy or triple_cost <= 0 or tickets < triple_cost
+	if is_instance_valid(_empty_state_label) and _result_count == 0:
+		_empty_state_label.text = _empty_pack_copy()
 
 
 func _gacha_guidance(rarity_weights: Dictionary, rare_pity: int) -> String:

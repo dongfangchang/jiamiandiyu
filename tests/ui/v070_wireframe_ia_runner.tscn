@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/ui/v070_wireframe_ia_runner.gd" id="1"]
+
+[node name="V070WireframeIaRunner" type="Node"]
+script = ExtResource("1")

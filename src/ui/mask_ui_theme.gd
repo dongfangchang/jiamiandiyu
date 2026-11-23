@@ -1,5 +1,8 @@
 extends RefCounted
 
+const UI_FONT := preload("res://assets/ui/fonts/NotoSansCJKsc-Regular.otf")
+const DIARY_SERIF_PATH := "res://assets/ui/fonts/SourceHanSerifSC-Regular.otf"
+
 const C_BG := Color("#11120d")
 const C_SURFACE := Color("#1c1b15")
 const C_SURFACE_RAISED := Color("#242119")
@@ -12,13 +15,79 @@ const C_LINE := Color("#3a3731")
 const C_DANGER := Color("#7a2828")
 const C_DANGER_TEXT := Color("#d8b4a8")
 const C_FOG := Color("#788079")
+## Wireframes (assets/ui/wireframes/**) are IA only — never full-bleed visual fills.
+## Scene PNG is the canvas. Modules must stay readable (high alpha); canvas shows
+## in gutters / SAFE_BOTTOM_REVEAL, NOT ghosting through text panels.
+const MODULE_ALPHA := 0.92
+const MODULE_RAISED_ALPHA := 0.94
+const CARD_ALPHA := 0.94
+const C_MODULE := Color(0.065, 0.068, 0.055, MODULE_ALPHA)
+const C_MODULE_RAISED := Color(0.09, 0.085, 0.07, MODULE_RAISED_ALPHA)
+const C_FROST_FOOTER := Color(0.055, 0.058, 0.047, MODULE_ALPHA)
+const C_FROST_PANEL := C_MODULE
+const C_FROST_HAND := Color(0.11, 0.105, 0.085, MODULE_RAISED_ALPHA)
+## Bare scene-canvas strip at the viewport bottom (SCENE_BRIEF y≈780–900).
+const SAFE_BOTTOM_REVEAL := 100
+
+
+static func frost(r: float, g: float, b: float, a: float = MODULE_ALPHA) -> Color:
+	return Color(r, g, b, a)
+
+
+static func module_panel(border: Color = C_LINE, raised: bool = false) -> PanelContainer:
+	return panel(C_MODULE_RAISED if raised else C_MODULE, border)
+
+
+static func module_padded(
+	content: Control,
+	margin: int = 14,
+	border: Color = C_LINE,
+	raised: bool = false
+) -> PanelContainer:
+	return padded_panel(
+		content,
+		margin,
+		C_MODULE_RAISED if raised else C_MODULE,
+		border
+	)
+
+
+## Cover the full canvas and pin the texture's bottom edge to the screen
+## bottom so desk/floor motifs stay on the canvas (never letterboxed away).
+static func layout_scene_background(holder: Control, texture: TextureRect) -> void:
+	if holder == null or texture == null or texture.texture == null:
+		return
+	var tex_size := texture.texture.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		return
+	var area := holder.size
+	if area.x <= 0.0 or area.y <= 0.0:
+		return
+	var scale := maxf(area.x / tex_size.x, area.y / tex_size.y)
+	var scaled := tex_size * scale
+	texture.size = scaled
+	texture.position = Vector2((area.x - scaled.x) * 0.5, area.y - scaled.y)
 
 
 static func build_theme() -> Theme:
 	var result := Theme.new()
-	result.default_font = preload("res://assets/ui/fonts/NotoSansCJKsc-Regular.otf")
+	result.default_font = UI_FONT
 	result.default_font_size = 16
 	return result
+
+
+static func diary_ink_font(is_title: bool = false) -> Font:
+	if not ResourceLoader.exists(DIARY_SERIF_PATH):
+		return UI_FONT
+	var serif := load(DIARY_SERIF_PATH) as Font
+	if serif == null:
+		return UI_FONT
+	var font := FontVariation.new()
+	font.base_font = serif
+	font.fallbacks = [UI_FONT]
+	if is_title:
+		font.variation_embolden = 0.35
+	return font
 
 
 static func style_box(
@@ -151,27 +220,94 @@ static func add_background(
 	dim: float = 0.0
 ) -> void:
 	var fallback := ColorRect.new()
+	fallback.name = "SceneFallback"
 	fallback.color = fallback_color
 	fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	fallback.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(fallback)
 
 	if not texture_path.is_empty() and ResourceLoader.exists(texture_path):
+		var holder := Control.new()
+		holder.name = "SceneBackgroundHolder"
+		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		holder.clip_contents = true
+		holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		root.add_child(holder)
 		var texture := TextureRect.new()
+		texture.name = "SceneBackground"
 		texture.texture = load(texture_path)
 		texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		texture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		root.add_child(texture)
+		## Manual cover + bottom pin (see layout_scene_background).
+		texture.stretch_mode = TextureRect.STRETCH_SCALE
+		holder.add_child(texture)
+		var relayout := func() -> void:
+			layout_scene_background(holder, texture)
+		holder.resized.connect(relayout)
+		relayout.call_deferred()
 
 	if dim > 0.0:
-		var tint := ColorRect.new()
-		tint.color = Color(C_BG, clampf(dim, 0.0, 1.0))
+		## Vertical veil: keep chrome readable up top; leave the floor strip
+		## of the scene canvas almost undimmed.
+		var top_alpha := clampf(dim, 0.0, 1.0)
+		var bottom_alpha := 0.0
+		var gradient := Gradient.new()
+		gradient.offsets = PackedFloat32Array([0.0, 0.55, 0.78, 1.0])
+		gradient.colors = PackedColorArray([
+			Color(C_BG, top_alpha),
+			Color(C_BG, top_alpha * 0.45),
+			Color(C_BG, top_alpha * 0.12),
+			Color(C_BG, bottom_alpha),
+		])
+		var dim_tex := GradientTexture2D.new()
+		dim_tex.gradient = gradient
+		dim_tex.fill_from = Vector2(0.5, 0.0)
+		dim_tex.fill_to = Vector2(0.5, 1.0)
+		dim_tex.width = 4
+		dim_tex.height = 256
+		var tint := TextureRect.new()
+		tint.name = "SceneDim"
+		tint.texture = dim_tex
+		tint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tint.stretch_mode = TextureRect.STRETCH_SCALE
 		tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		root.add_child(tint)
+
+
+static func apply_scene_background(root: Control, texture_path: String) -> void:
+	if root == null or texture_path.is_empty() or not ResourceLoader.exists(texture_path):
+		return
+	var holder := root.get_node_or_null("SceneBackgroundHolder") as Control
+	var texture_node := root.find_child("SceneBackground", true, false)
+	if texture_node is TextureRect:
+		var rect := texture_node as TextureRect
+		rect.texture = load(texture_path) as Texture2D
+		rect.stretch_mode = TextureRect.STRETCH_SCALE
+		if holder != null:
+			layout_scene_background(holder, rect)
+		return
+	## Rebuild via add_background path pieces when only a bare root exists.
+	var new_holder := Control.new()
+	new_holder.name = "SceneBackgroundHolder"
+	new_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	new_holder.clip_contents = true
+	new_holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_child(new_holder)
+	root.move_child(new_holder, mini(1, root.get_child_count() - 1))
+	var texture := TextureRect.new()
+	texture.name = "SceneBackground"
+	texture.texture = load(texture_path)
+	texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	texture.stretch_mode = TextureRect.STRETCH_SCALE
+	new_holder.add_child(texture)
+	var relayout := func() -> void:
+		layout_scene_background(new_holder, texture)
+	new_holder.resized.connect(relayout)
+	relayout.call_deferred()
 
 
 static func readable_id(value: String) -> String:
@@ -232,7 +368,8 @@ static func fixed_scroll(
 
 
 ## Wrapped text inside a fixed-height scroll viewport. Returns the scroll box;
-## the label is reachable with get_meta("label").
+## the label is reachable with get_meta("label"). Prefer flow_text when the
+## surrounding layout already has spare vertical room.
 static func fixed_text(
 	text_value: String,
 	font_size: int,
@@ -249,6 +386,21 @@ static func fixed_text_label(box: Control) -> Label:
 	if box == null or not box.has_meta("label"):
 		return null
 	return box.get_meta("label") as Label
+
+
+## Expanding wrapped copy with no ScrollContainer. Use for short chapter /
+## node intros that should read fully when the page has space.
+static func flow_text(
+	text_value: String,
+	font_size: int,
+	color: Color,
+	min_lines: int = 2
+) -> Label:
+	var result := wrapped_label(text_value, font_size, color)
+	result.custom_minimum_size = Vector2(0, maxi(min_lines, 1) * (font_size + 6))
+	result.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	result.tooltip_text = text_value
+	return result
 
 
 ## ---- v0.34 archive controls (diegetic tabs / wax seals) ----

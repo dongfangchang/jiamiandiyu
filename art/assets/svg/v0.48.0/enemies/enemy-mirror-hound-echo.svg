@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset="1" stop-color="#0c0b09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="48%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".16"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="483" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .11"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#wash)" filter="url(#grain)"/>
+  <rect width="900" height="900" fill="url(#glow)"/>
+  <rect width="900" height="900" fill="url(#hatch)" opacity=".25"/>
+  <circle cx="450" cy="430" r="310" fill="none" stroke="#B99750" stroke-width="1" opacity=".1"/>
+  
+    <!-- 燕尾服小丑：高礼帽 + 燕尾 -->
+    <ellipse cx="450" cy="740" rx="150" ry="26" fill="#3A3731" opacity=".22"/>
+    <path d="M340 300 H560 L540 560 H520 L560 700 H480 L450 580 L420 700 H360 L400 560 H360 Z"
+      fill="#15130f" stroke="#B99750" stroke-width="3"/>
+    <circle cx="450" cy="250" r="48" fill="#E8DFC9" stroke="#211D18" stroke-width="4"/>
+    <rect x="400" y="120" width="100" height="90" rx="4" fill="#211D18" stroke="#B99750" stroke-width="3"/>
+    <ellipse cx="450" cy="210" rx="80" ry="14" fill="#211D18" stroke="#788079" stroke-width="2"/>
+    <circle cx="430" cy="245" r="5" fill="#211D18"/><circle cx="470" cy="245" r="5" fill="#211D18"/>
+    <path d="M430 270 Q450 285 470 270" fill="none" stroke="#7A2828" stroke-width="3"/>
+    <circle cx="600" cy="380" r="28" fill="none" stroke="#E8D091" stroke-width="3" opacity=".5"/>
+  
+</svg>

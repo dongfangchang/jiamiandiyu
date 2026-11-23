@@ -104,8 +104,8 @@ func _ready() -> void:
 		"v0.35 feel",
 		labels,
 		enemy_labels,
-		func(card_id: StringName, target_id: StringName) -> BattlePlayability:
-			return engine.query_card_play(card_id, target_id),
+		func(card_id: StringName, target_id: StringName, discard_ids: Array) -> BattlePlayability:
+			return engine.query_card_play(card_id, target_id, discard_ids),
 		details
 	)
 	screen.apply_snapshot(engine.get_snapshot())

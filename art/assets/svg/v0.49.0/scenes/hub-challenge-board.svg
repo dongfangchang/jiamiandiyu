@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#121410"/>
+      <stop offset=".55" stop-color="#242820"/>
+      <stop offset="1" stop-color="#0a0c0a"/>
+    </linearGradient>
+    <radialGradient id="paperGlow" cx="50%" cy="40%" r="58%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sealGlow" cx="50%" cy="45%" r="40%">
+      <stop offset="0" stop-color="#7A2828" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="49" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+  <rect width="1600" height="900" fill="url(#crosshatch)"/>
+  <rect width="1600" height="900" fill="url(#paperGlow)"/>
+  <rect width="1600" height="900" fill="url(#hatch)" opacity=".2"/>
+  <rect x="320" y="120" width="960" height="660" fill="none" stroke="#B99750" stroke-width="1" opacity=".08"/>
+  
+    <!-- dossier board -->
+    <path d="M280 100 H1320 V780 H280Z" fill="#1a1814" stroke="#B99750" stroke-width="4" opacity=".8"/>
+    <path d="M320 140 H1280 V720 H320Z" fill="#211D18" stroke="#788079" stroke-width="2"/>
+    <!-- three modifier cards -->
+    <g fill="#EFE1C0" stroke="#211D18" stroke-width="3" opacity=".5">
+      <rect x="400" y="260" width="180" height="260" rx="8"/>
+      <rect x="710" y="240" width="180" height="280" rx="8"/>
+      <rect x="1020" y="260" width="180" height="260" rx="8"/>
+    </g>
+    <g fill="#7A2828" stroke="#E8D091" stroke-width="2">
+      <circle cx="490" cy="300" r="22"/>
+      <circle cx="800" cy="290" r="22"/>
+      <circle cx="1110" cy="300" r="22"/>
+    </g>
+    <path d="M360 180 H1240" stroke="#B99750" stroke-width="2" opacity=".3"/>
+    <path d="M360 640 H1240" stroke="#B99750" stroke-width="2" opacity=".25"/>
+  
+</svg>

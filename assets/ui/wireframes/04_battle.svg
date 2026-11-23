@@ -4,7 +4,7 @@
     <text x="60" y="48" fill="#b99750" font-size="15" letter-spacing="3">NIGHT ENCOUNTER // 战斗</text>
     <rect x="60" y="70" width="1480" height="110" rx="8" fill="#201e18" stroke="#3a3731"/>
     <text x="88" y="112" fill="#e8dfc9" font-size="26" font-weight="700">廷根旧宅 · 第 2 回合</text>
-    <text x="88" y="146" fill="#9f967f" font-size="15">阶段：PLAYER_ACTION · 快照 revision 42 · 领域已结算，表现事件按顺序播放</text>
+    <text x="88" y="146" fill="#9f967f" font-size="15">阶段：PLAYER_ACTION · 快照只读 · 结算后回日记页 · 无 OptionButton</text>
     <g font-size="15">
       <text x="650" y="110" fill="#9f967f">生命</text><text x="650" y="145" fill="#e8dfc9" font-size="22">18 / 24</text>
       <text x="790" y="110" fill="#9f967f">灵性</text><text x="790" y="145" fill="#e8dfc9" font-size="22">3 / 5</text>
@@ -49,7 +49,7 @@
     <text x="1290" y="541" fill="#d8b4a8" font-size="14">被注视将在本回合后达到 5</text>
 
     <rect x="60" y="628" width="1480" height="225" rx="8" fill="#1c1b15" stroke="#3a3731"/>
-    <text x="88" y="664" fill="#b99750" font-size="17">手牌 · 点击卡牌后选择三列中的目标，再次点击取消</text>
+    <text x="88" y="664" fill="#b99750" font-size="17">手牌 · 整卡可点 / 可拖放瞄准 · 选择按钮必须在视口内</text>
     <g>
       <rect x="92" y="685" width="180" height="132" rx="7" fill="#d8c29a" stroke="#b99750"/>
       <text x="182" y="720" text-anchor="middle" fill="#211d18" font-size="16" font-weight="700">占卜</text>
@@ -64,9 +64,9 @@
       <text x="582" y="752" text-anchor="middle" fill="#211d18" font-size="13">费用 1 · 可打出</text>
       <rect x="512" y="780" width="140" height="20" fill="#b99750"/>
     </g>
-    <text x="710" y="718" fill="#9f967f" font-size="15">提示区：目标非法 — 该卡只能对友方牌使用</text>
-    <text x="710" y="748" fill="#9f967f" font-size="15">选择是 UI 本地态；提交只发送 PlayCardCommand / EndTurnCommand</text>
-    <text x="710" y="778" fill="#788079" font-size="14">不可用态显示 reason_code；动画只消费事件，不改变结果。</text>
+    <text x="710" y="718" fill="#9f967f" font-size="15">提示区：目标非法 — 中文 reason，不泄漏内部码</text>
+    <text x="710" y="748" fill="#9f967f" font-size="15">提交只发既有 BattleCommand；连携只读 battle.chain 快照</text>
+    <text x="710" y="778" fill="#788079" font-size="14">胜/负结算后回日记；动画只消费事件，不改结果。</text>
     <rect x="1210" y="697" width="280" height="82" rx="6" fill="#242119" stroke="#4b463b"/>
     <text x="1350" y="731" text-anchor="middle" fill="#e8dfc9" font-size="17">灵界日志</text>
     <text x="1350" y="760" text-anchor="middle" fill="#9f967f" font-size="13">上一事件：TurnStarted</text>

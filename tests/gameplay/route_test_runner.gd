@@ -355,13 +355,16 @@ func _test_ritual_cancel_hint_and_failure() -> void:
 	)
 	_check(wrong.accepted, "wrong-but-valid ritual selection should resolve with cost")
 	_check(
-		int(wrong.ritual_snapshot.data["corruption"]) == 10,
-		"wrong ritual step should add configured corruption"
+		wrong.snapshot.data["phase"] == "map",
+		"corruption limit soft-fails back to map (chapter kept)"
 	)
 	_check(
-		wrong.snapshot.data["phase"] == "failed",
-		"corruption limit should fail the route without hanging"
+		int(wrong.snapshot.data.get("run_state", {}).get("corruption", 99))
+		<= 8,
+		"soft fail bleeds corruption so a retry remains possible"
 	)
+	var soft_retry := engine.submit(RouteCommand.begin_ascension())
+	_check(soft_retry.accepted, "soft-failed ritual should be retryable")
 
 	var cancel_content := RouteTestContent.new()
 	var cancel_engine := RouteEngineScript.new(cancel_content)
@@ -381,6 +384,7 @@ func _test_ritual_cancel_hint_and_failure() -> void:
 
 
 func _test_battle_defeat_ends_route() -> void:
+	## v0.55 diary soft-fail: defeat returns to map with annotation + attribute sting.
 	var content := RouteTestContent.new()
 	var engine := RouteEngineScript.new(content)
 	engine.initialize()
@@ -394,21 +398,27 @@ func _test_battle_defeat_ends_route() -> void:
 	)
 	_check(result.accepted, "battle defeat should resolve")
 	_check(
-		result.snapshot.data["phase"] == "failed"
-		and result.snapshot.data["route_outcome"] == "failed",
-		"battle defeat should fail the route"
+		result.snapshot.data["phase"] == "map",
+		"soft defeat should return to map phase"
 	)
 	_check(
-		result.snapshot.data.get("end_reason", "") == "battle_defeat",
-		"battle defeat should expose a stable end reason"
+		String(result.snapshot.data.get("clue_annotations", {}).get(
+			"route.v050.node.first_hunt",
+			""
+		)).find("0-08") >= 0,
+		"soft defeat should write a 0-08 annotation"
+	)
+	_check(
+		"route.v050.node.first_hunt" not in result.snapshot.data.get(
+			"completed_node_ids",
+			[]
+		),
+		"soft defeat should leave the clue incomplete for retry"
 	)
 	var retry := engine.submit(RouteCommand.select_node(
 		&"route.v050.node.first_hunt"
 	))
-	_check(
-		not retry.accepted and retry.reason_code == &"wrong_phase",
-		"failed route should reject more node commands"
-	)
+	_check(retry.accepted, "soft defeat should allow retrying the same clue")
 
 
 func _test_state_round_trip() -> void:

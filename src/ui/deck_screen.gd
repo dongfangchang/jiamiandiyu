@@ -210,13 +210,13 @@ func get_visible_card_ids() -> Array[String]:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, DeckCatalog.BACKGROUND, UiTheme.C_BG, 0.18)
+	UiTheme.add_background(self, DeckCatalog.BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 42)
 	safe.add_theme_constant_override("margin_top", 24)
 	safe.add_theme_constant_override("margin_right", 42)
-	safe.add_theme_constant_override("margin_bottom", 24)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var root := VBoxContainer.new()
@@ -245,7 +245,7 @@ func _build() -> void:
 	_content_scroll.add_child(content)
 
 	var collection_panel := UiTheme.panel(
-		Color(0.055, 0.058, 0.047, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	)
 	collection_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -269,7 +269,7 @@ func _build() -> void:
 	collection_column.add_child(_collection_grid)
 
 	var deck_panel := UiTheme.panel(
-		Color(0.055, 0.058, 0.047, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_GOLD
 	)
 	deck_panel.custom_minimum_size = Vector2(430, 0)
@@ -401,11 +401,11 @@ func _build_preset(preset: Dictionary) -> Control:
 	var preset_id := String(preset.get("id", ""))
 	var selected := bool(preset.get("selected", false))
 	var panel := UiTheme.panel(
-		Color(0.06, 0.063, 0.051, 0.97),
+		UiTheme.frost(0.06, 0.063, 0.051, UiTheme.CARD_ALPHA),
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
-	## Default face: name + tag + one strategy hook. Matchup detail lives in tooltip.
-	panel.custom_minimum_size = Vector2(280, 96)
+	## Default face: name + tag + hook + 适合/慎用 short lines (v0.37 scanability).
+	panel.custom_minimum_size = Vector2(280, 148)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.clip_contents = true
 	var pad := MarginContainer.new()
@@ -437,6 +437,17 @@ func _build_preset(preset: Dictionary) -> Control:
 		11,
 		UiTheme.C_MUTED
 	))
+	# HS-style face: matchup lines visible without opening tooltip.
+	text.add_child(UiTheme.clip_label(
+		"适合：%s" % String(guidance.get("best_against", "—")),
+		11,
+		UiTheme.C_PAPER
+	))
+	text.add_child(UiTheme.clip_label(
+		"慎用：%s" % String(guidance.get("caution", "—")),
+		11,
+		UiTheme.C_MUTED
+	))
 	text.add_child(UiTheme.clip_label(
 		_preset_cost_summary(preset),
 		10,
@@ -451,10 +462,12 @@ func _build_preset(preset: Dictionary) -> Control:
 		10,
 		UiTheme.C_GOLD if legal else UiTheme.C_DANGER_TEXT
 	))
-	panel.tooltip_text = "适合：%s\n慎用：%s" % [
+	panel.tooltip_text = "适合：%s\n慎用：%s\n%s" % [
 		String(guidance.get("best_against", "")),
 		String(guidance.get("caution", "")),
+		String(guidance.get("when", "")),
 	]
+	panel.custom_minimum_size = Vector2(280, 148)
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	panel.set_meta("preset_id", preset_id)
 	panel.set_meta("guidance_tag", String(guidance.get("tag", "")))
@@ -564,14 +577,18 @@ func _build_card_tile(card: Dictionary) -> Control:
 	var in_deck := bool(card.get("in_deck", false))
 	var can_add := bool(card.get("can_add", owned and not in_deck))
 	var add_reason := String(card.get("add_reason_code", ""))
+	var cost := int(card.get("cost_spirit", 0))
 	var ownership_text := "已在牌组" if in_deck else ("已拥有 · 可加入" if can_add else "未拥有 · 仅可查看")
 	if not in_deck and add_reason == "sequence_locked":
 		ownership_text = "已拥有 · 需序列 %d" % int(card.get("required_sequence", 8))
 	var panel := UiTheme.panel(
-		Color(0.06, 0.063, 0.051, 0.97),
-		UiTheme.C_GOLD if in_deck else UiTheme.C_LINE
+		UiTheme.frost(0.06, 0.063, 0.051, UiTheme.CARD_ALPHA) if owned else UiTheme.frost(0.045, 0.046, 0.04, UiTheme.MODULE_ALPHA),
+		UiTheme.C_GOLD if in_deck else (UiTheme.C_LINE if owned else Color("#3a3830"))
 	)
-	panel.custom_minimum_size = Vector2(245, 88)
+	panel.name = "CollectionTile"
+	panel.custom_minimum_size = Vector2(245, 118)
+	panel.set_meta("definition_id", definition_id)
+	panel.set_meta("cost_spirit", cost)
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	panel.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -586,6 +603,24 @@ func _build_card_tile(card: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	pad.add_child(row)
+	var thumb_column := VBoxContainer.new()
+	thumb_column.add_theme_constant_override("separation", 4)
+	row.add_child(thumb_column)
+	var cost_badge := UiTheme.badge("%d" % cost, UiTheme.C_GOLD, UiTheme.C_GOLD)
+	cost_badge.name = "CostBadge"
+	cost_badge.custom_minimum_size = Vector2(28, 22)
+	cost_badge.tooltip_text = "灵性费用 %d" % cost
+	thumb_column.add_child(cost_badge)
+	var art_path := DeckCatalog.card_art(definition_id)
+	if not art_path.is_empty() and ResourceLoader.exists(art_path):
+		var art := TextureRect.new()
+		art.name = "CardThumb"
+		art.texture = load(art_path) as Texture2D
+		art.custom_minimum_size = Vector2(52, 52)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art.modulate = Color(1, 1, 1, 1) if owned else Color(0.45, 0.45, 0.42, 1)
+		thumb_column.add_child(art)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)
@@ -617,7 +652,7 @@ func _build_card_tile(card: Dictionary) -> Control:
 	button.tooltip_text = DeckCatalog.reason_text(add_reason) if not in_deck and not can_add else ""
 	info.add_child(button)
 	_action_buttons.append(button)
-	panel.tooltip_text = "点击查看卡牌功能、费用与目标"
+	panel.tooltip_text = "费用 %d · 点击查看规则与出处" % cost
 	return panel
 
 
@@ -668,9 +703,10 @@ func _render_deck() -> void:
 
 func _build_deck_row(index: int, card: Dictionary, filled: bool) -> Control:
 	var row := UiTheme.panel(
-		Color(0.065, 0.068, 0.055, 0.94),
+		UiTheme.C_MODULE,
 		UiTheme.C_GOLD if filled else UiTheme.C_LINE
 	)
+	row.name = "DeckRow"
 	row.custom_minimum_size = Vector2(0, 47)
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 8)
@@ -683,15 +719,23 @@ func _build_deck_row(index: int, card: Dictionary, filled: bool) -> Control:
 	pad.add_child(line)
 	line.add_child(UiTheme.label("%02d" % index, 12, UiTheme.C_MUTED))
 	var definition_id := String(card.get("definition_id", ""))
-	var name_label := UiTheme.label(
+	var cost := int(card.get("cost_spirit", 0)) if filled else 0
+	var cost_pip := UiTheme.badge(
+		str(cost) if filled else "—",
+		UiTheme.C_GOLD if filled else UiTheme.C_MUTED,
+		UiTheme.C_GOLD if filled else UiTheme.C_LINE
+	)
+	cost_pip.name = "CostPip"
+	cost_pip.custom_minimum_size = Vector2(26, 22)
+	line.add_child(cost_pip)
+	var name_label := UiTheme.clip_label(
 		String(card.get("display_name_zh", "空置牌位" if not filled else definition_id)),
 		14,
 		UiTheme.C_TEXT if filled else UiTheme.C_MUTED
 	)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.add_child(name_label)
 	if filled:
-		var ownership_label := UiTheme.badge("已拥有", UiTheme.C_GOLD, UiTheme.C_LINE)
-		line.add_child(ownership_label)
 		row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		row.gui_input.connect(func(event: InputEvent) -> void:
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

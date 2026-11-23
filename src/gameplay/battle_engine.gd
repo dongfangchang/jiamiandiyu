@@ -85,6 +85,8 @@ var _synergies: Array[Dictionary] = []
 var _danger_threshold: int = DEFAULT_DANGER_THRESHOLD
 var _attention_hunter_at: int = 0
 var _corruption_penalty_at: int = 0
+## Consumed by discard effects during the current play_card resolution.
+var _play_discard_queue: Array[StringName] = []
 
 
 func initialize(
@@ -233,7 +235,8 @@ func submit(command: BattleCommand) -> BattleCommandResult:
 
 func query_card_play(
 	card_instance_id: StringName,
-	target_id: StringName = &""
+	target_id: StringName = &"",
+	discard_ids: Array = []
 ) -> BattlePlayability:
 	if _phase != PHASE_PLAYER_ACTION:
 		return BattlePlayability.new(false, BattlePlayability.WRONG_PHASE)
@@ -248,6 +251,13 @@ func query_card_play(
 		return BattlePlayability.new(false, BattlePlayability.INSUFFICIENT_SPIRIT)
 	if not _is_target_valid(definition, target_id):
 		return BattlePlayability.new(false, BattlePlayability.INVALID_TARGET)
+	var discard_check := _validate_discard_choice(
+		card_instance_id,
+		definition,
+		discard_ids
+	)
+	if discard_check != BattlePlayability.PLAYABLE:
+		return BattlePlayability.new(false, discard_check)
 	return BattlePlayability.new(true, BattlePlayability.PLAYABLE)
 
 
@@ -263,6 +273,7 @@ func get_snapshot() -> BattleSnapshot:
 			"target_type": String(definition.get("target_type", "none")),
 			"exhaust": bool(definition.get("exhaust", false)),
 			"consumes_ritual": bool(definition.get("consumes_ritual", false)),
+			"required_discard": _required_discard_count(definition),
 			"synergy_ids": _synergy_ids_for_card(String(card["definition_id"])),
 		})
 
@@ -347,9 +358,11 @@ func get_snapshot() -> BattleSnapshot:
 
 
 func _play_card(command: BattleCommand) -> BattleCommandResult:
+	var discard_ids: Array = command.discard_instance_ids
 	var playability: BattlePlayability = query_card_play(
 		command.card_instance_id,
-		command.target_id
+		command.target_id,
+		discard_ids
 	)
 	if not playability.playable:
 		return _rejected_result(playability.reason_code)
@@ -374,6 +387,7 @@ func _play_card(command: BattleCommand) -> BattleCommandResult:
 	# The card leaves the hand before effects resolve, preventing draw effects
 	# from exposing the same instance twice.
 	_hand.remove_at(card_index)
+	_play_discard_queue = _normalize_discard_ids(discard_ids)
 	var definition_key := String(card["definition_id"])
 	_turn_played_ids.append(definition_key)
 	if not command.target_id.is_empty():
@@ -384,6 +398,7 @@ func _play_card(command: BattleCommand) -> BattleCommandResult:
 			break
 		var effect: Dictionary = effect_source
 		_apply_effect(effect, definition, command.target_id)
+	_play_discard_queue.clear()
 
 	if bool(definition.get("exhaust", false)):
 		_exhaust_pile.append(card)
@@ -934,7 +949,9 @@ func _apply_effect(
 			for _discard_index in range(discard_count):
 				if _hand.is_empty():
 					break
-				var discarded: Dictionary = _hand.pop_back()
+				var discarded: Dictionary = _take_chosen_or_last_hand_card()
+				if discarded.is_empty():
+					break
 				_discard_pile.append(discarded)
 				_emit(&"CardDiscarded", {
 					"card_instance_id": String(discarded["instance_id"]),
@@ -1605,6 +1622,90 @@ func _find_hand_index(card_instance_id: StringName) -> int:
 		if StringName(_hand[index]["instance_id"]) == card_instance_id:
 			return index
 	return -1
+
+
+func auto_discard_ids_for(card_instance_id: StringName) -> Array[StringName]:
+	## Deterministic filler for bots/tests: earliest other hand cards.
+	var result: Array[StringName] = []
+	var card_index := _find_hand_index(card_instance_id)
+	if card_index < 0:
+		return result
+	var definition: Dictionary = _get_card_definition(_hand[card_index])
+	var required := mini(_required_discard_count(definition), maxi(0, _hand.size() - 1))
+	for card in _hand:
+		var id := StringName(card.get("instance_id", ""))
+		if id == card_instance_id or id.is_empty():
+			continue
+		result.append(id)
+		if result.size() >= required:
+			break
+	return result
+
+
+func _required_discard_count(definition: Dictionary) -> int:
+	var total := 0
+	for effect_value in definition.get("effects", []):
+		if not effect_value is Dictionary:
+			continue
+		var effect: Dictionary = effect_value
+		if StringName(effect.get("effect_id", "")) != &"discard":
+			continue
+		# Conditional discards stay automatic until their condition resolves;
+		# only unconditional discards require a pre-play choice.
+		if effect.has("condition"):
+			continue
+		total += maxi(0, int(effect.get("count", 0)))
+	return total
+
+
+func _normalize_discard_ids(discard_ids: Array) -> Array[StringName]:
+	var result: Array[StringName] = []
+	var seen: Dictionary = {}
+	for value in discard_ids:
+		var id := StringName(value)
+		if id.is_empty() or seen.has(String(id)):
+			continue
+		seen[String(id)] = true
+		result.append(id)
+	return result
+
+
+func _validate_discard_choice(
+	played_instance_id: StringName,
+	definition: Dictionary,
+	discard_ids: Array
+) -> StringName:
+	var required := mini(
+		_required_discard_count(definition),
+		maxi(0, _hand.size() - 1)
+	)
+	if required <= 0:
+		return BattlePlayability.PLAYABLE
+	var chosen := _normalize_discard_ids(discard_ids)
+	if chosen.size() < required:
+		return BattlePlayability.NEED_DISCARD_CHOICE
+	if chosen.size() > required:
+		return BattlePlayability.INVALID_DISCARD_CHOICE
+	for id in chosen:
+		if id == played_instance_id:
+			return BattlePlayability.INVALID_DISCARD_CHOICE
+		if _find_hand_index(id) < 0:
+			return BattlePlayability.INVALID_DISCARD_CHOICE
+	return BattlePlayability.PLAYABLE
+
+
+func _take_chosen_or_last_hand_card() -> Dictionary:
+	while not _play_discard_queue.is_empty():
+		var chosen_id: StringName = _play_discard_queue.pop_front()
+		var index := _find_hand_index(chosen_id)
+		if index < 0:
+			continue
+		var chosen: Dictionary = _hand[index]
+		_hand.remove_at(index)
+		return chosen
+	if _hand.is_empty():
+		return {}
+	return _hand.pop_back()
 
 
 func _find_status_index(statuses: Array, status_id: StringName) -> int:

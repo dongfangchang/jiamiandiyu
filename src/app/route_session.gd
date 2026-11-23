@@ -33,6 +33,7 @@ var _route_engine: RouteEngine = null
 var _battle_session: GameSession = null
 var _active_node_id: StringName = &""
 var _last_battle: Dictionary = {}
+var _pending_diary_settlement: Dictionary = {}
 
 
 func _init(
@@ -134,11 +135,17 @@ func consume_potion(potion_id: StringName) -> ProgressionCommandResult:
 	if result.accepted:
 		if _route_engine != null:
 			_route_engine.mark_sequence_advanced()
+		var progression_snapshot := progression.get_snapshot()
+		_sync_deck_from_progression(progression_snapshot)
 		if deck_engine != null:
-			deck_engine.set_current_sequence(
-				int(progression.get_snapshot().data.get("sequence", 9))
+			var clown_preset := &"deck.preset.clown"
+			var select_result := deck_engine.submit(
+				DeckCommandScript.select_preset(clown_preset)
 			)
-			deck_engine.submit(DeckCommandScript.reset_default())
+			if not select_result.accepted:
+				deck_engine.submit(DeckCommandScript.reset_default())
+			else:
+				deck_engine.submit(DeckCommandScript.confirm_deck())
 		save_checkpoint("potion_consumed")
 	return result
 
@@ -225,6 +232,13 @@ func get_active_node_id() -> StringName:
 	return _active_node_id
 
 
+func consume_diary_settlement() -> Dictionary:
+	## One-shot cue for diary 0-08 flash after battle/rest replace the screen.
+	var pending := _pending_diary_settlement.duplicate(true)
+	_pending_diary_settlement = {}
+	return pending
+
+
 func submit_progression(command: ProgressionCommand) -> ProgressionCommandResult:
 	var result: ProgressionCommandResult = progression.submit(command)
 	if not result.accepted:
@@ -259,14 +273,21 @@ func _sync_deck_from_progression(snapshot: ProgressionSnapshot) -> void:
 
 func query_card_play(
 	card_instance_id: StringName,
-	target_id: StringName = &""
+	target_id: StringName = &"",
+	discard_ids: Array = []
 ) -> BattlePlayability:
 	if _battle_session == null:
 		return BattlePlayability.new(false, &"battle_not_started")
-	return _battle_session.query_card_play(card_instance_id, target_id)
+	return _battle_session.query_card_play(card_instance_id, target_id, discard_ids)
 
 
-func begin_route_battle() -> InfrastructureResult:
+func auto_discard_ids_for(card_instance_id: StringName) -> Array[StringName]:
+	if _battle_session == null or not _battle_session.has_method("auto_discard_ids_for"):
+		return []
+	return _battle_session.auto_discard_ids_for(card_instance_id)
+
+
+func begin_route_battle(preferred_node_id: StringName = &"") -> InfrastructureResult:
 	if _route_engine == null:
 		return InfrastructureResultScript.failure(
 			&"route_not_initialized",
@@ -291,7 +312,9 @@ func begin_route_battle() -> InfrastructureResult:
 			&"route_not_on_map",
 			"The route is not waiting for a map node."
 		)
-	var node_id := StringName(route_snapshot.get("available_node_id", ""))
+	var node_id := preferred_node_id
+	if node_id.is_empty():
+		node_id = StringName(route_snapshot.get("available_node_id", ""))
 	var node := _node_by_id(route_snapshot, node_id)
 	if node.is_empty() or not String(node.get("type", "")) in BATTLE_NODE_TYPES:
 		return InfrastructureResultScript.failure(
@@ -392,6 +415,11 @@ func submit_battle(command: BattleCommand) -> BattleCommandResult:
 		)
 	progression.submit(ProgressionCommandScript.resolve_battle(StringName(outcome)))
 	_last_battle = _battle_summary(result.snapshot)
+	_last_battle["node_id"] = String(_active_node_id)
+	_pending_diary_settlement = {
+		"node_id": String(_active_node_id),
+		"outcome": outcome,
+	}
 	_active_node_id = &""
 	save_checkpoint("route_post_battle")
 	return result
@@ -402,6 +430,7 @@ func submit_route(command: RouteCommand) -> RouteCommandResult:
 		return RouteCommandResult.new(false, &"route_not_initialized")
 	var result: RouteCommandResult = _route_engine.submit(command)
 	if result.accepted:
+		_note_diary_settlement_from_route_events(result.events)
 		if String(result.snapshot.data.get("phase", "")) == "completed":
 			var potion_id := StringName(
 				result.snapshot.data.get("chapter_potion_id", "")
@@ -410,6 +439,24 @@ func submit_route(command: RouteCommand) -> RouteCommandResult:
 				progression.grant_potion(potion_id)
 		save_checkpoint("route")
 	return result
+
+
+func _note_diary_settlement_from_route_events(events: Array) -> void:
+	for event in events:
+		if event == null:
+			continue
+		if event.type == &"RestUsed":
+			_pending_diary_settlement = {
+				"node_id": String(event.data.get("node_id", "")),
+				"outcome": "rest",
+			}
+			return
+		if event.type == &"BattleNodeResolved":
+			_pending_diary_settlement = {
+				"node_id": String(event.data.get("node_id", "")),
+				"outcome": String(event.data.get("outcome", "")),
+			}
+			return
 
 
 func save_checkpoint(kind: String = "route") -> InfrastructureResult:

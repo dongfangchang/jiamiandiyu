@@ -105,13 +105,13 @@ func get_card_next_step_text(definition_id: String) -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.UPGRADE_BACKGROUND, UiTheme.C_BG, 0.5)
+	UiTheme.add_background(self, ProgressionCatalog.UPGRADE_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 64)
 	safe.add_theme_constant_override("margin_top", 36)
 	safe.add_theme_constant_override("margin_right", 64)
-	safe.add_theme_constant_override("margin_bottom", 34)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -156,7 +156,7 @@ func _build() -> void:
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_status_label)
-	_back_button = UiTheme.button("返回白昼档案", _on_back, true, 160)
+	_back_button = UiTheme.button("回日记", _on_back, true, 160)
 	bottom.add_child(_back_button)
 
 
@@ -200,12 +200,12 @@ func _build_card_row(card: Dictionary) -> Control:
 	var fragments := int(card.get("fragments", 0))
 	var cost := int(card.get("next_upgrade_cost", 0))
 	var owned := copies > 0
-	var panel := UiTheme.panel(Color(0.065, 0.068, 0.055, 0.97), UiTheme.C_LINE)
+	var panel := UiTheme.panel(UiTheme.C_MODULE, UiTheme.C_LINE)
 	var ready_to_upgrade := owned and level < max_level and fragments >= cost and cost > 0
 	panel.add_theme_stylebox_override(
 		"panel",
 		UiTheme.style_box(
-			Color(0.09, 0.085, 0.055, 0.99) if ready_to_upgrade else Color(0.065, 0.068, 0.055, 0.97),
+			UiTheme.frost(0.09, 0.085, 0.055, UiTheme.CARD_ALPHA) if ready_to_upgrade else UiTheme.C_MODULE,
 			UiTheme.C_GOLD if ready_to_upgrade else UiTheme.C_LINE,
 			2 if ready_to_upgrade else 1,
 			8

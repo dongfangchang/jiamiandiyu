@@ -132,11 +132,18 @@ func begin_battle() -> InfrastructureResult:
 
 func query_card_play(
 	card_instance_id: StringName,
-	target_id: StringName = &""
+	target_id: StringName = &"",
+	discard_ids: Array = []
 ) -> BattlePlayability:
 	if _battle_session == null:
 		return BattlePlayability.new(false, &"battle_not_started")
-	return _battle_session.query_card_play(card_instance_id, target_id)
+	return _battle_session.query_card_play(card_instance_id, target_id, discard_ids)
+
+
+func auto_discard_ids_for(card_instance_id: StringName) -> Array[StringName]:
+	if _battle_session == null or not _battle_session.has_method("auto_discard_ids_for"):
+		return []
+	return _battle_session.auto_discard_ids_for(card_instance_id)
 
 
 func submit_battle(command: BattleCommand) -> BattleCommandResult:

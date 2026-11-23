@@ -1,0 +1,21 @@
+{
+  "version": "v0.45.0",
+  "theme": "tingen_p1_scenes",
+  "assets": [
+    {
+      "stable_id": "scene.battle.moretti_home",
+      "svg": "art/assets/svg/v0.45.0/scenes/battle-moretti-home.svg",
+      "png": "assets/game/v0.45.0/scenes/battle-moretti-home.png"
+    },
+    {
+      "stable_id": "scene.battle.elliot_ruin",
+      "svg": "art/assets/svg/v0.45.0/scenes/battle-elliot-ruin.svg",
+      "png": "assets/game/v0.45.0/scenes/battle-elliot-ruin.png"
+    },
+    {
+      "stable_id": "scene.battle.wood_house",
+      "svg": "art/assets/svg/v0.45.0/scenes/battle-wood-house.svg",
+      "png": "assets/game/v0.45.0/scenes/battle-wood-house.png"
+    }
+  ]
+}

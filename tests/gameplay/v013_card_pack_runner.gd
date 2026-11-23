@@ -59,7 +59,7 @@ func _ready() -> void:
 		[]
 	)
 	var presets: Array = decks_document.get("presets", [])
-	_expect(presets.size() == 4, "deck content should expose four presets")
+	_expect(presets.size() == 5, "deck content should expose five presets")
 	var squad_preset: Dictionary = {}
 	for preset in presets:
 		if String(preset.get("id", "")) == "deck.preset.echo":

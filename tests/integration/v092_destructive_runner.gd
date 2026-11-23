@@ -201,18 +201,26 @@ func _test_battle_exit_resumes_without_test_profile_contamination() -> void:
 		String(controller.get_current_route()) == "map",
 		"test profile should enter the route map"
 	)
-	var enter_battle := _button_by_text(controller, "进入夜间战斗")
+	var enter_battle := _button_by_text(controller, "打开日记")
+	if enter_battle == null:
+		enter_battle = _button_by_text(controller, "进入夜间战斗")
 	if enter_battle != null:
 		enter_battle.pressed.emit()
 	await _wait_frames(3)
-	var node_button := _button_by_text(controller, "前往节点")
-	_expect(node_button != null, "route map should expose the first event")
-	if node_button != null:
+	var node_button := _button_by_text(controller, "调查线索")
+	if node_button == null:
+		node_button = _button_by_text(controller, "前往节点")
+	if node_button == null:
+		var map_screen = controller.get_current_screen()
+		if map_screen != null:
+			node_button = map_screen.find_child("ClueHit", true, false) as Button
+	_expect(node_button != null, "diary/route should expose the first investigable clue")
+	if node_button != null and not node_button.disabled:
 		node_button.pressed.emit()
 	await _wait_frames(4)
 	_expect(
 		String(controller.get_current_route()) == "battle",
-		"selected battle node should enter battle"
+		"selected battle clue should enter battle"
 	)
 	var exit_button := _button_by_text(controller, "退出战斗")
 	if exit_button != null:

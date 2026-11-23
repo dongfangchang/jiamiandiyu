@@ -1,0 +1,21 @@
+{
+  "version": "v0.46.0",
+  "theme": "tingen_p2_scenes",
+  "assets": [
+    {
+      "stable_id": "scene.battle.megose_descent",
+      "svg": "art/assets/svg/v0.46.0/scenes/battle-megose-descent.svg",
+      "png": "assets/game/v0.46.0/scenes/battle-megose-descent.png"
+    },
+    {
+      "stable_id": "scene.rest.chanis_gate",
+      "svg": "art/assets/svg/v0.46.0/scenes/rest-chanis-gate.svg",
+      "png": "assets/game/v0.46.0/scenes/rest-chanis-gate.png"
+    },
+    {
+      "stable_id": "scene.ritual.above_fog",
+      "svg": "art/assets/svg/v0.46.0/scenes/ritual-above-fog.svg",
+      "png": "assets/game/v0.46.0/scenes/ritual-above-fog.png"
+    }
+  ]
+}

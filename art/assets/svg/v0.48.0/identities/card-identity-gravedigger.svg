@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="640" viewBox="0 0 512 640">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset="1" stop-color="#0c0b09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="48%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".16"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="491" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .11"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="512" height="640" fill="url(#wash)" filter="url(#grain)"/>
+  <rect width="512" height="640" fill="url(#glow)"/>
+  <rect width="512" height="640" fill="url(#hatch)" opacity=".22"/>
+  <rect x="36" y="48" width="440" height="544" rx="18" fill="none" stroke="#B99750" stroke-width="3" opacity=".35"/>
+  
+    <!-- 霍伊大学历史系：典籍 + 残页 -->
+    <ellipse cx="256" cy="530" rx="120" ry="22" fill="#3A3731" opacity=".2"/>
+    <rect x="150" y="220" width="140" height="200" rx="6" fill="#EFE1C0" stroke="#211D18" stroke-width="4"/>
+    <rect x="220" y="200" width="140" height="200" rx="6" fill="#E8DFC9" stroke="#B99750" stroke-width="4"/>
+    <path d="M240 240 H340 M240 270 H320 M240 300 H330 M240 330 H300" stroke="#211D18" stroke-width="2.5" opacity=".45"/>
+    <path d="M340 360 L400 320 L420 400 L360 420 Z" fill="#EFE1C0" stroke="#7A2828" stroke-width="2" opacity=".75"/>
+    <circle cx="256" cy="160" r="28" fill="none" stroke="#B99750" stroke-width="3" opacity=".5"/>
+    <path d="M256 140 V180 M236 160 H276" stroke="#B99750" stroke-width="2" opacity=".5"/>
+  
+</svg>

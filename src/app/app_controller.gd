@@ -15,7 +15,7 @@ const ChallengeResultScreenScene := preload("res://scenes/ui/challenge_result_sc
 const ChallengeHubScreenScene := preload("res://scenes/ui/challenge_hub_screen.tscn")
 const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
+const RouteScreenScene := preload("res://scenes/ui/diary_chapter_screen.tscn")
 const RouteSelectScreenScene := preload("res://scenes/ui/route_select_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
@@ -61,6 +61,7 @@ var _preferences: Dictionary = {
 	"fullscreen": false,
 	"ui_scale": 1.0,
 	"reduce_flash": false,
+	"mute_sfx": false,
 }
 var _preferences_path: String = "user://preferences.json"
 var _diagnostics: RefCounted = null
@@ -783,7 +784,23 @@ func _show_route_screen() -> void:
 		screen.result_requested.connect(_show_route_result)
 	screen.hub_requested.connect(_show_hub)
 	screen.apply_snapshot(_session.get_route_snapshot())
+	_present_diary_settlement_if_any(screen)
 	_set_route(ROUTE_MAP)
+
+
+func _present_diary_settlement_if_any(screen) -> void:
+	## Battle/rest rebuild the diary via apply_snapshot; flash + auto-flip live here.
+	if screen == null or not screen.has_method("present_post_encounter"):
+		return
+	if _session == null or not _session.has_method("consume_diary_settlement"):
+		return
+	var settlement: Dictionary = _session.consume_diary_settlement()
+	if settlement.is_empty():
+		return
+	screen.present_post_encounter(
+		String(settlement.get("node_id", "")),
+		String(settlement.get("outcome", ""))
+	)
 
 
 func _show_rest_screen() -> void:
@@ -792,6 +809,7 @@ func _show_rest_screen() -> void:
 	var screen := _replace_screen(RestScreenScene)
 	screen.route_command_requested.connect(_on_route_command_requested)
 	screen.apply_snapshot(_session.get_route_snapshot())
+	_apply_route_scene(screen, "rest")
 	_set_route(ROUTE_REST)
 
 
@@ -801,6 +819,7 @@ func _show_ritual_screen() -> void:
 	var screen := _replace_screen(RitualScreenScene)
 	screen.route_command_requested.connect(_on_route_command_requested)
 	screen.apply_snapshot(_session.get_ritual_snapshot())
+	_apply_route_scene(screen, "ritual")
 	_set_route(ROUTE_RITUAL)
 
 
@@ -813,7 +832,7 @@ func _on_route_command_requested(command: RouteCommand) -> void:
 		var node := _route_node(command.node_id)
 		var node_type := String(node.get("type", ""))
 		if node_type in ["normal", "elite", "boss"]:
-			var started: InfrastructureResult = _begin_current_battle()
+			var started: InfrastructureResult = _begin_current_battle(command.node_id)
 			if not started.ok:
 				if _screen != null:
 					_screen.apply_command_result(RouteCommandResult.new(
@@ -840,11 +859,20 @@ func _on_route_command_requested(command: RouteCommand) -> void:
 		RouteCommand.BEGIN_ASCENSION:
 			_show_ritual_screen()
 		RouteCommand.SUBMIT_RITUAL_STEP, RouteCommand.REQUEST_RITUAL_HINT:
-			if phase in ["completed", "failed"]:
+			if phase == "completed":
 				if _is_challenge_session():
 					_show_challenge_result()
 				else:
 					_show_route_result()
+			elif phase == "failed":
+				## Legacy hard-fail path (should be rare after soft ritual fail).
+				if _is_challenge_session():
+					_show_challenge_result()
+				else:
+					_show_route_result()
+			elif phase == "map":
+				## Soft ritual fail / emptied ritual → diary/map, chapter kept.
+				_show_route_screen()
 			else:
 				_show_ritual_screen()
 		RouteCommand.CANCEL_RITUAL:
@@ -867,15 +895,15 @@ func _submit_route_command(command: RouteCommand) -> RouteCommandResult:
 	return _session.submit_route(command)
 
 
-func _begin_current_battle() -> InfrastructureResult:
+func _begin_current_battle(preferred_node_id: StringName = &"") -> InfrastructureResult:
 	if _session == null:
 		return InfrastructureResult.failure(
 			&"campaign_missing",
 			"Campaign session is unavailable."
 		)
 	if _is_challenge_session():
-		return _session.begin_challenge_battle()
-	return _session.begin_route_battle()
+		return _session.begin_challenge_battle(preferred_node_id)
+	return _session.begin_route_battle(preferred_node_id)
 
 
 func _route_node(node_id: StringName) -> Dictionary:
@@ -915,6 +943,7 @@ func _show_battle() -> void:
 	screen.battle_finished.connect(_on_battle_finished)
 	screen.exit_requested.connect(_on_battle_exit_requested)
 	screen.apply_snapshot(snapshot)
+	_apply_route_scene(screen, "battle")
 	_set_route(ROUTE_BATTLE)
 
 
@@ -1456,6 +1485,7 @@ func _load_preferences() -> void:
 			"fullscreen": false,
 			"ui_scale": 1.0,
 			"reduce_flash": false,
+			"mute_sfx": false,
 		}
 	_apply_preferences()
 
@@ -1476,6 +1506,9 @@ func _apply_preferences() -> void:
 		)
 		if not fullscreen:
 			_clamp_window_to_usable_desktop(window)
+	var TableSfx = load("res://src/ui/table_sfx.gd")
+	if TableSfx != null:
+		TableSfx.set_muted(bool(_preferences.get("mute_sfx", false)))
 
 
 func _clamp_window_to_usable_desktop(window: Window) -> void:
@@ -1568,6 +1601,24 @@ func _resolve_seed(seed_value: int) -> int:
 	if _seed_override >= 0:
 		return _seed_override
 	return int(Time.get_unix_time_from_system()) ^ Time.get_ticks_msec()
+
+
+func _apply_route_scene(screen: Control, kind: String) -> void:
+	if screen == null or _session == null or not screen.has_method("set_scene_id"):
+		return
+	var route_data: Dictionary = _session.get_route_snapshot().data
+	var scene_id := String(route_data.get("current_scene_id", ""))
+	if scene_id.is_empty():
+		var current_node_id := String(route_data.get("current_node_id", ""))
+		for node_value in route_data.get("nodes", []):
+			if node_value is Dictionary and String(node_value.get("id", "")) == current_node_id:
+				scene_id = String(node_value.get("scene_id", ""))
+				break
+	if scene_id.is_empty():
+		return
+	screen.call("set_scene_id", scene_id)
+	if kind.is_empty():
+		return
 
 
 func _replace_screen(scene: PackedScene) -> Control:

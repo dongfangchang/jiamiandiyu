@@ -30,7 +30,7 @@ func _ready() -> void:
 func _test_data_fields() -> void:
 	var decks := _read_json(DECKS_PATH)
 	var presets: Array = decks.get("presets", [])
-	_expect(presets.size() == 4, "four presets remain defined")
+	_expect(presets.size() == 5, "five presets remain defined (incl. clown)")
 	for value in presets:
 		var preset: Dictionary = value
 		var preset_id := String(preset.get("id", ""))
@@ -67,7 +67,7 @@ func _test_snapshot_fields() -> void:
 	var result = engine.initialize(owned)
 	_expect(result.accepted, "deck engine initializes with guided presets")
 	var views: Array = result.snapshot.data.get("presets", [])
-	_expect(views.size() == 4, "snapshot exposes four presets")
+	_expect(views.size() == 5, "snapshot exposes five presets")
 	for value in views:
 		var preset: Dictionary = value
 		for field in REQUIRED_FIELDS:

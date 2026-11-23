@@ -101,7 +101,7 @@ func _build() -> void:
 	safe.add_theme_constant_override("margin_left", 66)
 	safe.add_theme_constant_override("margin_top", 42)
 	safe.add_theme_constant_override("margin_right", 66)
-	safe.add_theme_constant_override("margin_bottom", 38)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 18)
@@ -113,10 +113,18 @@ func _build() -> void:
 	))
 	root.add_child(UiTheme.label("挑战档案", 42, UiTheme.C_TEXT))
 	root.add_child(UiTheme.wrapped_label(
-		"已完成的挑战会留下新的路线与修饰。每次出发都使用当前确认牌组；失败不会清除局外收藏。",
+		"仍属占卜家途径的廷根档案挑战，不是第二途径。"
+		+ "已完成的挑战会留下新的路线与修饰；每次出发使用当前确认牌组，失败不清除局外收藏。",
 		15,
 		UiTheme.C_MUTED
 	))
+	var pathway_note := UiTheme.clip_label(
+		"途径澄清：挑战线 ≠ 开放魔术师 / 贝克兰德",
+		13,
+		UiTheme.C_GOLD
+	)
+	pathway_note.name = "PathwayClarifier"
+	root.add_child(pathway_note)
 	var divider := ColorRect.new()
 	divider.color = UiTheme.C_LINE
 	divider.custom_minimum_size = Vector2(0, 1)
@@ -132,7 +140,7 @@ func _build() -> void:
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(_status_label)
 	footer.add_child(UiTheme.button(
-		"返回白昼档案",
+		"回日记",
 		request_exit,
 		true,
 		170
@@ -149,7 +157,7 @@ func _render() -> void:
 		_cards_row.add_child(UiTheme.padded_panel(
 			UiTheme.center_label("挑战档案尚未载入。", 20, UiTheme.C_MUTED),
 			28,
-			Color(0.055, 0.058, 0.047, 0.96),
+			UiTheme.C_MODULE,
 			UiTheme.C_LINE
 		))
 		_refresh_buttons()
@@ -167,7 +175,7 @@ func _build_challenge_card(data: Dictionary) -> Control:
 	var challenge_id := String(data.get("challenge_id", ""))
 	var unlocked := bool(data.get("unlocked", false))
 	var panel := UiTheme.panel(
-		Color(0.055, 0.059, 0.047, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_GOLD if unlocked else UiTheme.C_LINE
 	)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -258,7 +266,7 @@ func _build_modifier_chips(modifiers: Array) -> HBoxContainer:
 		var modifier: Dictionary = value
 		var modifier_id := String(modifier.get("id", ""))
 		var chip := UiTheme.panel(
-			Color(0.066, 0.069, 0.055, 0.96),
+			UiTheme.C_MODULE,
 			UiTheme.C_LINE
 		)
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL

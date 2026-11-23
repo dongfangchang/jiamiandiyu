@@ -95,8 +95,8 @@ func _mount(size: Vector2i, engine, encounter: Dictionary) -> Array:
 		String(encounter.get("display_name_zh", "")),
 		labels,
 		enemy_labels,
-		func(card_id: StringName, target_id: StringName) -> BattlePlayability:
-			return engine.query_card_play(card_id, target_id),
+		func(card_id: StringName, target_id: StringName, discard_ids: Array) -> BattlePlayability:
+			return engine.query_card_play(card_id, target_id, discard_ids),
 		details
 	)
 	screen.apply_snapshot(engine.get_snapshot())
@@ -195,6 +195,11 @@ func _run_tyrell(size: Vector2i) -> void:
 	var synergy_rows: Array = screen.get("_synergy_list").get_children()
 	_expect(not synergy_rows.is_empty(), "synergy panel lists the deck's canon combos")
 	_expect(screen.get("_ritual_label").text.contains("1"), "ritual tracker shows the preparation stack")
+	var payoff: Label = screen.get("_ritual_payoff_label")
+	_expect(
+		payoff != null and (payoff.text.contains("驱邪预计") or payoff.text.contains("伤")),
+		"ritual payoff readout is visible"
+	)
 	var after := _region_rects(screen)
 	for key in before:
 		_expect(before[key] == after[key], "%s keeps its rect after a synergy (%s -> %s)" % [key, before[key], after[key]])

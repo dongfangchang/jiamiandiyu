@@ -66,10 +66,10 @@ func _test_deck_screen() -> void:
 	var deck = _deck_snapshot()
 	screen.apply_snapshot(deck)
 	screen.set_progression_snapshot(_progression_snapshot())
-	_expect(screen.get_background_path().ends_with("deck_archive.png"), "deck archive art resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "deck archive art resolves")
 	_expect(screen.get_total_card_count() == 20, "deck screen renders full 20-card pool")
 	_expect(screen.get_card_count() == 20, "all filter shows every card")
-	_expect(screen.get_preset_count() == 4, "deck screen renders four presets")
+	_expect(screen.get_preset_count() == 5, "deck screen renders five presets")
 	_expect(screen.get_current_deck_count() == 8, "deck screen renders eight current cards")
 	_expect(screen.get_selected_preset_id() == "deck.preset.ward", "deck screen retains selected preset")
 	_expect(screen.is_confirm_enabled(), "legal snapshot enables confirm")
@@ -321,6 +321,15 @@ func _deck_snapshot() -> DeckSnapshot:
 			"id": "deck.preset.echo",
 			"display_name_zh": "镜中余响",
 			"description_zh": "新卡标记与续航。",
+			"card_definition_ids": current,
+			"legal": true,
+			"reason_code": "playable",
+			"selected": false,
+		},
+		{
+			"id": "deck.preset.clown",
+			"display_name_zh": "小丑技能包",
+			"description_zh": "闪避与飞牌。",
 			"card_definition_ids": current,
 			"legal": true,
 			"reason_code": "playable",

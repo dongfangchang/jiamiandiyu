@@ -1,0 +1,46 @@
+{
+  "version": "v0.41.0",
+  "theme": "clown_sequence_8",
+  "assets": [
+    {
+      "stable_id": "card.skill.veil_step",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_veil_step.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_veil_step.png"
+    },
+    {
+      "stable_id": "card.skill.severed_fate",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_severed_fate.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_severed_fate.png"
+    },
+    {
+      "stable_id": "card.skill.paper_swarm",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_paper_swarm.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_paper_swarm.png"
+    },
+    {
+      "stable_id": "card.skill.mirror_shard",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_mirror_shard.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_mirror_shard.png"
+    },
+    {
+      "stable_id": "card.skill.last_witness",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_last_witness.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_last_witness.png"
+    },
+    {
+      "stable_id": "card.skill.false_death",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_false_death.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_false_death.png"
+    },
+    {
+      "stable_id": "card.skill.sealed_answer",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_sealed_answer.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_sealed_answer.png"
+    },
+    {
+      "stable_id": "card.skill.hollow_bell",
+      "svg": "art/assets/svg/v0.41.0/cards/card_skill_hollow_bell.svg",
+      "png": "assets/game/v0.41.0/cards/card_skill_hollow_bell.png"
+    }
+  ]
+}

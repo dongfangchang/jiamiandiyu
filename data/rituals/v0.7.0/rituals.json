@@ -73,7 +73,7 @@
           "title_zh": "小丑的扮演守则",
           "clue_zh": "服下魔药之前，再确认一次你即将扮演的是什么。小丑能略微预知命运，却对命运感到无奈。",
           "lore_zh": "第一卷卷名《小丑》：无力改变命运，仍笑着前行。",
-          "hint_zh": "其余两条属于序列7魔术师的守则。",
+          "hint_zh": "小丑：用笑脸遮掩悲伤与迷茫。另外两条是序列7魔术师守则，不要选。",
           "min_selections": 1,
           "max_selections": 1,
           "options": [
@@ -83,11 +83,11 @@
             },
             {
               "id": "seal.key",
-              "display_name_zh": "掌控住目标的注意力"
+              "display_name_zh": "掌控住目标的注意力（魔术师）"
             },
             {
               "id": "seal.broken_moon",
-              "display_name_zh": "挑战不可能，哪怕结果只是虚假的"
+              "display_name_zh": "挑战不可能，哪怕结果只是虚假的（魔术师）"
             }
           ],
           "correct_id": "seal.inverted_eye"

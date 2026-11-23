@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/ui/v072_diary_008_layers_runner.gd" id="1"]
+
+[node name="V072Diary008LayersRunner" type="Node"]
+script = ExtResource("1")

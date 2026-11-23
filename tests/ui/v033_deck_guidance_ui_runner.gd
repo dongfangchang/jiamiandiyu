@@ -29,6 +29,7 @@ func _test_guidance_render() -> void:
 		"deck.preset.oracle",
 		"deck.preset.burst",
 		"deck.preset.echo",
+		"deck.preset.clown",
 	]:
 		var guidance: Dictionary = screen.get_preset_guidance(preset_id)
 		_expect(not String(guidance.get("tag", "")).is_empty(), "%s tag visible" % preset_id)
@@ -145,6 +146,19 @@ func _guided_snapshot():
 			"card_definition_ids": current,
 			"legal": true,
 			"reason_code": "playable",
+			"selected": false,
+		},
+		{
+			"id": "deck.preset.clown",
+			"display_name_zh": "小丑技能包",
+			"description_zh": "闪避与飞牌。",
+			"strategy_tag_zh": "闪避 / 飞牌",
+			"best_against_zh": "需要先躲开危险意图的精英",
+			"caution_zh": "仅序列 8；高压首领缺封印物",
+			"combo_focus_zh": "微笑 + 预感触发小丑联动",
+			"card_definition_ids": current,
+			"legal": false,
+			"reason_code": "sequence_locked",
 			"selected": false,
 		},
 	]

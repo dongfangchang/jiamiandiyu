@@ -4,11 +4,13 @@ signal route_command_requested(command: RouteCommand)
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RouteCommandResultScript := preload("res://src/core/route_command_result.gd")
 
 var _snapshot_data: Dictionary = {}
+var _scene_id := ""
 var _selected: Array[String] = []
 var _option_grid: GridContainer
 var _step_panel: VBoxContainer
@@ -158,7 +160,21 @@ func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
 
 
+func set_scene_id(scene_id: String) -> void:
+	_scene_id = scene_id
+	UiTheme.apply_scene_background(
+		self,
+		SceneCatalog.path_for(scene_id, "ritual")
+	)
+
+
+func get_scene_id() -> String:
+	return _scene_id
+
+
 func get_background_path() -> String:
+	if not _scene_id.is_empty():
+		return SceneCatalog.path_for(_scene_id, "ritual")
 	return RouteCatalog.RITUAL_BACKGROUND
 
 
@@ -175,13 +191,13 @@ func get_hint_button_text() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, RouteCatalog.RITUAL_BACKGROUND, UiTheme.C_BG, 0.39)
+	UiTheme.add_background(self, RouteCatalog.RITUAL_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 54)
 	safe.add_theme_constant_override("margin_top", 30)
 	safe.add_theme_constant_override("margin_right", 54)
-	safe.add_theme_constant_override("margin_bottom", 26)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
@@ -204,6 +220,7 @@ func _build() -> void:
 	_description_label = UiTheme.clip_label("只依据界面中的线索完成三步仪式。", 14, UiTheme.C_MUTED)
 	heading.add_child(_description_label)
 	_source_label = UiTheme.clip_label("", 12, UiTheme.C_PAPER_DEEP)
+	_source_label.name = "SourceLabel"
 	heading.add_child(_source_label)
 	var sequence := UiTheme.label("占卜家 · 序列 9 → 8", 15, UiTheme.C_GOLD)
 	sequence.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -237,7 +254,7 @@ func _build() -> void:
 	var step_frame := UiTheme.padded_panel(
 		step_scroll,
 		18,
-		Color(0.06, 0.063, 0.051, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_GOLD
 	)
 	step_frame.custom_minimum_size = Vector2(410, 0)
@@ -248,7 +265,7 @@ func _build() -> void:
 	body.add_child(UiTheme.padded_panel(
 		options_panel,
 		18,
-		Color(0.055, 0.059, 0.047, 0.96),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	))
 	_option_grid = GridContainer.new()
@@ -279,7 +296,7 @@ func _build() -> void:
 	var footer := UiTheme.padded_panel(
 		_build_footer(),
 		12,
-		Color(0.05, 0.054, 0.043, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	)
 	footer.name = "RitualFooter"
@@ -306,9 +323,15 @@ func _render_header() -> void:
 		description if not description.is_empty() else "只依据界面中的线索完成三步仪式。"
 	)
 	var source := String(_snapshot_data.get("source_zh", ""))
-	UiTheme.set_clip_text(_source_label, "")
-	_source_label.visible = false
-	_title_label.tooltip_text = ("出处：" + source) if not source.is_empty() else String(_snapshot_data.get("description_zh", ""))
+	UiTheme.set_clip_text(
+		_source_label,
+		("出处：" + source) if not source.is_empty() else ""
+	)
+	_source_label.visible = not source.is_empty()
+	_title_label.tooltip_text = (
+		("出处：" + source) if not source.is_empty()
+		else String(_snapshot_data.get("description_zh", ""))
+	)
 	_description_label.tooltip_text = _title_label.tooltip_text
 	var titles: Array = _snapshot_data.get("step_titles", [])
 	var step_index := int(_snapshot_data.get("step_index", 0))
@@ -357,21 +380,25 @@ func _render_snapshot() -> void:
 	))
 	var clue := String(step.get("clue_zh", ""))
 	var lore := String(step.get("lore_zh", ""))
-	var clue_label := UiTheme.clip_label(clue, 15, UiTheme.C_PAPER)
-	clue_label.tooltip_text = lore if not lore.is_empty() else clue
-	_step_panel.add_child(clue_label)
-	_step_panel.add_child(UiTheme.clip_label(
-		"污染 %d · 灵性 %d · 错 %d" % [
-			int(_snapshot_data.get("corruption", 0)),
+	_step_panel.add_child(UiTheme.wrapped_label(clue, 15, UiTheme.C_PAPER))
+	if not lore.is_empty():
+		_step_panel.add_child(UiTheme.wrapped_label(lore, 13, UiTheme.C_GOLD))
+	var max_c := int(_snapshot_data.get("max_corruption", 10))
+	var cur_c := int(_snapshot_data.get("corruption", 0))
+	_step_panel.add_child(UiTheme.wrapped_label(
+		"污染 %d/%d · 灵性 %d · 错 %d · 答错涨污染，顶满只退回日记可重考（不灭章）。可用灵性换提示。"
+		% [
+			cur_c,
+			max_c,
 			int(_snapshot_data.get("spirit", 0)),
 			int(_snapshot_data.get("errors", 0)),
 		],
-		13,
+		12,
 		UiTheme.C_MUTED
 	))
 	var hint_text := String(_snapshot_data.get("hint_text", ""))
 	if not hint_text.is_empty():
-		_step_panel.add_child(UiTheme.clip_label("提示：" + hint_text, 13, UiTheme.C_GOLD))
+		_step_panel.add_child(UiTheme.wrapped_label("提示：" + hint_text, 14, UiTheme.C_GOLD))
 	_art_rect.texture = load(RouteCatalog.ritual_step_art(
 		String(step.get("type", ""))
 	))
@@ -435,7 +462,7 @@ func _render_result(status: String) -> void:
 	))
 	_step_panel.add_child(UiTheme.wrapped_label(
 		"仪式已经完成，结果已归档。" if success
-		else "仪式失败，路线已经中断；已获得的局外收藏仍会保留。",
+		else "考核未通过。污染退潮一寸——日记仍摊开，可再次起誓；局外收藏保留。",
 		16,
 		UiTheme.C_PAPER
 	))
@@ -444,7 +471,10 @@ func _render_result(status: String) -> void:
 			"ritual-success.png" if success else "ritual-failure.png"
 		)
 	)
-	_set_status("晋升结果已归档。" if success else "仪式失败。", not success)
+	_set_status(
+		"晋升结果已归档。" if success else "考核未通过，可回日记重考。",
+		not success
+	)
 
 
 func _refresh_buttons() -> void:

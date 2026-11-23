@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
   <rect width="1600" height="900" fill="#15160f"/>
   <rect x="36" y="36" width="1528" height="828" fill="none" stroke="#b99750" stroke-width="2"/>
-  <text x="96" y="102" fill="#b99750" font-family="Microsoft YaHei, sans-serif" font-size="18" letter-spacing="4">PRIVATE OCCULT ARCHIVE // v0.2.0</text>
+  <text x="96" y="102" fill="#b99750" font-family="Microsoft YaHei, sans-serif" font-size="18" letter-spacing="4">PRIVATE OCCULT ARCHIVE // v0.71.0</text>
   <text x="96" y="188" fill="#e8dfc9" font-family="Microsoft YaHei, sans-serif" font-size="62" font-weight="700">假面低语</text>
-  <text x="100" y="230" fill="#9f967f" font-family="Microsoft YaHei, sans-serif" font-size="20">白昼扮演凡人 · 黑夜偿还代价</text>
+  <text x="100" y="230" fill="#9f967f" font-family="Microsoft YaHei, sans-serif" font-size="20">白昼扮演凡人 · 黑夜读日记还债</text>
   <rect x="95" y="285" width="710" height="480" rx="8" fill="#201e18" stroke="#3a3731" stroke-width="2"/>
   <path d="M230,600 C260,480 390,410 450,330 C520,430 600,515 680,600 Z" fill="#2b2921"/>
   <ellipse cx="450" cy="430" rx="110" ry="156" fill="#d8c29a"/>
@@ -15,8 +15,8 @@
     <text x="890" y="315" fill="#b99750" font-size="18">本地档案</text>
     <rect x="890" y="345" width="575" height="126" rx="8" fill="#28251d" stroke="#b99750"/>
     <text x="920" y="386" fill="#e8dfc9" font-size="24">继续游戏</text>
-    <text x="920" y="423" fill="#a9a18c" font-size="16">自动存档 · 第 2 夜 · 廷根旧宅</text>
-    <text x="920" y="450" fill="#788079" font-size="14">save_version 1 · content v0.2.0 · 2026-11-08 22:14</text>
+    <text x="920" y="423" fill="#a9a18c" font-size="16">自动存档 · 日记第 2 叶 · 廷根值夜</text>
+    <text x="920" y="450" fill="#788079" font-size="14">save_version · content v0.71.0 · 回档不覆盖原档</text>
     <rect x="1270" y="369" width="160" height="62" rx="6" fill="#b99750"/>
     <text x="1350" y="407" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">继续</text>
 

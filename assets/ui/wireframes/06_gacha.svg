@@ -41,7 +41,7 @@
     <rect x="810" y="765" width="205" height="74" rx="7" fill="#4a4332"/>
     <text x="912" y="810" text-anchor="middle" fill="#d8c29a" font-size="21" font-weight="700">祈愿十次</text>
     <rect x="1020" y="765" width="205" height="74" rx="7" fill="#242119" stroke="#4b463b"/>
-    <text x="1122" y="810" text-anchor="middle" fill="#e8dfc9" font-size="19">返回安全屋</text>
-    <text x="800" y="866" text-anchor="middle" fill="#788079" font-size="14">结果页：逐张揭示 / 跳过演出 / 查看碎片转化；命令 draw_once / draw_ten / confirm_results / close_pool</text>
+    <text x="1122" y="810" text-anchor="middle" fill="#e8dfc9" font-size="19">回日记 / 档案</text>
+    <text x="800" y="866" text-anchor="middle" fill="#788079" font-size="14">结果与历史隔离；关闭后回日记枢纽。命令 draw_once / draw_ten / confirm_results / close_pool</text>
   </g>
 </svg>

@@ -426,10 +426,11 @@ func _play_battle_to_end(session) -> String:
 			var card: Dictionary = card_value
 			var instance_id := StringName(card.get("instance_id", ""))
 			var target := target_id if String(card.get("target_type", "")) == "enemy" else &""
-			if not session.query_card_play(instance_id, target).playable:
+			var discards: Array = session.auto_discard_ids_for(instance_id)
+			if not session.query_card_play(instance_id, target, discards).playable:
 				continue
 			var result: BattleCommandResult = session.submit_battle(
-				BattleCommandScript.play_card(instance_id, target)
+				BattleCommandScript.play_card(instance_id, target, discards)
 			)
 			acted = result.accepted
 			if acted:

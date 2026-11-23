@@ -121,6 +121,25 @@
         "card.skill.ink_dart",
         "card.skill.paper_guard"
       ]
+    },
+    {
+      "id": "deck.preset.clown",
+      "display_name_zh": "小丑技能包",
+      "description_zh": "晋升序列 8 后发放的八张小丑卡：闪避与预感开路，飞牌与纸牌收割，并打出原著联动「小丑」。",
+      "strategy_tag_zh": "闪避 / 飞牌",
+      "best_against_zh": "需要先躲开危险意图、再以飞牌与纸牌连掷收割的精英与挑战战。",
+      "caution_zh": "仅序列 8 可用；缺少队友封印物爆发，面对梅高欧丝等高污染首领时应改用值夜者小队。",
+      "combo_focus_zh": "小丑的微笑 + 小丑的危险预感 / 身体控制与平衡，触发联动「小丑」。",
+      "card_definition_ids": [
+        "card.skill.veil_step",
+        "card.skill.severed_fate",
+        "card.skill.last_witness",
+        "card.skill.false_death",
+        "card.skill.hollow_bell",
+        "card.skill.mirror_shard",
+        "card.skill.paper_swarm",
+        "card.skill.sealed_answer"
+      ]
     }
   ]
 }

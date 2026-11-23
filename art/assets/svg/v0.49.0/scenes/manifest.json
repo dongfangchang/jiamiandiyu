@@ -1,0 +1,36 @@
+{
+  "version": "v0.49.0",
+  "theme": "tingen_p4_system_shells",
+  "assets": [
+    {
+      "stable_id": "scene.hub.reward_archive",
+      "svg": "art/assets/svg/v0.49.0/scenes/hub-reward-archive.svg",
+      "png": "assets/game/v0.49.0/scenes/hub-reward-archive.png"
+    },
+    {
+      "stable_id": "scene.hub.challenge_board",
+      "svg": "art/assets/svg/v0.49.0/scenes/hub-challenge-board.svg",
+      "png": "assets/game/v0.49.0/scenes/hub-challenge-board.png"
+    },
+    {
+      "stable_id": "scene.hub.challenge_result",
+      "svg": "art/assets/svg/v0.49.0/scenes/hub-challenge-result.svg",
+      "png": "assets/game/v0.49.0/scenes/hub-challenge-result.png"
+    },
+    {
+      "stable_id": "scene.hub.rest_blackthorn",
+      "svg": "art/assets/svg/v0.49.0/scenes/hub-rest-blackthorn.svg",
+      "png": "assets/game/v0.49.0/scenes/hub-rest-blackthorn.png"
+    },
+    {
+      "stable_id": "scene.ritual.obituary",
+      "svg": "art/assets/svg/v0.49.0/scenes/ritual-obituary.svg",
+      "png": "assets/game/v0.49.0/scenes/ritual-obituary.png"
+    },
+    {
+      "stable_id": "scene.ritual.ascension",
+      "svg": "art/assets/svg/v0.49.0/scenes/ritual-ascension.svg",
+      "png": "assets/game/v0.49.0/scenes/ritual-ascension.png"
+    }
+  ]
+}

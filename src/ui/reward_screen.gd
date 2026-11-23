@@ -48,7 +48,7 @@ func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
 	_hub_button.visible = options.is_empty()
 	_hub_button.disabled = _busy or not options.is_empty()
 	_set_status(
-		"必须选择一份战利品；确认后会返回白昼档案。"
+		"必须选择一份战利品；确认后会回日记。"
 		if not options.is_empty()
 		else "没有待领取档案。"
 	)
@@ -101,13 +101,13 @@ func get_background_path() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.REWARD_BACKGROUND, UiTheme.C_BG, 0.34)
+	UiTheme.add_background(self, ProgressionCatalog.REWARD_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 66)
 	safe.add_theme_constant_override("margin_top", 42)
 	safe.add_theme_constant_override("margin_right", 66)
-	safe.add_theme_constant_override("margin_bottom", 42)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -147,14 +147,14 @@ func _build() -> void:
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_status_label)
-	_hub_button = UiTheme.button("返回白昼档案", _on_hub, false, 160)
+	_hub_button = UiTheme.button("回日记", _on_hub, false, 160)
 	bottom.add_child(_hub_button)
 
 
 func _build_reward_card(option: Dictionary, data: Dictionary) -> Control:
 	var reward_id := String(option.get("id", ""))
 	var kind := String(option.get("kind", ""))
-	var panel := UiTheme.panel(Color(0.065, 0.068, 0.055, 0.97), UiTheme.C_GOLD)
+	var panel := UiTheme.panel(UiTheme.C_MODULE_RAISED, UiTheme.C_GOLD)
 	panel.set_meta("reward_id", reward_id)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL

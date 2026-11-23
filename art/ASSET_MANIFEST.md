@@ -1,6 +1,6 @@
 # 美术资产清单
 
-所有当前资产均为项目内生成的可编辑 SVG 占位美术，无第三方图片来源。它们可以用于私人原型的视觉验收与 Godot 集成。
+历史原型美术以项目内生成的 SVG 及其 PNG 导出为主。新增字体与栅格素材分别登记来源、版本、授权及验收状态；生产计划不代表资产已交付。
 
 正式 PNG 已一次性迁移到项目级 `assets/game/`：卡牌 600 x 840，敌人 900 x 900，场景 1600 x 900，图标表 1200 x 800。`art/assets/svg/` 只保留可编辑源文件，不再保留同名 PNG 副本。
 
@@ -172,3 +172,138 @@ v0.24.0 在不改变稳定 ID、构图和运行时语义的前提下，为现有
 | 来源与授权 | 仅使用项目内原创 SVG，不含第三方图片、文字、水印或外部下载 |
 | 运行时迁移 | 主协调者受控迁移；UI 目录已切换到 `res://assets/game/v0.24.0/**` |
 
+## v0.41.0 序列 8「小丑」卡面
+
+按 `docs/design/ART_BRIEF_V041.md` 冻结的 8 个稳定 ID 补齐正式卡面。SVG 候选与 PNG 正式件同后缀；UI 档案 / 抽卡 / 手牌同源。
+
+| 稳定 ID | SVG 源 | PNG |
+|---|---|---|
+| `card.skill.veil_step` | `art/assets/svg/v0.41.0/cards/card_skill_veil_step.svg` | `assets/game/v0.41.0/cards/card_skill_veil_step.png` |
+| `card.skill.severed_fate` | `art/assets/svg/v0.41.0/cards/card_skill_severed_fate.svg` | `assets/game/v0.41.0/cards/card_skill_severed_fate.png` |
+| `card.skill.paper_swarm` | `art/assets/svg/v0.41.0/cards/card_skill_paper_swarm.svg` | `assets/game/v0.41.0/cards/card_skill_paper_swarm.png` |
+| `card.skill.mirror_shard` | `art/assets/svg/v0.41.0/cards/card_skill_mirror_shard.svg` | `assets/game/v0.41.0/cards/card_skill_mirror_shard.png` |
+| `card.skill.last_witness` | `art/assets/svg/v0.41.0/cards/card_skill_last_witness.svg` | `assets/game/v0.41.0/cards/card_skill_last_witness.png` |
+| `card.skill.false_death` | `art/assets/svg/v0.41.0/cards/card_skill_false_death.svg` | `assets/game/v0.41.0/cards/card_skill_false_death.png` |
+| `card.skill.sealed_answer` | `art/assets/svg/v0.41.0/cards/card_skill_sealed_answer.svg` | `assets/game/v0.41.0/cards/card_skill_sealed_answer.png` |
+| `card.skill.hollow_bell` | `art/assets/svg/v0.41.0/cards/card_skill_hollow_bell.svg` | `assets/game/v0.41.0/cards/card_skill_hollow_bell.png` |
+
+| 项目 | 记录 |
+|---|---|
+| 生成脚本 | `art/tools/generate_v041_clown_cards.mjs` |
+| 导出脚本 | `art/tools/render_v041_clown_cards.gd`（需先 `--import`） |
+| 尺寸 | 512×400，无烘焙文字 |
+| 来源 | 项目内程序化 SVG，铜版/纸张语言对齐 v0.7/v0.13 |
+
+## v0.42.0 缺口技能卡（12）
+
+| 项目 | 记录 |
+|---|---|
+| 契约 | `docs/design/ART_BRIEF_V042.md` |
+| 生成 | `art/tools/generate_v042_gap_cards.mjs` |
+| 导出 | `art/tools/render_v042_gap_cards.gd` |
+| 正式 PNG | `assets/game/v0.42.0/cards/`（12 × 512×400） |
+| 覆盖 | 此前回退卡背的 12 张序列 9 技能卡；至此 40 张技能卡均有正式面 |
+
+## v0.44.0 廷根场景 P0（5）
+
+| 稳定 ID | PNG |
+|---|---|
+| `scene.battle.tyrell_warehouse` | `assets/game/v0.44.0/scenes/battle-tyrell-warehouse.png` |
+| `scene.battle.blackthorn_neil` | `assets/game/v0.44.0/scenes/battle-blackthorn-neil.png` |
+| `scene.battle.lamud_chapel` | `assets/game/v0.44.0/scenes/battle-lamud-chapel.png` |
+| `scene.rest.divination_club` | `assets/game/v0.44.0/scenes/rest-divination-club.png` |
+| `scene.ritual.clown_ascension` | `assets/game/v0.44.0/scenes/ritual-clown-ascension.png` |
+
+生成：`art/tools/generate_v044_p0_scenes.mjs`；导出：`render_v044_p0_scenes.gd`；尺寸 1600×900。
+
+## v0.45.0 廷根场景 P1（3）
+
+| 稳定 ID | PNG |
+|---|---|
+| `scene.battle.moretti_home` | `assets/game/v0.45.0/scenes/battle-moretti-home.png` |
+| `scene.battle.elliot_ruin` | `assets/game/v0.45.0/scenes/battle-elliot-ruin.png` |
+| `scene.battle.wood_house` | `assets/game/v0.45.0/scenes/battle-wood-house.png` |
+
+生成：`art/tools/generate_v045_p1_scenes.mjs`；导出：`render_v045_p1_scenes.gd`。
+
+## v0.46.0 廷根场景 P2（3）
+
+| 稳定 ID | PNG |
+|---|---|
+| `scene.battle.megose_descent` | `assets/game/v0.46.0/scenes/battle-megose-descent.png` |
+| `scene.rest.chanis_gate` | `assets/game/v0.46.0/scenes/rest-chanis-gate.png` |
+| `scene.ritual.above_fog` | `assets/game/v0.46.0/scenes/ritual-above-fog.png` |
+
+生成：`art/tools/generate_v046_p2_scenes.mjs`；导出：`render_v046_p2_scenes.gd`；尺寸 1600×900。
+
+## v0.47.0 廷根场景 P3 系统壳（4）
+
+| 稳定 ID | PNG |
+|---|---|
+| `scene.title.mask_desk` | `assets/game/v0.47.0/scenes/title-mask-desk.png` |
+| `scene.hub.route_map` | `assets/game/v0.47.0/scenes/hub-route-map.png` |
+| `scene.hub.deck_archive` | `assets/game/v0.47.0/scenes/hub-deck-archive.png` |
+| `scene.hub.gacha_altar` | `assets/game/v0.47.0/scenes/hub-gacha-altar.png` |
+
+生成：`art/tools/generate_v047_p3_scenes.mjs`；导出：`render_v047_p3_scenes.gd`；尺寸 1600×900。
+
+## v0.48.0 敌人与身份立绘（12）
+
+| 稳定 ID | PNG |
+|---|---|
+| `enemy.candle_moth` | `assets/game/v0.48.0/enemies/enemy-candle-moth.png` |
+| `enemy.tingen.kidnapper` | `assets/game/v0.48.0/enemies/enemy-tingen-kidnapper.png` |
+| `enemy.mirror_hound` | `assets/game/v0.48.0/enemies/enemy-mirror-hound.png` |
+| `enemy.mirror_hound_echo` | `assets/game/v0.48.0/enemies/enemy-mirror-hound-echo.png` |
+| `enemy.weeping_tenant` | `assets/game/v0.48.0/enemies/enemy-weeping-tenant.png` |
+| `enemy.tingen.knight_wraith` | `assets/game/v0.48.0/enemies/enemy-tingen-knight-wraith.png` |
+| `enemy.tingen.rampager` | `assets/game/v0.48.0/enemies/enemy-tingen-rampager.png` |
+| `enemy.mirror_baron` | `assets/game/v0.48.0/enemies/enemy-mirror-baron.png` |
+| `enemy.tingen.megose` | `assets/game/v0.48.0/enemies/enemy-tingen-megose.png` |
+| `identity.reporter` | `assets/game/v0.48.0/identities/card-identity-reporter.png` |
+| `identity.doctor` | `assets/game/v0.48.0/identities/card-identity-doctor.png` |
+| `identity.gravedigger` | `assets/game/v0.48.0/identities/card-identity-gravedigger.png` |
+
+生成：`art/tools/generate_v048_enemy_identity_art.mjs`；导出：`render_v048_enemy_identity_art.gd`。
+
+## v0.49.0 系统壳补绘 P4（6）
+
+| 稳定 ID | PNG |
+|---|---|
+| `scene.hub.reward_archive` | `assets/game/v0.49.0/scenes/hub-reward-archive.png` |
+| `scene.hub.challenge_board` | `assets/game/v0.49.0/scenes/hub-challenge-board.png` |
+| `scene.hub.challenge_result` | `assets/game/v0.49.0/scenes/hub-challenge-result.png` |
+| `scene.hub.rest_blackthorn` | `assets/game/v0.49.0/scenes/hub-rest-blackthorn.png` |
+| `scene.ritual.obituary` | `assets/game/v0.49.0/scenes/ritual-obituary.png` |
+| `scene.ritual.ascension` | `assets/game/v0.49.0/scenes/ritual-ascension.png` |
+
+生成：`art/tools/generate_v049_shell_scenes.mjs`；导出：`render_v049_shell_scenes.gd`；尺寸 1600×900。
+
+
+## v0.85.0 日记美术与字体（实施中）
+
+- 正式规格：`docs/design/ART_BRIEF_V085.md`。
+- 插画正式路径：`assets/game/v0.85.0/diary/`，与战斗横幅分离；13 项栅格资产清单见 `art/production/v0.85.0/asset_manifest.json`。当前尚未生成，回退旧图不算交付。
+- AI 出图已获用户授权。使用 imagegen 标准 CLI / gpt-image-2；13 项请求已 dry-run 校验，尚未发起付费请求。需本机 API 凭据。原始输出、处理记录、哈希和 UI 审稿完成后才可登记为正式素材。AI 图片不得冒记为 OFL/CC0。
+- 思源宋体：`assets/ui/fonts/SourceHanSerifSC-Regular.otf`，Adobe Source Han Serif SC Regular **2.003R**，完整上游简体字库，24,543,332 字节（23.41 MiB）。
+- 来源：https://github.com/adobe-fonts/source-han-serif/blob/2.003R/OTF/SimplifiedChinese/SourceHanSerifSC-Regular.otf
+- 字体 SHA-256：`78aa7a328fd974df2d688c8a9fd74a33d8334dfa84ab24d9d11efb2ffc464117`。
+- 授权：**SIL OFL 1.1**，原文 `assets/ui/fonts/LICENSE-SourceHanSerif.txt`（Adobe 2017–2022 版权，保留字体名称 Source）。导出 include_filter 显式包含字体许可文本。
+- 评审：产品经理与本地数据层分别在 `docs/reports/v0.85.0/` 记录；字体映射 44,779 字符，日记 JSON 的 378 种现有字符无缺字。
+- 用途：日记题名与正文；现有 Noto Sans 保留给旁注、页脚及缺字回退。无存档变化、运行时网络或新运行库。更新时复核授权/哈希/字形；移除时回到 Noto Sans 并删除字体与导入元数据。
+
+### 2026-11-23 用户确认的莫雷蒂家首叶
+
+- 用户提供并确认采用雨夜插画，原件保留于 `art/assets/raster/v0.85.0/diary/battle-moretti-home-original.png`（1536×2048）。
+- 运行时：`assets/game/v0.85.0/diary/battle-moretti-home.png`（1260×1770），居中适配画幅，左右各裁约 2.54%，未改色；战斗横幅路径保留。
+- 来源与处理哈希：`art/production/v0.85.0/moretti_source.json`。这是用户供图，不是本机 API 生成，不冒记为 CC0 / OFL。
+- 其余七幅插画与五项纸纹、木纹、蜡封资源仍待交付；先前程序样稿仅保留为未采用预览。
+
+### 2026-11-23 用户提供的桌面材质与烛台参考
+
+- 原始纸纹、木纹均为 1536×2048，存放在 `art/assets/raster/v0.85.0/materials/`；烛台参考保存在 `art/assets/raster/v0.85.0/references/brass-candlestick-original.png`。
+- 用户供图用于本项目，不声明为 CC0/OFL；烛台图仅用于造型参考，未冒充透明素材。
+- `art/tools/prepare_v085_desk_materials.py` 可重复生成正式纸纹与木纹：中心裁为正方形，等比放大到 2048×2048，在外缘 160 像素内余弦交叉融合；不整体改色。原先纸纹占位已另存。
+- 来源、裁切坐标、哈希及接缝测量见 `art/production/v0.85.0/desk_material_sources.json`。两幅对边像素差均为 0；2×2 预览未见硬接缝，木结重复仍属于平铺纹理固有限制。
+- 运行时：`assets/ui/diary/parchment_grain.png`、`assets/ui/diary/desk_wood.png`。素材已接入样张，最终桌面呈现由 UI 审稿。
+- 尚缺七幅叙事插画和三态蜡封。本次不调用付费出图接口。

@@ -1,0 +1,188 @@
+{
+  "version": "0.85.0",
+  "brief": "docs/design/ART_BRIEF_V085.md",
+  "assets": [
+    {
+      "file": "battle-moretti-home.png",
+      "target": "assets/game/v0.85.0/diary/battle-moretti-home.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "integrated_preview",
+      "source": "art/assets/raster/v0.85.0/diary/battle-moretti-home-original.png",
+      "sha256": "18919b47520ac1cfa24db35e08c978f48e74e52cba4d321a1652dad9c3a888dc",
+      "ui_review": "Integration technically verified; user found the combined desk sample unsatisfactory and requested wrapping up. Source images retained. Overall visual acceptance NOT granted; further iteration stopped."
+    },
+    {
+      "file": "battle-elliot-ruin.png",
+      "target": "assets/game/v0.85.0/diary/battle-elliot-ruin.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "battle-tyrell-warehouse.png",
+      "target": "assets/game/v0.85.0/diary/battle-tyrell-warehouse.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "battle-wood-house.png",
+      "target": "assets/game/v0.85.0/diary/battle-wood-house.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "rest-divination-club.png",
+      "target": "assets/game/v0.85.0/diary/rest-divination-club.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "battle-lamud-chapel.png",
+      "target": "assets/game/v0.85.0/diary/battle-lamud-chapel.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "battle-blackthorn-neil.png",
+      "target": "assets/game/v0.85.0/diary/battle-blackthorn-neil.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "ritual-clown-ascension.png",
+      "target": "assets/game/v0.85.0/diary/ritual-clown-ascension.png",
+      "size": [
+        1260,
+        1770
+      ],
+      "alpha_required": false,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "parchment_grain.png",
+      "target": "assets/ui/diary/parchment_grain.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "alpha_required": false,
+      "tileable": true,
+      "status": "integrated_preview",
+      "source": "art/assets/raster/v0.85.0/materials/paper-original.png",
+      "sha256": "019e303105144c25ec355bc032dc8976aa1e0700d30492d97ec83fea287a7f48",
+      "ui_review": "Integration technically verified; user found the combined desk sample unsatisfactory and requested wrapping up. Source images retained. Overall visual acceptance NOT granted; further iteration stopped."
+    },
+    {
+      "file": "desk_wood.png",
+      "target": "assets/ui/diary/desk_wood.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "alpha_required": false,
+      "tileable": true,
+      "status": "integrated_preview",
+      "source": "art/assets/raster/v0.85.0/materials/wood-original.png",
+      "sha256": "373b786cd7f51d9feda61ff879a4fa00b19dd1b618b467dfc5366f51ed57cdb0",
+      "ui_review": "Integration technically verified; user found the combined desk sample unsatisfactory and requested wrapping up. Source images retained. Overall visual acceptance NOT granted; further iteration stopped."
+    },
+    {
+      "file": "wax_seal_available.png",
+      "target": "assets/ui/diary/wax_seal_available.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_required": true,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "wax_seal_completed.png",
+      "target": "assets/ui/diary/wax_seal_completed.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_required": true,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    },
+    {
+      "file": "wax_seal_locked.png",
+      "target": "assets/ui/diary/wax_seal_locked.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_required": true,
+      "tileable": false,
+      "status": "pending_generation",
+      "source": null,
+      "sha256": null,
+      "ui_review": "pending"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ signal restart_requested
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const DeckCatalog := preload("res://src/ui/deck_ui_catalog.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
+const TableSfx := preload("res://src/ui/table_sfx.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
 const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
@@ -50,7 +51,7 @@ func apply_snapshot(snapshot: ProgressionSnapshot) -> void:
 			_set_status("选择一份白昼身份，决定第一场行动的资源倾向。")
 		"hub":
 			_show_hub(data)
-			_set_status("身份已记录。选择下一次行动。")
+			_set_status("身份已记录。蜡封进牌组/祈愿；打开日记续读主线。")
 		"reward":
 			_show_waiting("战后奖励正在等待归档。返回奖励页完成选择。")
 		_:
@@ -127,13 +128,13 @@ func get_background_path() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.IDENTITY_BACKGROUND, UiTheme.C_BG, 0.26)
+	UiTheme.add_background(self, ProgressionCatalog.IDENTITY_BACKGROUND, UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 64)
 	safe.add_theme_constant_override("margin_top", 42)
 	safe.add_theme_constant_override("margin_right", 64)
-	safe.add_theme_constant_override("margin_bottom", 38)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -189,7 +190,7 @@ func _show_identity_options(data: Dictionary) -> void:
 
 func _build_identity_card(option: Dictionary) -> Control:
 	var identity_id := String(option.get("id", ""))
-	var panel := UiTheme.panel(Color(0.07, 0.072, 0.058, 0.95), UiTheme.C_LINE)
+	var panel := UiTheme.panel(UiTheme.C_MODULE, UiTheme.C_LINE)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var pad := MarginContainer.new()
@@ -257,89 +258,99 @@ func _show_hub(data: Dictionary) -> void:
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_mode_container.add_child(row)
 
-	var portrait_panel := UiTheme.panel(Color(0.06, 0.065, 0.052, 0.96), UiTheme.C_GOLD)
-	portrait_panel.custom_minimum_size = Vector2(360, 0)
+	## Size to portrait art — do not expand into an empty gold wireframe slab.
+	var portrait_panel := UiTheme.panel(UiTheme.C_MODULE_RAISED, UiTheme.C_GOLD)
+	portrait_panel.custom_minimum_size = Vector2(320, 420)
+	portrait_panel.custom_maximum_size = Vector2(360, 520)
+	portrait_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	portrait_panel.clip_contents = true
 	row.add_child(portrait_panel)
 	var art := TextureRect.new()
 	art.texture = load(ProgressionCatalog.identity_art(_identity_id))
+	art.custom_minimum_size = Vector2(300, 400)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	portrait_panel.add_child(art)
 
 	var actions_panel := UiTheme.padded_panel(
 		_build_hub_actions(data, selected),
 		22,
-		Color(0.07, 0.072, 0.058, 0.96),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	)
 	actions_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(actions_panel)
 
 
 func _build_hub_actions(data: Dictionary, selected: Dictionary) -> VBoxContainer:
 	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 14)
+	content.add_theme_constant_override("separation", 12)
 	content.add_child(UiTheme.label("当前伪装", 13, UiTheme.C_GOLD))
-	content.add_child(UiTheme.label(
-		String(selected.get("display_name_zh", "未知身份")),
-		34,
-		UiTheme.C_TEXT
-	))
-	content.add_child(UiTheme.wrapped_label(
-		String(selected.get("description_zh", "")),
-		15,
+	var identity_name := String(selected.get("display_name_zh", "未知身份"))
+	content.add_child(UiTheme.label(identity_name, 30, UiTheme.C_TEXT))
+	var description := String(selected.get("description_zh", ""))
+	var hook := UiTheme.clip_label(
+		description if description.length() <= 42 else description.substr(0, 41) + "…",
+		14,
 		UiTheme.C_PAPER
-	))
+	)
+	hook.tooltip_text = description
+	content.add_child(hook)
 	content.add_child(UiTheme.label(
 		ProgressionCatalog.modifier_text(selected.get("battle_modifiers", {})),
-		14,
+		13,
 		UiTheme.C_GOLD
 	))
 	var passive_text := String(selected.get("passive_text_zh", ""))
 	if not passive_text.is_empty():
-		content.add_child(UiTheme.wrapped_label(
-			"身份特性：%s" % passive_text,
-			14,
-			UiTheme.C_PAPER
-		))
+		var passive := UiTheme.clip_label("特性：%s" % passive_text, 13, UiTheme.C_MUTED)
+		passive.tooltip_text = passive_text
+		content.add_child(passive)
 	var owned := 0
 	for card_value in data.get("collection", []):
 		if card_value is Dictionary and int(card_value.get("copies", 0)) > 0:
 			owned += 1
-	content.add_child(UiTheme.wrapped_label(
-		"占卜券 %d  ·  已收容 %d 张  ·  稀有保底 %d / %d\n上一场：%s" % [
+	content.add_child(UiTheme.clip_label(
+		"券 %d · 收容 %d · 保底 %d/%d · %s" % [
 			int(data.get("divination_tickets", 0)),
 			owned,
 			int(data.get("pity_counter", 0)),
 			int(data.get("rare_pity", 0)),
 			_last_outcome_text(String(data.get("last_battle_outcome", ""))),
 		],
-		15,
+		13,
 		UiTheme.C_MUTED
 	))
-	_deck_summary_label = UiTheme.clip_label("", 14, UiTheme.C_GOLD)
+	_deck_summary_label = UiTheme.clip_label("", 13, UiTheme.C_GOLD)
+	_deck_summary_label.name = "DeckSummaryChip"
 	content.add_child(_deck_summary_label)
-	_deck_button = UiTheme.button(
-		"调整出战牌组",
-		_on_deck,
-		true,
-		0
-	)
-	_deck_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(_deck_button)
-	_action_buttons.append(_deck_button)
 	_update_deck_summary()
+
+	content.add_child(UiTheme.label("档案行动", 12, UiTheme.C_GOLD))
+	var seals := GridContainer.new()
+	seals.name = "HubSealGrid"
+	seals.columns = 2
+	seals.add_theme_constant_override("h_separation", 10)
+	seals.add_theme_constant_override("v_separation", 8)
+	content.add_child(seals)
+
+	_deck_button = UiTheme.seal_button("调整出战牌组", _on_deck, false, 180.0)
+	var battle_button := UiTheme.seal_button("打开日记", _on_battle, true, 180.0)
+	var gacha_button := UiTheme.seal_button("进行灵界祈愿", _on_gacha, false, 180.0)
+	var upgrade_button := UiTheme.seal_button("整理卡牌与残页", _on_upgrade, false, 180.0)
+	_main_menu_button = UiTheme.button("回到主菜单", _on_main_menu, false, 0)
+	_restart_button = UiTheme.button("重新开始", _on_restart, false, 0)
+	for button in [_deck_button, battle_button, gacha_button, upgrade_button]:
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.custom_minimum_size = Vector2(0, 44)
+		seals.add_child(button)
+		_action_buttons.append(button)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	content.add_child(spacer)
-	var battle_button := UiTheme.button("进入夜间战斗", _on_battle, true, 0)
-	var gacha_button := UiTheme.button("进行灵界祈愿", _on_gacha, true, 0)
-	var upgrade_button := UiTheme.button("整理卡牌与残页", _on_upgrade, true, 0)
-	_main_menu_button = UiTheme.button("回到主菜单", _on_main_menu, false, 0)
-	_restart_button = UiTheme.button("重新开始", _on_restart, false, 0)
-	var menu_button := _main_menu_button
-	var restart_button := _restart_button
-	for button in [battle_button, gacha_button, upgrade_button, menu_button, restart_button]:
+	for button in [_main_menu_button, _restart_button]:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		content.add_child(button)
 		_action_buttons.append(button)
@@ -351,7 +362,7 @@ func _show_waiting(message: String) -> void:
 	var panel := UiTheme.padded_panel(
 		UiTheme.center_label(message, 20, UiTheme.C_PAPER),
 		42,
-		Color(0.06, 0.065, 0.052, 0.96),
+		UiTheme.C_MODULE_RAISED,
 		UiTheme.C_LINE
 	)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -397,18 +408,21 @@ func _request_identity(identity_id: String) -> void:
 func _on_battle() -> void:
 	if _busy:
 		return
+	TableSfx.play(self, TableSfx.KIND_SEAL)
 	battle_requested.emit()
 
 
 func _on_gacha() -> void:
 	if _busy:
 		return
+	TableSfx.play(self, TableSfx.KIND_SEAL)
 	gacha_requested.emit()
 
 
 func _on_upgrade() -> void:
 	if _busy:
 		return
+	TableSfx.play(self, TableSfx.KIND_SEAL)
 	upgrade_requested.emit()
 
 
@@ -427,6 +441,7 @@ func _on_restart() -> void:
 func _on_deck() -> void:
 	if _busy:
 		return
+	TableSfx.play(self, TableSfx.KIND_SEAL)
 	deck_requested.emit()
 
 

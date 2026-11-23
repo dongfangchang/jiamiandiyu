@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="640" viewBox="0 0 512 640">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset="1" stop-color="#0c0b09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="48%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".16"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="490" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .11"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="512" height="640" fill="url(#wash)" filter="url(#grain)"/>
+  <rect width="512" height="640" fill="url(#glow)"/>
+  <rect width="512" height="640" fill="url(#hatch)" opacity=".22"/>
+  <rect x="36" y="48" width="440" height="544" rx="18" fill="none" stroke="#B99750" stroke-width="3" opacity=".35"/>
+  
+    <!-- 值夜者文职：徽章 + 手套 -->
+    <ellipse cx="256" cy="520" rx="120" ry="24" fill="#3A3731" opacity=".2"/>
+    <path d="M170 300 H342 L320 500 H192 Z" fill="#211D18" stroke="#788079" stroke-width="3"/>
+    <circle cx="256" cy="220" r="50" fill="#E8DFC9" stroke="#211D18" stroke-width="4"/>
+    <circle cx="256" cy="360" r="48" fill="#7A2828" stroke="#E8D091" stroke-width="3"/>
+    <path d="M256 330 V390 M230 360 H282" stroke="#E8D091" stroke-width="3"/>
+    <path d="M140 420 C180 400 200 400 230 430" fill="none" stroke="#B99750" stroke-width="6" stroke-linecap="round"/>
+    <path d="M372 420 C332 400 312 400 282 430" fill="none" stroke="#B99750" stroke-width="6" stroke-linecap="round"/>
+  
+</svg>

@@ -82,9 +82,9 @@ func _build() -> void:
 	safe.add_theme_constant_override("margin_left", 156)
 	safe.add_theme_constant_override("margin_top", 76)
 	safe.add_theme_constant_override("margin_right", 156)
-	safe.add_theme_constant_override("margin_bottom", 66)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
-	var panel := UiTheme.panel(Color(0.055, 0.059, 0.047, 0.97), UiTheme.C_GOLD)
+	var panel := UiTheme.panel(UiTheme.C_MODULE_RAISED, UiTheme.C_GOLD)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	safe.add_child(panel)
 	var pad := MarginContainer.new()
@@ -140,7 +140,7 @@ func _build() -> void:
 	column.add_child(actions)
 	_retry_button = UiTheme.button("再次挑战", _on_retry, false, 156)
 	actions.add_child(_retry_button)
-	actions.add_child(UiTheme.button("返回白昼档案", _on_hub, true, 180))
+	actions.add_child(UiTheme.button("回日记", _on_hub, true, 180))
 
 
 func _render() -> void:

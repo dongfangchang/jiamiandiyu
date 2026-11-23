@@ -46,7 +46,9 @@ func _ready() -> void:
 		"test profile should initialize the route map"
 	)
 
-	var route_hub_button := _button_by_text(_controller, "返回白昼档案")
+	var route_hub_button := _button_by_text(_controller, "回日记")
+	if route_hub_button == null:
+		route_hub_button = _button_by_text(_controller, "合上")
 	if route_hub_button != null:
 		route_hub_button.pressed.emit()
 	await _wait_frames(3)
@@ -72,7 +74,7 @@ func _ready() -> void:
 		and int(gacha_screen.get_result_count()) > 0,
 		"successful draw should refresh displayed results"
 	)
-	var gacha_back := _button_by_text(_controller, "返回白昼档案")
+	var gacha_back := _button_by_text(_controller, "回日记")
 	_expect(gacha_back != null and not gacha_back.disabled, "gacha must remain exitable")
 	if gacha_back != null:
 		gacha_back.pressed.emit()
@@ -82,18 +84,26 @@ func _ready() -> void:
 		"gacha back should return to hub"
 	)
 
-	var battle_button := _button_by_text(_controller, "进入夜间战斗")
+	var battle_button := _button_by_text(_controller, "打开日记")
+	if battle_button == null:
+		battle_button = _button_by_text(_controller, "进入夜间战斗")
 	if battle_button != null:
 		battle_button.pressed.emit()
 	await _wait_frames(3)
-	var node_button := _button_by_text(_controller, "前往节点")
-	_expect(node_button != null, "route map should expose the first node")
-	if node_button != null:
+	var node_button := _button_by_text(_controller, "调查线索")
+	if node_button == null:
+		node_button = _button_by_text(_controller, "前往节点")
+	if node_button == null:
+		var screen = _controller.get_current_screen()
+		if screen != null:
+			node_button = screen.find_child("ClueHit", true, false) as Button
+	_expect(node_button != null, "diary/route should expose the first investigable clue")
+	if node_button != null and not node_button.disabled:
 		node_button.pressed.emit()
 	await _wait_frames(4)
 	_expect(
 		String(_controller.get_current_route()) == "battle",
-		"pressing a battle node should enter battle"
+		"pressing a battle clue should enter battle"
 	)
 	var exit_button := _button_by_text(_controller, "退出战斗")
 	_expect(exit_button != null, "battle should expose exit")

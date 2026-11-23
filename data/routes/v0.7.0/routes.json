@@ -55,30 +55,35 @@
           "id": "route.v070.node.first_hunt",
           "type": "normal",
           "display_name_zh": "密修会的闯入者",
-          "encounter_id": "encounter.first_hunt"
+          "encounter_id": "encounter.first_hunt",
+          "scene_id": "scene.battle.moretti_home"
         },
         {
           "id": "route.v070.node.mirror_pursuit",
           "type": "elite",
           "display_name_zh": "提利尔仓库",
-          "encounter_id": "encounter.mirror_pursuit"
+          "encounter_id": "encounter.mirror_pursuit",
+          "scene_id": "scene.battle.tyrell_warehouse"
         },
         {
           "id": "route.v070.node.old_house_rest",
           "type": "rest",
-          "display_name_zh": "黑荆棘安保公司"
+          "display_name_zh": "黑荆棘安保公司",
+          "scene_id": "scene.hub.rest_blackthorn"
         },
         {
           "id": "route.v070.node.mirror_baron",
           "type": "boss",
           "display_name_zh": "失控的老尼尔",
-          "encounter_id": "encounter.mirror_baron"
+          "encounter_id": "encounter.mirror_baron",
+          "scene_id": "scene.battle.blackthorn_neil"
         },
         {
           "id": "route.v070.node.ascension",
           "type": "ritual",
           "display_name_zh": "转运仪式",
-          "ritual_id": "ritual.v070.fractured_obituary"
+          "ritual_id": "ritual.v070.fractured_obituary",
+          "scene_id": "scene.ritual.obituary"
         }
       ]
     },
@@ -132,30 +137,35 @@
           "id": "route.v070.broken.node.first_hunt",
           "type": "normal",
           "display_name_zh": "伍德家的恶灵",
-          "encounter_id": "encounter.v028.boundary"
+          "encounter_id": "encounter.v028.boundary",
+          "scene_id": "scene.battle.wood_house"
         },
         {
           "id": "route.v070.broken.node.twin_pursuit",
           "type": "elite",
           "display_name_zh": "拉姆德小镇驱邪",
-          "encounter_id": "encounter.v070.twin_pursuit"
+          "encounter_id": "encounter.v070.twin_pursuit",
+          "scene_id": "scene.battle.lamud_chapel"
         },
         {
           "id": "route.v070.broken.node.old_house_rest",
           "type": "rest",
-          "display_name_zh": "撤离与准备"
+          "display_name_zh": "撤离与准备",
+          "scene_id": "scene.hub.rest_blackthorn"
         },
         {
           "id": "route.v070.broken.node.mirror_baron",
           "type": "boss",
           "display_name_zh": "邪神子嗣降临",
-          "encounter_id": "encounter.v070.broken_baron"
+          "encounter_id": "encounter.v070.broken_baron",
+          "scene_id": "scene.battle.megose_descent"
         },
         {
           "id": "route.v070.broken.node.ascension",
           "type": "ritual",
           "display_name_zh": "灰雾之上的复苏",
-          "ritual_id": "ritual.v070.fractured_obituary"
+          "ritual_id": "ritual.v070.fractured_obituary",
+          "scene_id": "scene.ritual.above_fog"
         }
       ]
     },
@@ -209,30 +219,35 @@
           "id": "route.v070.mirror_watch.node.first_hunt",
           "type": "normal",
           "display_name_zh": "拉姆德小镇驱邪",
-          "encounter_id": "encounter.v070.twin_pursuit"
+          "encounter_id": "encounter.v070.twin_pursuit",
+          "scene_id": "scene.battle.lamud_chapel"
         },
         {
           "id": "route.v070.mirror_watch.node.rest",
           "type": "rest",
-          "display_name_zh": "查尼斯门值夜"
+          "display_name_zh": "查尼斯门值夜",
+          "scene_id": "scene.rest.chanis_gate"
         },
         {
           "id": "route.v070.mirror_watch.node.elite",
           "type": "elite",
           "display_name_zh": "码头货船的失控者",
-          "encounter_id": "encounter.v031.cargo_ship"
+          "encounter_id": "encounter.v031.cargo_ship",
+          "scene_id": "scene.battle.elliot_ruin"
         },
         {
           "id": "route.v070.mirror_watch.node.boss",
           "type": "boss",
           "display_name_zh": "邪神子嗣降临",
-          "encounter_id": "encounter.v070.broken_baron"
+          "encounter_id": "encounter.v070.broken_baron",
+          "scene_id": "scene.battle.megose_descent"
         },
         {
           "id": "route.v070.mirror_watch.node.ascension",
           "type": "ritual",
           "display_name_zh": "灰雾之上的复苏",
-          "ritual_id": "ritual.v070.fractured_obituary"
+          "ritual_id": "ritual.v070.fractured_obituary",
+          "scene_id": "scene.ritual.above_fog"
         }
       ]
     },
@@ -291,6 +306,7 @@
           "type": "normal",
           "display_name_zh": "密修会的闯入者",
           "encounter_id": "encounter.first_hunt",
+          "scene_id": "scene.battle.moretti_home",
           "chapter_phase": "discovery",
           "narrative_beat_zh": "刚加入值夜者的第三天，一名密修会成员潜入莫雷蒂家，觊觎与安提哥努斯家族笔记有关的线索。",
           "investigation_goal_zh": "用左轮守住家门，撑到值夜者赶来。",
@@ -302,6 +318,7 @@
           "type": "normal",
           "display_name_zh": "艾略特绑架案",
           "encounter_id": "encounter.v028.tenant_trace",
+          "scene_id": "scene.battle.elliot_ruin",
           "chapter_phase": "evidence",
           "narrative_beat_zh": "灵摆指向一栋废弃建筑，被绑架的小艾略特就在里面。",
           "investigation_goal_zh": "击退两波普通绑匪；占卜家没有战斗强化，先看清意图再出手。",
@@ -313,6 +330,7 @@
           "type": "elite",
           "display_name_zh": "提利尔仓库",
           "encounter_id": "encounter.mirror_pursuit",
+          "scene_id": "scene.battle.tyrell_warehouse",
           "chapter_phase": "pursuit",
           "narrative_beat_zh": "2-049被送到廷根追查瑞尔·比伯；密修会的燕尾服小丑尾随而来，所有人都被木偶减缓了动作。",
           "investigation_goal_zh": "先解决失控的瑞尔·比伯，再面对燕尾服小丑；用2-049控制他，然后开枪。",
@@ -324,6 +342,7 @@
           "type": "normal",
           "display_name_zh": "伍德家的恶灵",
           "encounter_id": "encounter.v028.boundary",
+          "scene_id": "scene.battle.wood_house",
           "chapter_phase": "threshold",
           "narrative_beat_zh": "赛琳娜·伍德的生日宴上，女孩们玩起魔镜占卜，招来的恶灵附在了她身上。",
           "investigation_goal_zh": "以灵性之墙与驱邪仪式驱除恶灵。",
@@ -334,6 +353,7 @@
           "id": "route.v028.first_stage.node.rest",
           "type": "rest",
           "display_name_zh": "占卜俱乐部",
+          "scene_id": "scene.rest.divination_club",
           "chapter_phase": "preparation",
           "narrative_beat_zh": "占卜家守则：帮助别人解读启示，但不能完全依赖占卜。克莱恩在豪尔斯街的俱乐部里扮演、消化。",
           "investigation_goal_zh": "选择包扎伤口，或以扮演法消化魔药、压低污染。",
@@ -345,6 +365,7 @@
           "type": "elite",
           "display_name_zh": "拉姆德小镇驱邪",
           "encounter_id": "encounter.v070.twin_pursuit",
+          "scene_id": "scene.battle.lamud_chapel",
           "chapter_phase": "pursuit",
           "narrative_beat_zh": "伊丽莎白的噩梦来自拉姆德小镇的一具黑色骑士铠甲。邓恩申请取出3-0782，带着克莱恩与弗莱前往驱邪。",
           "investigation_goal_zh": "在骑士怨魂缩回铠甲前，以净化力量将其驱散。",
@@ -356,6 +377,7 @@
           "type": "boss",
           "display_name_zh": "失控的老尼尔",
           "encounter_id": "encounter.mirror_baron",
+          "scene_id": "scene.battle.blackthorn_neil",
           "chapter_phase": "confrontation",
           "narrative_beat_zh": "教导克莱恩神秘学的老尼尔，在隐匿贤者的耳语下试图复活亡妻，最终失控成了怪物。",
           "investigation_goal_zh": "在他彻底异变前，用安静发丝让他安静下来。",
@@ -367,6 +389,7 @@
           "type": "ritual",
           "display_name_zh": "晋升：小丑",
           "ritual_id": "ritual.v070.tampered_obituary",
+          "scene_id": "scene.ritual.clown_ascension",
           "chapter_phase": "advancement",
           "narrative_beat_zh": "老尼尔下葬两天后，克莱恩通过了克雷斯泰·塞西玛的考核，向黑夜女神起誓不泄露扮演法。",
           "investigation_goal_zh": "回答扮演法与晋升流程的三个问题，确认可以服用小丑魔药。",

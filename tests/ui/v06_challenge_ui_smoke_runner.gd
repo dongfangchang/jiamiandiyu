@@ -63,7 +63,7 @@ func _test_challenge_screen() -> void:
 	_expect(screen.get_modifier_count() == 3, "challenge screen renders three modifiers")
 	_expect(screen.get_requirement_text().contains("锁定"), "locked requirement is explicit")
 	_expect(not screen.can_start(), "locked challenge cannot start")
-	_expect(screen.get_background_path().ends_with("challenge-selection.png"), "challenge selection art resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "challenge selection art resolves")
 
 	_captured_command_type = &""
 	screen.request_modifier("modifier.rushed_reflection")
@@ -148,7 +148,7 @@ func _test_challenge_result() -> void:
 	_expect(screen.get_reward_text().contains("占卜券"), "challenge success shows reward")
 	_expect(screen.get_save_text().contains("已保存"), "challenge success shows saved state")
 	_expect(screen.is_retry_enabled(), "challenge success allows retry")
-	_expect(screen.get_background_path().ends_with("challenge-result.png"), "challenge result art resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "challenge result art resolves")
 
 	var failure = _challenge_snapshot({
 		"phase": "failed",

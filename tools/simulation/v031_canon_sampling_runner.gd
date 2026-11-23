@@ -86,10 +86,12 @@ func _run(content, balance, deck: Array, enemy_configs: Array, seed_value: int) 
 				var target := &""
 				if String(card.get("target_type", "")) == "enemy":
 					target = _lowest(snapshot)
-				var query = engine.query_card_play(StringName(card.get("instance_id", "")), target)
+				var instance_id := StringName(card.get("instance_id", ""))
+				var discards: Array = engine.auto_discard_ids_for(instance_id)
+				var query = engine.query_card_play(instance_id, target, discards)
 				if not query.playable:
 					continue
-				var result = engine.submit(BattleCommandScript.play_card(StringName(card.get("instance_id", "")), target))
+				var result = engine.submit(BattleCommandScript.play_card(instance_id, target, discards))
 				for event in result.events:
 					if event.type == &"SynergyTriggered":
 						synergies += 1

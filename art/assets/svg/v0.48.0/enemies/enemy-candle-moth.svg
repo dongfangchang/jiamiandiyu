@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset="1" stop-color="#0c0b09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="48%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".16"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="480" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .11"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#wash)" filter="url(#grain)"/>
+  <rect width="900" height="900" fill="url(#glow)"/>
+  <rect width="900" height="900" fill="url(#hatch)" opacity=".25"/>
+  <circle cx="450" cy="430" r="310" fill="none" stroke="#B99750" stroke-width="1" opacity=".1"/>
+  
+    <!-- 密修会成员：斗篷 + 匕首 -->
+    <ellipse cx="450" cy="720" rx="160" ry="28" fill="#3A3731" opacity=".25"/>
+    <path d="M260 280 C300 180 380 140 450 140 C520 140 600 180 640 280
+      L610 620 H290 Z" fill="#211D18" stroke="#788079" stroke-width="4"/>
+    <path d="M330 260 C370 210 430 200 450 200 C470 200 530 210 570 260"
+      fill="#15130f" stroke="#B99750" stroke-width="2"/>
+    <circle cx="450" cy="250" r="36" fill="#3A3731" stroke="#E8DFC9" stroke-width="3"/>
+    <path d="M520 360 L680 300 L670 330 L620 360 Z" fill="#E8DFC9" stroke="#211D18" stroke-width="3"/>
+    <path d="M300 420 H420" stroke="#7A2828" stroke-width="4" opacity=".55"/>
+  
+</svg>

@@ -1,0 +1,66 @@
+{
+  "version": "v0.42.0",
+  "theme": "gap_skill_cards",
+  "assets": [
+    {
+      "stable_id": "card.skill.ink_scarlet",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_ink_scarlet.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_ink_scarlet.png"
+    },
+    {
+      "stable_id": "card.skill.echo_reading",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_echo_reading.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_echo_reading.png"
+    },
+    {
+      "stable_id": "card.skill.midnight_ledger",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_midnight_ledger.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_midnight_ledger.png"
+    },
+    {
+      "stable_id": "card.skill.borrowed_breath",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_borrowed_breath.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_borrowed_breath.png"
+    },
+    {
+      "stable_id": "card.skill.glass_thesis",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_glass_thesis.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_glass_thesis.png"
+    },
+    {
+      "stable_id": "card.skill.hungry_symbol",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_hungry_symbol.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_hungry_symbol.png"
+    },
+    {
+      "stable_id": "card.skill.candle_archive",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_candle_archive.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_candle_archive.png"
+    },
+    {
+      "stable_id": "card.skill.omen_chorus",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_omen_chorus.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_omen_chorus.png"
+    },
+    {
+      "stable_id": "card.skill.closed_eye",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_closed_eye.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_closed_eye.png"
+    },
+    {
+      "stable_id": "card.skill.black_thread",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_black_thread.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_black_thread.png"
+    },
+    {
+      "stable_id": "card.skill.eclipse",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_eclipse.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_eclipse.png"
+    },
+    {
+      "stable_id": "card.skill.red_corridor",
+      "svg": "art/assets/svg/v0.42.0/cards/card_skill_red_corridor.svg",
+      "png": "assets/game/v0.42.0/cards/card_skill_red_corridor.png"
+    }
+  ]
+}

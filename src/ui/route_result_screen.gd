@@ -6,7 +6,11 @@ signal potion_requested(potion_id: StringName)
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+const TableSfx := preload("res://src/ui/table_sfx.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
+
+const BOOK_PATH := "res://assets/ui/diary/open_book_spread.png"
 
 var _snapshot_data: Dictionary = {}
 var _save_state := "pending"
@@ -14,6 +18,8 @@ var _title_label: Label
 var _detail_label: Label
 var _save_label: Label
 var _result_icon: TextureRect
+var _book_art: TextureRect
+var _closing_label: Label
 var _hub_button: Button
 var _retry_button: Button
 var _potion_button: Button
@@ -31,6 +37,7 @@ func show_result(snapshot: RouteSnapshot, save_state: String = "pending") -> voi
 	_snapshot_data = snapshot.to_dictionary() if snapshot != null else {}
 	_save_state = save_state
 	_render_result()
+	_play_closing_beat()
 
 
 func set_potion_state(progression_data: Dictionary) -> void:
@@ -41,15 +48,24 @@ func set_potion_state(progression_data: Dictionary) -> void:
 	_potion_id = String(digestion.get("potion_id", ""))
 	var owned := _potion_id in inventory
 	var ready := bool(digestion.get("ready", false))
-	_potion_label.modulate = Color(1, 1, 1, 1 if owned else 0)
+	var consumed := bool(digestion.get("consumed", false))
+	var sequence := int(progression_data.get("sequence", 9))
+	_potion_label.modulate = Color(1, 1, 1, 1 if owned or consumed else 0)
 	_potion_button.visible = owned
 	_potion_button.disabled = not owned or not ready
-	if owned:
+	if consumed and sequence <= 8:
+		UiTheme.set_clip_text(
+			_potion_label,
+			"已晋升序列 8「小丑」· 已收容 8 张小丑技能包，牌组已切换为「小丑技能包」。"
+		)
+	elif owned:
 		UiTheme.set_clip_text(_potion_label, "章节战利品：小丑魔药 · 扮演消化度 %d / %d（在占卜俱乐部扮演、使用占卜/仪式类卡牌可推进）" % [
 			int(digestion.get("progress", 0)),
 			int(digestion.get("required", 1)),
 		])
-		_potion_button.text = "服用魔药并晋升" if ready else "消化度不足，暂不能服用"
+		_potion_button.text = (
+			"服用魔药并晋升（发放小丑技能包）" if ready else "消化度不足，暂不能服用"
+		)
 
 
 func set_save_state(save_state: String) -> void:
@@ -70,40 +86,50 @@ func get_title_text() -> String:
 
 
 func get_background_path() -> String:
-	return (
-		RouteCatalog.RITUAL_BACKGROUND
-		if get_route_outcome() == "completed"
-		else RouteCatalog.ROUTE_BACKGROUND
-	)
+	return SceneCatalog.UI_CANVAS
 
 
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		RouteCatalog.ROUTE_BACKGROUND,
+		SceneCatalog.UI_CANVAS,
 		UiTheme.C_BG,
-		RouteCatalog.ROUTE_BACKGROUND_DIM
+		0.58
 	)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 160)
-	safe.add_theme_constant_override("margin_top", 84)
+	safe.add_theme_constant_override("margin_top", 64)
 	safe.add_theme_constant_override("margin_right", 160)
-	safe.add_theme_constant_override("margin_bottom", 70)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
-	var panel := UiTheme.panel(Color(0.055, 0.059, 0.047, 0.97), UiTheme.C_GOLD)
+	var panel := UiTheme.panel(UiTheme.C_MODULE_RAISED, UiTheme.C_GOLD)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	safe.add_child(panel)
 	var pad := MarginContainer.new()
 	pad.add_theme_constant_override("margin_left", 46)
-	pad.add_theme_constant_override("margin_top", 32)
+	pad.add_theme_constant_override("margin_top", 28)
 	pad.add_theme_constant_override("margin_right", 46)
 	pad.add_theme_constant_override("margin_bottom", 32)
 	panel.add_child(pad)
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
+	column.add_theme_constant_override("separation", 14)
 	pad.add_child(column)
-	column.add_child(UiTheme.label("路线档案 · 结论", 12, UiTheme.C_GOLD))
+	column.add_child(UiTheme.label("罗塞尔日记 · 合卷", 12, UiTheme.C_GOLD))
+
+	_book_art = TextureRect.new()
+	_book_art.name = "ClosingBookArt"
+	_book_art.custom_minimum_size = Vector2(0, 120)
+	_book_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_book_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_book_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_book_art.modulate.a = 0.0
+	if ResourceLoader.exists(BOOK_PATH):
+		_book_art.texture = load(BOOK_PATH) as Texture2D
+	column.add_child(_book_art)
+	_closing_label = UiTheme.clip_label("", 13, UiTheme.C_MUTED)
+	_closing_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(_closing_label)
 
 	var hero := HBoxContainer.new()
 	hero.add_theme_constant_override("separation", 26)
@@ -117,10 +143,10 @@ func _build() -> void:
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_theme_constant_override("separation", 3)
 	hero.add_child(heading)
-	_title_label = UiTheme.label("路线结算", 40, UiTheme.C_TEXT)
+	_title_label = UiTheme.label("日记结算", 40, UiTheme.C_TEXT)
 	heading.add_child(_title_label)
 	heading.add_child(UiTheme.label(
-		"调查记录已经封存；局外收藏与序列状态仍保留在本机。",
+		"字迹已封进页脊；局外收藏与序列状态仍保留在本机。",
 		15,
 		UiTheme.C_MUTED
 	))
@@ -149,12 +175,31 @@ func _build() -> void:
 	_potion_button = UiTheme.button("服用魔药并晋升", _on_potion, false, 190)
 	_potion_button.visible = false
 	footer.add_child(_potion_button)
-	_hub_button = UiTheme.button("返回白昼档案", _on_hub, true, 180)
+	_hub_button = UiTheme.button("回日记", _on_hub, true, 180)
 	footer.add_child(_hub_button)
+
+
+func _play_closing_beat() -> void:
+	TableSfx.play(self, TableSfx.KIND_SEAL)
+	var completed := get_route_outcome() == "completed"
+	if is_instance_valid(_closing_label):
+		UiTheme.set_clip_text(
+			_closing_label,
+			"合上第一卷——雨声停在最后一行。" if completed else "墨迹未干，这一卷被迫合上。"
+		)
+	if not is_instance_valid(_book_art):
+		return
+	_book_art.modulate.a = 0.0
+	_book_art.scale = Vector2(1.04, 1.04)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(_book_art, "modulate:a", 1.0, 0.55).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(_book_art, "scale", Vector2.ONE, 0.7).set_trans(Tween.TRANS_SINE)
 
 
 func _render_result() -> void:
 	var completed := get_route_outcome() == "completed"
+	## Keep stable titles for probes; diary flavor lives in eyebrow + closing beat.
 	_title_label.text = "晋升完成" if completed else "探索失败"
 	_title_label.add_theme_color_override(
 		"font_color",
@@ -201,10 +246,14 @@ func _render_result() -> void:
 			"\n\n三步仪式已经完成。下一次启动仍会保留序列 8「小丑」。"
 			+ "\n原著：1349年8月31日，克莱恩通过考核、向黑夜女神起誓后晋升小丑。"
 		)
+		if int(sequence.get("current_sequence", 9)) <= 8:
+			_detail_label.text += (
+				"\n已收容小丑技能包（8 张）；牌组已切换为「小丑技能包」，可在档案确认出战。"
+			)
 	else:
 		_detail_label.text += (
 			"\n\n本次探索已结束。收藏、卡牌等级、预设和已确认奖励不会丢失；"
-			+ "回到白昼档案后可调整牌组或重新挑战。"
+			+ "回日记后可调整牌组或重新挑战。"
 		)
 	_update_save_label()
 	_hub_button.disabled = false

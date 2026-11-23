@@ -170,7 +170,7 @@ func _test_result_screen() -> void:
 	screen.show_result(snapshot, "廷根旧宅", "saved")
 	_expect(screen.get_result_text() == "失败", "result screen displays defeat")
 	_expect(
-		screen.get_retry_text() == "返回白昼档案",
+		screen.get_retry_text() == "回日记",
 		"defeat navigation matches the actual hub destination"
 	)
 	screen.queue_free()

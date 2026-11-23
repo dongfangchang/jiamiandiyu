@@ -9,7 +9,7 @@
     <text x="96" y="316" fill="#e8dfc9" font-size="18">自动存档的校验值不匹配，游戏没有写入临时文件之外的位置。</text>
     <rect x="96" y="352" width="866" height="150" rx="7" fill="#171711" stroke="#3a3731"/>
     <text x="120" y="394" fill="#9f967f" font-size="14">技术摘要（默认折叠，可导出诊断）</text>
-    <text x="120" y="430" fill="#e8dfc9" font-size="15">save_version=1 · content_version=v0.2.0 · error_at=atomic_commit</text>
+    <text x="120" y="430" fill="#e8dfc9" font-size="15">save_version · content_version=v0.71.0 · error_at=atomic_commit</text>
     <text x="120" y="462" fill="#e8dfc9" font-size="15">last_good_backup=available · rng_seed=93841 · log=local_run_03</text>
     <text x="96" y="552" fill="#b99750" font-size="18">推荐恢复路径</text>
     <text x="96" y="592" fill="#e8dfc9" font-size="17">1. 先尝试读取最近绿色备份。</text>

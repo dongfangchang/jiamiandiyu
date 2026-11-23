@@ -35,6 +35,7 @@ func _test_assets() -> void:
 		"res://assets/game/v0.24.0/v0.5.0/scenes/route-map.png",
 		"res://assets/game/v0.24.0/v0.5.0/scenes/rest-old-house.png",
 		"res://assets/game/v0.24.0/v0.5.0/scenes/ritual-tampered-obituary.png",
+		"res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
 		"res://assets/game/v0.24.0/v0.5.0/enemies/enemy-mirror-baron.png",
 		"res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-name-record.png",
 		"res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-chronology.png",
@@ -71,7 +72,7 @@ func _test_route_screen() -> void:
 	_expect(screen.get_node_count() == 5, "route screen renders five nodes")
 	_expect(screen.get_node_state(0) == "available", "first node is available")
 	_expect(screen.get_node_state(2) == "locked", "later rest node is locked")
-	_expect(screen.get_background_path().ends_with("route-map.png"), "route art background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "route art background resolves")
 	_expect(screen.find_child("ChapterMapScroll", true, false) != null, "route keeps chapter map in a horizontal scroll container")
 	_expect(
 		screen.get_current_goal_text().contains("保留灵视")
@@ -138,7 +139,7 @@ func _test_rest_screen() -> void:
 		screen.get_option_effect_text(1).contains("下一战灵性上限 +1"),
 		"rest displays next-battle spirit cap growth from snapshot"
 	)
-	_expect(screen.get_background_path().ends_with("rest-old-house.png"), "rest art background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "rest art background resolves")
 	screen.select_rest("rest.bandage")
 	_expect(screen.is_pending(), "rest command enters pending")
 	_expect(_captured_command_type == RouteCommand.USE_REST, "rest UI emits use rest command")
@@ -183,7 +184,7 @@ func _test_ritual_screen() -> void:
 		}
 	})
 	screen.apply_snapshot(step_one)
-	_expect(screen.get_background_path().ends_with("ritual-tampered-obituary.png"), "ritual art background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "ritual art background resolves")
 	_expect(screen.get_step_title() == "姓名记录", "ritual screen reads step title")
 	_expect(
 		screen.get_hint_button_text().contains("1 灵性"),
@@ -302,7 +303,7 @@ func _test_route_result() -> void:
 	screen.show_result(completed_snapshot, "saved")
 	_expect(screen.get_title_text() == "晋升完成", "route result marks ascension success")
 	_expect(screen.get_save_text().contains("已保存"), "route result displays save success")
-	_expect(screen.get_background_path().ends_with("ritual-tampered-obituary.png"), "success result uses ritual art")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "success result uses ritual art")
 	_expect(screen.get_route_outcome() == "completed", "route result exposes completed outcome")
 	screen.set_save_state("failed")
 	_expect(screen.get_save_text().contains("失败"), "route result displays save failure")
@@ -321,15 +322,14 @@ func _test_enemy_art_mapping() -> void:
 	var battle = BattleScreenScene.instantiate()
 	add_child(battle)
 	await get_tree().process_frame
-	# v0.31.0 canon re-theme: enemy.mirror_baron is now 失控的老尼尔 (red-eyed
-	# monster art) and enemy.mirror_hound_echo is 燕尾服小丑 (top-hat art).
+	# v0.48.0: each enemy has dedicated formal art (no shared placeholders).
 	_expect(
-		battle.get_enemy_art_path(&"enemy.mirror_baron").ends_with("enemy-candle-moth.png"),
-		"lost-control Old Neil uses the red-eyed monster art"
+		battle.get_enemy_art_path(&"enemy.mirror_baron").ends_with("enemy-mirror-baron.png"),
+		"lost-control Old Neil uses dedicated baron art"
 	)
 	_expect(
-		battle.get_enemy_art_path(&"enemy.mirror_hound_echo").ends_with("enemy-mirror-baron.png"),
-		"the Suited Clown uses the top-hat art"
+		battle.get_enemy_art_path(&"enemy.mirror_hound_echo").ends_with("enemy-mirror-hound-echo.png"),
+		"the Suited Clown uses dedicated echo art"
 	)
 	battle.queue_free()
 	await get_tree().process_frame

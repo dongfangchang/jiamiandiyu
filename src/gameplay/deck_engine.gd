@@ -434,6 +434,12 @@ func _restore_state(value: Dictionary) -> DeckCommandResult:
 	var restored_presets: Dictionary = {}
 	for preset_id in _preset_order:
 		var ids_value: Variant = presets_value.get(preset_id, null)
+		# Forward-fill content presets missing from older saves (e.g. clown unlock).
+		if ids_value == null:
+			ids_value = _preset_content.get(preset_id, {}).get(
+				"card_definition_ids",
+				[]
+			)
 		if not ids_value is Array:
 			return _restore_error(&"preset_missing")
 		var ids := _normalize_ids(ids_value)

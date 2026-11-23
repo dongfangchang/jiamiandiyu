@@ -390,12 +390,15 @@ func _fight_until_finished() -> void:
 				target_id = _lowest_health_enemy(battle.get_snapshot_data())
 				if target_id.is_empty():
 					continue
-			var playability = _app.get_session().query_card_play(instance_id, target_id)
+			var discards: Array = _app.get_session().auto_discard_ids_for(instance_id)
+			var playability = _app.get_session().query_card_play(instance_id, target_id, discards)
 			if playability == null or not playability.playable:
 				continue
 			battle.select_card_instance(instance_id)
 			if not target_id.is_empty():
 				battle.select_target(target_id)
+			for discard_id in discards:
+				battle.toggle_discard_choice(StringName(discard_id))
 			battle.play_selected()
 			commands_sent += 1
 			await get_tree().process_frame

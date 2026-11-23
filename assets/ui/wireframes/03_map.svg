@@ -1,55 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
   <rect width="1600" height="900" fill="#15160f"/>
   <g font-family="Microsoft YaHei, sans-serif">
-    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">NIGHT ROUTE // 城市地图</text>
-    <text x="64" y="112" fill="#e8dfc9" font-size="38" font-weight="700">选择今夜要接近的异常</text>
-    <rect x="64" y="160" width="900" height="650" rx="10" fill="#1c1b15" stroke="#3a3731"/>
-    <path d="M120,700 C220,590 230,410 330,455 C410,490 430,330 520,350 C600,368 700,280 780,340 C850,390 890,300 930,255" fill="none" stroke="#6b6250" stroke-width="4" stroke-dasharray="12 10"/>
-    <g fill="#28251d" stroke="#b99750" stroke-width="3">
-      <circle cx="120" cy="700" r="34"/>
-      <circle cx="255" cy="545" r="34"/>
-      <circle cx="370" cy="440" r="34"/>
-      <circle cx="520" cy="350" r="34"/>
-      <circle cx="690" cy="320" r="34"/>
-      <circle cx="820" cy="280" r="34"/>
-    </g>
-    <g fill="#e8dfc9" font-size="16" text-anchor="middle">
-      <text x="120" y="707">起点</text>
-      <text x="255" y="552">码头</text>
-      <text x="370" y="447">旧宅</text>
-      <text x="520" y="357">教堂</text>
-      <text x="690" y="327">报馆</text>
-      <text x="820" y="287">目标</text>
-    </g>
-    <g stroke="#7a2828" stroke-width="3" fill="none">
-      <circle cx="370" cy="440" r="46"/>
-      <circle cx="820" cy="280" r="46"/>
-    </g>
-    <text x="104" y="770" fill="#788079" font-size="14">节点状态只读取 unlocked / visited / risk / selected，不在 UI 内计算可达性。</text>
+    <text x="64" y="64" fill="#b99750" font-size="16" letter-spacing="3">ROSSSELL DIARY // 罗塞尔日记</text>
+    <text x="64" y="112" fill="#e8dfc9" font-size="38" font-weight="700">摊开的日记是唯一章节枢纽</text>
+    <text x="64" y="148" fill="#9f967f" font-size="16">无线路树 · 无线路连线 · 无「下一步」强引导 · 状态写在纸页痕迹上</text>
 
-    <rect x="990" y="160" width="546" height="650" rx="10" fill="#201e18" stroke="#3a3731"/>
-    <text x="1020" y="205" fill="#b99750" font-size="18">节点详情</text>
-    <text x="1020" y="255" fill="#e8dfc9" font-size="28" font-weight="700">廷根旧宅</text>
-    <text x="1020" y="290" fill="#a9a18c" font-size="16">异常类型：灵界残响 · 预计 3 回合</text>
-    <rect x="1020" y="320" width="486" height="120" rx="7" fill="#28251d" stroke="#4b463b"/>
-    <text x="1046" y="355" fill="#e8dfc9" font-size="17">风险</text>
-    <text x="1046" y="388" fill="#d8b4a8" font-size="15">污染 +1 · 被注视 +2</text>
-    <text x="1046" y="417" fill="#9f967f" font-size="15">奖励预览：灵性残渣 4—6，卡牌强化 1 次</text>
-    <text x="1020" y="487" fill="#b99750" font-size="17">当前牌组</text>
-    <g fill="#28251d" stroke="#6b6250">
-      <rect x="1020" y="510" width="96" height="132" rx="5"/>
-      <rect x="1130" y="510" width="96" height="132" rx="5"/>
-      <rect x="1240" y="510" width="96" height="132" rx="5"/>
-      <rect x="1350" y="510" width="96" height="132" rx="5"/>
-    </g>
-    <text x="1068" y="580" text-anchor="middle" fill="#9f967f" font-size="14">占卜</text>
-    <text x="1178" y="580" text-anchor="middle" fill="#9f967f" font-size="14">攻击</text>
-    <text x="1288" y="580" text-anchor="middle" fill="#9f967f" font-size="14">防御</text>
-    <text x="1398" y="580" text-anchor="middle" fill="#9f967f" font-size="14">封印</text>
-    <rect x="1020" y="675" width="225" height="72" rx="6" fill="#b99750"/>
-    <text x="1132" y="720" text-anchor="middle" fill="#15160f" font-size="20" font-weight="700">进入节点</text>
-    <rect x="1260" y="675" width="246" height="72" rx="6" fill="#242119" stroke="#4b463b"/>
-    <text x="1383" y="720" text-anchor="middle" fill="#e8dfc9" font-size="18">调整牌组</text>
-    <text x="1020" y="780" fill="#788079" font-size="13">不可达：按钮禁用 + reason_code；进入请求 pending 时全部节点锁定。</text>
+    <!-- open book spread -->
+    <rect x="120" y="190" width="980" height="580" rx="8" fill="#1c1b15" stroke="#3a3731"/>
+    <rect x="160" y="230" width="420" height="480" rx="4" fill="#2a2418" stroke="#6b6250"/>
+    <rect x="640" y="230" width="420" height="480" rx="4" fill="#2a2418" stroke="#6b6250"/>
+    <rect x="575" y="230" width="30" height="480" fill="#1a1510"/>
+    <text x="370" y="270" text-anchor="middle" fill="#b99750" font-size="15">左页 · 原迹褐墨</text>
+    <text x="850" y="270" text-anchor="middle" fill="#b99750" font-size="15">右页 · 0-08 金批 / 墨封</text>
+
+    <!-- clue blocks -->
+    <rect x="190" y="300" width="360" height="72" rx="3" fill="#211d18" stroke="#8a6238"/>
+    <text x="210" y="332" fill="#d8c29a" font-size="15">线索 · 可调查</text>
+    <text x="210" y="356" fill="#9f967f" font-size="13">页边墨光 · 整卡可点</text>
+
+    <rect x="190" y="390" width="360" height="72" rx="3" fill="#211d18" stroke="#b99750"/>
+    <text x="210" y="422" fill="#e8d091" font-size="15">已写完 · 【0-08】批注</text>
+    <text x="210" y="446" fill="#9f967f" font-size="13">金笔覆写叠在原句上</text>
+
+    <rect x="670" y="300" width="360" height="72" rx="3" fill="#211d18" stroke="#5a3a20"/>
+    <text x="690" y="332" fill="#c9a56e" font-size="15">墨封 · 凝固</text>
+    <text x="690" y="356" fill="#9f967f" font-size="13">命运锁定 · 不可强翻离</text>
+
+    <rect x="670" y="390" width="360" height="72" rx="3" fill="#211d18" stroke="#7a2828" stroke-opacity="0.7"/>
+    <text x="690" y="422" fill="#d8b4a8" font-size="15">笔改过 · overlay</text>
+    <text x="690" y="446" fill="#9f967f" font-size="13">仍锁定 · 字迹已被改写</text>
+
+    <text x="370" y="520" text-anchor="middle" fill="#788079" font-size="13">污染霉斑 / 页角磨损 = 快照状态痕迹</text>
+    <text x="850" y="520" text-anchor="middle" fill="#788079" font-size="13">页边渗墨索引 · hover 才渗出</text>
+
+    <!-- bottom chrome -->
+    <rect x="200" y="680" width="120" height="44" rx="4" fill="#242119" stroke="#4b463b"/>
+    <text x="260" y="708" text-anchor="middle" fill="#e8dfc9" font-size="14">上一叶</text>
+    <rect x="900" y="680" width="120" height="44" rx="4" fill="#242119" stroke="#4b463b"/>
+    <text x="960" y="708" text-anchor="middle" fill="#e8dfc9" font-size="14">下一叶</text>
+    <text x="610" y="708" text-anchor="middle" fill="#9f967f" font-size="13">拖页角翻页 · 墨封则抗拒回弹</text>
+
+    <!-- side notes -->
+    <rect x="1140" y="190" width="396" height="580" rx="10" fill="#201e18" stroke="#3a3731"/>
+    <text x="1170" y="235" fill="#b99750" font-size="18">本页只读快照</text>
+    <text x="1170" y="280" fill="#e8dfc9" font-size="15">unlocked / completed</text>
+    <text x="1170" y="308" fill="#e8dfc9" font-size="15">clue_annotations</text>
+    <text x="1170" y="336" fill="#e8dfc9" font-size="15">clue_overlays（0-08）</text>
+    <text x="1170" y="364" fill="#e8dfc9" font-size="15">run_state 痕迹化显示</text>
+    <line x1="1170" y1="390" x2="1500" y2="390" stroke="#3a3731"/>
+    <text x="1170" y="430" fill="#b99750" font-size="16">禁止</text>
+    <text x="1170" y="462" fill="#d8b4a8" font-size="14">常驻数字 HUD</text>
+    <text x="1170" y="490" fill="#d8b4a8" font-size="14">路线树 / 节点连线</text>
+    <text x="1170" y="518" fill="#d8b4a8" font-size="14">「下一步」强引导</text>
+    <text x="1170" y="546" fill="#d8b4a8" font-size="14">原生 OptionButton</text>
+    <text x="1170" y="600" fill="#9f967f" font-size="14">调查 → 战斗 → 回页</text>
+    <text x="1170" y="628" fill="#9f967f" font-size="14">看金批 / 墨渍 / 翻页</text>
+    <rect x="1170" y="670" width="336" height="56" rx="6" fill="#b99750"/>
+    <text x="1338" y="706" text-anchor="middle" fill="#15160f" font-size="17" font-weight="700">调查当前线索</text>
+    <text x="1170" y="750" fill="#788079" font-size="12">按钮文案来自快照；不可达时禁用 + 中文 reason。</text>
   </g>
 </svg>

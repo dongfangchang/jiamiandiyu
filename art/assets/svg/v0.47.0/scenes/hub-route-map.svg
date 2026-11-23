@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset=".55" stop-color="#2f2a20"/>
+      <stop offset="1" stop-color="#100e0b"/>
+    </linearGradient>
+    <radialGradient id="paperGlow" cx="50%" cy="40%" r="58%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="candleGlow" cx="62%" cy="48%" r="28%">
+      <stop offset="0" stop-color="#E8D091" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fogGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#c8c2b0" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#111612" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="47" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+  <rect width="1600" height="900" fill="url(#crosshatch)"/>
+  <rect width="1600" height="900" fill="url(#paperGlow)"/>
+  <rect width="1600" height="900" fill="url(#hatch)" opacity=".2"/>
+  <rect x="320" y="120" width="960" height="660" fill="none" stroke="#B99750" stroke-width="1" opacity=".08"/>
+  
+    <path d="M180 100 H1420 V780 H180Z" fill="#EFE1C0" opacity=".08" stroke="#B99750" stroke-width="3"/>
+    <path d="M220 140 H1380 V740 H220Z" fill="#211D18" opacity=".35" stroke="#788079" stroke-width="2"/>
+    <!-- street grid suggestion -->
+    <g fill="none" stroke="#E8DFC9" stroke-width="2" opacity=".28">
+      <path d="M280 280 H1320"/>
+      <path d="M280 420 H1320"/>
+      <path d="M280 560 H1320"/>
+      <path d="M420 180 V700"/>
+      <path d="M700 180 V700"/>
+      <path d="M980 180 V700"/>
+      <path d="M1180 180 V700"/>
+    </g>
+    <!-- river / fog band -->
+    <path d="M260 500 C500 460 700 540 900 500 C1100 460 1280 520 1340 490"
+      fill="none" stroke="#788079" stroke-width="8" opacity=".35"/>
+    <!-- markers -->
+    <g fill="#7A2828" stroke="#E8D091" stroke-width="2">
+      <circle cx="520" cy="320" r="14"/>
+      <circle cx="820" cy="360" r="14"/>
+      <circle cx="1080" cy="300" r="14"/>
+      <circle cx="640" cy="600" r="14"/>
+    </g>
+    <path d="M520 320 L820 360 L1080 300 L640 600" fill="none" stroke="#B99750" stroke-width="2" opacity=".45" stroke-dasharray="8 6"/>
+    <!-- compass rose -->
+    <circle cx="1280" cy="200" r="36" fill="none" stroke="#B99750" stroke-width="2" opacity=".55"/>
+    <path d="M1280 170 V230 M1250 200 H1310" stroke="#E8D091" stroke-width="2" opacity=".55"/>
+  
+</svg>

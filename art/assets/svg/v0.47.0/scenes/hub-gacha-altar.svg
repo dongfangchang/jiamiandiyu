@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="nightWash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#101214"/>
+      <stop offset=".55" stop-color="#1e2428"/>
+      <stop offset="1" stop-color="#090b0c"/>
+    </linearGradient>
+    <radialGradient id="paperGlow" cx="50%" cy="40%" r="58%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="candleGlow" cx="62%" cy="48%" r="28%">
+      <stop offset="0" stop-color="#E8D091" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#211D18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fogGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#c8c2b0" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#111612" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(27)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".14"/>
+    </pattern>
+    <pattern id="crosshatch" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M0 0L9 9M9 0L0 9" stroke="#E8DFC9" stroke-width=".55" opacity=".06"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="3" seed="47" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="faint">
+        <feFuncA type="table" tableValues="0 .10"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="faint" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#nightWash)" filter="url(#grain)"/>
+  <rect width="1600" height="900" fill="url(#crosshatch)"/>
+  <rect width="1600" height="900" fill="url(#paperGlow)"/>
+  <rect width="1600" height="900" fill="url(#hatch)" opacity=".2"/>
+  <rect x="320" y="120" width="960" height="660" fill="none" stroke="#B99750" stroke-width="1" opacity=".08"/>
+  
+    <rect width="1600" height="900" fill="url(#fogGlow)"/>
+    <path d="M0 640 H1600 V900 H0Z" fill="#0a0c0b" opacity=".9"/>
+    <path d="M0 560 C300 520 500 600 800 550 C1100 500 1300 580 1600 540 V900 H0Z"
+      fill="#c8c2b0" opacity=".1"/>
+    <!-- altar stone -->
+    <path d="M520 480 H1080 L1020 620 H580Z" fill="#211D18" stroke="#B99750" stroke-width="3"/>
+    <ellipse cx="800" cy="470" rx="180" ry="50" fill="#3A3731" stroke="#788079" stroke-width="2" opacity=".7"/>
+    <!-- offering glow -->
+    <circle cx="800" cy="400" r="70" fill="#E8D091" opacity=".12"/>
+    <circle cx="800" cy="400" r="36" fill="none" stroke="#B99750" stroke-width="3" opacity=".55"/>
+    <path d="M800 330 V370" stroke="#E8D091" stroke-width="3" opacity=".45"/>
+    <!-- three wish slots -->
+    <g fill="#15130f" stroke="#E8DFC9" stroke-width="2" opacity=".5">
+      <rect x="560" y="500" width="90" height="70" rx="4"/>
+      <rect x="755" y="510" width="90" height="70" rx="4"/>
+      <rect x="950" y="500" width="90" height="70" rx="4"/>
+    </g>
+    <!-- vertical fog shafts -->
+    <path d="M400 120 V480 M1200 140 V500" stroke="#E8DFC9" stroke-width="2" opacity=".12"/>
+  
+</svg>

@@ -10,6 +10,7 @@ const DEFAULT_PREFERENCES := {
 	"fullscreen": false,
 	"ui_scale": 1.0,
 	"reduce_flash": false,
+	"mute_sfx": false,
 }
 
 var path: String
@@ -121,6 +122,7 @@ func _normalize(source: Dictionary) -> Dictionary:
 	result["tutorial_seen"] = bool(source.get("tutorial_seen", false))
 	result["fullscreen"] = bool(source.get("fullscreen", false))
 	result["reduce_flash"] = bool(source.get("reduce_flash", false))
+	result["mute_sfx"] = bool(source.get("mute_sfx", false))
 	result["ui_scale"] = clampf(
 		float(source.get("ui_scale", 1.0)),
 		0.85,

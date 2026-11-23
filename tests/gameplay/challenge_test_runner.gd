@@ -335,15 +335,15 @@ func _test_failure_preserves_external_progression() -> void:
 			{"hp": 0, "corruption": 5, "attention": 4, "spirit": 0}
 		)
 	))
-	_check(failed.accepted, "battle defeat should resolve challenge")
+	_check(failed.accepted, "battle defeat should resolve challenge route")
+	## v0.55 soft-fail: challenge stays active unless corruption limit ends the route.
 	_check(
-		failed.snapshot.data["phase"] == "failed"
-		and failed.snapshot.data["challenge_outcome"] == "failed",
-		"battle defeat should fail challenge"
+		failed.snapshot.data["phase"] == "active",
+		"soft defeat should keep challenge active"
 	)
 	_check(
 		collection == before,
-		"challenge domain must not delete external collection on failure"
+		"challenge domain must not delete external collection on soft defeat"
 	)
 
 

@@ -10,7 +10,7 @@ signal test_game_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
-const TITLE_BACKGROUND := "res://assets/game/v0.24.0/scenes/title-screen.png"
+const TITLE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 
 var _continue_button: Button
 var _new_game_button: Button
@@ -183,14 +183,14 @@ func get_status_text() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, TITLE_BACKGROUND, UiTheme.C_BG, 0.16)
+	UiTheme.add_background(self, TITLE_BACKGROUND, UiTheme.C_BG, 0.32)
 
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 72)
 	safe.add_theme_constant_override("margin_top", 54)
 	safe.add_theme_constant_override("margin_right", 72)
-	safe.add_theme_constant_override("margin_bottom", 54)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -204,7 +204,7 @@ func _build() -> void:
 	var panel := UiTheme.padded_panel(
 		_build_panel_content(),
 		24,
-		Color(0.06, 0.065, 0.052, 0.96),
+		UiTheme.C_MODULE_RAISED,
 		UiTheme.C_GOLD
 	)
 	panel.custom_minimum_size = Vector2(670, 0)
@@ -426,7 +426,7 @@ func _open_system_menu() -> void:
 	var panel := UiTheme.padded_panel(
 		content,
 		24,
-		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
 		UiTheme.C_GOLD
 	)
 	panel.custom_minimum_size = Vector2(760, 0)
@@ -458,6 +458,16 @@ func _open_system_menu() -> void:
 	)
 	content.add_child(reduce_flash)
 
+	var mute_sfx := CheckButton.new()
+	mute_sfx.name = "MuteSfxToggle"
+	mute_sfx.text = "静音桌面音效"
+	mute_sfx.button_pressed = bool(_preferences.get("mute_sfx", false))
+	mute_sfx.toggled.connect(func(enabled: bool) -> void:
+		_preferences["mute_sfx"] = enabled
+		preferences_changed.emit(_preferences.duplicate(true))
+	)
+	content.add_child(mute_sfx)
+
 	var scale_row := HBoxContainer.new()
 	scale_row.add_theme_constant_override("separation", 10)
 	content.add_child(scale_row)
@@ -476,12 +486,22 @@ func _open_system_menu() -> void:
 	scale_row.add_child(scale_tabs)
 
 	var help := UiTheme.clip_label(
-		"鼠标选牌与目标 · Esc 取消 · 节点/战后存档",
+		"战斗：拖放打出 · 弃置献祭坛 · 点选仍可用",
 		13,
 		UiTheme.C_MUTED
 	)
-	help.tooltip_text = "检查点仅在节点或战斗结算后保存；战斗中退出回到最近检查点。存档位于 user://saves，设置在 user://preferences.json。"
+	help.name = "OpsHint"
+	help.tooltip_text = (
+		"档案蜡封进牌组/祈愿；打开日记续读主线线索。"
+		+ "检查点仅在节点或战斗结算后保存；战斗中退出回到最近检查点。"
+		+ "存档位于 user://saves，设置在 user://preferences.json。"
+	)
 	content.add_child(help)
+	content.add_child(UiTheme.clip_label(
+		"档案可扫读 · 路线显示主线进度 · 挑战仍属占卜家途径",
+		12,
+		UiTheme.C_PAPER_DEEP
+	))
 	content.add_child(UiTheme.button(
 		"重新查看新手引导",
 		_open_tutorial,
@@ -523,7 +543,7 @@ func _open_feedback_form() -> void:
 	var panel := UiTheme.padded_panel(
 		content,
 		24,
-		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
 		UiTheme.C_GOLD
 	)
 	panel.custom_minimum_size = Vector2(760, 0)
@@ -656,7 +676,7 @@ func _open_tutorial() -> void:
 	var panel := UiTheme.padded_panel(
 		content,
 		28,
-		Color(0.055, 0.06, 0.048, 0.99),
+		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
 		UiTheme.C_GOLD
 	)
 	panel.custom_minimum_size = Vector2(780, 360)

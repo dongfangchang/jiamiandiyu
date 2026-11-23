@@ -1,0 +1,19 @@
+{
+  "asset": "scene.battle.moretti_home",
+  "source": "User supplied and approved attachment, 2026-11-23",
+  "original": "art/assets/raster/v0.85.0/diary/battle-moretti-home-original.png",
+  "original_size": [
+    1536,
+    2048
+  ],
+  "source_sha256": "3efdefbe8542d5250b63b717447d723cf1328ebbfea5e48bb4195372a440d045",
+  "target": "assets/game/v0.85.0/diary/battle-moretti-home.png",
+  "target_size": [
+    1260,
+    1770
+  ],
+  "target_sha256": "18919b47520ac1cfa24db35e08c978f48e74e52cba4d321a1652dad9c3a888dc",
+  "processing": "Centered aspect crop (about 2.54% of width per side), Lanczos resize; no recoloring. Original retained.",
+  "license": "User supplied for this local project. External generator and redistribution terms unspecified.",
+  "review": "User approved source. Runtime display verified via GPU capture; final page color/material acceptance pending."
+}

@@ -43,7 +43,7 @@ func show_result(
 		_reason_text(String(data.get("outcome_reason", ""))),
 	]
 	_apply_save_status(save_status, save_message)
-	_retry_button.text = "返回白昼档案"
+	_retry_button.text = "回日记"
 	_retry_button.disabled = false
 	_return_button.disabled = false
 
@@ -70,13 +70,18 @@ func is_return_enabled() -> bool:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, "res://assets/game/v0.24.0/scenes/title-screen.png", UiTheme.C_BG, 0.86)
+	UiTheme.add_background(
+		self,
+		"res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+		UiTheme.C_BG,
+		0.32
+	)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 100)
 	safe.add_theme_constant_override("margin_top", 88)
 	safe.add_theme_constant_override("margin_right", 100)
-	safe.add_theme_constant_override("margin_bottom", 76)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -89,7 +94,7 @@ func _build() -> void:
 	var card := UiTheme.padded_panel(
 		_build_card_content(),
 		28,
-		Color(0.055, 0.06, 0.047, 0.97),
+		UiTheme.C_MODULE_RAISED,
 		UiTheme.C_GOLD
 	)
 	card.custom_minimum_size = Vector2(760, 0)

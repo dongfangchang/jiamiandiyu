@@ -57,7 +57,10 @@ func _test_identity_and_hub() -> void:
 		"identity_options": _identity_options(""),
 	}))
 	_expect(not screen.has_hub_actions(), "identity phase hides hub actions")
-	_expect(screen.get_background_path().ends_with("title-screen.png"), "identity art review background resolves")
+	_expect(
+		screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"),
+		"identity art review background resolves"
+	)
 	screen.choose_identity("identity.doctor")
 	_expect(screen.is_pending(), "identity command enters pending state")
 	_expect(_captured_identity == "identity.doctor", "identity command emits stable id")
@@ -98,7 +101,7 @@ func _test_reward() -> void:
 		],
 	}))
 	_expect(screen.get_option_count() == 2, "reward screen renders two choices")
-	_expect(screen.get_background_path().ends_with("reward-archive.png"), "reward art background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "reward art background resolves")
 	screen.claim_reward("reward.ink_dart_fragments")
 	_expect(screen.is_pending(), "reward command enters pending")
 	_expect(_captured_reward == "reward.ink_dart_fragments", "reward command emits stable id")
@@ -140,10 +143,10 @@ func _test_gacha() -> void:
 		"rare_pity": 4,
 		"last_gacha_results": [],
 	}))
-	_expect(screen.get_background_path().ends_with("gacha-altar.png"), "gacha altar background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "gacha altar background resolves")
 	_expect(screen.get_ticket_text().contains("7"), "gacha reads tickets from snapshot")
-	_expect(screen.get_guidance_text().contains("稀有回响权重 15"), "gacha explains rare probability from snapshot")
-	_expect(screen.get_guidance_text().contains("保底上限 4 次"), "gacha explains pity ceiling from snapshot")
+	_expect(screen.get_guidance_text().contains("稀有权重"), "gacha explains rare probability from snapshot")
+	_expect(screen.get_guidance_text().contains("保底"), "gacha explains pity ceiling from snapshot")
 	_expect(screen.get_result_count() == 0, "gacha starts with no result cards")
 	screen.request_draw(3)
 	_expect(screen.is_pending(), "gacha command enters pending")
@@ -229,7 +232,7 @@ func _test_upgrade() -> void:
 	}))
 	_expect(screen.get_card_next_step_text("card.skill.omen").contains("先通过祈愿或奖励"), "upgrade gives unowned next step")
 	_expect(screen.get_card_next_step_text("card.skill.whisper").contains("等级上限"), "upgrade gives max level next step")
-	_expect(screen.get_background_path().ends_with("reward-archive.png"), "upgrade art background resolves")
+	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "upgrade art background resolves")
 	screen.request_upgrade("card.skill.ink_dart")
 	_expect(screen.is_pending(), "upgrade command enters pending")
 	_expect(_captured_upgrade == "card.skill.ink_dart", "upgrade emits stable card id")

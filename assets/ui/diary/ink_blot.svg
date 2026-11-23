@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200">
+  <defs>
+    <radialGradient id="pool" cx="42%" cy="48%" r="58%">
+      <stop offset="0%" stop-color="#140a08" stop-opacity="0.96"/>
+      <stop offset="40%" stop-color="#3a1410" stop-opacity="0.88"/>
+      <stop offset="75%" stop-color="#6a1c14" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#6a1c14" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bleed" cx="68%" cy="40%" r="42%">
+      <stop offset="0%" stop-color="#5a120e" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#5a120e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- main pool -->
+  <ellipse cx="140" cy="100" rx="118" ry="72" fill="url(#pool)"/>
+  <ellipse cx="210" cy="78" rx="78" ry="48" fill="url(#bleed)"/>
+  <!-- irregular fingers -->
+  <path d="M220 55 C255 28 290 42 312 22 C300 58 278 70 250 78 Z" fill="#1a0c08" fill-opacity="0.72"/>
+  <path d="M95 145 C70 168 48 175 28 188 C55 170 78 162 105 155 Z" fill="#120808" fill-opacity="0.68"/>
+  <path d="M175 42 C190 18 210 22 228 8 C215 36 200 48 182 55 Z" fill="#2a100c" fill-opacity="0.6"/>
+  <path d="M120 155 C135 178 128 188 142 198 C148 175 138 165 128 158 Z" fill="#1a0c08" fill-opacity="0.55"/>
+  <!-- satellites -->
+  <circle cx="68" cy="62" r="14" fill="#120808" fill-opacity="0.7"/>
+  <circle cx="52" cy="78" r="7" fill="#120808" fill-opacity="0.55"/>
+  <circle cx="248" cy="128" r="11" fill="#1a0c08" fill-opacity="0.62"/>
+  <circle cx="268" cy="108" r="6" fill="#1a0c08" fill-opacity="0.5"/>
+  <circle cx="188" cy="148" r="9" fill="#2a100c" fill-opacity="0.48"/>
+  <circle cx="300" cy="88" r="5" fill="#1a0c08" fill-opacity="0.45"/>
+  <!-- wet edge wash -->
+  <ellipse cx="155" cy="95" rx="95" ry="55" fill="#8a2a1c" fill-opacity="0.18"/>
+</svg>

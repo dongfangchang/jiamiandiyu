@@ -50,11 +50,18 @@ func _ready() -> void:
 		"consuming the potion should advance to sequence eight"
 	)
 	var clown_unlocked := false
+	var clown_owned := false
 	var deck_snapshot = session.get_deck_snapshot()
 	for card in deck_snapshot.data.get("cards", []):
 		if String(card.get("definition_id", "")) == "card.skill.hollow_bell":
 			clown_unlocked = String(card.get("add_reason_code", "")) != "sequence_locked"
+			clown_owned = bool(card.get("owned", false))
 	_expect(clown_unlocked, "sequence eight should lift the sequence lock on clown cards in the deck")
+	_expect(clown_owned, "sequence eight potion should grant hollow_bell into collection")
+	_expect(
+		String(deck_snapshot.data.get("selected_preset_id", "")) == "deck.preset.clown",
+		"sequence eight potion should select the clown preset"
+	)
 	_test_wave_transition()
 	_test_seer_foresight_and_ritual()
 	_test_sequence_locked_gacha()

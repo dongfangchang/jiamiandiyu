@@ -1,9 +1,9 @@
 extends RefCounted
 
 const IDENTITY_ART := {
-	"identity.reporter": "res://assets/game/v0.24.0/v0.4.0/identities/card-identity-reporter.png",
-	"identity.doctor": "res://assets/game/v0.24.0/v0.4.0/identities/card-identity-doctor.png",
-	"identity.gravedigger": "res://assets/game/v0.24.0/v0.4.0/identities/card-identity-gravedigger.png",
+	"identity.reporter": "res://assets/game/v0.48.0/identities/card-identity-reporter.png",
+	"identity.doctor": "res://assets/game/v0.48.0/identities/card-identity-doctor.png",
+	"identity.gravedigger": "res://assets/game/v0.48.0/identities/card-identity-gravedigger.png",
 }
 
 const CARD_ART := {
@@ -27,13 +27,33 @@ const CARD_ART := {
 	"card.skill.mirror_ward": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
 	"card.skill.severed_string": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
 	"card.skill.last_rites": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
+	"card.skill.veil_step": "res://assets/game/v0.41.0/cards/card_skill_veil_step.png",
+	"card.skill.severed_fate": "res://assets/game/v0.41.0/cards/card_skill_severed_fate.png",
+	"card.skill.paper_swarm": "res://assets/game/v0.41.0/cards/card_skill_paper_swarm.png",
+	"card.skill.mirror_shard": "res://assets/game/v0.41.0/cards/card_skill_mirror_shard.png",
+	"card.skill.last_witness": "res://assets/game/v0.41.0/cards/card_skill_last_witness.png",
+	"card.skill.false_death": "res://assets/game/v0.41.0/cards/card_skill_false_death.png",
+	"card.skill.sealed_answer": "res://assets/game/v0.41.0/cards/card_skill_sealed_answer.png",
+	"card.skill.hollow_bell": "res://assets/game/v0.41.0/cards/card_skill_hollow_bell.png",
+	"card.skill.ink_scarlet": "res://assets/game/v0.42.0/cards/card_skill_ink_scarlet.png",
+	"card.skill.echo_reading": "res://assets/game/v0.42.0/cards/card_skill_echo_reading.png",
+	"card.skill.midnight_ledger": "res://assets/game/v0.42.0/cards/card_skill_midnight_ledger.png",
+	"card.skill.borrowed_breath": "res://assets/game/v0.42.0/cards/card_skill_borrowed_breath.png",
+	"card.skill.glass_thesis": "res://assets/game/v0.42.0/cards/card_skill_glass_thesis.png",
+	"card.skill.hungry_symbol": "res://assets/game/v0.42.0/cards/card_skill_hungry_symbol.png",
+	"card.skill.candle_archive": "res://assets/game/v0.42.0/cards/card_skill_candle_archive.png",
+	"card.skill.omen_chorus": "res://assets/game/v0.42.0/cards/card_skill_omen_chorus.png",
+	"card.skill.closed_eye": "res://assets/game/v0.42.0/cards/card_skill_closed_eye.png",
+	"card.skill.black_thread": "res://assets/game/v0.42.0/cards/card_skill_black_thread.png",
+	"card.skill.eclipse": "res://assets/game/v0.42.0/cards/card_skill_eclipse.png",
+	"card.skill.red_corridor": "res://assets/game/v0.42.0/cards/card_skill_red_corridor.png",
 }
 
 const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
-const IDENTITY_BACKGROUND := "res://assets/game/v0.24.0/scenes/title-screen.png"
-const REWARD_BACKGROUND := "res://assets/game/v0.24.0/v0.4.0/scenes/reward-archive.png"
-const GACHA_BACKGROUND := "res://assets/game/v0.24.0/v0.4.0/scenes/gacha-altar.png"
-const UPGRADE_BACKGROUND := "res://assets/game/v0.24.0/v0.4.0/scenes/reward-archive.png"
+const IDENTITY_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const REWARD_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const GACHA_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const UPGRADE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 const TICKET_ICON := "res://assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png"
 const SHARD_ICON := "res://assets/game/v0.24.0/v0.4.0/icons/card-shard.png"
 

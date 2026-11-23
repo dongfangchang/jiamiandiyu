@@ -6,6 +6,8 @@ const WRONG_PHASE: StringName = &"wrong_phase"
 const CARD_NOT_IN_HAND: StringName = &"card_not_in_hand"
 const INSUFFICIENT_SPIRIT: StringName = &"insufficient_spirit"
 const INVALID_TARGET: StringName = &"invalid_target"
+const NEED_DISCARD_CHOICE: StringName = &"need_discard_choice"
+const INVALID_DISCARD_CHOICE: StringName = &"invalid_discard_choice"
 
 var playable: bool = false
 var reason_code: StringName = CARD_NOT_IN_HAND

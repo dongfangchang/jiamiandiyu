@@ -1,6 +1,7 @@
 extends RefCounted
-## v0.35 battle-table helpers: diegetic meters, intent glyphs, drag thresholds.
-## Presentation only — never computes rules or damage.
+## v0.35–v0.36 battle-table helpers: diegetic meters, intent glyphs, drag,
+## turn atmosphere and participation copy. Presentation only — never computes
+## rules or damage.
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 
@@ -13,6 +14,51 @@ const INTENT_ICON := {
 	"block": "block",
 	"guard": "block",
 }
+
+
+static func turn_stamp_zh(phase: String, outcome: String = "") -> String:
+	if not outcome.is_empty():
+		return "战斗结束"
+	match phase:
+		"player_action":
+			return "—— 你的回合 · 动手 ——"
+		"enemy_action", "enemy_intent", "resolve_enemy":
+			return "—— 敌方行动 · 按住桌面 ——"
+		"player_draw", "turn_start", "round_start":
+			return "—— 回合展开 ——"
+		_:
+			return "—— 值夜者桌面 ——"
+
+
+static func turn_stamp_color(phase: String, outcome: String = "") -> Color:
+	if not outcome.is_empty():
+		return UiTheme.C_MUTED
+	match phase:
+		"player_action":
+			return UiTheme.C_GOLD
+		"enemy_action", "enemy_intent", "resolve_enemy":
+			return UiTheme.C_DANGER_TEXT
+		_:
+			return UiTheme.C_MUTED
+
+
+static func discard_altar_zh(selected_count: int, required: int, card_name: String) -> String:
+	if required <= 0:
+		return ""
+	return "祭坛 · 为「%s」献出 %d / %d 张手牌（点选标记）" % [
+		card_name,
+		selected_count,
+		required,
+	]
+
+
+static func clip_aim_preview(effect_text: String, max_chars: int = 36) -> String:
+	var text := effect_text.strip_edges()
+	if text.is_empty():
+		return "对准目标松手打出"
+	if text.length() <= max_chars:
+		return text
+	return text.substr(0, max_chars - 1) + "…"
 
 
 static func intent_icon_id(intent_id: String, visible_fields: Dictionary = {}) -> String:
@@ -42,10 +88,12 @@ static func diegetic_meter(
 	fill_color: Color,
 	width: float = 128.0
 ) -> VBoxContainer:
+	## Compact two-row meter so BattleHeader (≈60px) never clips the bar.
 	var result := VBoxContainer.new()
 	result.name = "DiegeticMeter"
-	result.add_theme_constant_override("separation", 3)
-	result.custom_minimum_size = Vector2(width, 56)
+	result.add_theme_constant_override("separation", 2)
+	result.custom_minimum_size = Vector2(width, 44)
+	result.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	result.set_meta("meter_title", title)
 	result.set_meta("fill_color", fill_color)
 
@@ -53,7 +101,7 @@ static func diegetic_meter(
 	title_row.add_theme_constant_override("separation", 5)
 	var icon := TextureRect.new()
 	icon.name = "StatusIcon"
-	icon.custom_minimum_size = Vector2(18, 18)
+	icon.custom_minimum_size = Vector2(16, 16)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -61,12 +109,17 @@ static func diegetic_meter(
 	if ResourceLoader.exists(icon_path):
 		icon.texture = load(icon_path) as Texture2D
 	title_row.add_child(icon)
-	title_row.add_child(UiTheme.label(title, 12, UiTheme.C_MUTED))
+	title_row.add_child(UiTheme.label(title, 11, UiTheme.C_MUTED))
+	var value_label := UiTheme.clip_label("—", 15, UiTheme.C_TEXT)
+	value_label.name = "MeterValue"
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	title_row.add_child(value_label)
 	result.add_child(title_row)
 
 	var bar := ProgressBar.new()
 	bar.name = "MeterBar"
-	bar.custom_minimum_size = Vector2(0, 12)
+	bar.custom_minimum_size = Vector2(0, 10)
 	bar.max_value = 100.0
 	bar.value = 0.0
 	bar.show_percentage = false
@@ -78,10 +131,6 @@ static func diegetic_meter(
 	bar.add_theme_stylebox_override("background", bg)
 	bar.add_theme_stylebox_override("fill", fill)
 	result.add_child(bar)
-
-	var value_label := UiTheme.clip_label("—", 18, UiTheme.C_TEXT)
-	value_label.name = "MeterValue"
-	result.add_child(value_label)
 	return result
 
 
@@ -94,7 +143,7 @@ static func set_diegetic_meter(
 ) -> void:
 	if not is_instance_valid(meter):
 		return
-	var value_label := meter.get_node_or_null("MeterValue") as Label
+	var value_label := meter.find_child("MeterValue", true, false) as Label
 	if is_instance_valid(value_label):
 		UiTheme.set_clip_text(value_label, value_text)
 		value_label.add_theme_color_override("font_color", value_color)

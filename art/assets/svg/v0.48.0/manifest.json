@@ -1,0 +1,68 @@
+{
+  "version": "v0.48.0",
+  "theme": "tingen_enemy_identity",
+  "enemies": [
+    {
+      "stable_id": "enemy.candle_moth",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-candle-moth.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-candle-moth.png"
+    },
+    {
+      "stable_id": "enemy.tingen.kidnapper",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-tingen-kidnapper.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-tingen-kidnapper.png"
+    },
+    {
+      "stable_id": "enemy.mirror_hound",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-mirror-hound.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-mirror-hound.png"
+    },
+    {
+      "stable_id": "enemy.mirror_hound_echo",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-mirror-hound-echo.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-mirror-hound-echo.png"
+    },
+    {
+      "stable_id": "enemy.weeping_tenant",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-weeping-tenant.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-weeping-tenant.png"
+    },
+    {
+      "stable_id": "enemy.tingen.knight_wraith",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-tingen-knight-wraith.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-tingen-knight-wraith.png"
+    },
+    {
+      "stable_id": "enemy.tingen.rampager",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-tingen-rampager.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-tingen-rampager.png"
+    },
+    {
+      "stable_id": "enemy.mirror_baron",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-mirror-baron.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-mirror-baron.png"
+    },
+    {
+      "stable_id": "enemy.tingen.megose",
+      "svg": "art/assets/svg/v0.48.0/enemies/enemy-tingen-megose.svg",
+      "png": "assets/game/v0.48.0/enemies/enemy-tingen-megose.png"
+    }
+  ],
+  "identities": [
+    {
+      "stable_id": "identity.reporter",
+      "svg": "art/assets/svg/v0.48.0/identities/card-identity-reporter.svg",
+      "png": "assets/game/v0.48.0/identities/card-identity-reporter.png"
+    },
+    {
+      "stable_id": "identity.doctor",
+      "svg": "art/assets/svg/v0.48.0/identities/card-identity-doctor.svg",
+      "png": "assets/game/v0.48.0/identities/card-identity-doctor.png"
+    },
+    {
+      "stable_id": "identity.gravedigger",
+      "svg": "art/assets/svg/v0.48.0/identities/card-identity-gravedigger.svg",
+      "png": "assets/game/v0.48.0/identities/card-identity-gravedigger.png"
+    }
+  ]
+}

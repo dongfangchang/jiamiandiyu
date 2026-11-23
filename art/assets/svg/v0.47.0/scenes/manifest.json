@@ -1,0 +1,26 @@
+{
+  "version": "v0.47.0",
+  "theme": "tingen_p3_system_shells",
+  "assets": [
+    {
+      "stable_id": "scene.title.mask_desk",
+      "svg": "art/assets/svg/v0.47.0/scenes/title-mask-desk.svg",
+      "png": "assets/game/v0.47.0/scenes/title-mask-desk.png"
+    },
+    {
+      "stable_id": "scene.hub.route_map",
+      "svg": "art/assets/svg/v0.47.0/scenes/hub-route-map.svg",
+      "png": "assets/game/v0.47.0/scenes/hub-route-map.png"
+    },
+    {
+      "stable_id": "scene.hub.deck_archive",
+      "svg": "art/assets/svg/v0.47.0/scenes/hub-deck-archive.svg",
+      "png": "assets/game/v0.47.0/scenes/hub-deck-archive.png"
+    },
+    {
+      "stable_id": "scene.hub.gacha_altar",
+      "svg": "art/assets/svg/v0.47.0/scenes/hub-gacha-altar.svg",
+      "png": "assets/game/v0.47.0/scenes/hub-gacha-altar.png"
+    }
+  ]
+}

@@ -72,7 +72,7 @@ func _test_identity_and_deck() -> void:
 	_expect(_app.get_current_route() == &"deck", "identity selection opens the deck editor")
 	var deck = _app.get_current_screen()
 	_expect(deck.get_total_card_count() == 40, "deck editor exposes the forty-card pool")
-	_expect(deck.get_preset_count() == 4, "deck editor exposes four presets")
+	_expect(deck.get_preset_count() == 5, "deck editor exposes five presets")
 	_expect(deck.get_current_deck_count() == 8, "default deck contains eight unique cards")
 	_expect(deck.is_confirm_enabled(), "default deck is immediately confirmable")
 	var first_id := String(
@@ -173,7 +173,7 @@ func _test_growth_and_upgrade() -> void:
 	_app.get_current_screen().deck_requested.emit()
 	await _wait_frames(2)
 	_expect(_app.get_current_route() == &"deck", "deck editor remains available after growth")
-	_expect(_app.get_current_screen().get_preset_count() == 4, "presets remain available after growth")
+	_expect(_app.get_current_screen().get_preset_count() == 5, "presets remain available after growth")
 	_app.get_current_screen().request_confirm_deck()
 	await _wait_frames(3)
 	_expect(_app.get_current_route() == &"hub", "deck re-confirmation returns to hub")
@@ -373,12 +373,15 @@ func _fight_until_finished() -> void:
 				target_id = _lowest_health_enemy(battle.get_snapshot_data())
 				if target_id.is_empty():
 					continue
-			var playability = _app.get_session().query_card_play(instance_id, target_id)
+			var discards: Array = _app.get_session().auto_discard_ids_for(instance_id)
+			var playability = _app.get_session().query_card_play(instance_id, target_id, discards)
 			if playability == null or not playability.playable:
 				continue
 			battle.select_card_instance(instance_id)
 			if not target_id.is_empty():
 				battle.select_target(target_id)
+			for discard_id in discards:
+				battle.toggle_discard_choice(StringName(discard_id))
 			battle.play_selected()
 			await get_tree().process_frame
 		if _app.get_current_route() != &"battle":

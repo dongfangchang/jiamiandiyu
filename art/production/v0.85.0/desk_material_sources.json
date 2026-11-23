@@ -1,0 +1,60 @@
+{
+  "provenance": "User-supplied images, 2026-11-23. No license asserted; use approved for this local game.",
+  "assets": [
+    {
+      "source": "art/assets/raster/v0.85.0/materials/paper-original.png",
+      "source_size": [
+        1536,
+        2048
+      ],
+      "source_sha256": "eb42b4ca99549aecd8d00c1e666a9d722142ef16573ebb35784ba015db26084b",
+      "crop_box": [
+        0,
+        256,
+        1536,
+        1792
+      ],
+      "target": "assets/ui/diary/parchment_grain.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "019e303105144c25ec355bc032dc8976aa1e0700d30492d97ec83fea287a7f48",
+      "processing": "center square crop, Lanczos resize, cosine crossfade in outer 160px, no global recoloring",
+      "edge_pair_mean_absolute_difference": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "source": "art/assets/raster/v0.85.0/materials/wood-original.png",
+      "source_size": [
+        1536,
+        2048
+      ],
+      "source_sha256": "8e91462668b11553dbb5362b1c83bee2d8c9d61e8cad784a5abbab4e96ad8754",
+      "crop_box": [
+        0,
+        256,
+        1536,
+        1792
+      ],
+      "target": "assets/ui/diary/desk_wood.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "373b786cd7f51d9feda61ff879a4fa00b19dd1b618b467dfc5366f51ed57cdb0",
+      "processing": "center square crop, Lanczos resize, cosine crossfade in outer 160px, no global recoloring",
+      "edge_pair_mean_absolute_difference": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "source": "art/assets/raster/v0.85.0/references/brass-candlestick-original.png",
+      "source_sha256": "e20ac572f88b9ab16434e256471db51dbf716b2df21102b082cf3591b9c1a59e",
+      "usage": "modeling reference only; not a transparent sprite"
+    }
+  ]
+}

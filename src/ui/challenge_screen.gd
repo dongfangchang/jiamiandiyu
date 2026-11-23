@@ -170,7 +170,7 @@ func _build() -> void:
 	safe.add_theme_constant_override("margin_left", 54)
 	safe.add_theme_constant_override("margin_top", 36)
 	safe.add_theme_constant_override("margin_right", 54)
-	safe.add_theme_constant_override("margin_bottom", 34)
+	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
 	add_child(safe)
 
 	var column := VBoxContainer.new()
@@ -197,15 +197,14 @@ func _build() -> void:
 	heading.add_child(_eyebrow_label)
 	_heading_label = UiTheme.label("值夜者档案", 42, UiTheme.C_TEXT)
 	heading.add_child(_heading_label)
-	var description_box := UiTheme.fixed_text(
+	_description_label = UiTheme.flow_text(
 		"晋升小丑之后，重新翻开廷根值夜者的档案。选择一条修饰，用既有收藏重演第一卷的战斗。",
 		15,
 		UiTheme.C_PAPER,
-		46
+		3
 	)
-	description_box.name = "ChallengeDescriptionBox"
-	_description_label = UiTheme.fixed_text_label(description_box)
-	heading.add_child(description_box)
+	_description_label.name = "ChallengeDescriptionBox"
+	heading.add_child(_description_label)
 	_requirement_label = UiTheme.label("", 14, UiTheme.C_MUTED)
 	_requirement_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(_requirement_label)
@@ -218,7 +217,7 @@ func _build() -> void:
 	var premise := UiTheme.padded_panel(
 		_build_premise(),
 		15,
-		Color(0.055, 0.058, 0.047, 0.96),
+		UiTheme.C_MODULE,
 		UiTheme.C_LINE
 	)
 	column.add_child(premise)
@@ -230,7 +229,7 @@ func _build() -> void:
 	var footer := UiTheme.padded_panel(
 		_build_footer(),
 		14,
-		Color(0.055, 0.058, 0.047, 0.97),
+		UiTheme.C_MODULE,
 		UiTheme.C_GOLD
 	)
 	column.add_child(footer)
@@ -269,7 +268,7 @@ func _build_footer() -> HBoxContainer:
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_status_label)
-	_exit_button = UiTheme.button("返回白昼档案", request_exit, true, 170)
+	_exit_button = UiTheme.button("回日记", request_exit, true, 170)
 	_start_button = UiTheme.button("开始挑战", request_start, false, 156)
 	row.add_child(_exit_button)
 	row.add_child(_start_button)
@@ -340,7 +339,7 @@ func _build_modifier(modifier: Dictionary) -> Control:
 	var modifier_id := String(modifier.get("id", ""))
 	var selected := modifier_id == _selected_modifier_id
 	var panel := UiTheme.panel(
-		Color(0.065, 0.068, 0.055, 0.97),
+		UiTheme.C_MODULE_RAISED,
 		UiTheme.C_GOLD if selected else UiTheme.C_LINE
 	)
 	panel.custom_minimum_size = Vector2(420, 0)

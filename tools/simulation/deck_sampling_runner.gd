@@ -919,31 +919,23 @@ func _find_playable(
 		for card in snapshot_data.get("hand", []):
 			if StringName(card["definition_id"]) != definition_id:
 				continue
+			var instance_id := StringName(card["instance_id"])
 			var target_id := _target_for_card(snapshot_data, card)
-			var playability = engine.query_card_play(
-				StringName(card["instance_id"]),
-				target_id
-			)
+			var discards: Array = engine.auto_discard_ids_for(instance_id)
+			var playability = engine.query_card_play(instance_id, target_id, discards)
 			if playability.playable:
-				return BattleCommandScript.play_card(
-					StringName(card["instance_id"]),
-					target_id
-				)
+				return BattleCommandScript.play_card(instance_id, target_id, discards)
 	return null
 
 
 func _first_playable_card(engine, snapshot_data: Dictionary) -> BattleCommand:
 	for card in snapshot_data.get("hand", []):
+		var instance_id := StringName(card["instance_id"])
 		var target_id := _target_for_card(snapshot_data, card)
-		var playability = engine.query_card_play(
-			StringName(card["instance_id"]),
-			target_id
-		)
+		var discards: Array = engine.auto_discard_ids_for(instance_id)
+		var playability = engine.query_card_play(instance_id, target_id, discards)
 		if playability.playable:
-			return BattleCommandScript.play_card(
-				StringName(card["instance_id"]),
-				target_id
-			)
+			return BattleCommandScript.play_card(instance_id, target_id, discards)
 	return null
 
 

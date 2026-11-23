@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1812"/>
+      <stop offset="1" stop-color="#0c0b09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="48%">
+      <stop offset="0" stop-color="#EFE1C0" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#AF9165" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+      <path d="M0 0V8" stroke="#211D18" stroke-width=".7" opacity=".16"/>
+    </pattern>
+    <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="482" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0" result="m"/>
+      <feComponentTransfer in="m" result="f"><feFuncA type="table" tableValues="0 .11"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="f" mode="multiply"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#wash)" filter="url(#grain)"/>
+  <rect width="900" height="900" fill="url(#glow)"/>
+  <rect width="900" height="900" fill="url(#hatch)" opacity=".25"/>
+  <circle cx="450" cy="430" r="310" fill="none" stroke="#B99750" stroke-width="1" opacity=".1"/>
+  
+    <!-- 失控的瑞尔·比伯：扭曲 + 红眼 + 笔记 -->
+    <ellipse cx="450" cy="740" rx="170" ry="30" fill="#3A3731" opacity=".28"/>
+    <path d="M280 320 C320 200 400 160 450 170 C520 150 600 220 620 340
+      C640 460 600 620 520 660 C460 680 380 660 320 600 C260 520 250 400 280 320 Z"
+      fill="#2a1818" stroke="#7A2828" stroke-width="4"/>
+    <circle cx="400" cy="300" r="22" fill="#7A2828" stroke="#E8D091" stroke-width="2"/>
+    <circle cx="500" cy="295" r="26" fill="#7A2828" stroke="#E8D091" stroke-width="2"/>
+    <path d="M360 400 C420 440 480 430 540 390" fill="none" stroke="#E8DFC9" stroke-width="3" opacity=".4"/>
+    <rect x="620" y="420" width="70" height="90" rx="4" fill="#EFE1C0" stroke="#211D18" stroke-width="3" transform="rotate(12 655 465)"/>
+    <path d="M300 500 L260 580 L320 560" fill="#7A2828" opacity=".45"/>
+  
+</svg>

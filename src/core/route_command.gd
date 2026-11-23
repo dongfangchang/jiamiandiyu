@@ -4,6 +4,7 @@ extends RefCounted
 const SELECT_NODE: StringName = &"select_node"
 const RESOLVE_NODE: StringName = &"resolve_node"
 const USE_REST: StringName = &"use_rest"
+const WIPE_INK: StringName = &"wipe_ink"
 const BEGIN_ASCENSION: StringName = &"begin_ascension"
 const SUBMIT_RITUAL_STEP: StringName = &"submit_ritual_step"
 const REQUEST_RITUAL_HINT: StringName = &"request_ritual_hint"
@@ -42,6 +43,13 @@ static func resolve_node(
 static func use_rest(rest_id_value: StringName) -> RouteCommand:
 	var command := RouteCommand.new(USE_REST)
 	command.rest_id = rest_id_value
+	return command
+
+
+static func wipe_ink(node_id_value: StringName) -> RouteCommand:
+	## Spend spirit to clear 0-08 re-ink on a locked clue.
+	var command := RouteCommand.new(WIPE_INK)
+	command.node_id = node_id_value
 	return command
 
 
