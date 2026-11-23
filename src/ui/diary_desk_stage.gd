@@ -251,7 +251,7 @@ func _build_stage() -> void:
 
 	var key := DirectionalLight3D.new()
 	key.name = "KeyLight"
-	key.light_energy = 0.62
+	key.light_energy = 0.40
 	key.light_color = Color(1.0, 0.98, 0.95)
 	key.rotation_degrees = Vector3(-48.0, 35.0, 0.0)
 	## Real cast shadows are what make the book read as an object ON the desk
@@ -652,7 +652,7 @@ func _page_parchment(node_name: String, mirror: bool) -> TextureRect:
 	tr.flip_h = mirror
 	## The photographed sheet is near-white; under the key light it blew out.
 	## Modulate it back to parchment so ink keeps its contrast.
-	tr.modulate = Color(0.80, 0.75, 0.66)
+	tr.modulate = Color(0.62, 0.57, 0.49)
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return tr
 

@@ -169,8 +169,13 @@ func _process(_delta: float) -> void:
 	if _post_mat != null:
 		_post_mat.set_shader_parameter("time", t)
 		_post_mat.set_shader_parameter("flicker", clampf(_candle_sway * 3.5 + flicker * 6.0, 0.0, 1.0))
-		_post_mat.set_shader_parameter("intensity", 0.28 + _candle_sway * 0.22)
-		_post_mat.set_shader_parameter("warm", 0.16 + _candle_sway * 0.28)
+		## Measured against the reference: its neighbour-delta (grain + material
+		## micro-contrast) is 0.0439 while a clean render sits near 0.029.
+		## Grain is what closes that gap, so it is driven hard here.
+		_post_mat.set_shader_parameter("intensity", 0.92 + _candle_sway * 0.08)
+		_post_mat.set_shader_parameter("grain_amount", 0.085)
+		_post_mat.set_shader_parameter("warm", 0.30 + _candle_sway * 0.18)
+		_post_mat.set_shader_parameter("vignette", 0.62)
 	_apply_book_modulate()
 	## Gaze: light page drift + shader warp; stronger near pointer / high attention.
 	if is_instance_valid(_page_current) and not is_flipping:
@@ -561,7 +566,16 @@ func _install_desk_p0(root: Control) -> void:
 		_flip3d_host.visible = false
 		_flip3d_host.modulate.a = 0.0
 	if is_instance_valid(_post_fx):
-		_post_fx.visible = false
+		## Grain / warm grade / vignette over the whole desk. It was switched
+		## off during the desk rebuild because it sat UNDER the 3D stage and
+		## did nothing; re-parenting it to the top makes it sample the composed
+		## frame. This is what supplies the photographic micro-contrast the
+		## reference has and a clean 3D render does not.
+		_post_fx.visible = true
+		var post_parent := _post_fx.get_parent()
+		if post_parent != null:
+			post_parent.move_child(_post_fx, post_parent.get_child_count() - 1)
+		_post_fx.z_index = 100
 	## Dim/hide 2D rain-night plate — desk World3D is the scene backdrop now.
 	var bg := get_node_or_null("SceneBackgroundHolder")
 	if bg is CanvasItem:

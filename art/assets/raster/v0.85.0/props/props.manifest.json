@@ -169,6 +169,72 @@
       "trim": true,
       "pad": 4,
       "out": "open-journal.png"
+    },
+    {
+      "id": "title_journal_closed",
+      "src": "../title/title-journal-closed.png",
+      "key": "flood_dark",
+      "tolerance": 0.1,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-journal-closed.png"
+    },
+    {
+      "id": "title_journal_new",
+      "src": "../title/title-journal-new.png",
+      "key": "flood_dark",
+      "tolerance": 0.08,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-journal-new.png"
+    },
+    {
+      "id": "title_dossier_stack",
+      "src": "../title/title-dossier-stack.png",
+      "key": "flood_dark",
+      "tolerance": 0.12,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-dossier-stack.png"
+    },
+    {
+      "id": "title_pocket_watch",
+      "src": "../title/title-pocket-watch.png",
+      "key": "flood_dark",
+      "tolerance": 0.08,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-pocket-watch.png"
+    },
+    {
+      "id": "title_candle_snuffer",
+      "src": "../title/title-candle-snuffer.png",
+      "key": "flood_dark",
+      "tolerance": 0.08,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-candle-snuffer.png"
+    },
+    {
+      "id": "title_note_slip",
+      "src": "../title/title-note-slip.png",
+      "key": "flood_dark",
+      "tolerance": 0.14,
+      "feather": 2,
+      "trim": true,
+      "pad": 6,
+      "out": "title-note-slip.png"
+    },
+    {
+      "id": "title_desk_wide",
+      "src": "../title/title-desk-wide.png",
+      "key": "none",
+      "out": "title-desk-wide.png"
     }
   ]
 }
