@@ -4,11 +4,60 @@
 
 ## 进行中 / 待办
 
+> **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
+
+### UI-P0-1 · 标题站：删除旧面板，改为文字菜单（取代被否决的 H-03 方案）
+- status: todo
+- 优先级: P0（最先做）
+- 来源: 用户反馈；ADR-0034 D1/D2；v0.89 P0-1
+- 改哪些: `src/ui/start_screen.gd`、`src/ui/title_desk_stage.gd`、`scenes/ui/start_screen.tscn`、`tests/ui/**`
+- 做法:
+  1. **删除** `start_screen` 的整套旧布局（标题、说明、存档摘要面板、恢复备份 / 测试档案 / 设置等按钮、雨夜底图、`SceneDim`）以及只为它存在的代码；删除 `TitleOpenCover` 和隐形热区绑定（`bind()` 的再托管机制）。
+  2. 标题站 = 合上的书（DW-05）+ 书签纸条（DW-04）。纸条上用思源宋体写存档摘要（身份 · 序列 · 上次保存），以及文字菜单「继续 / 新的日记 / 挑战 / 设置 / 离开」。恢复备份放进"设置"的二级纸签；测试档案只在调试构建中出现。
+  3. 物件不可点；文字条目悬停或聚焦时，对应物件提亮。
+  4. 开书动画只播放书的推近，然后交给路由器淡出；不再需要遮罩。
+- 完成标准: 标题场景树中除文字菜单条目外没有任何 `BaseButton`；`grep -n 'TitleOpenCover\|SceneBackgroundHolder' src/ui` 为空；集成测试按文字找到菜单并能走通继续 / 新游戏 / 挑战。
+- 怎么验: run_tests 全绿；两种分辨率截图写进 `docs/reports/v0.89.0/ui.md`。
+- 阻塞: 无
+
+### UI-P0-2 · 日记可读性底线
+- status: todo
+- 优先级: P0
+- 来源: 用户反馈"字都看不清"；ADR-0034 D3；EXPERIENCE §5.1
+- 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（外框文字）、`tests/ui/**`
+- 已查明的原因:
+  - `diary_page_pair.gd:20` 中 `PAGE_VP_SIZE = 512×720`。
+  - `diary_desk_stage.gd:272` 中世界视口按逻辑 1600×900 渲染，在 2920×1753 窗口上被放大。
+  - 注脚 16px、符文说明 16px、叶号 18px，贴到斜页上后只剩约 8–10px。
+  - 镜头俯角 −59°，页面被压扁。
+- 做法: 世界视口按物理像素渲染；页面视口 ≥1024×1440，所有页内字号随之放大；页面材质开 mipmap 和各向异性过滤；调整镜头或加悬停推近，使书页与视线夹角 ≤25°；外框文字（左上卷名、底部提示）改用思源宋体并放大，或删掉冗余项。
+- 完成标准: §5.1 每一项达标；自动化测试断言视口尺寸 = 物理像素、页面视口 ≥1024×1440。
+- 怎么验: 1600×900 和 2920×1753 两张截图（不加 `--headless`）；原尺寸下正文可读。
+- 阻塞: 无
+
+### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
+- status: blocked
+- 优先级: P0
+- 来源: 用户反馈"画风太简陋"；ADR-0034 D4
+- 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_page_pair.gd`、`tests/ui/**`
+- 做法: 接入 DQ-01 背景板、DQ-02 桌面 PBR、DQ-03 书皮和书口、DQ-04 右页装饰、DQ-05 丝带书签（上面写"合上"，取代红色平面块）、DQ-06 接触阴影；按渲染器结论调整光照和后期（色调映射、辉光、暗角）；右页版式：页眉饰、极淡横线、题名、正文、页角饰，蜡封带文字。
+- 完成标准: 用户认可前后对比截图。
+- 阻塞: 架构师 AR-05（渲染器结论）；美术 ART-DQ；主协调者 CO-DQ 迁入
+
+### UI-X0-rev · 按 ADR-0034 修订站位设计稿
+- status: todo
+- 优先级: P0（X1 实现前完成）
+- 改哪些: `docs/design/DESK_WORLD_STATIONS.md` §3.1、§3.3 及交互状态表
+- 做法: 标题站改为纸条上的文字菜单；总览站把"悬停物件出题签"改为桌角索引卡的文字条目，条目悬停时联动提亮物件；明确所有站位"物件不可点"。
+- 完成标准: 架构师 AR-06 评审通过
+
+
 > **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
 > 当前版本 v0.88（R2 + 热修）由**主会话**并行执行，标注 `owner: 主会话` 的条目**不要重复开工**，也不要改它们的文件。
 
 ### UI-H · v0.88 热修 H-01 卡图 / H-02 翻页预加载 / H-03 标题露旧面板
-- status: doing
+- status: done
+- 证据/说明: H-01、H-02 已合并（v0.88，f594848 之前）；H-03 被用户否决 → UI-P0-1
 - owner: 主会话（v0.88 轨道 H）——**勿重复**；完成后由主会话标 done
 - 来源: 用户 2026-11-24 反馈
 - 改哪些: gacha_screen / upgrade_screen 取图、diary_desk_stage、title_desk_stage、start_screen
@@ -16,7 +65,7 @@
 - 怎么验: 轨道 H 报告 docs/reports/v0.88.0/ui_hotfix.md 的手动清单
 
 ### UI-X0 · 书桌世界站位设计稿（现在就可以做，不改 src）
-- status: todo
+- status: done
 - 来源: ADR-0032；ROADMAP X1
 - 改哪些: 新建 `docs/design/DESK_WORLD_STATIONS.md`（本条授权 UI 写这一个设计文件）；线框图放 `assets/ui/wireframes/desk_world/`
 - 完成标准:
@@ -26,27 +75,54 @@
   4. 每个站位的进出过渡（T1–T4 中的哪一个）与输入状态（悬停 / 按下 / 禁用 / 锁定）
   5. 用现有素材拼一张总览示意截图
 - 怎么验: 架构师评审通过（对照 EXPERIENCE §2–§5）；美术能按此定物件比例
-- 阻塞: 无
+- 证据: `docs/design/DESK_WORLD_STATIONS.md`；`assets/ui/wireframes/desk_world/{00..04}*`；报告 `docs/reports/v0.88.0/ui.md` §10；请求 architect AR-04
+
+### UI-X0-fix · AR-04 条件清零
+- status: done
+- 来源: docs/reports/v0.88.0/architect.md（有条件通过）
+- 改哪些: `docs/design/DESK_WORLD_STATIONS.md` §1/§4；`assets/ui/wireframes/desk_world/00_topdown_layout.svg`；`03_transitions.md`；`docs/reports/v0.88.0/ui.md`
+- 完成标准:
+  1. 过渡表补新游戏 TITLE→DOSSIER（T1）及建档后续 CARDBOX→DIARY（直达，不经 DESK 0.4s）
+  2. 墨水/羽笔改到卡匣·祈愿台·抽屉 AABB 外，俯视线框标注
+- 怎么验: architect 短评确认条件清零
+- 证据: DESK_WORLD_STATIONS §1/§4；00_topdown + 03_transitions；ui.md「AR-04 条件已清」；请 architect 确认
 
 ### UI-X1 · v0.89 书桌世界 I 实现（X1-01…04、X1-06）
-- status: blocked
+- status: todo
+- 证据/说明: 阻塞已解除（v0.88 已合并，X0 已评审，X1 美术已迁入）；排在 UI-P0-1、UI-P0-2、UI-X0-rev 之后
 - 来源: ROADMAP X1
 - 改哪些: `src/ui/**`、`src/app/screen_router.gd`、`scenes/ui/**`、`tests/ui/**`
 - 完成标准: ROADMAP X1 各行的"完成标准"；EXPERIENCE §8 验收
 - 怎么验: run_tests 全绿 + 连续截图审查
-- 阻塞: ① v0.88 合并（避免与主会话 R2 同改 src/ui）；② UI-X0 评审通过；③ ART-DW-X1 批交付并由 coordinator 迁入
+- 阻塞: ① v0.88 合并（避免与主会话 R2 同改 src/ui）；② UI-X0 **AR-04 已通过**；③ X1 道具 **已迁入** `assets/game/desk_world/`（CO-X1 done）
 
 ### UI-X2 · v0.90 书桌世界 II（X2-01…05）
 - status: blocked
-- 阻塞: UI-X1 完成；ART-DW-X2 批交付
+- 阻塞: UI-X1 完成（X2 美术已交付且 **CO-X2 已迁入**）
 
 ### UI-07 · 书桌世界美术审稿
-- status: blocked
+- status: done
 - 来源: ART_BRIEF_DESK_WORLD §4
 - 改哪些: 审稿结论写入当版 UI 报告；退回清单按 DW-ID 写进 art/tasks.md 的请求区
 - 完成标准: 每个 DW 物件结论为"过"或"退回加原因"
-- 阻塞: 等 art 交付
+- 证据: 初审退回 DW-01 open / DW-06；**复审 2026-11-24 全过**（`ui.md` UI-07 复审）；可请 coordinator 迁入
 
+### UI-07-recheck · FIX 复审
+- status: done
+- 证据: open 为皮夹双页；烛台 alpha xor=0；README 7/7
+
+### UI-07-X2 · 书桌世界 X2 审稿（DW-11…18）
+- status: done
+- 来源: ART-DW-X2 交付；ART_BRIEF_DESK_WORLD §2/§4
+- 改哪些: `docs/reports/v0.88.0/ui.md` 审稿表；若退回则 `art/tasks.md` 请求区 + ART-DW-X2-fix
+- 完成标准: DW-11…18 逐项过/退回（尺寸、透明、无字、开合轮廓、墨迹灰度中心白、页框中心透明）；全过则请求 coordinator 迁 X2
+- 怎么验: sips/PIL 尺寸+alpha；读 PNG 目视；对照 BRIEF §0/§2/§4 + 总览
+- 阻塞: 无
+- 备注: **勿**动 UI-H；**勿**开 UI-X1 生产码；**勿**自行迁 assets/game
+- 证据:
+  - `docs/reports/v0.88.0/ui.md` UI-07-X2 表：**DW-11…18 全部过**；无 ART-DW-X2-fix
+  - 度量：尺寸全对齐；altar 外围 xor=0；ink_mask L+中心白；page_frames 中心透明 100%；battle_cloth 接缝 mae=0
+  - 跨角色：~~CO-X2~~ **done**（26 PNG → `assets/game/desk_world/`）
 
 ### UI-01 · R0-11 日记八开真窗口审稿
 - status: todo

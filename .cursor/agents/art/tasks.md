@@ -4,24 +4,108 @@
 
 ## 进行中 / 待办
 
+> **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
+
+### ART-DQ · 日记站画面升级批（DQ-01…06）
+- status: todo
+- 优先级: P0（高于 ART-DW-X3、ART-02…05）
+- 来源: 用户反馈"画风太简陋"；`docs/design/ART_BRIEF_DESK_WORLD.md` §5
+- 改哪些: `art/assets/raster/desk_world/diary_quality/<DQ-id>/`（每项一个目录加 README）
+- 完成标准: 书房背景板（正视，3840×2160）；桌面 PBR 三张图（2048 无缝）；书皮和书口；右页装饰套；丝带书签；接触阴影。规格与 §5 一致。
+- 怎么验: 拼一张"现状截图 vs 资产示意"对比图，放进 `docs/reports/v0.89.0/art.md`；交给 UI 审稿
+- 阻塞: 无
+
+### ART-DW-07b · 索引卡（桌面总览的文字入口底纸）
+- status: todo
+- 来源: ADR-0034 D1
+- 改哪些: `art/assets/raster/desk_world/index_card/`
+- 完成标准: 600×900 正俯视索引卡，留 6 行空白书写行，无字，透明底；与 DW-07 同族
+- 阻塞: 无
+
+
 > **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
 > 当前版本 v0.88（R2 + 热修）由**主会话**并行执行，标注 `owner: 主会话` 的条目**不要重复开工**，也不要改它们的文件。
 
 ### ART-DW-X1 · 书桌世界 X1 批（DW-01…07）
-- status: todo
+- status: done
 - 来源: ADR-0032；`docs/design/ART_BRIEF_DESK_WORLD.md` §1
 - 改哪些: `art/assets/raster/desk_world/<object>/`（每个物件一个目录加 README）
 - 完成标准: 身份档案夹（开 / 合）、档案内页纸、相片框、书签纸条、合上的日记封面、烛台三帧、悬停题签全部交齐；正俯视、透明底、无字；阴影单独出图
 - 怎么验: 尺寸和透明度核对；放进一张 2048 总览拼贴，对照 §4 自查；交给 ui-designer UI-07 审稿
 - 阻塞: 无（规格已经定死为正俯视，不依赖镜头参数）
+- 证据:
+  - `art/assets/raster/desk_world/dossier/{closed,open}.png` + shadows
+  - `art/assets/raster/desk_world/page/page.png` + shadow
+  - `art/assets/raster/desk_world/photo_frame/photo_frame.png` + shadow（中心透明）
+  - `art/assets/raster/desk_world/slip/slip.png` + shadow
+  - `art/assets/raster/desk_world/book_closed/book_closed.png` + shadow
+  - `art/assets/raster/desk_world/candle/{candle_lit,candle_out,smoke}.png` + shadows
+  - `art/assets/raster/desk_world/tag/tag.png` + shadow
+  - 总览: `art/assets/raster/desk_world/_overview/desk_world_x1_overview_2048.png`
+  - 报告: `docs/reports/v0.88.0/art.md`
+- 跨角色请求: 请 **ui-designer** 做 **UI-07** 审稿（按 DW-ID）；`DESK_WORLD_STATIONS.md` 若已出请标需改比例的 ID
+- 备注: 2026-11-24 完成；站位稿未出，按 BRIEF 表尺寸；未迁 `assets/game`
+
+### UI→art 请求区 · UI-07 退回（2026-11-24）— **已清零（复审全过）**
+> 来自 ui-designer UI-07；比例锚见 `docs/design/DESK_WORLD_STATIONS.md` §5。
+
+| DW-ID | 结论 | 原因 / 要做什么 |
+|---|---|---|
+| **DW-01 open** | **过（复审）** | 皮夹展开 + 左右空白公文纸 + 铜扣/标签族 |
+| **DW-06 lit/out** | **过（复审）** | lit←out 母版叠焰；alpha xor=0 |
+| DW-01 closed | 过 | 皮夹+铜扣+空白标签位；尺寸 800×1100 |
+| DW-02 | 过 | 偏冷公文纸+淡横线；1024 平铺 |
+| DW-03 | 过 | 回形针框、中心透明；600×800 |
+| DW-04 | 过 | 空白纸条 700×260 |
+| DW-05 | 过 | 合书烫金框无字；1400×1000 |
+| DW-06 smoke | 过 | 有独立烟帧 |
+| DW-07 | 过 | 空白题签 360×120 |
+| （批次） | **已补** | 各物件 README 已齐（BRIEF §0） |
+
+### ART-DW-X1-fix · UI-07 退回项
+- status: done
+- 来源: UI-07 2026-11-24
+- 改哪些: `dossier/open.png`(+shadow)；`candle/candle_lit|out.png` 轮廓对齐；各目录 README
+- 完成标准: 上表退回项清零；UI 复审过
+- 怎么验: 再交 UI-07
+- 证据:
+  - `dossier/open.png` 重生为皮夹+双空白纸+铜扣/标签（非烫金开书）
+  - `candle_lit.png` = `candle_out` 母版 ⊕ 俯视焰；alpha xor=0
+  - 各物件 README 已按 BRIEF §0 补齐尺寸/状态/来源/授权
+  - 总览已更新：`_overview/desk_world_x1_overview_2048.png`
+  - 报告：`docs/reports/v0.88.0/art.md`
+  - **UI 复审全过**（`docs/reports/v0.88.0/ui.md` UI-07 复审）
+- 跨角色请求: ~~coordinator 迁入~~ → **CO-X1 done**（`assets/game/desk_world/`）
 
 ### ART-DW-X2 · 书桌世界 X2 批（DW-11…18）
-- status: todo
-- 来源: ART_BRIEF_DESK_WORLD §2
-- 改哪些: 同上
-- 完成标准: 卡匣、残页袋、祈愿台（两态加光效）、墨迹遮罩 ×4、信封 / 夹页卡、战斗桌布、扉页 / 终章页框
-- 怎么验: 同上；墨迹遮罩必须是灰度、能平滑地按阈值扩散
-- 阻塞: 建议在 X1 批之后做
+- status: done
+- 来源: ART_BRIEF_DESK_WORLD §2；X1 已过审
+- 改哪些: `art/assets/raster/desk_world/<object>/`（cardbox/pouch/altar/circle_glow/ink_mask/envelope/battle_cloth/page_frames）+ shadow + README；总览；报告
+- 完成标准: DW-11…18 齐；正俯视透明底无字；阴影另图；墨迹灰度阈值可扩散；不迁 assets/game；不开 X3
+- 怎么验: 尺寸/alpha/灰度；2048 总览；请 ui-designer UI-07 审 X2
+- 阻塞: 无
+- 证据:
+  - `cardbox/{closed,open}.png` + shadows @1200×900
+  - `pouch/pouch.png` + shadow @600×600
+  - `altar/{altar_idle,altar_active}.png` + shadows @1400×1400（外围 alpha 错配 0%）
+  - `circle_glow/circle_glow.png` @1400×1400
+  - `ink_mask/ink_mask_01..04.png` @2048×2048 L（中心亮/角黑）
+  - `envelope/{envelope,insert_card}.png` + shadows
+  - `battle_cloth/battle_cloth.png` @2048 平铺
+  - `page_frames/{frontispiece,epilogue}_frame.png` + shadows @1260×1770（中心透明 100%）
+  - 总览 `_overview/desk_world_x2_overview_2048.png`
+  - 报告 `docs/reports/v0.88.0/art.md` X2 节
+- 跨角色请求: ~~UI-07-X2~~ 全过；~~CO-X2~~ **done**（`assets/game/desk_world/`）；**不开 X3**
+- 备注: 2026-11-24 完成；未迁 assets/game
+
+### UI→art 请求区 · UI-07-X2（2026-11-24）— **已清零（全过）**
+> 来自 ui-designer UI-07-X2；无退回项；非阻塞备注见 ui.md（DW-11 closed 偏面板感）。
+
+| DW-ID | 结论 | 原因 / 要做什么 |
+|---|---|---|
+| DW-11…18 | **过** | 尺寸/透明/无字/墨迹灰度中心白/页框中心透明/altar 外围 xor=0/布接缝 均达标 |
+| （批次） | **过** | 8/8 README；总览色温一致 |
+| ART-DW-X2-fix | **不开** | 无退回 |
 
 ### ART-DW-X3 · 书桌世界 X3 批（DW-21…23）
 - status: todo
@@ -32,12 +116,18 @@
 
 
 ### ART-01 · 日记桌材质补洞（desk_wood + 页蜡封三态）
-- status: todo
-- 来源: ART_BRIEF_V085 §4；art 缺口建议 2026-11-24
-- 改哪些: `art/assets/raster/v0.85.0/**`（或当前版本 raster 目录）；清单 README
+- status: done
+- 来源: ART_BRIEF_V085 §4；X2 余力
+- 改哪些: `art/assets/raster/v0.85.0/desk_materials/**`
 - 完成标准: `desk_wood` ≥2048 无缝平铺候选；`wax_seal_{available,completed,locked}` 各 512×512 透明、无字
 - 怎么验: 尺寸核对 + 报告登记；正式迁入请 coordinator
 - 阻塞: 无
+- 证据:
+  - `desk_wood.png` 2048×2048
+  - `wax_seal_{available,completed,locked}.png` 512×512 RGBA
+  - README：`art/assets/raster/v0.85.0/desk_materials/README.md`
+- 跨角色请求: 请 coordinator 迁 `assets/ui/diary/`；请 ui-designer 真窗口抽查三态
+- 备注: available 压印字母已后处理抹除
 
 ### ART-02 · 身份牌 3 张换 v0.85 风格
 - status: todo

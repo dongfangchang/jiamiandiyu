@@ -4,38 +4,63 @@
 
 ## 进行中 / 待办
 
+> **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
+
+### AR-05 · 渲染器评估（gl_compatibility 对比 Forward+ / Mobile）→ ADR-0035
+- status: todo
+- 优先级: P0（阻塞 UI-P0-3 的光照和后期）
+- 来源: ADR-0034 D4
+- 做法: 在临时分支或工作树中切换 `rendering/renderer/rendering_method`，用日记站同一镜头截图，比较阴影、SSAO、辉光、色调映射、帧率（macOS M4，2920×1753），并检查导出影响（Windows 和 macOS）。不合入 main，结论写成 ADR-0035。
+- 完成标准: ADR-0035 给出选择、理由和迁移代价；附截图对比
+- 阻塞: 无
+
+### AR-06 · 评审 UI-X0-rev（ADR-0034 修订）
+- status: blocked
+- 阻塞: UI-X0-rev
+
+### AR-03b · 新守卫：遮罩和非文字按钮
+- status: blocked
+- 做法: run_tests 守卫：主路径禁止 `TitleOpenCover` / `*Cover` 遮罩；标题站和总览站除文字条目外不得有 `BaseButton`（用 UI 测试断言更可靠，与 UI 协作）
+- 阻塞: UI-P0-1 合并
+
+
 > **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
 > 当前版本 v0.88（R2 + 热修）由**主会话**并行执行，标注 `owner: 主会话` 的条目**不要重复开工**，也不要改它们的文件。
 
 ### AR-03 · 书桌世界守卫加入 run_tests
-- status: blocked
+- status: todo
+- 证据/说明: X1 已开版；`add_background(` 守卫先只对已改造的站位生效
 - 来源: EXPERIENCE §8
 - 改哪些: `tools/run_tests.sh` / `.ps1`
 - 完成标准: `add_background(`（X2 后阻断）、`Color("#` 字面量（已改造的站位阻断）、过渡期间同步 load（由路由测试覆盖）
 - 阻塞: X1 合并
 
 ### AR-04 · 评审 UI-X0 站位设计稿
-- status: blocked
-- 阻塞: UI-X0 交付
+- status: done
+- 来源: EXPERIENCE §8；UI-X0 交付后评审
+- 改哪些: `docs/reports/v0.88.0/architect.md`
+- 完成标准: 结论 通过/有条件通过/退回；写清必须改的点；UI-X1 可否开工说明
+- 怎么验: 对照 EXPERIENCE §2–§5/§8、DESK_WORLD_STATIONS、wireframes、ui.md、ADR-0032
+- 证据: 初评**有条件通过**；2026-11-24 **条件确认通过**（`architect.md`「AR-04 条件确认」）。① 过渡表已补 TITLE→DOSSIER；② 墨/羽 (0.52,0.48)/(0.66,0.55)。烛台 (−0.95,−0.38) 接受。UI-X1：条件已清 + 道具已迁入（CO-X1）；**余阻 v0.88 合并**。
 
-
-### AR-01 · R1 遗留项写入 ROADMAP/R2 拆分
-- status: todo
-- 来源: v0.87.0 §4.1 遗留
-- 改哪些: `docs/architecture/ROADMAP.md`、必要时 TARGET / ADR 起草
-- 完成标准: app_controller 命名、route_ui_catalog 死代码、diary 超行、旧数据读取等有条目归属
-- 怎么验: ROADMAP 可勾选；不改生产代码除非版本授权
-- 阻塞: 无
-
-### AR-02 · R2 开版前边界评审清单
-- status: todo
-- 来源: ADR-0031；R2 规则迁移/事实源合并
-- 改哪些: architecture 文档评审笔记
-- 完成标准: 跨层文件单一负责人表；黄金回放不变约束写清
-- 怎么验: 产品开 R2 时可直接派工
-- 阻塞: v0.87 关版或产品明确开 R2
 
 ## 已完成（近期）
+
+### AR-01 · R1 遗留项写入 ROADMAP/R2 拆分
+- status: done
+- 来源: v0.87.0 §4.1 遗留
+- 改哪些: `docs/architecture/ROADMAP.md`、`docs/reports/v0.88.0/architect.md`
+- 完成标准: app_controller 命名、route_ui_catalog 死代码、diary 超行、旧数据读取等有条目归属
+- 怎么验: ROADMAP 可勾选；不改生产代码除非版本授权
+- 证据: ROADMAP「R1 → R2/R3 遗留归属」+ R2-13 新增；R2-08/R3-06/R3-09 补注；摘要见 `docs/reports/v0.88.0/architect.md` AR-01
+
+### AR-02 · R2 开版前边界评审清单
+- status: done
+- 来源: ADR-0031；R2 规则迁移/事实源合并
+- 改哪些: `docs/architecture/ROADMAP.md`、`docs/reports/v0.88.0/architect.md`
+- 完成标准: 跨层文件单一负责人表；黄金回放不变约束写清
+- 怎么验: 产品 / 协调者派工时可直接勾选
+- 证据: ROADMAP「R2 边界与黄金回放约束」可勾选表 + 四条硬约束；`architect.md` AR-02 摘要
 
 ### AR-done-ADR-0031 · 整治期决策落地文档
 - status: done
