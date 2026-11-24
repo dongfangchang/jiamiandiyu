@@ -18,7 +18,7 @@ const TableSfx := preload("res://src/ui/table_sfx.gd")
 
 const POST_SHADER_PATH := "res://assets/ui/diary/diary_postprocess.gdshader"
 
-const DEFAULT_SPIRIT_WIPE_COST := 2
+const OPEN_BEGIN_ASCENSION := "begin_ascension"
 ## Wait out the settlement pen beat before the page turns by itself.
 const AUTO_FLIP_DELAY_SEC := 2.35
 const EXIT_BEAT_SEC := 0.55
@@ -37,7 +37,6 @@ var _command_busy := false
 var _exit_beat := ""
 var _pending_auto_flip := false
 var _pending_flip_finish := false
-var _spirit_wipe_cost := DEFAULT_SPIRIT_WIPE_COST
 
 var _title_label: Label
 var _leaf_label: Label
@@ -77,7 +76,6 @@ func _process(_delta: float) -> void:
 func apply_snapshot(snapshot: RouteSnapshot) -> void:
 	_command_busy = false
 	_route_data = snapshot.to_dictionary() if snapshot != null else {}
-	_spirit_wipe_cost = int(_route_data.get("spirit_wipe_cost", DEFAULT_SPIRIT_WIPE_COST))
 	_reload_spreads(false)
 	_refresh_chrome()
 	_sync_desk_spread()
@@ -106,10 +104,9 @@ func apply_command_result(result: RouteCommandResult) -> void:
 	var wipe_note := ""
 	for event in result.events:
 		if event != null and event.type == &"InkWiped":
-			wipe_note = String(event.data.get(
-				"annotation_zh",
-				"【灵性】墨渍退开一线——字迹重新可读。"
-			))
+			wipe_note = _catalog.annotation_text(String(event.data.get("annotation_id", "")))
+			if wipe_note.is_empty():
+				wipe_note = _catalog.pool_head_text("wipe")
 			break
 	if wipe_note.is_empty():
 		_play_pen_settlement("【0-08】阿勒苏霍德之笔落在页边——墨迹已改写这一叶。")
@@ -439,7 +436,7 @@ func _refresh_chrome() -> void:
 	## Desk folio already shows the leaf on the page; header stays a quiet volume line.
 	UiTheme.set_clip_text(_leaf_label, "")
 	var available_count := 0
-	var wipeable_count := 0
+	var wipe_cost := -1
 	var rewritten_locked := 0
 	for clue_value in _current_spread().get("clues", []):
 		if not clue_value is Dictionary:
@@ -448,13 +445,13 @@ func _refresh_chrome() -> void:
 		var state := int(clue.get("state", 0))
 		if state == DiaryCatalog.STATE_AVAILABLE:
 			available_count += 1
-		elif state == DiaryCatalog.STATE_LOCKED and _clue_wipeable(clue):
-			wipeable_count += 1
+		elif bool(clue.get("wipeable", false)):
+			wipe_cost = int(clue.get("wipe_cost", 0))
 		elif state == DiaryCatalog.STATE_LOCKED and bool(clue.get("rewritten_by_pen", false)):
 			rewritten_locked += 1
 	## DeskChrome: quiet edge whisper only — no “点暖金字句” system copy.
-	if wipeable_count > 0:
-		_set_status("墨渍可拭 · 灵性 %d" % _spirit_wipe_cost)
+	if wipe_cost >= 0:
+		_set_status("墨渍可拭 · 灵性 %d" % wipe_cost)
 	elif rewritten_locked > 0:
 		_set_status("笔改未启 · 横滑翻页")
 	elif available_count > 0:
@@ -473,12 +470,7 @@ func _sync_desk_spread() -> void:
 func _sync_desk_flip_blocks() -> void:
 	if not is_instance_valid(_desk_stage):
 		return
-	var next := _current_spread_idx + 1
-	var block_forward := true
-	if next >= 0 and next < _spread_list.size():
-		var nxt = _spread_list[next]
-		var investigable := nxt is Dictionary and bool(nxt.get("investigable", true))
-		block_forward = not investigable or not _can_open_spread(next)
+	var block_forward := not _spread_can_open(_current_spread_idx + 1)
 	var block_backward := _current_spread_idx <= 0
 	_desk_stage.set_flip_blocked(block_forward, block_backward)
 
@@ -497,12 +489,8 @@ func _desk_flip_allowed(delta: int) -> bool:
 	if target < 0 or target >= _spread_list.size():
 		_desk_bounce("这一叠已经到头了。")
 		return false
-	var target_spread = _spread_list[target]
-	## Bounce when flipping forward into a non-investigable locked leaf.
-	if delta > 0 and target_spread is Dictionary and not bool(target_spread.get("investigable", true)):
-		_desk_bounce("墨封未启——还不能掀到后面。")
-		return false
-	if delta > 0 and not _can_open_spread(target):
+	## The snapshot decides which leaves are open; looking back is always fine.
+	if delta > 0 and not _spread_can_open(target):
 		_desk_bounce("墨封未启——还不能掀到后面。")
 		return false
 	return true
@@ -585,27 +573,15 @@ func _refresh_nav_buttons() -> void:
 	_hub_button.disabled = is_flipping
 
 
-func _can_advance_from(spread_idx: int) -> bool:
-	## Forward flip only after this spread's main clues are complete.
+func _spread_flag(spread_idx: int, key: String) -> bool:
 	if spread_idx < 0 or spread_idx >= _spread_list.size():
 		return false
 	var spread = _spread_list[spread_idx]
-	if not spread is Dictionary:
-		return false
-	return bool(spread.get("is_main_complete", false))
+	return spread is Dictionary and bool(spread.get(key, false))
 
 
-func _can_open_spread(target_idx: int) -> bool:
-	## Lookback always allowed; forward only through completed prior spreads.
-	if target_idx < 0 or target_idx >= _spread_list.size():
-		return false
-	if target_idx <= _current_spread_idx:
-		return true
-	for index in range(target_idx):
-		var spread = _spread_list[index]
-		if not spread is Dictionary or not bool(spread.get("is_main_complete", false)):
-			return false
-	return true
+func _spread_can_open(spread_idx: int) -> bool:
+	return _spread_flag(spread_idx, "can_open")
 
 
 func _set_status(text_value: String) -> void:
@@ -650,16 +626,6 @@ func _flash_pen(text_value: String) -> void:
 	)
 
 
-func _clue_wipeable(clue: Dictionary) -> bool:
-	if int(clue.get("state", DiaryCatalog.STATE_LOCKED)) != DiaryCatalog.STATE_LOCKED:
-		return false
-	var annotation := String(clue.get("annotation_zh", ""))
-	if annotation.find("墨渍") < 0:
-		return false
-	var run_state: Dictionary = _diary_view.get("run_state", {})
-	return int(run_state.get("spirit", 0)) >= _spirit_wipe_cost
-
-
 func _on_clue_pressed(clue: Dictionary) -> void:
 	if _interactions_locked() or clue.is_empty():
 		return
@@ -670,7 +636,7 @@ func _on_clue_pressed(clue: Dictionary) -> void:
 		_show_annotation_popup(annotation)
 		return
 	if state == DiaryCatalog.STATE_LOCKED:
-		if not _clue_wipeable(clue) or node_id.is_empty():
+		if not bool(clue.get("wipeable", false)) or node_id.is_empty():
 			_set_status("墨渍未干。灵性不足，或这里还没有可擦的夜色。")
 			return
 		_command_busy = true
@@ -683,7 +649,7 @@ func _on_clue_pressed(clue: Dictionary) -> void:
 	_command_busy = true
 	_exit_beat = EXIT_BEAT_CLUE
 	_refresh_nav_buttons()
-	if String(clue.get("node_type", "")) == "ritual":
+	if String(clue.get("open_command", "")) == OPEN_BEGIN_ASCENSION:
 		_set_status("仪式扉页翻开——考核的字句在页边亮起。")
 		route_command_requested.emit(RouteCommand.begin_ascension())
 		return
@@ -738,17 +704,11 @@ func _settlement_flash_text(node_id: String, outcome: String) -> String:
 	var annotation := String(clue.get("annotation_zh", ""))
 	if not annotation.is_empty():
 		return annotation
-	match outcome:
-		"victory":
-			return "【0-08】真相落下。暗金字迹在页边停住，像一声叹息。"
-		"defeat":
-			return "【0-08】失败被写入纸背。墨痕爬行，遮住了旁人的名字。"
-		"rest":
-			return "【0-08】休整写进页边：呼吸平稳了一些，注视却未退尽。"
-		"wipe", "spirit":
-			return "【灵性】指尖发热，墨渍退开一线——字迹重新可读。"
-		_:
-			return "【0-08】阿勒苏霍德之笔落在页边——墨迹已改写这一叶。"
+	var pool_id: String = {"spirit": "wipe"}.get(outcome, outcome)
+	var head := _catalog.pool_head_text(pool_id)
+	if not head.is_empty():
+		return head
+	return "【0-08】阿勒苏霍德之笔落在页边——墨迹已改写这一叶。"
 
 
 func _schedule_auto_flip_next() -> void:
@@ -767,7 +727,7 @@ func _try_auto_flip_next() -> void:
 	_pending_auto_flip = false
 	if is_flipping or _current_spread_idx >= _spread_list.size() - 1:
 		return
-	if not _can_advance_from(_current_spread_idx):
+	if not _spread_flag(_current_spread_idx, "can_advance"):
 		return
 	## Settlement turns the leaf on the hinge, same as a hand would.
 	_request_desk_flip(1)

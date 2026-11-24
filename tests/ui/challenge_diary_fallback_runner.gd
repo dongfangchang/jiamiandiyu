@@ -46,10 +46,24 @@ func _test_main_view_unchanged() -> void:
 	var states := _main_states()
 	for index in states.size():
 		var view: Dictionary = DiaryCatalogScript.new().build_view(states[index])
-		var digest := JSON.stringify(view).sha256_text()
+		var digest := JSON.stringify(_without_snapshot_flags(view)).sha256_text()
 		_expect(digest == MAIN_VIEW_HASHES[index], "main view %d is byte-identical" % index)
 		for spread in view.get("spread_list", []):
 			_expect(not spread.has("is_fallback"), "main spreads are never fallback")
+
+
+## v0.88 R2-03 added read-only rule flags to spreads/clues; the rest of the
+## view must still hash to the pre-fallback recording.
+func _without_snapshot_flags(view: Dictionary) -> Dictionary:
+	var stripped := view.duplicate(true)
+	for spread in stripped.get("spread_list", []) + stripped.get("pages", []):
+		spread.erase("can_open")
+		spread.erase("can_advance")
+		for list_key in ["clues", "right_clues"]:
+			for clue in spread.get(list_key, []):
+				for key in DiaryCatalogScript.SNAPSHOT_FLAG_KEYS:
+					clue.erase(key)
+	return stripped
 
 
 func _test_challenge_fallback_spreads() -> void:
@@ -177,6 +191,8 @@ func _state_for(route_id: String, completed: Array, available: String) -> Dictio
 			"type": String(node.get("type", "")),
 			"display_name_zh": String(node.get("display_name_zh", "")),
 			"scene_id": String(node.get("scene_id", "")),
+			## RouteEngine snapshot flag (R2-03); the screen no longer reads node type.
+			"open_command": "begin_ascension" if String(node.get("type", "")) == "ritual" else "select_node",
 		})
 	return {
 		"route_id": route_id,

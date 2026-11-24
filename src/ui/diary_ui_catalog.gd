@@ -16,6 +16,13 @@ const STATE_COMPLETED := 2
 const TITLE_MAX := 10
 const INK_MAX := 60
 const FALLBACK_TITLE_ZH := "无名之页"
+const ANNOTATION_ID_PREFIX := "annotation."
+## Per-node rule answers from the RouteEngine snapshot (R2-03); the UI reads them.
+const SNAPSHOT_FLAG_KEYS: Array[String] = [
+	"can_open", "can_advance", "open_command", "wipeable", "wipe_cost",
+	"ink_stained", "annotation_id", "annotation_ids",
+]
+const OPEN_SELECT_NODE := "select_node"
 
 var _volume: Dictionary = {}
 var _pages: Array = []
@@ -53,9 +60,7 @@ func build_view(route_data: Dictionary) -> Dictionary:
 			var node_id := String(node_id_value)
 			if node_id not in unlocked:
 				unlocked.append(node_id)
-	var annotations: Dictionary = route_data.get("clue_annotations", {})
-	if not annotations is Dictionary:
-		annotations = {}
+	var annotations: Dictionary = _resolved_annotations(route_data)
 	var overlays: Dictionary = route_data.get("clue_overlays", {})
 	if not overlays is Dictionary:
 		overlays = {}
@@ -90,10 +95,11 @@ func build_view(route_data: Dictionary) -> Dictionary:
 				})
 				continue
 			var node_id := String(clue_src.get("node_id", ""))
+			var can_open := _node_can_open(node_meta.get(node_id, {}), prior_complete)
 			var state := STATE_LOCKED
 			if node_id in completed:
 				state = STATE_COMPLETED
-			elif prior_complete and node_id in unlocked:
+			elif can_open and node_id in unlocked:
 				state = STATE_AVAILABLE
 			var base_text_zh := String(clue_src.get("text_zh", ""))
 			var text_zh := base_text_zh
@@ -102,12 +108,12 @@ func build_view(route_data: Dictionary) -> Dictionary:
 			var rewritten := false
 			var overlay_value = overlays.get(node_id, {})
 			if overlay_value is Dictionary and not overlay_value.is_empty():
-				var overlay_text := String(overlay_value.get("text_zh", ""))
+				var overlay_text := _overlay_text(overlay_value)
 				if not overlay_text.is_empty():
 					overwrite_text_zh = overlay_text
 					text_zh = overlay_text
 					rewritten = true
-				var overlay_margin := String(overlay_value.get("margin_note_zh", ""))
+				var overlay_margin := _overlay_margin(overlay_value)
 				if not overlay_margin.is_empty():
 					margin_note_zh = overlay_margin
 			var meta: Dictionary = node_meta.get(node_id, {})
@@ -141,7 +147,7 @@ func build_view(route_data: Dictionary) -> Dictionary:
 				"title_zh": title_zh,
 				"ink_zh": ink_zh,
 				"left_art_path": left_art_path,
-			}
+			}.merged(_clue_flags(meta))
 			var main_complete := state == STATE_COMPLETED
 			var spread_index := spread_list.size()
 			var side_notes: Array = pending_sides.duplicate(true)
@@ -164,7 +170,9 @@ func build_view(route_data: Dictionary) -> Dictionary:
 				"side_notes": side_notes,
 				"is_main_complete": main_complete,
 				"completed": main_complete,
-				"investigable": prior_complete,
+				"investigable": can_open,
+				"can_open": can_open,
+				"can_advance": main_complete,
 				"is_locked": state == STATE_LOCKED,
 				"is_available": state == STATE_AVAILABLE,
 				"is_completed": main_complete,
@@ -187,7 +195,9 @@ func build_view(route_data: Dictionary) -> Dictionary:
 			continue
 		var fallback := _fallback_spread(
 			fallback_id, node_meta.get(fallback_id, {}), spread_list.size(),
-			completed, unlocked, prior_complete, annotations, overlays
+			completed, unlocked,
+			_node_can_open(node_meta.get(fallback_id, {}), prior_complete),
+			annotations, overlays
 		)
 		spread_list.append(fallback)
 		if not bool(fallback.get("is_main_complete", false)):
@@ -225,14 +235,14 @@ func _fallback_spread(
 	spread_index: int,
 	completed: Array,
 	unlocked: Array,
-	prior_complete: bool,
+	can_open: bool,
 	annotations: Dictionary,
 	overlays: Dictionary
 ) -> Dictionary:
 	var state := STATE_LOCKED
 	if node_id in completed:
 		state = STATE_COMPLETED
-	elif prior_complete and node_id in unlocked:
+	elif can_open and node_id in unlocked:
 		state = STATE_AVAILABLE
 	var base_text_zh := String(meta.get("narrative_beat_zh", ""))
 	var text_zh := base_text_zh
@@ -240,10 +250,10 @@ func _fallback_spread(
 	var margin_note_zh := ""
 	var overlay_value = overlays.get(node_id, {})
 	if overlay_value is Dictionary and not overlay_value.is_empty():
-		overwrite_text_zh = String(overlay_value.get("text_zh", ""))
+		overwrite_text_zh = _overlay_text(overlay_value)
 		if not overwrite_text_zh.is_empty():
 			text_zh = overwrite_text_zh
-		margin_note_zh = String(overlay_value.get("margin_note_zh", ""))
+		margin_note_zh = _overlay_margin(overlay_value)
 	var node_type := String(meta.get("type", ""))
 	var scene_id := String(meta.get("scene_id", ""))
 	var display_name := String(meta.get("display_name_zh", ""))
@@ -272,7 +282,7 @@ func _fallback_spread(
 		"title_zh": title_zh,
 		"ink_zh": ink_zh,
 		"left_art_path": left_art_path,
-	}
+	}.merged(_clue_flags(meta))
 	return {
 		"page_index": spread_index,
 		"spread_index": spread_index,
@@ -291,7 +301,9 @@ func _fallback_spread(
 		"side_notes": [],
 		"is_main_complete": main_complete,
 		"completed": main_complete,
-		"investigable": prior_complete,
+		"investigable": can_open,
+		"can_open": can_open,
+		"can_advance": main_complete,
 		"is_locked": state == STATE_LOCKED,
 		"is_available": state == STATE_AVAILABLE,
 		"is_completed": main_complete,
@@ -356,13 +368,75 @@ func _node_meta_map(route_data: Dictionary) -> Dictionary:
 				"scene_id": String(node.get("scene_id", "")),
 				"narrative_beat_zh": String(node.get("narrative_beat_zh", "")),
 			}
+			for key in SNAPSHOT_FLAG_KEYS:
+				if node.has(key):
+					result[id][key] = node[key]
 	return result
 
 
-func _node_type_map(route_data: Dictionary) -> Dictionary:
-	## Legacy helper kept for older call sites.
+## Annotation ids resolve against the diary data. Pre-v0.88 snapshots carried
+## text: legacy_clue_annotations_zh and non-id strings stay display-only.
+func annotation_text(annotation_id: String) -> String:
+	ensure_loaded()
+	var entries: Variant = _volume.get("annotations", {}).get("entries", {})
+	if entries is Dictionary:
+		var entry: Variant = entries.get(annotation_id, {})
+		if entry is Dictionary and entry.has("text_zh"):
+			return String(entry["text_zh"])
+	if annotation_id.begins_with(ANNOTATION_ID_PREFIX):
+		return ""
+	return annotation_id
+
+
+## First line of a narration pool (settlement flash when a clue has no note).
+func pool_head_text(pool_id: String) -> String:
+	ensure_loaded()
+	var pool: Variant = _volume.get("annotations", {}).get("pools", {}).get(pool_id, {})
+	var cycle: Variant = pool.get("cycle", []) if pool is Dictionary else []
+	if cycle is Array and not cycle.is_empty():
+		return annotation_text(String(cycle[0]))
+	return ""
+
+
+func _resolved_annotations(route_data: Dictionary) -> Dictionary:
 	var result := {}
-	var meta := _node_meta_map(route_data)
-	for id in meta.keys():
-		result[id] = String(meta[id].get("type", ""))
+	var legacy: Variant = route_data.get("legacy_clue_annotations_zh", {})
+	if legacy is Dictionary:
+		for node_id in legacy.keys():
+			result[String(node_id)] = String(legacy[node_id])
+	var annotations: Variant = route_data.get("clue_annotations", {})
+	if annotations is Dictionary:
+		for node_id in annotations.keys():
+			result[String(node_id)] = annotation_text(String(annotations[node_id]))
 	return result
+
+
+func _overlay_text(overlay: Dictionary) -> String:
+	var annotation_id := String(overlay.get("annotation_id", ""))
+	if not annotation_id.is_empty():
+		return annotation_text(annotation_id)
+	return String(overlay.get("legacy_text_zh", overlay.get("text_zh", "")))
+
+
+func _overlay_margin(overlay: Dictionary) -> String:
+	var margin_id := String(overlay.get("margin_note_id", ""))
+	if not margin_id.is_empty():
+		return annotation_text(margin_id)
+	return String(overlay.get("legacy_margin_note_zh", overlay.get("margin_note_zh", "")))
+
+
+## Snapshot can_open wins; hand-built or pre-R2 snapshots without it fall back
+## to the spread chain the catalog walks anyway.
+func _node_can_open(meta: Dictionary, chain_open: bool) -> bool:
+	return bool(meta.get("can_open", chain_open))
+
+
+func _clue_flags(meta: Dictionary) -> Dictionary:
+	return {
+		"open_command": String(meta.get("open_command", OPEN_SELECT_NODE)),
+		"wipeable": bool(meta.get("wipeable", false)),
+		"wipe_cost": int(meta.get("wipe_cost", 0)),
+		"ink_stained": bool(meta.get("ink_stained", false)),
+		"annotation_id": String(meta.get("annotation_id", "")),
+		"annotation_ids": meta.get("annotation_ids", []).duplicate(),
+	}
