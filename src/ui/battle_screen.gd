@@ -15,6 +15,7 @@ const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
+const EXIT_BEAT_SEC := 0.8
 
 const PHASE_NAMES := {
 	"round_start": "回合开始",
@@ -173,6 +174,25 @@ func _ready() -> void:
 	_build()
 	_refresh_controls()
 	call_deferred("_refresh_scroll_hint")
+
+
+## Router hooks (NAV-01/09). The last hit's float/flash tweens run ~0.75s and
+## must finish on screen before the router fades out and frees the battle.
+func on_enter() -> void:
+	if is_instance_valid(_end_turn_button) and not _end_turn_button.disabled:
+		_end_turn_button.grab_focus()
+
+
+func on_exit() -> void:
+	var outcome := String(_snapshot.data.get("outcome", "")) if _snapshot != null else ""
+	if outcome.is_empty():
+		return
+	_show_banner(
+		"胜利" if outcome == "victory" else "败退",
+		"战斗结束",
+		UiTheme.C_GOLD if outcome == "victory" else UiTheme.C_DANGER_TEXT
+	)
+	await get_tree().create_timer(EXIT_BEAT_SEC).timeout
 
 
 func configure(
@@ -2667,18 +2687,30 @@ func _request_exit() -> void:
 		_exit_confirmation = ConfirmationDialog.new()
 		_exit_confirmation.title = "退出当前战斗？"
 		_exit_confirmation.dialog_text = (
-			"战斗中途不会保存。确认后将返回标题，并从最近检查点继续。"
+			"战斗中途不会保存。确认后将回到日记，从最近检查点继续。"
 		)
 		_exit_confirmation.ok_button_text = "退出战斗"
 		_exit_confirmation.cancel_button_text = "继续战斗"
-		_exit_confirmation.confirmed.connect(func() -> void:
-			if _exit_emitted:
-				return
-			_exit_emitted = true
-			exit_requested.emit()
-		)
+		_exit_confirmation.confirmed.connect(_confirm_exit)
 		add_child(_exit_confirmation)
 	_exit_confirmation.popup_centered()
+
+
+## Same as pressing the dialog's "退出战斗"; idempotent like the dialog.
+func request_exit() -> void:
+	_request_exit()
+
+
+func confirm_exit() -> void:
+	if is_exit_confirmation_visible():
+		_exit_confirmation.emit_signal("confirmed")
+
+
+func _confirm_exit() -> void:
+	if _exit_emitted:
+		return
+	_exit_emitted = true
+	exit_requested.emit()
 
 
 func _play_event_feedback(event: BattleEvent) -> void:

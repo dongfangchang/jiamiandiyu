@@ -96,6 +96,13 @@ func get_option_count() -> int:
 	return count
 
 
+func on_enter() -> void:
+	for button in _action_buttons:
+		if is_instance_valid(button) and not button.disabled:
+			button.grab_focus()
+			return
+
+
 func get_background_path() -> String:
 	return ProgressionCatalog.REWARD_BACKGROUND
 

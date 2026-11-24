@@ -1,6 +1,7 @@
 extends Control
 
 signal route_command_requested(command: RouteCommand)
+signal back_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
@@ -16,6 +17,7 @@ var _resource_label: Label
 var _chapter_hook_label: Label
 var _chapter_summary_label: Label
 var _buttons_by_rest: Dictionary = {}
+var _back_button: Button
 var _busy := false
 
 
@@ -69,6 +71,19 @@ func select_rest(rest_id: String) -> void:
 		option.get("display_name_zh", rest_id)
 	))
 	route_command_requested.emit(RouteCommand.use_rest(StringName(rest_id)))
+
+
+## Leaves the rest choice open; the diary reopens it from the same clue.
+func request_back() -> void:
+	back_requested.emit()
+
+
+func on_enter() -> void:
+	for rest_id in _buttons_by_rest:
+		var button: Button = _buttons_by_rest[rest_id]
+		if is_instance_valid(button) and not button.disabled:
+			button.grab_focus()
+			return
 
 
 func get_option_count() -> int:
@@ -151,9 +166,16 @@ func _build() -> void:
 	_options_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_options_row)
 
+	var footer := HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 14)
+	column.add_child(footer)
 	_status_label = UiTheme.clip_label("", 14, UiTheme.C_MUTED)
 	_status_label.custom_minimum_size = Vector2(0, 38)
-	column.add_child(_status_label)
+	_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(_status_label)
+	_back_button = UiTheme.button("回日记", request_back, true, 150)
+	_back_button.name = "RestBackButton"
+	footer.add_child(_back_button)
 
 
 func _render_options() -> void:

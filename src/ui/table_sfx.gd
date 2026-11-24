@@ -15,6 +15,9 @@ const KIND_WIPE := "wipe"
 static var muted := false
 static var call_log: Array[String] = []
 static var _tone_cache: Dictionary = {}
+## Players live here when set (the app's router), so a cue fired just before a
+## screen swap is not cut off when that screen is freed.
+static var _persistent_host: Node = null
 
 
 static func reset_for_tests() -> void:
@@ -30,6 +33,14 @@ static func is_muted() -> bool:
 	return muted
 
 
+static func set_persistent_host(host: Node) -> void:
+	_persistent_host = host
+
+
+static func get_persistent_host() -> Node:
+	return _persistent_host if is_instance_valid(_persistent_host) else null
+
+
 static func call_count(kind: String = "") -> int:
 	if kind.is_empty():
 		return call_log.size()
@@ -42,7 +53,11 @@ static func call_count(kind: String = "") -> int:
 
 static func play(host: Node, kind: String) -> void:
 	call_log.append(kind)
-	if muted or host == null or not is_instance_valid(host):
+	var target := host
+	var persistent := get_persistent_host()
+	if persistent != null and persistent.is_inside_tree():
+		target = persistent
+	if muted or target == null or not is_instance_valid(target):
 		return
 	var stream := _tone_for(kind)
 	if stream == null:
@@ -51,7 +66,7 @@ static func play(host: Node, kind: String) -> void:
 	player.name = "TableSfxPlayer"
 	player.stream = stream
 	player.volume_db = _volume_db_for(kind)
-	host.add_child(player)
+	target.add_child(player)
 	player.finished.connect(player.queue_free)
 	player.play()
 

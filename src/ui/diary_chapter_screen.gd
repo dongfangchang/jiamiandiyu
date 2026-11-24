@@ -38,6 +38,9 @@ const INDEX_CHAIN_BUDGET := 1.15
 const FLIP_OFFSET := 92.0
 const CORNER_DRAG_FRAC := 0.22
 const DEFAULT_SPIRIT_WIPE_COST := 2
+const EXIT_BEAT_SEC := 0.55
+const EXIT_BEAT_CLUE := "clue"
+const EXIT_BEAT_CLOSE := "close"
 
 const C_INK := Color(0.08, 0.04, 0.02, 1.0)
 const C_INK_FAINT := Color(0.22, 0.14, 0.08, 0.88)
@@ -55,6 +58,7 @@ var _spread_list: Array = []
 var _current_spread_idx := 0
 var is_flipping := false
 var _command_busy := false
+var _exit_beat := ""
 var _pending_auto_flip := false
 var _pending_flip_finish := false
 var _glow_tween: Tween
@@ -247,6 +251,7 @@ func apply_command_result(result: RouteCommandResult) -> void:
 		_set_status("未收到日记结算。")
 		return
 	if not result.accepted:
+		_exit_beat = ""
 		_set_status("字句未能展开：%s" % String(result.reason_code))
 		_refresh_spread_layers_if_idle()
 		return
@@ -327,6 +332,15 @@ func request_node(node_id: String) -> void:
 	if clue.is_empty():
 		return
 	_on_clue_pressed(clue)
+
+
+## Read-only clue view as the desk seal carries it (seal_activated payload).
+func get_clue(node_id: String) -> Dictionary:
+	return _find_clue(node_id).duplicate(true)
+
+
+func request_close() -> void:
+	_on_hub()
 
 
 func _load_image(path: String) -> Texture2D:
@@ -2202,6 +2216,7 @@ func _on_clue_pressed(clue: Dictionary) -> void:
 	if state != DiaryCatalog.STATE_AVAILABLE or node_id.is_empty():
 		return
 	_command_busy = true
+	_exit_beat = EXIT_BEAT_CLUE
 	_stop_glow()
 	_refresh_nav_buttons()
 	if String(clue.get("node_type", "")) == "ritual":
@@ -2382,11 +2397,9 @@ func _schedule_auto_flip_next() -> void:
 	if tree == null:
 		call_deferred("_try_auto_flip_next")
 		return
-	## Wait out the longer pen overlay before the page turns.
-	var on_delay := func() -> void:
-		if is_instance_valid(self):
-			_try_auto_flip_next()
-	tree.create_timer(2.35).timeout.connect(on_delay, CONNECT_ONE_SHOT)
+	## Wait out the longer pen overlay before the page turns. A bound method
+	## (not a lambda) so the connection dies with the screen.
+	tree.create_timer(2.35).timeout.connect(_try_auto_flip_next, CONNECT_ONE_SHOT)
 
 
 func _on_prev_page() -> void:
@@ -2846,15 +2859,62 @@ func _play_ink_trail() -> void:
 func _on_hub() -> void:
 	if is_flipping:
 		return
-	is_flipping = true
-	_refresh_nav_buttons()
 	TableSfx.play(self, TableSfx.KIND_SEAL)
-	var tween := create_tween()
-	tween.tween_property(_book_root, "modulate:a", 0.0, 0.45).set_trans(Tween.TRANS_SINE)
-	tween.tween_callback(func() -> void:
+	_exit_beat = EXIT_BEAT_CLOSE
+	hub_requested.emit()
+
+
+## Router hooks. The screen is cached across battles (NAV-03), so on_enter must
+## put it back into an idle, interactive state; the app re-applies the snapshot
+## and any post-encounter settlement in its setup right before this.
+func on_enter() -> void:
+	_exit_beat = ""
+	if is_instance_valid(_desk_stage):
+		_desk_stage.modulate.a = 1.0
+	if is_flipping:
+		## Left mid-turn: settle on the committed spread.
 		is_flipping = false
-		hub_requested.emit()
-	)
+		_pending_flip_finish = false
+		_refresh_spread_layers_if_idle()
+	_refresh_nav_buttons()
+	_start_glow()
+	var focus_target := _next_button if not _next_button.disabled else _hub_button
+	if is_instance_valid(focus_target) and focus_target.is_visible_in_tree():
+		focus_target.grab_focus()
+
+
+## The app releases a seal press it could not honour (e.g. battle not ready).
+func set_pending(value: bool) -> void:
+	_command_busy = value
+	if not value:
+		_exit_beat = ""
+	_refresh_nav_buttons()
+
+
+func on_exit() -> void:
+	## Pending timers would fire into a detached, cached screen.
+	_pending_auto_flip = false
+	_clear_index_chain()
+	_stop_glow()
+	var beat := _exit_beat
+	_exit_beat = ""
+	if beat.is_empty() or not is_inside_tree():
+		return
+	## Let the clue's status line and pen stroke read before the swap (NAV-04),
+	## and close the book softly when returning to the hub.
+	if beat == EXIT_BEAT_CLUE and is_instance_valid(_desk_stage):
+		_desk_stage.play_settlement_fx("pen")
+	var tween := create_tween()
+	if is_instance_valid(_desk_stage):
+		tween.tween_interval(EXIT_BEAT_SEC * 0.5)
+		tween.tween_property(_desk_stage, "modulate:a", 0.0, EXIT_BEAT_SEC * 0.5)
+	else:
+		tween.tween_interval(EXIT_BEAT_SEC)
+	await tween.finished
+
+
+func get_exit_beat() -> String:
+	return _exit_beat
 
 
 func _start_glow() -> void:
