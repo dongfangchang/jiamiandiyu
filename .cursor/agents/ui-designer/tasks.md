@@ -4,8 +4,32 @@
 
 ## 进行中 / 待办
 
+### UI-07-DQ · 日记站画面升级 DQ-01…06 审稿
+- status: done
+- 来源: ART-DQ 交付；ART_BRIEF_DESK_WORLD §5；ADR-0034 D3/D4；用户 2026-11-24
+- 改哪些: `docs/reports/v0.89.0/ui.md` 审稿表；若退回则 `art/tasks.md` 请求区；全过则请求 coordinator CO-DQ
+- 完成标准: DQ-01…06 逐项过/退回（尺寸、透明、无字、BRIEF 语义）；全过则请求 CO-DQ 迁入
+- 怎么验: sips/PIL 尺寸+alpha；读 PNG 目视；对照 BRIEF §5 + 总览
+- 阻塞: 无
+- 备注: **勿**动 owner:主会话 UI-P0-1/P0-2/P1-1；**勿**自行迁 assets/game
+- 证据:
+  - `docs/reports/v0.89.0/ui.md` UI-07-DQ 表：**DQ-01…06 全部过**；无 ART-DQ-fix
+  - 度量：尺寸全对齐；DQ-02 albedo/rough 接缝 mae=0；DQ-06×14 与物件同尺寸；RGBA 关键件四角 α=0
+  - 跨角色：请 **CO-DQ** 迁入（含 index_card）
+
+### UI-07-07b · 索引卡 DW-07b 审稿
+- status: done
+- 来源: ART-DW-07b 交付；ADR-0034 D1；DESK_WORLD_STATIONS
+- 改哪些: 同 UI-07-DQ 报告表；退回则 art/tasks；全过并入 CO-DQ
+- 完成标准: 600×900、6 行空白书写线、无字、四角透明；与 DW-07 同族
+- 怎么验: PIL + 目视
+- 阻塞: 无
+- 备注: 与 UI-07-DQ 同批；勿迁 assets/game
+- 证据: `ui.md` UI-07-07b：**过**；600×900；6 行；无字；四角 α=0；并入 CO-DQ
+
 ### UI-P1-1 · BUG-0041 战斗手牌插画被挤压
-- status: doing
+- status: done
+- 证据: 合并 f046e7c；`battle_hand_card_face_runner` 314 项检查；截图 `.tools/ui-captures/v089_battle_hand_{1600x900,1100x700}_{before,after}.png`（主会话已看图：插画完整、比例正确、不可出牌的卡变暗）；待用户真窗口确认
 - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
 - 来源: 用户 2026-11-24；`docs/bugs/BUG-0041-battle-hand-card-art-squashed.md`
 - 改哪些: `src/ui/battle_screen.gd`（手牌和飞卡）、`src/ui/common/card_face.gd`、`tests/ui/**`
@@ -46,13 +70,14 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: blocked
+- status: todo
 - 优先级: P0
 - 来源: 用户反馈"画风太简陋"；ADR-0034 D4
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_page_pair.gd`、`tests/ui/**`
 - 做法: 接入 DQ-01 背景板、DQ-02 桌面 PBR、DQ-03 书皮和书口、DQ-04 右页装饰、DQ-05 丝带书签（上面写"合上"，取代红色平面块）、DQ-06 接触阴影；按渲染器结论调整光照和后期（色调映射、辉光、暗角）；右页版式：页眉饰、极淡横线、题名、正文、页角饰，蜡封带文字。
 - 完成标准: 用户认可前后对比截图。
-- 阻塞: 架构师 AR-05（渲染器结论）；美术 ART-DQ；主协调者 CO-DQ 迁入
+- 阻塞: 无（AR-05 / UI-07-DQ / CO-DQ / Forward+ 均已齐）
+- 注意: `diary_desk_stage.gd` 可能与主会话 UI-P0-2 同文件——先读再改，避免覆盖可读性改动
 
 ### UI-X0-rev · 按 ADR-0034 修订站位设计稿
 - status: doing
