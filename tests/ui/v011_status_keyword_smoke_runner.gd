@@ -34,7 +34,7 @@ func _test_status_badge() -> void:
 		"标记说明",
 		{"card.skill.ink_dart": "墨刺"},
 		{"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE

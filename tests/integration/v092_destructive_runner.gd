@@ -321,7 +321,7 @@ func _test_all_cards_and_enemies_remain_readable() -> void:
 		"破坏性可读性审计",
 		card_labels,
 		enemy_labels,
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE
@@ -404,7 +404,7 @@ func _test_pending_states_never_trap_the_player() -> void:
 		"挂起审计",
 		{"card.skill.coffin_nail": "棺钉"},
 		{"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE
@@ -447,7 +447,7 @@ func _test_battle_finish_and_exit_are_idempotent() -> void:
 		"重复结算审计",
 		{"card.skill.coffin_nail": "棺钉"},
 		{"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE

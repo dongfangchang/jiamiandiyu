@@ -29,7 +29,7 @@ func _test_chain_progress_and_burst() -> void:
 		"连携测试",
 		{"card.skill.ink_dart": "墨刺"},
 		{"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE
@@ -79,7 +79,7 @@ func _test_missing_chain_field_is_safe() -> void:
 		"旧快照",
 		{"card.skill.ink_dart": "墨刺"},
 		{"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE

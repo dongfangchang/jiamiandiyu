@@ -51,19 +51,7 @@ const ENEMY_ART_BY_DEFINITION := {
 	&"enemy.tingen.megose": "res://assets/game/v0.48.0/enemies/enemy-tingen-megose.png",
 }
 const RITUAL_SLOT_NAMES := ["灵性之墙", "烛火与祭品", "尊名回应"]
-## Presentation mirror of card.skill.warding_circle rules text (4 + 3×层).
-const RITUAL_CONSUME_BASE_DAMAGE := 4
-const RITUAL_CONSUME_PER_STACK := 3
-## Presentation map: definition_id -> ritual preparation stacks granted.
-const RITUAL_PREPARE_BY_DEFINITION := {
-	&"card.skill.paper_guard": 1,
-	&"card.skill.borrowed_breath": 1,
-	&"card.skill.candle_archive": 1,
-	&"card.skill.coffin_nail": 1,
-	&"card.skill.whispered_hunch": 1,
-	&"card.skill.second_sight": 1,
-	&"card.skill.midnight_ledger": 2,
-}
+const IntentText := preload("res://src/ui/text/intent_text.gd")
 const TRAIT_NAMES := {
 	"human": "普通人",
 	"beyonder": "非凡者",
@@ -72,9 +60,10 @@ const TRAIT_NAMES := {
 	"filth": "污秽",
 	"lost_control": "失控者",
 }
+## Threat copy; the amount comes from the snapshot's enemy.threat_amount.
 const THREAT_NAMES := {
-	"corruption": "每次攻击污染+2",
-	"attention": "每次攻击被注视+1",
+	"corruption": "每次攻击污染",
+	"attention": "每次攻击被注视",
 }
 const STATUS_ICON_BASE := "res://assets/game/v0.24.0/v0.3.0/status/"
 
@@ -712,7 +701,7 @@ func _build_status_strip() -> Control:
 	_ritual_label = UiTheme.clip_label("仪式烛台 0 / 3", 13, UiTheme.C_MUTED)
 	_ritual_label.tooltip_text = (
 		"叠层：灵性之墙 / 圣夜粉 / 烛芯 / 银质匕首 / 通灵等。\n"
-		+ "兑现：打出「驱邪仪式」消耗全部层数，伤害 4 + 3×层。"
+		+ "兑现：打出「驱邪仪式」消耗全部层数，层数越多伤害越高。"
 	)
 	ritual.add_child(_ritual_label)
 	var slots := HBoxContainer.new()
@@ -1031,7 +1020,7 @@ func _render_snapshot() -> void:
 		UiTheme.C_DANGER_TEXT
 	)
 	_synergy_hint_ids = BattleTableFeel.missing_definition_ids(data.get("synergies", []))
-	_render_ritual(data.get("ritual", {}))
+	_render_ritual(data.get("ritual", {}), player.get("ritual_payoff_preview", {}))
 	_render_risk(data.get("risk_pressure", {}))
 	_render_lanes(data.get("enemies", []))
 	_render_intel(data)
@@ -1094,11 +1083,11 @@ func _refresh_discard_altar() -> void:
 		TableSfx.play(self, TableSfx.KIND_ALTAR)
 
 
-func _render_ritual(ritual_value: Variant) -> void:
+func _render_ritual(ritual_value: Variant, payoff_value: Variant = {}) -> void:
 	var ritual: Dictionary = ritual_value if ritual_value is Dictionary else {}
+	var payoff_preview: Dictionary = payoff_value if payoff_value is Dictionary else {}
 	var stacks := int(ritual.get("stacks", 0))
 	var maximum := maxi(1, int(ritual.get("max", RITUAL_SLOT_NAMES.size())))
-	var payoff := _ritual_payoff_damage(stacks)
 	UiTheme.set_clip_text(
 		_ritual_label,
 		(
@@ -1112,14 +1101,14 @@ func _render_ritual(ritual_value: Variant) -> void:
 		UiTheme.C_GOLD if stacks > 0 else UiTheme.C_MUTED
 	)
 	if is_instance_valid(_ritual_payoff_label):
-		UiTheme.set_clip_text(
-			_ritual_payoff_label,
-			(
-				"驱邪预计 %d 伤（4+3×%d）" % [payoff, stacks]
+		var payoff_text := "驱邪尚未入组"
+		if not payoff_preview.is_empty():
+			payoff_text = (
+				"驱邪预计 %d 伤（%d 层）" % [int(payoff_preview.get("damage", 0)), stacks]
 				if stacks > 0
-				else "驱邪预计 4 伤 · 尚未叠层"
+				else "驱邪预计 %d 伤 · 尚未叠层" % int(payoff_preview.get("damage", 0))
 			)
-		)
+		UiTheme.set_clip_text(_ritual_payoff_label, payoff_text)
 		_ritual_payoff_label.add_theme_color_override(
 			"font_color",
 			UiTheme.C_GOLD if stacks > 0 else UiTheme.C_MUTED
@@ -1159,10 +1148,6 @@ func _render_ritual(ritual_value: Variant) -> void:
 	_ritual_stacks_shown = stacks
 
 
-func _ritual_payoff_damage(stacks: int) -> int:
-	return RITUAL_CONSUME_BASE_DAMAGE + RITUAL_CONSUME_PER_STACK * maxi(0, stacks)
-
-
 func _current_ritual_stacks() -> int:
 	if _snapshot == null:
 		return 0
@@ -1179,7 +1164,7 @@ func _render_risk(risk_value: Variant) -> void:
 	if attention_penalty > 0:
 		parts.append("被注视过高：敌方攻击 +%d" % attention_penalty)
 	if int(risk.get("corruption_penalty", 0)) > 0:
-		parts.append("污染侵蚀：每回合 -1 生命")
+		parts.append("污染侵蚀：每回合 -%d 生命" % int(risk.get("corruption_penalty", 0)))
 	if parts.is_empty():
 		var hunter_at := int(risk.get("attention_hunter_at", 0))
 		var penalty_at := int(risk.get("corruption_penalty_at", 0))
@@ -1214,7 +1199,7 @@ func _render_intel(data: Dictionary) -> void:
 		var phases: Array = boss.get("phases", [])
 		var triggered: Array = boss.get("triggered_phases", [])
 		var current_phase := "初始形态"
-		var current_desc := String(boss.get("intent", {}).get("description_zh", ""))
+		var current_desc := IntentText.description_zh(boss.get("intent", {}))
 		if not triggered.is_empty() and triggered[-1] is Dictionary:
 			current_phase = String(triggered[-1].get("display_name_zh", "强化"))
 			current_desc = String(triggered[-1].get("description_zh", current_desc))
@@ -1545,7 +1530,7 @@ func _intent_text(enemy: Dictionary) -> String:
 	var visible: Dictionary = intent.get("visible_fields", {})
 	var intent_id := String(intent.get("intent_id", "attack"))
 	var kind := BattleTableFeel.intent_short_zh(intent_id, visible)
-	var name := String(visible.get("display_name_zh", ""))
+	var name := IntentText.specific_name_zh(visible)
 	var text := "%s%s" % [
 		(name + " · ") if not name.is_empty() else "",
 		kind,
@@ -1568,7 +1553,8 @@ func _traits_line(enemy: Dictionary) -> String:
 		parts.append(traits_text)
 	var threat := String(enemy.get("threat", ""))
 	if THREAT_NAMES.has(threat):
-		parts.append(String(THREAT_NAMES[threat]))
+		var amount := int(enemy.get("threat_amount", 0))
+		parts.append(String(THREAT_NAMES[threat]) + ("+%d" % amount if amount > 0 else ""))
 	return " · ".join(parts) if not parts.is_empty() else "特质：普通"
 
 
@@ -1766,14 +1752,17 @@ func _build_hand_card(card: Dictionary) -> Control:
 	var chips: Array[String] = []
 	if bool(card.get("exhaust", detail.get("exhaust", false))):
 		chips.append("单场一次")
-	var prepare_stacks := int(RITUAL_PREPARE_BY_DEFINITION.get(definition_id, 0))
+	var preview: Dictionary = card.get("preview", {}) if card.get("preview", {}) is Dictionary else {}
+	var prepare_stacks := int(preview.get("ritual_stacks", 0))
 	if prepare_stacks > 0:
 		chips.append("叠仪式 +%d" % prepare_stacks)
 	var consumes_ritual := bool(card.get("consumes_ritual", detail.get("consumes_ritual", false)))
 	if consumes_ritual:
-		var ritual_now := _current_ritual_stacks()
 		chips.append(
-			"兑现 %d 伤（现有 %d 层）" % [_ritual_payoff_damage(ritual_now), ritual_now]
+			"兑现 %d 伤（现有 %d 层）" % [
+				int(preview.get("damage", 0)),
+				int(preview.get("ritual_consumed", 0)),
+			]
 		)
 	var synergy_names: Array = detail.get("synergy_names", [])
 	if not synergy_names.is_empty():
@@ -1920,36 +1909,13 @@ func _query_current_playability() -> void:
 		_last_playability = BattlePlayabilityScript.new(false, BattlePlayability.INVALID_TARGET)
 		UiTheme.set_clip_text(_status_label, "玩法查询接口尚未接入。")
 		return
-	var discard_ids: Array = _discard_choice_ids.duplicate()
-	var result: Variant
-	# Godot lambdas with defaulted trailing args still report arity 2; support
-	# both legacy 2-arg handlers and 3-arg discard-aware handlers.
-	if _playability_handler.get_argument_count() >= 3:
-		result = _playability_handler.call(
-			_selection_card_id,
-			_selection_target_id,
-			discard_ids
-		)
-	else:
-		result = _playability_handler.call(
-			_selection_card_id,
-			_selection_target_id
-		)
+	var result: Variant = _playability_handler.call(
+		_selection_card_id,
+		_selection_target_id,
+		_discard_choice_ids.duplicate()
+	)
 	if result is BattlePlayability:
 		_last_playability = result
-		# If the handler cannot see discard ids, synthesize the choice gate
-		# from the snapshot so the play button stays honest.
-		if (
-			_playability_handler.get_argument_count() < 3
-			and result.playable
-		):
-			var required := _required_discard_for_card(_find_hand_card(_selection_card_id))
-			if required > discard_ids.size():
-				result = BattlePlayabilityScript.new(
-					false,
-					BattlePlayability.NEED_DISCARD_CHOICE
-				)
-				_last_playability = result
 		_show_playability(result)
 
 
@@ -2127,15 +2093,9 @@ func _find_hand_card(card_instance_id: StringName) -> Dictionary:
 	return {}
 
 
+## Snapshot-provided count (gameplay already caps it by the cards held).
 func _required_discard_for_card(card: Dictionary) -> int:
-	if card.is_empty():
-		return 0
-	var declared := int(card.get("required_discard", 0))
-	if _snapshot == null:
-		return declared
-	var hand: Variant = _snapshot.data.get("hand", [])
-	var hand_size: int = hand.size() if hand is Array else 0
-	return mini(declared, maxi(0, hand_size - 1))
+	return int(card.get("required_discard", 0))
 
 
 func _prune_discard_choices() -> void:
@@ -2241,10 +2201,9 @@ func _format_event(event: BattleEvent) -> String:
 				int(data.get("hp_after", 0)),
 			]
 		"EnemyActed":
-			var act_name := String(data.get("display_name_zh", ""))
-			return "%s 发动%s，造成 %d 点伤害%s。" % [
+			return "%s 发动「%s」，造成 %d 点伤害%s。" % [
 				_enemy_name_by_actor(StringName(data.get("enemy_id", ""))),
-				"「%s」" % act_name if not act_name.is_empty() else "攻击",
+				IntentText.name_zh(data),
 				int(data.get("damage", 0)),
 				"（被注视 +%d）" % int(data.get("attention_bonus", 0)) if int(data.get("attention_bonus", 0)) > 0 else "",
 			]
@@ -2765,21 +2724,22 @@ func _play_event_feedback(event: BattleEvent) -> void:
 			_show_floating_text(_health_meter, "预见：伤害 -%d" % int(data.get("reduction", 0)), UiTheme.C_GOLD)
 		"RitualProgressed":
 			var after_stacks := int(data.get("after", 0))
+			var ritual_max := int(data.get("max", RITUAL_SLOT_NAMES.size()))
 			var ritual_anchor: Control = (
 				_ritual_tracker if is_instance_valid(_ritual_tracker) else _health_meter
 			)
 			TableSfx.play(self, TableSfx.KIND_RITUAL)
 			_show_floating_text(
 				ritual_anchor,
-				"烛台点亮 %d/3" % after_stacks,
+				"烛台点亮 %d/%d" % [after_stacks, ritual_max],
 				UiTheme.C_GOLD
 			)
 			if is_instance_valid(_ritual_tracker):
 				_pulse_control(_ritual_tracker, Color(1.25, 1.12, 0.7, 1))
-			if after_stacks >= 3:
+			if after_stacks >= ritual_max:
 				_show_banner(
-					"三段已齐",
-					"打出「驱邪仪式」即可兑现 · 预计 %d 伤害" % _ritual_payoff_damage(after_stacks),
+					"%s段已齐" % ("三" if ritual_max == 3 else str(ritual_max)),
+					"打出「驱邪仪式」即可兑现 · 预计 %d 伤害" % int(data.get("payoff_damage", 0)),
 					UiTheme.C_GOLD
 				)
 		"RitualCompleted":
@@ -2787,10 +2747,7 @@ func _play_event_feedback(event: BattleEvent) -> void:
 			TableSfx.play(self, TableSfx.KIND_RITUAL)
 			_show_banner(
 				"仪式兑现 · 消耗 %d 层" % spent,
-				"驱邪伤害按 4 + 3×%d = %d 结算；烛台清空，可再叠。" % [
-					spent,
-					_ritual_payoff_damage(spent),
-				],
+				"驱邪伤害 %d；烛台清空，可再叠。" % int(data.get("payoff_damage", 0)),
 				UiTheme.C_GOLD
 			)
 			if is_instance_valid(_ritual_tracker):

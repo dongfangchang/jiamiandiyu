@@ -55,7 +55,7 @@ func _ready() -> void:
 		"画布底部探针",
 		{"card.skill.ink_dart": "墨刺"},
 		{"enemy.candle_moth": "密修会成员"},
-		func(_a: StringName, _b: StringName) -> BattlePlayability:
+		func(_a: StringName, _b: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(true, BattlePlayability.PLAYABLE),
 		{}
 	)
