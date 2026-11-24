@@ -8,10 +8,11 @@ const RouteCommandScript := preload("res://src/core/route_command.gd")
 const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
 const ChallengeEngineScript := preload("res://src/gameplay/challenge_engine.gd")
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
-const CheckpointEnvelopeBuilderScript := preload("res://src/app/checkpoint_envelope_builder.gd")
+const CheckpointCodecScript := preload("res://src/app/checkpoint_codec.gd")
 
-const DEFAULT_CONTENT_VERSION := "v0.6.0"
-const DEFAULT_SAVE_VERSION := 4
+# Real values come from data/manifest.json via AppBootstrap.
+const DEFAULT_CONTENT_REVISION := 1
+const DEFAULT_SAVE_VERSION := CheckpointCodecScript.SAVE_VERSION
 const BATTLE_NODE_TYPES: Array[String] = ["normal", "elite", "boss"]
 
 var services: AppServices
@@ -23,7 +24,7 @@ var progression: ProgressionEngine
 var route_content: RouteContentAdapter
 var challenge_content: ChallengeContentAdapter
 var deck_engine: DeckEngine = null
-var content_version: String = DEFAULT_CONTENT_VERSION
+var content_revision: int = DEFAULT_CONTENT_REVISION
 var save_version: int = DEFAULT_SAVE_VERSION
 var challenge_id: StringName
 var sequence_state: Dictionary
@@ -54,7 +55,7 @@ func _init(
 	run_seed: int,
 	save_slot: String,
 	deck_engine_value: DeckEngine = null,
-	content_version_value: String = DEFAULT_CONTENT_VERSION,
+	content_revision_value: int = DEFAULT_CONTENT_REVISION,
 	save_version_value: int = DEFAULT_SAVE_VERSION
 ) -> void:
 	services = app_services
@@ -66,7 +67,7 @@ func _init(
 	route_content = route_content_port
 	challenge_content = challenge_content_port
 	deck_engine = deck_engine_value
-	content_version = content_version_value
+	content_revision = content_revision_value
 	save_version = save_version_value
 	challenge_id = selected_challenge_id
 	sequence_state = initial_sequence_state.duplicate(true)
@@ -579,13 +580,13 @@ func _build_checkpoint_envelope(kind: String) -> Dictionary:
 	var challenge_payload := challenge_state.duplicate(true)
 	challenge_payload["reward_applied"] = _completion_reward_applied
 	challenge_payload["sequence_state"] = sequence.duplicate(true)
-	return CheckpointEnvelopeBuilderScript.build(
+	return CheckpointCodecScript.build(
 		progression_state,
 		progression_snapshot,
 		route_state,
 		sequence,
 		root_seed,
-		content_version,
+		content_revision,
 		save_version,
 		kind,
 		_last_battle,

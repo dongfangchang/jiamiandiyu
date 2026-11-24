@@ -166,6 +166,12 @@ func _test_migration_missing_and_success() -> void:
 	file.store_string(JSON.stringify(legacy, "  ", true, true))
 	file.close()
 
+	var unschema = service.load_slot("slot_legacy")
+	_expect(
+		not unschema.ok and unschema.code == &"source_schema_missing",
+		"a save version without a registered schema is not migrated blindly"
+	)
+	service.register_version_schema(1, AtomicSaveServiceScript.DEFAULT_SAVE_SCHEMA_PATH)
 	var missing = service.load_slot("slot_legacy")
 	_expect(not missing.ok and missing.code == &"migration_missing", "missing migration should fail explicitly")
 
@@ -384,8 +390,8 @@ func _test_route_checkpoint_inspection() -> void:
 	if inspected.ok and inspected.data.status == "loaded":
 		var checkpoint: Dictionary = inspected.data.checkpoint
 		_expect(
-			checkpoint.content_version == "v0.7.0",
-			"checkpoint should report the current content version"
+			int(checkpoint.content_revision) >= 1,
+			"checkpoint should report the content revision"
 		)
 		_expect(checkpoint.rng_seed == 20261108, "checkpoint should store root seed")
 		_expect(
@@ -504,7 +510,7 @@ func _test_v04_schemas_and_adapters() -> void:
 func _test_v1_save_migrates_to_current() -> void:
 	var migration_directory := TEST_SAVE_DIRECTORY.path_join("campaign_migration")
 	var slot := "legacy_campaign"
-	var save_service = SaveMigrationsScript.create_v07_service(migration_directory)
+	var save_service = SaveMigrationsScript.create_service(migration_directory)
 	var legacy := {
 		"save_version": 1,
 		"content_version": "v0.3.0",
@@ -525,7 +531,7 @@ func _test_v1_save_migrates_to_current() -> void:
 	_expect(loaded.ok, "v1 save should migrate through the full chain")
 	if loaded.ok:
 		_expect(
-			int(loaded.data.save_version) == 5,
+			int(loaded.data.save_version) == SaveMigrationsScript.CURRENT_SAVE_VERSION,
 			"migrated save should use the current save version"
 		)
 		_expect(

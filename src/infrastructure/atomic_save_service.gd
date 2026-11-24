@@ -12,7 +12,9 @@ var current_save_version: int
 var save_schema_path: String
 
 var _migrations: Dictionary = {}
-var _migration_schema_paths: Dictionary = {}
+# save_version -> schema path describing documents of that version.
+var _version_schema_paths: Dictionary = {}
+var _invariants: Array[Callable] = []
 
 
 func _init(
@@ -23,6 +25,7 @@ func _init(
 	directory = save_directory.trim_suffix("/")
 	current_save_version = supported_version
 	save_schema_path = schema_path
+	_version_schema_paths[supported_version] = schema_path
 
 
 func register_migration(
@@ -46,9 +49,46 @@ func register_migration(
 			"Migration schema path must use res:// or user://."
 		)
 	_migrations[from_version] = migrator
-	if not post_migration_schema_path.is_empty():
-		_migration_schema_paths[from_version] = post_migration_schema_path
+	if not post_migration_schema_path.is_empty() and from_version + 1 != current_save_version:
+		_version_schema_paths[from_version + 1] = post_migration_schema_path
 	return InfrastructureResult.success()
+
+
+## Schema a document of `version` must satisfy before it is migrated.
+func register_version_schema(version: int, schema_path: String) -> InfrastructureResult:
+	if version <= 0 or version > current_save_version:
+		return InfrastructureResult.failure(&"invalid_schema_version", "Schema version is outside the supported range.")
+	if not schema_path.begins_with("res://") and not schema_path.begins_with("user://"):
+		return InfrastructureResult.failure(&"invalid_migration_schema_path", "Schema path must use res:// or user://.")
+	if version == current_save_version:
+		return InfrastructureResult.failure(&"invalid_schema_version", "The current version schema is set by the constructor.")
+	_version_schema_paths[version] = schema_path
+	return InfrastructureResult.success()
+
+
+## `check` receives the migrated, schema-valid document and returns an Array of error strings.
+func register_invariant(check: Callable) -> void:
+	if check.is_valid():
+		_invariants.append(check)
+
+
+func check_invariants(document: Dictionary) -> InfrastructureResult:
+	var errors: Array = []
+	for check in _invariants:
+		var found: Variant = check.call(document)
+		if found is Array:
+			errors.append_array(found)
+	if not errors.is_empty():
+		return InfrastructureResult.failure(
+			&"invariant_failed",
+			"Save violates a load invariant.",
+			{"errors": errors}
+		)
+	return InfrastructureResult.success()
+
+
+func schema_path_for_version(version: int) -> String:
+	return String(_version_schema_paths.get(version, ""))
 
 
 func save_slot(slot: String, envelope: Dictionary) -> InfrastructureResult:
@@ -58,6 +98,9 @@ func save_slot(slot: String, envelope: Dictionary) -> InfrastructureResult:
 	var validation := validate_envelope(envelope, current_save_version)
 	if not validation.ok:
 		return validation
+	var invariants := check_invariants(envelope)
+	if not invariants.ok:
+		return invariants
 
 	var directory_error := _ensure_directory()
 	if not directory_error.ok:
@@ -347,6 +390,27 @@ func _load_with_migration(path: String) -> InfrastructureResult:
 			{"save_version": save_version, "supported_version": current_save_version}
 		)
 
+	# Load order (ADR-0033): source schema -> stepwise migration -> target schema -> invariants.
+	var source_schema := schema_path_for_version(save_version)
+	if source_schema.is_empty():
+		return InfrastructureResult.failure(
+			&"source_schema_missing",
+			"No schema is registered for this save version.",
+			{"path": path, "save_version": save_version}
+		)
+	var source_validation = SchemaValidatorScript.new().validate_document(document, source_schema)
+	if not source_validation.ok:
+		return InfrastructureResult.failure(
+			&"source_validation_failed",
+			"Save does not satisfy the schema of its own version.",
+			{
+				"path": path,
+				"save_version": save_version,
+				"schema_path": source_schema,
+				"errors": source_validation.details.get("errors", []),
+			}
+		)
+
 	while save_version < current_save_version:
 		if not _migrations.has(save_version):
 			return InfrastructureResult.failure(
@@ -370,9 +434,13 @@ func _load_with_migration(path: String) -> InfrastructureResult:
 				"Migration produced an invalid save version.",
 				{"from_version": save_version, "to_version": next_version}
 			)
-		var migration_schema := String(
-			_migration_schema_paths.get(save_version, save_schema_path)
-		)
+		var migration_schema := schema_path_for_version(next_version)
+		if migration_schema.is_empty():
+			return InfrastructureResult.failure(
+				&"migration_schema_missing",
+				"No schema is registered for the migration target version.",
+				{"from_version": save_version, "target_version": next_version}
+			)
 		var migrated_validation := SchemaValidatorScript.new().validate_document(
 			document,
 			migration_schema
@@ -386,6 +454,7 @@ func _load_with_migration(path: String) -> InfrastructureResult:
 					"from_version": save_version,
 					"target_version": next_version,
 					"schema_path": migration_schema,
+					"errors": migrated_validation.details.get("errors", []),
 				}
 			)
 		save_version = next_version
@@ -395,8 +464,16 @@ func _load_with_migration(path: String) -> InfrastructureResult:
 		return InfrastructureResult.failure(
 			&"invalid_save",
 			"Save failed validation after migration.",
-			{"path": path, "cause": String(final_validation.code)}
+			{
+				"path": path,
+				"cause": String(final_validation.code),
+				"errors": final_validation.details.get("errors", []),
+			}
 		)
+	var invariants := check_invariants(document)
+	if not invariants.ok:
+		invariants.details["path"] = path
+		return invariants
 
 	return InfrastructureResult.success(document, {"path": path, "migrated": save_version != original_version})
 
