@@ -6,6 +6,7 @@ const REQUIRED_FIELDS := [
 	"attack_form",
 	"pathway",
 	"sequence_band",
+	"required_sequence",
 	"target_layer",
 	"mechanic_tags",
 	"rules_text_zh",

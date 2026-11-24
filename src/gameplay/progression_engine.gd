@@ -24,7 +24,7 @@ const RARITY_RARE: StringName = &"rare"
 
 var _content: ProgressionContentPort
 var _balance: BattleBalancePort
-var _random: BattleRandomPort
+var _random: RandomPort
 
 var _revision: int = 0
 var _state: Dictionary = {}
@@ -38,12 +38,13 @@ var _upgrade_definitions: Dictionary = {}
 var _potion_definitions_by_id: Dictionary = {}
 var _digestion_rules: Dictionary = {}
 var _balance_error: StringName = &""
+var _content_error: StringName = &""
 
 
 func _init(
 	content: ProgressionContentPort,
 	balance: BattleBalancePort,
-	random: BattleRandomPort
+	random: RandomPort
 ) -> void:
 	_content = content
 	_balance = balance
@@ -55,7 +56,9 @@ func initialize(initial_state: Dictionary = {}) -> ProgressionCommandResult:
 	if _content == null or _balance == null or _random == null:
 		return _initialization_error(&"port_missing")
 	if not _load_content():
-		return _initialization_error(&"content_invalid")
+		return _initialization_error(
+			_content_error if _content_error != &"" else &"content_invalid"
+		)
 	if not _load_required_balance():
 		return _initialization_error(&"balance_missing")
 
@@ -119,6 +122,7 @@ func get_snapshot() -> ProgressionSnapshot:
 		var card_state: Dictionary = _card_state(collection, definition_id)
 		var upgrade: Dictionary = _upgrade_definitions.get(definition_id, {})
 		var next_level: int = int(card_state["level"]) + 1
+		var upgrade_check := _upgrade_check(definition_id)
 		collection_views.append({
 			"definition_id": definition_id,
 			"copies": int(card_state["copies"]),
@@ -126,6 +130,8 @@ func get_snapshot() -> ProgressionSnapshot:
 			"fragments": int(card_state["fragments"]),
 			"max_level": int(upgrade.get("max_level", 0)),
 			"next_upgrade_cost": _upgrade_cost(next_level),
+			"can_upgrade": upgrade_check["reason"] == &"ok",
+			"upgrade_cost": int(upgrade_check["cost"]),
 		})
 
 	var identity_views: Array[Dictionary] = []
@@ -165,7 +171,7 @@ func get_snapshot() -> ProgressionSnapshot:
 		"revision": _revision,
 		"phase": String(_state.get("phase", PHASE_INIT_ERROR)),
 		"identity_id": String(identity_id),
-		"sequence": int(_state.get("sequence", 9)),
+		"sequence": int(_state.get("sequence", SequenceTier.BASE)),
 		"identity_options": identity_views,
 		"battle_modifiers": identity.get("battle_modifiers", {}).duplicate(true),
 		"divination_tickets": int(_state.get("divination_tickets", 0)),
@@ -471,27 +477,15 @@ func _draw_gacha(pull_count: int) -> ProgressionCommandResult:
 
 
 func _upgrade_card(definition_id: StringName) -> ProgressionCommandResult:
-	if StringName(_state.get("phase", "")) != PHASE_HUB:
-		return _rejected(&"wrong_phase")
 	var definition_key := String(definition_id)
-	var upgrade_value: Variant = _upgrade_definitions.get(definition_key, {})
-	if not upgrade_value is Dictionary or upgrade_value.is_empty():
-		return _rejected(&"upgrade_not_supported")
-	var upgrade: Dictionary = upgrade_value
+	var check := _upgrade_check(definition_key)
+	if check["reason"] != &"ok":
+		return _rejected(check["reason"])
+	var cost: int = int(check["cost"])
 	var collection: Dictionary = _state["collection"]
 	var card_state: Dictionary = _card_state(collection, definition_key)
-	if int(card_state["copies"]) <= 0:
-		return _rejected(&"card_not_owned")
 	var current_level: int = int(card_state["level"])
-	var max_level: int = int(upgrade.get("max_level", 0))
-	if current_level >= max_level:
-		return _rejected(&"card_level_max")
 	var next_level: int = current_level + 1
-	var cost: int = _upgrade_cost(next_level)
-	if cost <= 0:
-		return _rejected(&"balance_missing")
-	if int(card_state["fragments"]) < cost:
-		return _rejected(&"insufficient_fragments")
 	card_state["fragments"] = int(card_state["fragments"]) - cost
 	card_state["level"] = next_level
 	collection[definition_key] = card_state
@@ -503,6 +497,33 @@ func _upgrade_card(definition_id: StringName) -> ProgressionCommandResult:
 		"cost": cost,
 	})
 	return _success()
+
+
+## Single source for "can this card be upgraded now, and for how much".
+## Shared by the UPGRADE_CARD command and the snapshot's can_upgrade/upgrade_cost.
+func _upgrade_check(definition_key: String) -> Dictionary:
+	var upgrade_value: Variant = _upgrade_definitions.get(definition_key, {})
+	var upgrade: Dictionary = upgrade_value if upgrade_value is Dictionary else {}
+	var card_state: Dictionary = _card_state(_state.get("collection", {}), definition_key)
+	var current_level: int = int(card_state["level"])
+	var max_level: int = int(upgrade.get("max_level", 0))
+	var cost: int = 0
+	if not upgrade.is_empty() and current_level < max_level:
+		cost = _upgrade_cost(current_level + 1)
+	var reason: StringName = &"ok"
+	if StringName(_state.get("phase", "")) != PHASE_HUB:
+		reason = &"wrong_phase"
+	elif upgrade.is_empty():
+		reason = &"upgrade_not_supported"
+	elif int(card_state["copies"]) <= 0:
+		reason = &"card_not_owned"
+	elif current_level >= max_level:
+		reason = &"card_level_max"
+	elif cost <= 0:
+		reason = &"balance_missing"
+	elif int(card_state["fragments"]) < cost:
+		reason = &"insufficient_fragments"
+	return {"reason": reason, "cost": cost}
 
 
 func _record_performance(definition_id: StringName) -> ProgressionCommandResult:
@@ -557,15 +578,15 @@ func _consume_potion(potion_id: StringName) -> ProgressionCommandResult:
 	digestion["consumed"] = true
 	digestion["progress"] = 0
 	_state["digestion"] = digestion
-	_state["sequence"] = int(digestion.get("to_sequence", 8))
+	_state["sequence"] = int(digestion.get("to_sequence", _digestion_rules["to_sequence"]))
 	var granted_ids := _grant_sequence_package(
 		_digestion_rules.get("grant_definition_ids", [])
 	)
 	_emit(&"PotionConsumed", {
 		"potion_id": key,
-		"from_sequence": int(digestion.get("from_sequence", 9)),
-		"to_sequence": int(digestion.get("to_sequence", 8)),
-		"sequence_name_zh": String(digestion.get("to_sequence_name_zh", "小丑")),
+		"from_sequence": int(digestion.get("from_sequence", _digestion_rules["from_sequence"])),
+		"to_sequence": int(digestion.get("to_sequence", _digestion_rules["to_sequence"])),
+		"sequence_name_zh": String(digestion.get("to_sequence_name_zh", _digestion_rules["to_sequence_name_zh"])),
 		"granted_definition_ids": granted_ids.duplicate(),
 	})
 	return _success()
@@ -631,23 +652,16 @@ func _draw_one_entry() -> Dictionary:
 
 func _unlocked_gacha_entries(entries: Array) -> Array:
 	var result: Array = []
-	var current_sequence := int(_state.get("sequence", 9))
+	var current_sequence := int(_state.get("sequence", SequenceTier.BASE))
 	for entry_value in entries:
 		if not entry_value is Dictionary:
 			continue
 		var definition_id := String(entry_value.get("definition_id", ""))
 		var definition := _content.get_card_definition(StringName(definition_id))
-		var band := String(definition.get("sequence_band", "序列9"))
-		if _is_sequence_locked(band, current_sequence):
+		if not SequenceTier.is_unlocked(definition, current_sequence):
 			continue
 		result.append(entry_value.duplicate(true))
 	return result
-
-
-func _is_sequence_locked(sequence_band: String, current_sequence: int) -> bool:
-	if current_sequence <= 8:
-		return false
-	return sequence_band.contains("序列8") or sequence_band.contains("→8")
 
 
 func _roll_rarity() -> StringName:
@@ -704,7 +718,7 @@ func _reward_by_id(reward_id: String) -> Dictionary:
 	if reward_id == SEQUENCE_FRAGMENT_REWARD_ID:
 		return {
 			"id": SEQUENCE_FRAGMENT_REWARD_ID,
-			"display_name_zh": "序列 %d 残页" % int(_state.get("sequence", 9)),
+			"display_name_zh": "序列 %d 残页" % int(_state.get("sequence", SequenceTier.BASE)),
 			"kind": "card_fragments",
 			"target_definition_id": String(_state.get("sequence_reward_target_id", "")),
 		}
@@ -724,18 +738,20 @@ func _all_reward_ids() -> Array[String]:
 
 
 func _pick_sequence_reward_target() -> String:
+	var candidates := _sequence_reward_candidates(int(_state.get("sequence", SequenceTier.BASE)))
+	if candidates.is_empty():
+		return ""
+	return candidates[_random.next_int(candidates.size())]
+
+
+## Cards whose own tier equals the given sequence (fragment reward targets).
+func _sequence_reward_candidates(sequence: int) -> Array[String]:
 	var candidates: Array[String] = []
-	var sequence := int(_state.get("sequence", 9))
 	for definition_id in _all_card_ids():
 		var definition := _content.get_card_definition(StringName(definition_id))
-		var band := String(definition.get("sequence_band", "序列9"))
-		if sequence == 9 and (band.contains("序列9") or band.contains("→8")):
+		if SequenceTier.required_for(definition) == sequence:
 			candidates.append(definition_id)
-		elif sequence == 8 and band.contains("序列8"):
-			candidates.append(definition_id)
-	if candidates.is_empty():
-		return "card.skill.ink_dart"
-	return candidates[_random.next_int(candidates.size())]
+	return candidates
 
 
 func _all_card_ids() -> Array[String]:
@@ -839,12 +855,8 @@ func _load_content() -> bool:
 			_upgrade_definitions[definition_id] = upgrade.duplicate(true)
 	var potion_values: Variant = _content.get_potion_definitions()
 	if not potion_values is Array or potion_values.is_empty():
-		potion_values = [{
-			"id": "potion.seer_to_clown",
-			"display_name_zh": "小丑魔药",
-			"sequence_from": 9,
-			"sequence_to": 8,
-		}]
+		_content_error = &"potion_definitions_missing"
+		return false
 	for potion_value in potion_values:
 		if not potion_value is Dictionary:
 			return false
@@ -854,15 +866,14 @@ func _load_content() -> bool:
 			return false
 		_potion_definitions_by_id[potion_id] = potion.duplicate(true)
 	_digestion_rules = _content.get_digestion_rules().duplicate(true)
-	if _digestion_rules.is_empty():
-		_digestion_rules = {
-			"potion_id": "potion.seer_to_clown",
-			"from_sequence": 9,
-			"to_sequence": 8,
-			"to_sequence_name_zh": "小丑",
-			"required": 8,
-			"eligible_mechanic_tags": ["占卜", "预感", "意图揭示", "标记"],
-		}
+	_content_error = _digestion_rules_error(_digestion_rules)
+	if _content_error != &"":
+		return false
+	# Every run starts at from_sequence and is offered a fragment reward for a
+	# card of that tier; content without one is invalid (no hard-coded fallback card).
+	if _sequence_reward_candidates(int(_digestion_rules["from_sequence"])).is_empty():
+		_content_error = &"sequence_reward_target_missing"
+		return false
 
 	# Every gacha entry must have a meaningful upgrade path. Otherwise duplicates
 	# can produce fragments that the player can never spend.
@@ -941,7 +952,7 @@ func _new_state() -> Dictionary:
 		"gacha_history": [],
 		"sequence_reward_target_id": "",
 		"potion_inventory": [],
-		"sequence": 9,
+		"sequence": SequenceTier.BASE,
 		"digestion": _new_digestion_state(),
 		"revision": 1,
 	}
@@ -1003,7 +1014,7 @@ func _restore_state(value: Dictionary) -> ProgressionCommandResult:
 	restored["potion_inventory"] = potion_inventory.duplicate()
 	restored["gacha_history"] = gacha_history.duplicate(true)
 	restored["sequence_reward_target_id"] = sequence_reward_target_id
-	restored["sequence"] = int(restored.get("sequence", 9))
+	restored["sequence"] = int(restored.get("sequence", SequenceTier.BASE))
 	_state = restored
 	return ProgressionCommandResult.new(true, &"ok", [], get_snapshot())
 
@@ -1068,22 +1079,43 @@ func _reset_runtime() -> void:
 	_potion_definitions_by_id.clear()
 	_digestion_rules.clear()
 	_balance_error = &""
+	_content_error = &""
+
+
+func _digestion_rules_error(rules: Dictionary) -> StringName:
+	if rules.is_empty():
+		return &"digestion_rules_missing"
+	if not _potion_definitions_by_id.has(String(rules.get("potion_id", ""))):
+		return &"digestion_potion_unknown"
+	for key in ["from_sequence", "to_sequence", "required"]:
+		if _finite_integer(rules.get(key)) == null:
+			return &"digestion_rules_invalid"
+	if int(rules["required"]) <= 0 or int(rules["to_sequence"]) >= int(rules["from_sequence"]):
+		return &"digestion_rules_invalid"
+	if String(rules.get("to_sequence_name_zh", "")).is_empty():
+		return &"digestion_rules_invalid"
+	var tags: Variant = rules.get("eligible_mechanic_tags")
+	if not tags is Array or tags.is_empty():
+		return &"digestion_rules_invalid"
+	return &""
 
 
 func _new_digestion_state() -> Dictionary:
 	var rule := _digestion_rules
 	return {
-		"potion_id": String(rule.get("potion_id", "potion.seer_to_clown")),
-		"from_sequence": int(rule.get("from_sequence", 9)),
-		"to_sequence": int(rule.get("to_sequence", 8)),
-		"to_sequence_name_zh": String(rule.get("to_sequence_name_zh", "小丑")),
+		"potion_id": String(rule.get("potion_id", "")),
+		"from_sequence": int(rule.get("from_sequence", SequenceTier.BASE)),
+		"to_sequence": int(rule.get("to_sequence", SequenceTier.BASE)),
+		"to_sequence_name_zh": String(rule.get("to_sequence_name_zh", "")),
 		"progress": 0,
-		"required": int(rule.get("required", 8)),
+		"required": int(rule.get("required", 0)),
 		"consumed": false,
 	}
 
 
 func _digestion_snapshot() -> Dictionary:
+	if _digestion_rules.is_empty() and not _state.has("digestion"):
+		return {}
 	var value: Dictionary = _state.get("digestion", _new_digestion_state())
 	var result := value.duplicate(true)
 	result["ready"] = int(result.get("progress", 0)) >= int(result.get("required", 1))
