@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1600" height="900" viewBox="0 0 1600 900">
+  <title>Desk World overview collage from existing title-desk / diary props</title>
+  <desc>比例示意，非正式渲染。卡匣/祈愿台/抽屉为色块占位。世界单位见 DESK_WORLD_STATIONS.md</desc>
+
+  <!-- desk atmosphere -->
+  <image href="../diary/props/title-desk-wide.png" x="0" y="0" width="1600" height="900"
+         preserveAspectRatio="xMidYMid slice" opacity="0.92"/>
+  <rect x="0" y="0" width="1600" height="900" fill="#1a1008" opacity="0.35"/>
+
+  <!-- wood hint strip -->
+  <image href="../diary/desk_wood.png" x="120" y="180" width="1360" height="560"
+         preserveAspectRatio="none" opacity="0.45"/>
+
+  <!-- dossier left ~36% of diary open width -->
+  <image href="../diary/props/title-dossier-stack.png" x="160" y="300" width="280" height="320"
+         preserveAspectRatio="xMidYMid meet"/>
+  <text x="300" y="640" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="18" fill="#e8dcc8">档案夹 · DW-01</text>
+  <text x="300" y="662" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="13" fill="#c0a080">宽 ≈ 日记开书 36%</text>
+
+  <!-- open diary center 55-65% viewport -->
+  <image href="../diary/props/open-journal.png" x="420" y="220" width="760" height="500"
+         preserveAspectRatio="xMidYMid meet"/>
+  <text x="800" y="740" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="20" fill="#f0e6d0">日记（开）· 视口宽 55–65%</text>
+  <text x="800" y="764" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="13" fill="#c0a080">足迹 1.34×0.89 世界单位 · 100% 比例锚</text>
+
+  <!-- closed book ghost for title scale -->
+  <image href="../diary/props/title-journal-closed.png" x="1180" y="520" width="160" height="160"
+         preserveAspectRatio="xMidYMid meet" opacity="0.55"/>
+  <text x="1260" y="700" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="12" fill="#c0a080">合书参考 DW-05 ~54%</text>
+
+  <!-- candle upper-left -->
+  <image href="../diary/props/candle.png" x="120" y="120" width="110" height="140"
+         preserveAspectRatio="xMidYMid meet"/>
+  <text x="175" y="280" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="14" fill="#e8dcc8">烛台 DW-06</text>
+
+  <!-- slip -->
+  <image href="../diary/props/title-note-slip.png" x="700" y="160" width="220" height="80"
+         preserveAspectRatio="xMidYMid meet" opacity="0.9"/>
+  <text x="810" y="155" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="14" fill="#e8dcc8">书签纸条 DW-04 · title</text>
+
+  <!-- cardbox placeholder right -->
+  <rect x="1220" y="300" width="220" height="160" rx="8" fill="#3d2818" stroke="#c9a060" stroke-width="2"
+        stroke-dasharray="8 5" opacity="0.85"/>
+  <text x="1330" y="375" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="18" fill="#e8dcc8">卡匣占位</text>
+  <text x="1330" y="400" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="12" fill="#c0a080">DW-11 · 宽~41%</text>
+
+  <!-- altar placeholder upper-right -->
+  <circle cx="1360" cy="200" r="70" fill="none" stroke="#7a9aaa" stroke-width="2" stroke-dasharray="6 4"/>
+  <circle cx="1360" cy="200" r="28" fill="#2a3540" opacity="0.8"/>
+  <text x="1360" y="290" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="14" fill="#c8d8e0">祈愿台 DW-13</text>
+
+  <!-- drawer placeholder bottom -->
+  <rect x="520" y="780" width="560" height="70" rx="4" fill="#4a3220" stroke="#e8dcc8" stroke-width="1.5"
+        stroke-dasharray="6 4" opacity="0.9"/>
+  <text x="800" y="822" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="16" fill="#e8dcc8">抽屉 / 卷宗 · DW-21/22（桌沿）</text>
+
+  <!-- hover tag sample -->
+  <rect x="1050" y="260" width="120" height="36" rx="3" fill="#f0e6d0" stroke="#8a6040" stroke-width="1.5"/>
+  <text x="1110" y="283" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="14" fill="#3a2a1a">日记</text>
+  <text x="1110" y="248" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="11" fill="#c0a080">DW-07 悬停题签</text>
+
+  <!-- title bar -->
+  <rect x="0" y="0" width="1600" height="56" fill="#120c08" opacity="0.75"/>
+  <text x="800" y="36" text-anchor="middle"
+        font-family="Source Han Serif SC, serif" font-size="22" fill="#f0e6d0">
+    书桌世界总览示意（现有 title-desk / diary 素材拼贴 · UI-X0）
+  </text>
+</svg>

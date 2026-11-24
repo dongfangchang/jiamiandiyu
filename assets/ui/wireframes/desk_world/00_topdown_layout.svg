@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+  <title>Desk World · top-down layout (world units)</title>
+  <desc>Desk 2.4 x 1.4. Origin center. +X right, +Z toward player (bottom of diagram).</desc>
+  <style>
+    .label { font-family: "Source Han Serif SC", "Noto Serif CJK SC", serif; font-size: 13px; fill: #3a2a1a; }
+    .unit { font-family: "Source Han Serif SC", serif; font-size: 11px; fill: #6a5040; }
+    .title { font-family: "Source Han Serif SC", serif; font-size: 18px; fill: #2a1810; font-weight: 600; }
+    .axis { font-family: monospace; font-size: 11px; fill: #886655; }
+  </style>
+  <!-- desk wood -->
+  <rect x="80" y="60" width="800" height="480" rx="6" fill="#5c3a22" stroke="#2a1810" stroke-width="3"/>
+  <rect x="90" y="70" width="780" height="460" fill="#6b4428" opacity="0.55"/>
+  <!-- grid hint: 0.2 world = ~66.7 px; desk maps X[-1.2,1.2]->[80,880], Z[-0.7,0.7]->[70,530] -->
+  <!-- mapping: px = 80 + (x+1.2)*(800/2.4); py = 70 + (z+0.7)*(460/1.4) -->
+
+  <!-- candle (-0.95, -0.38) -->
+  <circle cx="163" cy="175" r="22" fill="#c4a574" stroke="#3a2a1a" stroke-width="2"/>
+  <text x="163" y="155" text-anchor="middle" class="label">烛台</text>
+  <text x="163" y="210" text-anchor="middle" class="unit">(-0.95,-0.38) ø0.16 h0.42</text>
+
+  <!-- altar (0.88, -0.42) -->
+  <circle cx="773" cy="162" r="55" fill="none" stroke="#7a9aaa" stroke-width="2" stroke-dasharray="6 4"/>
+  <circle cx="773" cy="162" r="28" fill="#2a3540" stroke="#a8c0d0" stroke-width="2"/>
+  <text x="773" y="118" text-anchor="middle" class="label">祈愿台</text>
+  <text x="773" y="230" text-anchor="middle" class="unit">(0.88,-0.42) 0.55×0.55</text>
+
+  <!-- dossier closed (-0.88, 0.02) -->
+  <rect x="138" y="268" width="96" height="124" rx="3" fill="#4a3020" stroke="#c9a060" stroke-width="2"/>
+  <text x="186" y="255" text-anchor="middle" class="label">档案夹</text>
+  <text x="186" y="410" text-anchor="middle" class="unit">(-0.88,0.02) 0.48×0.62</text>
+
+  <!-- diary open (0.04, 0) ~1.34 x 0.89 -->
+  <rect x="257" y="225" width="447" height="292" rx="4" fill="#e8dcc8" stroke="#2a1810" stroke-width="2.5"/>
+  <line x1="480" y1="225" x2="480" y2="517" stroke="#8a7060" stroke-width="2"/>
+  <text x="480" y="210" text-anchor="middle" class="label">日记（开）主体 · 视口宽 55–65%</text>
+  <text x="480" y="545" text-anchor="middle" class="unit">(0.04,0.00) 足迹 1.34×0.89</text>
+
+  <!-- cardbox (0.96, 0.08) -->
+  <rect x="725" y="285" width="110" height="84" rx="3" fill="#3d2818" stroke="#a08050" stroke-width="2"/>
+  <text x="780" y="272" text-anchor="middle" class="label">卡匣</text>
+  <text x="780" y="390" text-anchor="middle" class="unit">(0.96,0.08) 0.55×0.42</text>
+  <!-- pouch -->
+  <circle cx="840" cy="400" r="22" fill="#5a4030" stroke="#2a1810" stroke-width="1.5"/>
+  <text x="840" y="435" text-anchor="middle" class="unit">残页袋</text>
+
+  <!-- drawer (0, 0.58) -->
+  <rect x="322" y="478" width="316" height="72" rx="2" fill="#4a3220" stroke="#2a1810" stroke-width="2"/>
+  <text x="480" y="510" text-anchor="middle" class="label" fill="#e8dcc8">抽屉 / 卷宗</text>
+  <text x="480" y="568" text-anchor="middle" class="unit">(0.00,0.58) 0.95×0.38</text>
+
+  <!-- inkwell (0.52, 0.48) · AR-04 clear of cardbox/altar/drawer -->
+  <circle cx="653" cy="458" r="12" fill="#1a1418" stroke="#c9a060" stroke-width="1.5"/>
+  <text x="653" y="445" text-anchor="middle" class="label">墨水</text>
+  <text x="653" y="488" text-anchor="middle" class="unit">(0.52,0.48)</text>
+
+  <!-- quill (0.66, 0.55) -->
+  <ellipse cx="700" cy="481" rx="28" ry="8" fill="#d8d0b8" stroke="#3a2a1a" stroke-width="1.5"
+           transform="rotate(-28 700 481)"/>
+  <text x="745" y="470" text-anchor="start" class="label">羽笔</text>
+  <text x="745" y="486" text-anchor="start" class="unit">(0.66,0.55)</text>
+
+  <!-- axes -->
+  <text x="480" y="40" text-anchor="middle" class="title">书桌世界 · 俯视布局（世界单位）</text>
+  <text x="480" y="58" text-anchor="middle" class="axis">桌面 2.4×1.4 · 图底 = +Z 朝玩家 · 墨/羽 AR-04 改坐标 · DESK_WORLD_STATIONS.md §1</text>
+  <text x="70" y="320" class="axis" transform="rotate(-90 70 320)">−X</text>
+  <text x="900" y="320" class="axis">+X</text>
+  <text x="480" y="625" text-anchor="middle" class="axis">+Z 桌沿（朝玩家）</text>
+  <text x="480" y="85" text-anchor="middle" class="axis">−Z 靠墙</text>
+</svg>

@@ -351,3 +351,70 @@ R1-04 删除日记 2D 旧载体后，以下 `assets/ui/diary/` 文件已没有�
 同批删除的数据：`data/balance/v0.2.0/balance_draft.json`、`data/schema/v0.2.0/battle_cards.schema.json`（R1-01 测试迁移后已无引用）。
 
 恢复：`git checkout archive/pre-v0.87-assets -- <path>`
+
+## v0.88.0 书桌世界 X1（DW-01…07）
+
+规格：`docs/design/ART_BRIEF_DESK_WORLD.md`、`docs/design/DESK_WORLD_STATIONS.md` §5。体验框架 ADR-0032。  
+候选源：`art/assets/raster/desk_world/<object>/`（保留；正式以 `assets/game/desk_world/` 为准）。  
+未迁入：`_work/` jpg 源、`_overview/` 审稿拼贴。  
+授权：项目原创，仅私人离线使用（各物件 README）。  
+审稿：UI-07 复审全过（2026-11-24），见 `docs/reports/v0.88.0/ui.md`。  
+迁入：主协调者 CO-X1（2026-11-24）。资源注册表 `data/registry/assets.json` 尚未落地（属 R2-10），本批仅登记本清单。
+
+| 稳定 ID | 源路径（art） | 正式路径 | 尺寸 | 审稿 |
+|---|---|---|---:|---|
+| `desk.dossier.closed` | `art/assets/raster/desk_world/dossier/closed.png` | `assets/game/desk_world/dossier/closed.png` | 800×1100 | 过 |
+| `desk.dossier.closed.shadow` | `…/dossier/closed_shadow.png` | `assets/game/desk_world/dossier/closed_shadow.png` | 800×1100 | 过 |
+| `desk.dossier.open` | `…/dossier/open.png` | `assets/game/desk_world/dossier/open.png` | 1600×1200 | 过（复审） |
+| `desk.dossier.open.shadow` | `…/dossier/open_shadow.png` | `assets/game/desk_world/dossier/open_shadow.png` | 1600×1200 | 过（复审） |
+| `desk.page` | `…/page/page.png` | `assets/game/desk_world/page/page.png` | 1024×1024 | 过 |
+| `desk.page.shadow` | `…/page/page_shadow.png` | `assets/game/desk_world/page/page_shadow.png` | 1024×1024 | 过 |
+| `desk.photo_frame` | `…/photo_frame/photo_frame.png` | `assets/game/desk_world/photo_frame/photo_frame.png` | 600×800 | 过 |
+| `desk.photo_frame.shadow` | `…/photo_frame/photo_frame_shadow.png` | `assets/game/desk_world/photo_frame/photo_frame_shadow.png` | 600×800 | 过 |
+| `desk.slip` | `…/slip/slip.png` | `assets/game/desk_world/slip/slip.png` | 700×260 | 过 |
+| `desk.slip.shadow` | `…/slip/slip_shadow.png` | `assets/game/desk_world/slip/slip_shadow.png` | 700×260 | 过 |
+| `desk.book_closed` | `…/book_closed/book_closed.png` | `assets/game/desk_world/book_closed/book_closed.png` | 1400×1000 | 过 |
+| `desk.book_closed.shadow` | `…/book_closed/book_closed_shadow.png` | `assets/game/desk_world/book_closed/book_closed_shadow.png` | 1400×1000 | 过 |
+| `desk.candle.lit` | `…/candle/candle_lit.png` | `assets/game/desk_world/candle/candle_lit.png` | 512×768 | 过（复审） |
+| `desk.candle.lit.shadow` | `…/candle/candle_lit_shadow.png` | `assets/game/desk_world/candle/candle_lit_shadow.png` | 512×768 | 过（复审） |
+| `desk.candle.out` | `…/candle/candle_out.png` | `assets/game/desk_world/candle/candle_out.png` | 512×768 | 过（复审） |
+| `desk.candle.out.shadow` | `…/candle/candle_out_shadow.png` | `assets/game/desk_world/candle/candle_out_shadow.png` | 512×768 | 过（复审） |
+| `desk.candle.smoke` | `…/candle/smoke.png` | `assets/game/desk_world/candle/smoke.png` | 512×768 | 过 |
+| `desk.candle.smoke.shadow` | `…/candle/smoke_shadow.png` | `assets/game/desk_world/candle/smoke_shadow.png` | 512×768 | 过 |
+| `desk.tag` | `…/tag/tag.png` | `assets/game/desk_world/tag/tag.png` | 360×120 | 过 |
+| `desk.tag.shadow` | `…/tag/tag_shadow.png` | `assets/game/desk_world/tag/tag_shadow.png` | 360×120 | 过 |
+
+## v0.88.0 书桌世界 X2（DW-11…18）
+
+规格同 X1 BRIEF / STATIONS。候选源仍在 `art/assets/raster/desk_world/<object>/`；正式以 `assets/game/desk_world/` 为准。  
+未迁入：`_work/`。审稿：UI-07-X2 全过（2026-11-24），见 `docs/reports/v0.88.0/ui.md`。  
+迁入：主协调者 CO-X2（2026-11-24）。`data/registry/assets.json` 仍未落地（R2-10）。不开 X3。
+
+| 稳定 ID | 源路径（art） | 正式路径 | 尺寸 | 审稿 |
+|---|---|---|---:|---|
+| `desk.cardbox.closed` | `art/assets/raster/desk_world/cardbox/closed.png` | `assets/game/desk_world/cardbox/closed.png` | 1200×900 | 过 |
+| `desk.cardbox.closed.shadow` | `…/cardbox/closed_shadow.png` | `assets/game/desk_world/cardbox/closed_shadow.png` | 1200×900 | 过 |
+| `desk.cardbox.open` | `…/cardbox/open.png` | `assets/game/desk_world/cardbox/open.png` | 1200×900 | 过 |
+| `desk.cardbox.open.shadow` | `…/cardbox/open_shadow.png` | `assets/game/desk_world/cardbox/open_shadow.png` | 1200×900 | 过 |
+| `desk.pouch` | `…/pouch/pouch.png` | `assets/game/desk_world/pouch/pouch.png` | 600×600 | 过 |
+| `desk.pouch.shadow` | `…/pouch/pouch_shadow.png` | `assets/game/desk_world/pouch/pouch_shadow.png` | 600×600 | 过 |
+| `desk.altar.idle` | `…/altar/altar_idle.png` | `assets/game/desk_world/altar/altar_idle.png` | 1400×1400 | 过 |
+| `desk.altar.idle.shadow` | `…/altar/altar_idle_shadow.png` | `assets/game/desk_world/altar/altar_idle_shadow.png` | 1400×1400 | 过 |
+| `desk.altar.active` | `…/altar/altar_active.png` | `assets/game/desk_world/altar/altar_active.png` | 1400×1400 | 过 |
+| `desk.altar.active.shadow` | `…/altar/altar_active_shadow.png` | `assets/game/desk_world/altar/altar_active_shadow.png` | 1400×1400 | 过 |
+| `desk.circle_glow` | `…/circle_glow/circle_glow.png` | `assets/game/desk_world/circle_glow/circle_glow.png` | 1400×1400 | 过 |
+| `desk.circle_glow.shadow` | `…/circle_glow/circle_glow_shadow.png` | `assets/game/desk_world/circle_glow/circle_glow_shadow.png` | 1400×1400 | 过 |
+| `desk.ink_mask.01` | `…/ink_mask/ink_mask_01.png` | `assets/game/desk_world/ink_mask/ink_mask_01.png` | 2048×2048 | 过 |
+| `desk.ink_mask.02` | `…/ink_mask/ink_mask_02.png` | `assets/game/desk_world/ink_mask/ink_mask_02.png` | 2048×2048 | 过 |
+| `desk.ink_mask.03` | `…/ink_mask/ink_mask_03.png` | `assets/game/desk_world/ink_mask/ink_mask_03.png` | 2048×2048 | 过 |
+| `desk.ink_mask.04` | `…/ink_mask/ink_mask_04.png` | `assets/game/desk_world/ink_mask/ink_mask_04.png` | 2048×2048 | 过 |
+| `desk.envelope` | `…/envelope/envelope.png` | `assets/game/desk_world/envelope/envelope.png` | 800×560 | 过 |
+| `desk.envelope.shadow` | `…/envelope/envelope_shadow.png` | `assets/game/desk_world/envelope/envelope_shadow.png` | 800×560 | 过 |
+| `desk.envelope.insert_card` | `…/envelope/insert_card.png` | `assets/game/desk_world/envelope/insert_card.png` | 512×720 | 过 |
+| `desk.envelope.insert_card.shadow` | `…/envelope/insert_card_shadow.png` | `assets/game/desk_world/envelope/insert_card_shadow.png` | 512×720 | 过 |
+| `desk.battle_cloth` | `…/battle_cloth/battle_cloth.png` | `assets/game/desk_world/battle_cloth/battle_cloth.png` | 2048×2048 | 过 |
+| `desk.battle_cloth.shadow` | `…/battle_cloth/battle_cloth_shadow.png` | `assets/game/desk_world/battle_cloth/battle_cloth_shadow.png` | 2048×2048 | 过 |
+| `desk.page_frames.frontispiece` | `…/page_frames/frontispiece_frame.png` | `assets/game/desk_world/page_frames/frontispiece_frame.png` | 1260×1770 | 过 |
+| `desk.page_frames.frontispiece.shadow` | `…/page_frames/frontispiece_frame_shadow.png` | `assets/game/desk_world/page_frames/frontispiece_frame_shadow.png` | 1260×1770 | 过 |
+| `desk.page_frames.epilogue` | `…/page_frames/epilogue_frame.png` | `assets/game/desk_world/page_frames/epilogue_frame.png` | 1260×1770 | 过 |
+| `desk.page_frames.epilogue.shadow` | `…/page_frames/epilogue_frame_shadow.png` | `assets/game/desk_world/page_frames/epilogue_frame_shadow.png` | 1260×1770 | 过 |

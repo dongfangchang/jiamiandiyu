@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+  <title>Desk World · seven station camera poses</title>
+  <style>
+    .t { font-family: "Source Han Serif SC", "Noto Serif CJK SC", serif; font-size: 16px; fill: #2a1810; }
+    .s { font-family: "Source Han Serif SC", serif; font-size: 11px; fill: #4a3828; }
+    .m { font-family: ui-monospace, monospace; font-size: 10px; fill: #5a4030; }
+    .h { font-family: "Source Han Serif SC", serif; font-size: 18px; fill: #2a1810; font-weight: 600; }
+  </style>
+  <rect width="900" height="560" fill="#f3ebe0"/>
+  <text x="450" y="32" text-anchor="middle" class="h">七站位镜头（侧视示意 · 相对 diary 基准）</text>
+  <text x="450" y="52" text-anchor="middle" class="s">基准 diary: pos (0, 1.61, 0.93) · rot −59° · fov 38 — diary_desk_stage.gd:216–224</text>
+
+  <!-- desk slab side view -->
+  <rect x="120" y="380" width="660" height="28" fill="#6b4428" stroke="#2a1810"/>
+  <text x="450" y="420" text-anchor="middle" class="s">桌面 y≈0</text>
+
+  <!-- book block -->
+  <rect x="390" y="352" width="120" height="28" fill="#e8dcc8" stroke="#2a1810"/>
+  <text x="450" y="370" text-anchor="middle" class="s">日记</text>
+
+  <!-- camera frusta as dots + lines to look-at -->
+  <!-- title -->
+  <circle cx="450" cy="95" r="7" fill="#8b4513"/>
+  <line x1="450" y1="102" x2="450" y2="352" stroke="#8b4513" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="470" y="90" class="m">title (0,2.85,2.55) −38° fov42</text>
+
+  <!-- desk -->
+  <circle cx="450" cy="140" r="7" fill="#a06030"/>
+  <line x1="450" y1="147" x2="450" y2="352" stroke="#a06030" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="470" y="145" class="m">desk (0,2.40,1.70) −50° fov48</text>
+
+  <!-- diary -->
+  <circle cx="450" cy="200" r="8" fill="#c04020" stroke="#2a1810" stroke-width="1.5"/>
+  <line x1="450" y1="208" x2="450" y2="352" stroke="#c04020" stroke-width="2"/>
+  <text x="470" y="205" class="m">diary ★ (0,1.61,0.93) −59° fov38</text>
+
+  <!-- dossier -->
+  <circle cx="280" cy="220" r="7" fill="#4060a0"/>
+  <line x1="287" y1="225" x2="360" y2="360" stroke="#4060a0" stroke-width="1.5"/>
+  <text x="100" y="215" class="m">dossier (−0.70,1.42,0.92)</text>
+  <text x="100" y="230" class="m">−56° yaw+22 fov34</text>
+
+  <!-- cardbox -->
+  <circle cx="620" cy="220" r="7" fill="#4060a0"/>
+  <line x1="613" y1="225" x2="540" y2="360" stroke="#4060a0" stroke-width="1.5"/>
+  <text x="640" y="215" class="m">cardbox (0.78,1.42,0.95)</text>
+  <text x="640" y="230" class="m">−56° yaw−20 fov34</text>
+
+  <!-- altar -->
+  <circle cx="580" cy="175" r="7" fill="#5080a0"/>
+  <line x1="575" y1="182" x2="520" y2="340" stroke="#5080a0" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="600" y="170" class="m">altar (0.72,1.50,0.55) −62° fov32</text>
+
+  <!-- drawer -->
+  <circle cx="450" cy="260" r="7" fill="#705030"/>
+  <line x1="450" y1="267" x2="450" y2="400" stroke="#705030" stroke-width="1.5"/>
+  <text x="470" y="275" class="m">drawer (0,1.15,1.25) −42° fov40</text>
+
+  <rect x="40" y="460" width="820" height="80" rx="6" fill="#fff8f0" stroke="#c0a080"/>
+  <text x="60" y="485" class="t">T1：站位间镜头移动 0.45–0.6s · 不淡出 · 2D 提前 0.15s 淡入</text>
+  <text x="60" y="508" class="s">实现时位姿可 ±5% 微调；diary 站必须保持开书占视口宽 55–65%。</text>
+  <text x="60" y="528" class="s">完整数值表见 docs/design/DESK_WORLD_STATIONS.md §2</text>
+</svg>
