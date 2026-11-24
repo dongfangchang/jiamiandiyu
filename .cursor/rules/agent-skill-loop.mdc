@@ -1,0 +1,16 @@
+---
+description: 固定角色收工必须跑技能自省循环；优先复用 REGISTRY 与 TOOL_REGISTRY
+alwaysApply: true
+---
+
+# 技能循环（全角色）
+
+委派或扮演 `.cursor/agents/*` 角色时：
+
+1. **开工**：读该角色 `agent-memory/<role>/journal.md` + `.cursor/skills/REGISTRY.md`。
+2. **执行**：命中 Skill 则先按 Skill；命令先查 `_meta/TOOL_REGISTRY.md`。
+3. **收工**：按 `_meta/SKILL_LOOP.md` 写 Retro 五问；可沉淀则 Draft；可晋升则更新 Skill/REGISTRY。
+4. 使用项目技能 `agent-skill-loop` 作为检查清单。
+
+禁止只在聊天里说「下次注意」而不落盘。  
+`.cursor` 学习文件有变更时必须随代码 commit/push。

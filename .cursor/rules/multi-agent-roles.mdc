@@ -1,0 +1,28 @@
+---
+description: 按固定角色智能体协作；跨职能任务应委派 .cursor/agents 中的长期角色
+alwaysApply: true
+---
+
+# 多智能体角色委派
+
+本仓库在 `.cursor/agents/` 提供长期固定角色（product-manager、architect、coordinator、ui-designer、art、gameplay-designer、numerical-designer、local-backend）。
+
+用户级通用角色与技能循环在 `~/.cursor/agents/`（全项目可用）；同名时**项目级优先**。
+
+## 主代理应做的事
+
+- 跨职能任务：**委派**对应 subagent，而不是一个人改光所有目录。
+- 开场先对齐 `docs/CURRENT_VERSION.md` 与角色所有权。
+- 冲突升级给 **product-manager**；集成/迁资源给 **coordinator**。
+- 收工走 `agent-skill-loop`；推送时把 `.cursor/**` 学习内容一并入库。
+
+## 用户可点名
+
+```text
+用 art 智能体：…
+用 ui-designer：…
+用 product-manager：…
+用 skill-loop-coach：把这次流程沉淀成 skill
+```
+
+详见 `.cursor/agents/README.md`。
