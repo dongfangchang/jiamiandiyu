@@ -200,7 +200,7 @@ func _test_route_adapter_rejects_bad_references() -> void:
 
 
 func _test_route_session_and_node_resume() -> void:
-	var started = AppBootstrapScript.start_route(
+	var started = AppBootstrapScript.start_route_v07(
 		20261108,
 		_route_paths(),
 		SLOT,
@@ -227,7 +227,7 @@ func _test_route_session_and_node_resume() -> void:
 	)
 	_expect(
 		session.last_checkpoint_result != null and session.last_checkpoint_result.ok,
-		"identity selection should write a v3 checkpoint"
+		"identity selection should write a checkpoint"
 	)
 
 	_expect(_play_current_route_battle(session), "first route battle should be won")
@@ -235,18 +235,18 @@ func _test_route_session_and_node_resume() -> void:
 	_expect(_play_current_route_battle(session), "elite route battle should be won")
 	_expect(_claim_reward(session), "elite battle reward should be claimed")
 	_expect(
-		session.get_route_snapshot().data.current_node_id == "route.v050.node.old_house_rest",
+		session.get_route_snapshot().data.current_node_id == "route.v070.node.old_house_rest",
 		"route should stop at the rest node"
 	)
 
-	var inspected = AppBootstrapScript.inspect_route_checkpoint(SLOT, SAVE_DIRECTORY)
+	var inspected = AppBootstrapScript.inspect_route_checkpoint_v07(SLOT, SAVE_DIRECTORY)
 	_expect(inspected.ok and inspected.data.status == "loaded", "route checkpoint should inspect as loaded")
 	if inspected.ok and inspected.data.status == "loaded":
 		_expect(
-			inspected.data.checkpoint.current_node_id == "route.v050.node.old_house_rest",
+			inspected.data.checkpoint.current_node_id == "route.v070.node.old_house_rest",
 			"checkpoint summary should expose the current rest node"
 		)
-	var resumed = AppBootstrapScript.start_route(
+	var resumed = AppBootstrapScript.start_route_v07(
 		0,
 		_route_paths(),
 		SLOT,
@@ -257,7 +257,7 @@ func _test_route_session_and_node_resume() -> void:
 		return
 	session = resumed.data
 	_expect(
-		session.get_route_snapshot().data.current_node_id == "route.v050.node.old_house_rest",
+		session.get_route_snapshot().data.current_node_id == "route.v070.node.old_house_rest",
 		"resume should restore the rest node"
 	)
 	_expect(
@@ -266,7 +266,7 @@ func _test_route_session_and_node_resume() -> void:
 	)
 
 	var select_rest = session.submit_route(
-		RouteCommandScript.select_node(&"route.v050.node.old_house_rest")
+		RouteCommandScript.select_node(&"route.v070.node.old_house_rest")
 	)
 	_expect(select_rest.accepted, "rest node should be selectable")
 	var used_rest = session.submit_route(
@@ -282,7 +282,7 @@ func _test_route_session_and_node_resume() -> void:
 		"seal echo should add attention to route state"
 	)
 	_expect(
-		session.get_route_snapshot().data.current_node_id == "route.v050.node.mirror_baron",
+		session.get_route_snapshot().data.current_node_id == "route.v070.node.mirror_baron",
 		"rest should unlock the boss"
 	)
 	_expect(_play_current_route_battle(session), "boss battle should be won")
@@ -321,7 +321,7 @@ func _test_route_session_and_node_resume() -> void:
 		session.last_checkpoint_result != null and session.last_checkpoint_result.ok,
 		"ritual completion should persist a checkpoint"
 	)
-	var final_inspection = AppBootstrapScript.inspect_route_checkpoint(SLOT, SAVE_DIRECTORY)
+	var final_inspection = AppBootstrapScript.inspect_route_checkpoint_v07(SLOT, SAVE_DIRECTORY)
 	_expect(final_inspection.ok, "completed route checkpoint should be inspectable")
 	if final_inspection.ok:
 		_expect(
@@ -336,7 +336,7 @@ func _test_route_session_and_node_resume() -> void:
 
 func _test_v1_and_v2_migrations() -> void:
 	var migration_directory := TEST_ROOT.path_join("migrations")
-	var service = SaveMigrationsScript.create_v05_service(migration_directory)
+	var service = SaveMigrationsScript.create_v07_service(migration_directory)
 	var progression := {
 		"phase": "identity_selection",
 		"identity_id": "",
@@ -363,9 +363,9 @@ func _test_v1_and_v2_migrations() -> void:
 		"legacy_v2",
 		v2
 	)
-	_expect(v2_loaded.ok, "v2 save should migrate to v3")
+	_expect(v2_loaded.ok, "v2 save should migrate to the current version")
 	if v2_loaded.ok:
-		_expect(int(v2_loaded.data.save_version) == 3, "v2 migration should produce save version three")
+		_expect(int(v2_loaded.data.save_version) == 5, "v2 migration should produce save version five")
 		_expect(
 			not bool(v2_loaded.data.route.initialized),
 			"v2 migration should create an uninitialized route"
@@ -391,9 +391,9 @@ func _test_v1_and_v2_migrations() -> void:
 			v1_loaded.message,
 			v1_loaded.details,
 		])
-	_expect(v1_loaded.ok, "v1 save should migrate through v2 to v3")
+	_expect(v1_loaded.ok, "v1 save should migrate through the full chain")
 	if v1_loaded.ok:
-		_expect(int(v1_loaded.data.save_version) == 3, "v1 migration should produce save version three")
+		_expect(int(v1_loaded.data.save_version) == 5, "v1 migration should produce save version five")
 		_expect(
 			bool(v1_loaded.data.progression.get("migrated_from_v1", false)),
 			"v1 migration should mark progression reset"
@@ -467,20 +467,7 @@ func _first_alive_enemy(snapshot: Dictionary) -> StringName:
 
 func _route_paths() -> Dictionary:
 	return {
-		"cards": "res://data/cards/v0.3.0/cards.json",
-		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
-		"enemies": "res://data/enemies/v0.5.0/enemies.json",
-		"enemies_schema": "res://data/schema/v0.5.0/enemies.schema.json",
-		"encounters": "res://data/encounters/v0.5.0/encounters.json",
-		"encounters_schema": "res://data/schema/v0.5.0/encounters.schema.json",
-		"routes": "res://data/routes/v0.5.0/routes.json",
-		"routes_schema": "res://data/schema/v0.5.0/routes.schema.json",
-		"rituals": "res://data/rituals/v0.5.0/rituals.json",
-		"rituals_schema": "res://data/schema/v0.5.0/rituals.schema.json",
-		"balance": "res://data/balance/v0.5.0/balance.json",
-		"balance_schema": "res://data/schema/v0.5.0/balance.schema.json",
-		"progression": "res://data/cards/v0.4.0/progression.json",
-		"progression_schema": "res://data/schema/v0.4.0/progression.schema.json",
+		"route_id": "route.v070.first_case",
 		"save_directory": SAVE_DIRECTORY,
 	}
 

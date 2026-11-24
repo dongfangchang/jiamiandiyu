@@ -349,17 +349,13 @@ func begin_route_battle(preferred_node_id: StringName = &"") -> InfrastructureRe
 				"Confirm an eight-card deck before entering battle."
 			)
 	_battle_session = GameSessionScript.new(
-		services,
 		catalog,
 		base_content,
 		balance,
 		random,
 		root_seed,
 		encounter_id,
-		checkpoint_slot,
 		progression,
-		content_version,
-		false,
 		route_player_state,
 		false,
 		null,

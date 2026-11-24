@@ -334,7 +334,12 @@ func _test_v07_challenge_content_and_locking() -> void:
 
 func _test_v4_to_v5_migration() -> void:
 	var directory := TEST_ROOT.path_join("migration")
-	var v4_service := SaveMigrationsScript.create_v06_service(directory)
+	# Writes the fixture as a schema-valid v4 save without the migration chain.
+	var v4_service := AtomicSaveService.new(
+		directory,
+		SaveMigrationsScript.V06_SAVE_VERSION,
+		SaveMigrationsScript.V06_SAVE_SCHEMA_PATH
+	)
 	var v4 := {
 		"save_version": 4,
 		"content_version": "v0.6.0",
