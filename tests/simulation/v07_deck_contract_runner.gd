@@ -138,13 +138,31 @@ func _test_default_deck_and_presets() -> void:
 	_expect(_unique(default_deck), "default deck has unique cards")
 	var default_result = deck_engine.submit(DeckCommandScript.confirm_deck())
 	_expect(default_result.accepted, "default deck confirms")
+	var required_by_card := _required_sequence_by_card(deck_engine)
 	for preset_value in _decks.get("presets", []):
 		var preset: Dictionary = preset_value
 		var preset_id := String(preset.get("id", ""))
+		# Since v0.40 some presets (e.g. clown) hold sequence-8 cards; the
+		# contract is "locked at sequence 9, playable once sequence 8 is reached".
+		var preset_required := 9
+		for card_id in preset.get("card_definition_ids", []):
+			preset_required = mini(
+				preset_required,
+				int(required_by_card.get(String(card_id), 9))
+			)
+		deck_engine.set_current_sequence(9)
 		var selected = deck_engine.submit(
 			DeckCommandScript.select_preset(StringName(preset_id))
 		)
 		_expect(selected.accepted, "preset selects: %s" % preset_id)
+		if preset_required < 9:
+			var locked = deck_engine.submit(DeckCommandScript.confirm_deck())
+			_expect(
+				not locked.accepted
+				and locked.reason_code == DeckEngineScript.REASON_SEQUENCE_LOCKED,
+				"preset locked before sequence %d: %s" % [preset_required, preset_id]
+			)
+			deck_engine.set_current_sequence(preset_required)
 		var confirmed = deck_engine.submit(DeckCommandScript.confirm_deck())
 		_expect(confirmed.accepted, "preset confirms: %s" % preset_id)
 		var actual: Array[String] = deck_engine.get_confirmed_deck_ids()
@@ -186,8 +204,13 @@ func _test_upgrade_effect_in_battle_content() -> void:
 
 
 func _test_sampling_output() -> void:
+	# tools/simulation/out/ is generated and untracked since v0.86 (R0-08); a clean
+	# checkout has no sampling file, so only validate it when it was generated.
+	if not FileAccess.file_exists(SAMPLING_PATH):
+		print("V07_DECK_TESTS_NOTE sampling output absent; run tools/simulation/deck_sampling_runner.tscn to check it")
+		return
 	var output := _load_json(SAMPLING_PATH)
-	_expect(not output.is_empty(), "deck sampling output exists")
+	_expect(not output.is_empty(), "deck sampling output parses")
 	if output.is_empty():
 		return
 	_expect(String(output.get("version", "")) == "v0.7.0", "sampling version")
@@ -239,6 +262,16 @@ func _full_collection_state(identity_id: String) -> Dictionary:
 		"last_gacha_results": [],
 		"revision": 1,
 	}
+
+
+func _required_sequence_by_card(deck_engine) -> Dictionary:
+	var result := {}
+	for view in deck_engine.get_snapshot().data.get("cards", []):
+		if view is Dictionary:
+			result[String(view.get("definition_id", ""))] = int(
+				view.get("required_sequence", 9)
+			)
+	return result
 
 
 func _unique(values: Array[String]) -> bool:
