@@ -17,6 +17,7 @@ const RouteResultScene := preload("res://scenes/ui/route_result_screen.tscn")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 
 const TEST_ROOT := "user://mask_whispers_v092_destructive"
+const TEST_PROFILE_SLOT := "test_profile"
 const CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
 const ENEMIES_PATH := "res://data/enemies/v0.7.0/enemies.json"
 
@@ -199,100 +200,64 @@ func _test_battle_exit_resumes_without_test_profile_contamination() -> void:
 	await _wait_frames(4)
 	_expect(
 		String(controller.get_current_route()) == "map",
-		"test profile should enter the route map"
+		"test profile should enter the diary"
 	)
-	var enter_battle := _button_by_text(controller, "打开日记")
-	if enter_battle == null:
-		enter_battle = _button_by_text(controller, "进入夜间战斗")
-	if enter_battle != null:
-		enter_battle.pressed.emit()
-	await _wait_frames(3)
-	var node_button := _button_by_text(controller, "调查线索")
-	if node_button == null:
-		node_button = _button_by_text(controller, "前往节点")
-	if node_button == null:
-		var map_screen = controller.get_current_screen()
-		if map_screen != null:
-			node_button = map_screen.find_child("ClueHit", true, false) as Button
-	_expect(node_button != null, "diary/route should expose the first investigable clue")
-	if node_button != null and not node_button.disabled:
-		node_button.pressed.emit()
+	var diary: Control = controller.get_current_screen()
+	var first_node := String(
+		controller.get_route_snapshot().data.get("available_node_id", "")
+	)
+	if diary != null and diary.has_method("get_clue"):
+		var clue: Dictionary = diary.get_clue(first_node)
+		_expect(not clue.is_empty(), "diary should expose the first investigable clue")
+		if not clue.is_empty():
+			diary.get_desk_stage().seal_activated.emit(clue)
 	await _wait_frames(4)
 	_expect(
 		String(controller.get_current_route()) == "battle",
-		"selected battle clue should enter battle"
+		"pressing the clue's seal should enter battle"
 	)
-	var exit_button := _button_by_text(controller, "退出战斗")
-	if exit_button != null:
-		exit_button.pressed.emit()
-	await _wait_frames(2)
-	var battle_screen: Control = controller.get_current_screen()
-	if battle_screen != null and battle_screen.has_method(
-		"is_exit_confirmation_visible"
-	):
-		var confirmation: ConfirmationDialog = battle_screen.get(
-			"_exit_confirmation"
-		)
-		if confirmation != null:
-			confirmation.emit_signal("confirmed")
-	await _wait_frames(4)
-	_expect(
-		String(controller.get_current_route()) == "start",
-		"confirmed battle exit should return to the title"
-	)
-	var continue_button := _button_by_text(controller, "继续上次战斗")
-	_expect(
-		continue_button != null and not continue_button.disabled,
-		"battle exit should leave the nearest checkpoint resumable"
-	)
-	if continue_button != null and not continue_button.disabled:
-		continue_button.pressed.emit()
+	var battle: Control = controller.get_current_screen()
+	if battle != null and battle.has_method("request_exit"):
+		battle.request_exit()
+		battle.confirm_exit()
 	await _wait_frames(4)
 	_expect(
 		String(controller.get_current_route()) == "map",
-		"continue after battle exit should restore the route map"
-	)
-	var test_checkpoint = AppBootstrapScript.inspect_route_checkpoint_v07(
-		"test_checkpoint",
-		save_directory
+		"confirmed battle exit should reload the checkpoint onto the diary"
 	)
 	_expect(
-		test_checkpoint.ok
-		and String(test_checkpoint.data.get("status", "")) == "loaded",
-		"test profile should use its own readable checkpoint"
-	)
-	var normal_after := _read_text(service.get_slot_path("checkpoint"))
-	_expect(
-		normal_after == normal_before,
-		"test profile must not mutate the normal checkpoint"
+		String(controller.get_route_snapshot().data.get("available_node_id", ""))
+		== first_node,
+		"abandoned battle should leave its clue available"
 	)
 	controller.show_start_screen()
 	await _wait_frames(3)
-	var challenge_button := _button_by_text(controller, "进入挑战档案")
 	_expect(
-		challenge_button != null and not challenge_button.disabled,
-		"test profile should expose all challenges from the title screen"
+		controller.checkpoint_slot == "checkpoint",
+		"returning to the title should reset the test profile slot"
 	)
-	if challenge_button != null and not challenge_button.disabled:
-		challenge_button.pressed.emit()
-	await _wait_frames(4)
-	_expect(
-		String(controller.get_current_route()) == "challenge_hub",
-		"test profile challenge entry should open the challenge hub"
+	var test_slot = AppBootstrapScript.inspect_route_checkpoint_v07(
+		TEST_PROFILE_SLOT,
+		save_directory
 	)
-	var challenge_hub: Control = controller.get_current_screen()
-	if (
-		challenge_hub != null
-		and challenge_hub.has_method("request_challenge")
-	):
-		challenge_hub.call(
-			"request_challenge",
-			"challenge.v060.mirror_echoes"
-		)
-	await _wait_frames(4)
 	_expect(
-		String(controller.get_current_route()) == "challenge_select",
-		"test profile should open a challenge's modifier selection"
+		test_slot.ok
+		and String(test_slot.data.get("status", "")) == "loaded",
+		"test profile should use its own readable checkpoint"
+	)
+	_expect(
+		_read_text(service.get_slot_path("checkpoint")) == normal_before,
+		"test profile must not mutate the normal checkpoint"
+	)
+	var start: Control = controller.get_current_screen()
+	_expect(
+		start.is_continue_enabled(),
+		"title should offer the normal checkpoint again"
+	)
+	_expect(
+		not start.is_challenge_enabled()
+		and start.get_challenge_hint_text().contains("确认出战牌组"),
+		"title challenge entry should follow the normal checkpoint, not the test profile"
 	)
 	controller.queue_free()
 	await get_tree().process_frame
@@ -613,7 +578,7 @@ func _test_test_profile_unlocks_all_challenges() -> void:
 					],
 				},
 			},
-			"test_checkpoint",
+			TEST_PROFILE_SLOT,
 			false,
 			true
 		)
