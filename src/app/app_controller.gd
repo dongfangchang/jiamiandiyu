@@ -3,6 +3,7 @@ extends Control
 signal route_changed(route_name: StringName)
 
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
+const ContentManifestScript := preload("res://src/infrastructure/content_manifest.gd")
 const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
 const ChallengeEngineScript := preload("res://src/gameplay/challenge_engine.gd")
 const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
@@ -26,7 +27,6 @@ const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 const DiagnosticsServiceScript := preload("res://src/infrastructure/playtest_diagnostics_service.gd")
 const ScreenRouterScript := preload("res://src/app/screen_router.gd")
-const JsonDocumentLoaderScript := preload("res://src/infrastructure/json_document_loader.gd")
 const CardArtCatalogScript := preload("res://src/ui/card_art_catalog.gd")
 const DiaryUiCatalogScript := preload("res://src/ui/diary_ui_catalog.gd")
 const EffectTextScript := preload("res://src/ui/text/effect_text.gd")
@@ -119,15 +119,13 @@ func _ready() -> void:
 static func configure_ui_content(force := false) -> bool:
 	if not force and CardArtCatalogScript.is_configured() and DiaryUiCatalogScript.is_configured():
 		return true
-	var loader := JsonDocumentLoaderScript.new()
-	var cards := loader.load_document(
-		AppBootstrapScript.DEFAULT_V07_CARDS_PATH,
-		AppBootstrapScript.DEFAULT_V07_CARDS_SCHEMA_PATH
-	)
-	var diary := loader.load_document(
-		AppBootstrapScript.DEFAULT_DIARY_PATH,
-		AppBootstrapScript.DEFAULT_DIARY_SCHEMA_PATH
-	)
+	var manifest_result := ContentManifestScript.load_manifest()
+	if not manifest_result.ok:
+		push_error("ui content: manifest failed to load (%s)" % manifest_result.code)
+		return false
+	var manifest = manifest_result.data
+	var cards = manifest.load_kind("cards")
+	var diary = manifest.load_kind("diary")
 	if cards.ok:
 		CardArtCatalogScript.configure(cards.data.get("cards", []))
 	else:

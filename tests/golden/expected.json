@@ -153,12 +153,12 @@
       }
     },
     "11_checkpoint": {
-      "hash": "162a4102f0b48f20f43e11220d9b0ccbed851588facd67d4a2cb222f0277271f",
+      "hash": "07ff68646f0c5aea53882f42d7c313a2271756b80e24e45ec89b72a6fd19d769",
       "summary": {
         "code": "ok",
-        "content_version": "v0.7.0",
+        "content_revision": 1,
         "ok": true,
-        "save_version": 5
+        "save_version": 6
       }
     }
   }

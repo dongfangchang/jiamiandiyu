@@ -372,7 +372,7 @@ func _summary(data: Dictionary) -> Dictionary:
 		summary = {"ok": data.get("ok", false), "code": String(data.get("code", ""))}
 		var envelope: Dictionary = data.get("envelope", {})
 		summary["save_version"] = int(envelope.get("save_version", 0))
-		summary["content_version"] = String(envelope.get("content_version", ""))
+		summary["content_revision"] = int(envelope.get("content_revision", 0))
 	return summary
 
 

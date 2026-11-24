@@ -13,8 +13,8 @@
 | — | v0.85.0 | 日记美术与字体 | 有 | ✅ 有条件关闭 2026-11-24 |
 | **R0** | v0.86.0 | 安全网与止血 **+ 界面切换整治**（`UI_NAVIGATION_REVIEW.md`） | 战斗卡图修复；统一淡入淡出、输入锁、战斗收尾演完、回日记不卡、返回去向一致 | 🔶 自动化全部完成，待真窗口验收 |
 | R1 | v0.87.0 | 删除死代码与旧载体 + BUG-0038 | 挑战恢复可玩 | ✅ 自动化完成（−4,253 行），待真窗口抽查 |
-| R2 | v0.88.0 | 单一事实源：规则回玩法层、文案回数据、资源注册表、存档 v6 | 无（黄金回放不变） | 🔶 执行中（含热修 H-01…03） |
-| **X1** | v0.89.0 | 书桌世界 I：常驻 DeskWorld；标题 / 总览 / 档案 / 日记四站；T1 镜头移动、T4 烛灭；"继续"先到总览；思源宋体全局；`theme_tokens` | **有**：风格统一，不再割裂、不再多一次换屏 | ⬜ |
+| R2 | v0.88.0 | 单一事实源：规则回玩法层、文案回数据、资源注册表、存档 v6 | 无（黄金回放不变） | ✅ 自动化完成（92/92，守卫阻断）；待真窗口验收 H-01…03 |
+| **X1** ⬜ 下一步 | v0.89.0 | 书桌世界 I：常驻 DeskWorld；标题 / 总览 / 档案 / 日记四站；T1 镜头移动、T4 烛灭；"继续"先到总览；思源宋体全局；`theme_tokens` | **有**：风格统一，不再割裂、不再多一次换屏 | ⬜ |
 | X2 | v0.90.0 | 书桌世界 II：卡匣（牌组 + 升级）、祈愿台（抽卡 + 仪式）、T3 墨迹门槛、奖励 / 休息 / 结算并入日记、战斗换桌布并使用令牌；删除退役屏 | 有 | ⬜ |
 | X3 | v0.91.0 | 书桌世界 III：抽屉（挑战）、卷 / 章 / 扉页 / 终章数据化、一致性审查 | 有 | ⬜ |
 | R3 | v0.92.0–v0.93.0 | 结构拆分：效果注册表、引擎拆分、统一会话；UI 按站位组件化 | 无 | ⬜ |
@@ -74,11 +74,49 @@
 
 **退出条件**：run_tests 全绿；黄金回放不变；src 总行数下降不少于 2,500 行；真窗口走一遍新游戏、日记第一开、战斗和返回 hub。
 
+### R1 → R2/R3 遗留归属（v0.87 §4.1 → 可勾选）
+
+> 来源：`docs/versions/v0.87.0.md` §4.1。架构师 AR-01（2026-11-24）写入。不扩产品范围；勾选 = 归口条目已关闭。
+
+| 勾选 | 遗留 | 归口条目 | 负责 | 说明 |
+|---|---|---|---|---|
+| ⬜ | `app_controller` 中 `RouteScreenScene` / `_show_route_screen` 命名名不副实（实为日记） | **R3-06** | 数据层 | 与 app 拆分同批改名；R2 不单独开工 |
+| ⬜ | `route_ui_catalog.gd` 可能残留 `ROUTE_STATE_ICON` / `route_state_icon()` 等死代码 | **R2-13** | UI | 清点后删或迁；不得改规则 |
+| ⬜ | `diary_chapter_screen.gd` 仍超 800 行预算约 30 行 | **R3-09** | UI | X 阶段后按站位再拆；R2 不扩文件 |
+| ⬜ | simulation / gameplay runner 仍直读 v0.3–v0.6 数据路径 | **R2-08** | 数据层 | 内容清单扁平化时一并改 runner / fixture |
+| — | 采样输出仍引用已删的 v0.2 draft | （不立项） | — | 未跟踪生成物；不影响运行 |
+| ⬜ | `assets/game/{scenes,v0.13.0,v0.47.0,v0.49.0}` 仅 art/tools 输出、游戏不读 | **ART-archive-tools-out** | 美术 | 是否归档由美术 + 协调者；不进 R2 代码轨 |
+
 ---
 
 ## R2 单一事实源（v0.88.0）
 
 **目标**：每个事实只有一个定义源。规则回到玩法层，文案回到数据，路径进入注册表。**这是整治中价值最高的阶段。**
+
+### R2 边界与黄金回放约束（AR-02 · 派工前必读）
+
+1. **行为不变**：规则结果、数值、`node_id`、卡牌 ID 不变；允许新增只读快照字段与文案→ID（ADR-0031 / TARGET §3.2）。
+2. **黄金回放**：各轨道**不得**自行 `--update` `tests/golden/expected.json`。合并后由**主协调者**统一更新一次，并在 `docs/versions/v0.88.0.md` 登记语义 diff（须证明：数值变化 0、状态变化 0；仅新增字段或文案改 ID）。
+3. **跨层单一负责人**：下表「负责」列 = 该文件在本阶段的唯一写入者；其他角色只读。合并冲突升级 **coordinator**；范围冲突升级 **product-manager**。
+4. **体验框架（ADR-0032）**：R2 热修不得新增平面面板 / `add_background(` / 站外 `Color("#`；DeskWorld 外壳实现排 X1+，不塞进 R2 条目。
+
+| 勾选 | 文件 / 目录 | 单一负责人 | 相关条目 |
+|---|---|---|---|
+| ⬜ | `src/gameplay/battle/battle_engine.gd`、战斗类测试 | 玩法 | R2-01、R2-07（intent） |
+| ⬜ | `src/ui/battle_screen.gd`（公式镜像删除） | UI | R2-02 |
+| ⬜ | `src/gameplay/route/route_engine.gd`、日记 schema / `data/diaries/**` | 玩法 | R2-03、R2-05 |
+| ⬜ | `src/ui/diary_chapter_screen.gd`（规则镜像删除；H-02 接线可同轨） | UI | R2-04、H-02 |
+| ⬜ | `src/gameplay/progression/**`、`deck_engine.gd` | 玩法 | R2-06（成长）、R2-07（序列） |
+| ⬜ | `data/balance/**` 战斗 / 路线 / 成长参数 | 数值 | R2-06 |
+| ⬜ | `src/ui/upgrade_screen.gd` 判断行 vs 取图行 | 玩法+UI / UI(H) 按行切分 | R2-07 可升级字段；H-01 |
+| ⬜ | `src/ui/gacha_screen.gd`、`title_desk_stage` / `start_screen` 热修 | UI | H-01、H-03 |
+| ⬜ | `data/manifest.json`、内容扁平化、旧目录归档 | 数据层 | R2-08 |
+| ⬜ | catalog 去 `FileAccess`、日记 schema 注入 | 数据层 | R2-09 |
+| ⬜ | `data/registry/assets.json`、`ui/asset_registry.gd`、路径字面量清零 | UI + 主协调者 | R2-10 |
+| ⬜ | 存档 v6 / `checkpoint_codec` / 迁移 fixture | 数据层 | R2-11（ADR-0033） |
+| ⬜ | `ui/text/effect_text.gd`（自 app_controller 迁出） | 数据层（迁出）→ UI 落位 | R2-12 |
+| ⬜ | `src/ui/route_ui_catalog.gd` 死代码清点 | UI | R2-13 |
+| ⬜ | `tools/run_tests.*` 守卫 2 改阻断（第二波末） | 主协调者 | R2 退出条件 |
 
 | ID | 负责 | 任务 | 完成标准 |
 |---|---|---|---|
@@ -89,13 +127,14 @@
 | R2-05 | 玩法 | **旁白迁出**：`route_engine` 的 `PEN_REWRITE_TEXTS` 和 `*_BY_NODE` 等移到 `data/diaries/tingen_volume_1.json`（新增 `annotations` 段，带 schema）；引擎只产出 `annotation_id`（AR-10）。同时删除或改写把常量钉死的 v073–v076 源码断言测试（AR-52） | `route_engine.gd` 中无中文；黄金回放的规则部分不变 |
 | R2-06 | 数值 | 硬编码平衡数值迁到 `data/balance/`：墨渍消耗、笔改周期、初始属性、危险阈值、惩罚值（AR-11）；删除 progression 的兜底内容，改为加载时报错（AR-12） | 守卫：gameplay 中不出现这些数值字面量 |
 | R2-07 | 玩法 | 序列等级改为 `int`/枚举字段，删除 4 处中文解析（AR-13）；`intent` 文案改为输出 `intent_id`（battle_engine:691-706） | gameplay 中不按中文字符串做判断 |
-| R2-08 | 数据层 | **内容清单**：新建 `data/manifest.json`，扁平化内容目录（只保留当前生效的一份），`bootstrap` 的 42 个路径常量改为读清单（AR-21）。旧目录按归档政策处理 | 只有一份当前内容；`content_validator` 通过 |
+| R2-08 | 数据层 | **内容清单**：新建 `data/manifest.json`，扁平化内容目录（只保留当前生效的一份），`bootstrap` 的 42 个路径常量改为读清单（AR-21）。旧目录按归档政策处理；**顺带**改掉仍直读 v0.3–v0.6 的 simulation/gameplay runner（v0.87 §4.1 遗留） | 只有一份当前内容；`content_validator` 通过；runner 不再钉旧版路径 |
 | R2-09 | 数据层 | UI 读取内容改走基础设施：`card_art_catalog`、`diary_ui_catalog` 和 `prop_ui_catalog` 不再直接用 `FileAccess`，由 app 注入只读内容视图；补上日记 schema（AR-14） | 守卫 2 的第一条（UI 中无 FileAccess）启用并阻断 |
 | R2-10 | UI + 主协调者 | **资源注册表** `data/registry/assets.json` 加 `ui/asset_registry.gd`，替换 4 个卡图来源和约 140 个路径字面量；挑战 ID 特例改为数据字段（AR-16、AR-20） | 守卫 2 的第二条（UI 中无 `res://assets/game/`）启用并阻断 |
 | R2-11 | 数据层 | **存档 v6**：`checkpoint_codec` 显式映射；文案字段迁移为 ID；先按源版本 schema 校验再迁移；`content_revision` 取代 `content_version`（AR-22、AR-23、AR-33 的存档部分）。需要 ADR | v1–v5 旧档 fixture 都能加载；损坏档明确报错 |
 | R2-12 | 数据层 | 效果文本格式化从 `app_controller` 移到 `ui/text/effect_text.gd`（AR-18） | app 层中没有中文拼接 |
+| R2-13 | UI | **R1 遗留**：清点并删除 `route_ui_catalog.gd` 中仅服务已删 `route_screen` 的死代码（图标表 / 辅助函数）；保留仍被日记或其它屏引用的部分 | `grep` 无未引用符号；run_tests 全绿；黄金回放不变 |
 
-**退出条件**：守卫全部启用；黄金回放的**规则哈希**不变（文案 ID 化导致的快照字段变化，在本版一次性更新哈希并写明）；旧存档往返测试通过。
+**退出条件**：守卫全部启用；黄金回放的**规则哈希**不变（文案 ID 化导致的快照字段变化，在本版一次性更新哈希并写明）；旧存档往返测试通过；「R1 → R2/R3 遗留归属」中归口 R2 的行已勾选或显式延期说明。
 
 ---
 
@@ -135,10 +174,10 @@
 | R3-03 | 玩法 | 拆分 `battle_engine`：validator、enemy_ai、deck_zones、chain_synergy、risk_penalties、snapshot_builder | 主文件 ≤ 400 行 |
 | R3-04 | 玩法 | 拆分 `route_engine` 和 `progression_engine`（TARGET §2）；`challenge_engine` 通过端口使用路线，不再 preload；抽卡使用独立的 `GachaRandomPort`（AR-19、AR-31） | 每个文件 ≤ 500 行 |
 | R3-05 | 玩法 + 数据层 | **RunEngine 和 RunSession**：阶段前置条件、战斗到节点结算、奖励应用移入 `gameplay/run/run_engine.gd`；`route_session` 和 `challenge_session` 合并为 `app/run_session.gd`，用策略参数区分（AR-17、AR-34） | 只剩一个会话类 |
-| R3-06 | 数据层 | 拆分 `bootstrap` 和 `app_controller`：composition_root、content_manifest、checkpoint_codec、screen_router，`app_root` 变成薄壳（AR-35） | 每个文件 ≤ 500 行 |
+| R3-06 | 数据层 | 拆分 `bootstrap` 和 `app_controller`：composition_root、content_manifest、checkpoint_codec、screen_router，`app_root` 变成薄壳（AR-35）；**同批**将 `RouteScreenScene` / `_show_route_screen` 改名为日记语义（v0.87 §4.1 遗留） | 每个文件 ≤ 500 行；生产无误导 route_screen 命名 |
 | R3-07 | UI | `ui/common/`：widgets、fx；把剩余散落的辅助函数收拢（`theme_tokens` 和 `StationBase` 已在 X1 建立）（AR-36） | `Color("#` 字面量只出现在 theme_tokens 中 |
 | R3-08 | UI | 拆分 `battle_screen`：hud、enemy_lane、hand_card、hand_controller、battle_fx、event_formatter | 主文件 ≤ 600 行 |
-| R3-09 | UI | 按站位拆分剩余大文件（X 阶段后的日记站、书物件）：用 view_model 承接快照 | 每个文件 ≤ 800 行 |
+| R3-09 | UI | 按站位拆分剩余大文件（X 阶段后的日记站、书物件）：用 view_model 承接快照；**含** `diary_chapter_screen.gd` 压回 ≤800 行（v0.87 §4.1 遗留，R1 后仍超约 30 行） | 每个文件 ≤ 800 行 |
 
 **退出条件**：黄金回放不变；单文件不超过 800 行（UI）或 500 行（其他层），有例外的在报告中说明；真窗口完整打一遍首章。
 
