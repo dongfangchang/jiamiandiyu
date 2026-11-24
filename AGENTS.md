@@ -4,7 +4,7 @@
 
 ## 1. 项目根目录
 
-- 唯一有效项目根目录：`G:\guimizhizhu`
+- 项目根目录 = 含 `project.godot` 的仓库根（检出位置因机器而异：历史上为 Windows `G:\guimizhizhu`，现为 macOS/Linux 检出；以实际检出路径为准，文档与代码中不写死）。
 - Godot 项目入口：`project.godot`
 - 不在项目内再创建第二套带 `project.godot` 的工程。
 - 不把 `.tools/`、`.godot/`、导出产物或临时缓存提交到 Git。
@@ -19,6 +19,7 @@
 4. `docs/ARCHITECTURE_CONTRACT.md`
 5. `docs/versions/<当前版本>.md`
 6. 自己负责角色在当前版本的报告
+7. `docs/architecture/ROADMAP.md` §0 和当前所处阶段那一节（整治期 R0–R4 必读；动代码前还须读 `docs/architecture/TARGET_ARCHITECTURE.md` §3）
 
 完成任务、遇到阻塞、修改公共接口或准备切换模块前，必须重新读取当前版本文档。
 
@@ -26,6 +27,8 @@
 
 - 产品目标、范围、角色边界和开发路径由 `docs/CURRENT_VERSION.md` 及当前版本文档共同约束。
 - 需要单独验收的切片可新建 `docs/versions/vX.Y.Z.md`。
+- 版本粒度：一个版本 = 一个可验收的玩家价值切片，或 ROADMAP 中的一个阶段；一次会话 / 一次小调整不开新版本，写入当前版本报告即可。
+- 长期方向与阶段划分以 `docs/architecture/ROADMAP.md` 为准；新版本文档应注明对应的 ROADMAP 阶段。
 - **版本减负（2026-11-23）**：`VERSION_INDEX` 只留里程碑大变化 + 最近三版；其余只在 `VERSION_LOG` 一行。
 - 掉出索引的历史详档与报告 → 移入 `docs/archive/`，**禁止直接删除**（复盘用）。
 - 修订通过新版本或 ADR 记录；禁止静默改写仍保留的详档结论。
@@ -52,32 +55,31 @@
 | 数值设计 | 成长曲线、经济、抽卡概率、战斗公式、模拟 | `data/balance/**`、`tools/simulation/**`、`tests/simulation/**`、数值报告 | 修改 UI、规则流程、存档实现或共享 schema |
 | 本地数据层开发 | 离线持久化、内容加载、RNG、日志、适配器 | `src/infrastructure/**`、`src/app/**`、`data/schema/**`、`tests/infrastructure/**`、对应报告 | 创建服务器、修改 UI、代替玩法层制定规则 |
 | 主协调者 | 派工、并发、集成、最终验收 | 协调所需最小范围 | 绕过产品经理静默改变范围 |
+| 架构师 | 分层与模块边界、重构路线、跨层条目拆分与评审 | `docs/architecture/**`、ADR 起草、`tools/run_tests.*` 守卫规则 | 未经版本授权直接改生产代码；改变产品范围 |
 
 共享契约 `src/core/**`、数据 schema、`project.godot`、全局资源注册表和公共事件定义属于跨角色文件。修改前必须在角色报告中提出请求，并由产品经理指定单一负责人。
 
 历史关闭版所有权**不再在本文件展开**（见 `docs/VERSION_LOG.md`）。本文件只保留**当前版**与**上一版验收残留**。
 
-v0.84.0 验证阶段所有权（验收继续保留）：
+v0.86.0 当前所有权（R0，详见 `docs/versions/v0.86.0.md` §5）：
 
-- `src/ui/**`、`scenes/ui/**`、`tests/ui/**`：UI（BRIEF P0：DeskWorld / 跨页一关 / 滑翻 / 蜡封）。
-- `docs/**`、`AGENTS.md`、`project.godot`：产品经理 / 主协调者。
-- 其余默认只读。
-- 报告：`docs/reports/v0.84.0/<role>.md`。
-- 禁新卡 / 第二途径 / 路线树；主路径禁止新增原生 OptionButton。
-- 严格按 `DIARY_DESK_3D_BRIEF`；不改规则 / ID。
+- 轨道 A 安全网：主协调者，负责 `tools/run_tests.*`、`tests/golden/**`、`.gitignore`、`art/.gdignore` 和测试基线修复。
+- 轨道 B 界面切换：UI 单一负责人，负责 `src/app/app_controller.gd` 路由部分、`src/app/screen_router.gd`、`src/ui/**` 切换钩子和 `src/ui/table_sfx.gd`。
+- `docs/**`、`AGENTS.md`：产品经理 / 架构师。
+- 报告：`docs/reports/v0.86.0/<role>.md`。
 
-v0.85.0 当前所有权：
+架构整治期 R0–R4 通用规则（见 `docs/decisions/ADR-0031-architecture-consolidation.md`、`docs/architecture/ROADMAP.md`）：
 
-- `docs/**`、`AGENTS.md`：产品经理。
-- `art/assets/raster/v0.85.0/**`：美术源及候选图由美术负责。
-- 日记相关 `src/ui/**`、`scenes/ui/**`、`tests/ui/**`：UI，负责接入和真窗口审稿。
-- `assets/game/v0.85.0/diary/**`、`assets/ui/diary/**`、`assets/ui/fonts/**`、`art/ASSET_MANIFEST.md`、`project.godot`：主协调者负责迁入和登记本版正式资产。
-- 报告：`docs/reports/v0.85.0/<role>.md`。
-- 保留 v0.84 的关版验收。按 `ART_BRIEF_V085.md` 交付日记美术和字体，冻结玩法、数值及存档变更。
+- 每个 R 条目标注的“负责”即该条目的单一负责人，可跨其常规目录修改该条目列出的文件；其他角色在该条目进行期间只读这些文件。
+- `src/core/**` 在 R3-01 期间授权给玩法设计。
+- 整治期行为不变：黄金回放（`tests/golden/`）不得变化，除非条目明确允许并在报告中说明。
+- 报告：`docs/reports/<version>/<role>.md`，另须在 ROADMAP §0 勾选阶段状态（由产品经理或架构师执行）。
 
 当前指针：以 `docs/CURRENT_VERSION.md` 为准。
 
 ## 5. 协作与同步
+
+- **提交与推送**（`PROJECT_CHARTER.md` §9）：每完成一个独立可验证单元就提交，测试通过后推送到 `origin` 当前分支，无需逐次请示；强制推送、改写已推送历史、删除远程分支仍须用户明确同意。不得让工作在本地堆积。
 
 - 所有智能体共享同一文件系统，禁止同时编辑同一文件。
 - 不得覆盖、回滚或整理其他角色的未提交修改。
@@ -117,6 +119,13 @@ app/bootstrap -> concrete ui, gameplay, infrastructure
 - 禁止循环依赖。跨模块通信优先使用稳定命令、事件或只读视图模型。
 - 所有内容、数值和文本通过稳定 ID 连接，禁止用显示名称作为主键。
 - 同一事实只能有一个定义源；生成数据必须标明来源和生成命令。
+- UI 需要“能不能 / 多少 / 是否解锁”的答案时，由玩法层快照字段提供；UI 不得复刻公式、不得按卡牌 / 挑战 ID 或显示文案写特例。只增加只读快照字段、不改变结算结果，不算改规则。
+- 玩法层只输出 ID（批注、意图、阻断原因等），不输出中文文案；存档只存 ID。
+- UI 不得使用 `FileAccess` 读取内容数据；内容由基础设施加载、app 注入。
+- 资源路径统一登记在资源注册表（R2 起为 `data/registry/assets.json`）；不新增 `res://assets/game/...` 字面量到 `src/ui/**`。
+- 新内容不再新建 `data/**/vX.Y.Z/` 版本目录；改现行文件，靠 `schema_version` 与 git 追溯历史（R2-08 完成前沿用现有目录，但不得再新增版本目录）。
+- 新实现验收通过的同一版本，删除被替代的旧实现及只为它存在的测试探针；禁止“为探针保留”隐藏节点或死代码。
+- 单个 `.gd` 文件超过 800 行（UI）或 500 行（其他层）时，新增功能前须先拆分或在报告中说明例外。
 - 新增第三方依赖前必须由产品经理和本地数据层开发共同评审，记录来源、授权、版本和维护成本。
 
 ## 7. 数据、存档与兼容
@@ -149,6 +158,14 @@ app/bootstrap -> concrete ui, gameplay, infrastructure
   - 新增规则有自动化或可重复验证
   - 存档格式变化有迁移方案
   - 没有新增绝对路径、循环依赖或重复定义
+  - `tools/run_tests.sh`（Windows：`tools/run_tests.ps1`）全绿；R0-01 落地前跑受影响的 runner 并在报告列出
+  - 纯重构不改变黄金回放（`tests/golden/`，R0-04 落地后生效）
+- 测试规则：
+  - 按行为命名（新测试不再以版本号命名）
+  - 禁止断言 `project.godot` 版本号
+  - 禁止读取 `.gd` 源码文本做断言
+  - 禁止访问 `_private` 成员；需要观察的状态改为公开查询或快照字段
+  - 需要 GPU 的截图 runner 不进默认测试集
 
 ## 9. 范围纪律
 

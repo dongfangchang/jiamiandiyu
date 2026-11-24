@@ -35,6 +35,11 @@
 
 当前美术规格：[`docs/design/ART_BRIEF_V085.md`](design/ART_BRIEF_V085.md)。翻页与蜡封交互沿用 [日记桌 3D 书契约](design/DIARY_DESK_3D_BRIEF.md)。
 
+4. **长期方向与下一阶段**：[`docs/architecture/ROADMAP.md`](architecture/ROADMAP.md)
+   - v0.85 关版后进入**架构整治期 R0–R4**（v0.86–v0.91）：先建安全网（统一测试 + 黄金回放），再删死代码、统一事实源、拆分大文件，然后回到内容生产（P1–P3 → 1.0）。
+   - 问题清单：[`architecture/REVIEW_2026-11-24.md`](architecture/REVIEW_2026-11-24.md)（用 `AR-xx` 引用）；终点形态：[`architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md)。
+   - 已知坑（R0 之前不要被误导）：`v077_live_copy` / `v081` / `v082` 测试钉死旧版本号，必然失败；战斗卡图会被 `battle_screen.gd` 的旧映射覆盖（AR-01）；`diary_chapter_screen.gd` 约一半是隐藏的旧载体死代码（AR-42）。
+
 ---
 
 ## 3. 前因后果（压缩时间线）
@@ -139,7 +144,7 @@ GODOT="${GODOT:-$(find .tools/godot-4.7.2 -maxdepth 5 -type f -perm -u+x \
 - 主路径禁止新增原生 `OptionButton`（用项目内替代控件）。
 - 仪式失败 **不灭章**（软失败）。
 - 不改战斗公式 / 平衡散落值；数值在 `data/balance/**` 或卡牌自身定义。
-- **不擅自关版、不擅自 push**。
+- 不擅自关版；提交与推送按章程 §9（完成一个单元就提交推送，强推等例外须用户同意）。
 
 ---
 
@@ -223,6 +228,9 @@ Bug：S1/S2 要有 `docs/bugs/BUG-xxxx.md`；先复现→根因→前向修，�
 | [`AGENTS.md`](../AGENTS.md) | 角色、所有权、质量门 |
 | [`PROJECT_CHARTER.md`](PROJECT_CHARTER.md) | 产品目标与范围 |
 | [`ARCHITECTURE_CONTRACT.md`](ARCHITECTURE_CONTRACT.md) | 分层与端口 |
+| [`architecture/ROADMAP.md`](architecture/ROADMAP.md) | 分阶段路线（R0–R4 整治 → P1–P3 → 1.0） |
+| [`architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md) | 目标目录、效果注册表、快照/文案/资源约定、测试规则 |
+| [`architecture/REVIEW_2026-11-24.md`](architecture/REVIEW_2026-11-24.md) | 架构审查缺陷清单（AR-xx） |
 | [`TEAM_PROTOCOL.md`](TEAM_PROTOCOL.md) | 同步与报告纪律 |
 | [`VERSION_INDEX.md`](VERSION_INDEX.md) | 里程碑 + 最近三版 |
 | [`VERSION_LOG.md`](VERSION_LOG.md) | 其余版本一行流水账 |

@@ -3,7 +3,7 @@
 版本：v0.84.0  
 角色：UI  
 任务：BRIEF P0 桌上立体书 + ACTIVE_PLAN A→B→C→E  
-状态：验证中（可执行项已清；关版待用户确认）  
+状态：有条件关闭（2026-11-24 用户授权）  
 计划：`docs/ACTIVE_PLAN.md`
 
 ## 已完成
@@ -58,7 +58,7 @@
 版本：v0.84.0
 角色：UI
 任务：P0 + ACTIVE_PLAN A–E
-状态：验证中（可执行项完成；待用户关版）
+状态：有条件关闭（2026-11-24 用户授权）
 修改文件：src/ui/diary_desk_stage.gd, diary_chapter_screen.gd, diary_ui_catalog.gd, docs/ACTIVE_PLAN.md, docs/reports/v0.84.0/ui.md
 验证：V083=21；无新增 OptionButton；截图路径就绪
 下一步入口：用户确认关版
@@ -755,4 +755,330 @@ UI 需要 RGBA 透明素材，**不能直接用**。
 风险：grain 为逐帧 hash，静帧看不出闪烁，需真窗口确认动态下不跳
 跨角色请求：用户按 PROMPTS.md 生成主界面素材
 下一步入口：素材到位后按 §8 三步接入；或先做主界面 DeskWorld 复用改造
+```
+
+---
+
+# 追加：卡牌插画 / 蜡封矩阵 / 主界面素材接入（2026-11-24）
+
+用户在 `art/` 新增大批素材，要求**架构优先**，保证后续新增卡牌能快速嵌入。
+
+## 清点
+- `cards/<card.id>/art.png` × **40**（512×390 无字插画窗）
+- `seals/` 4 稀有度 × 6 机制 = **24 格全齐**（含 128px UI 叠层版，共 49 档）
+- `title/` 主界面素材 × 7（按上一轮 `PROMPTS.md` 生成）
+
+**交叉核对**：40 个插画目录名 vs `data/cards/**` 的 40 个卡牌 ID —— 
+**完全一一对应，零缺口零孤儿**。
+
+## 接手时的架构债（本轮主要解决对象）
+卡图路径此前有**两套并存且必须同步修改**的实现：
+- `progression_ui_catalog.gd`：40 行硬编码字典
+- `deck_ui_catalog.gd`：5 个版本目录的 if-else 链 + 3 套命名规则
+  （`card-skill-x.png` / `card_skill_x.png` / 目录白名单）
+
+加一张卡要同时改两处，正是「新增卡牌难以快速嵌入」的根因。
+
+## 新架构（约定优于配置）
+
+### `src/ui/card_art_catalog.gd`（新）— 单一事实源
+- `art_window(id)` —— 路径**由 ID 推导**，不查表
+- `rarity_of(id)` / `mechanic_of(id)` —— 读卡牌自身数据；机制由
+  `effects` + `mechanic_tags` **推导**，不落盘、不二次存储
+- `seal(id, small)` —— 稀有度 × 机制 → 24 格矩阵取图，**蜡封无需每卡手绘**
+- `missing_art()` —— 让探针能区分「未交付」与「回落成功」
+
+机制推导顺序遵循「这张卡是干什么用的」优先于「附带什么效果」：
+仪式 → 占卜 → 攻击 → 防御 → 支援 → 诅咒。
+两处实测修正：①「平复灵性」(heal+risk) 曾被判 curse，应为 support；
+②「黄水晶灵摆」(draw+占卜标签) 曾被判 support，应为 divination。
+
+### `art/tools/ingest_cards.gd`（新）— 迁移 + 守门
+**目录名即卡牌 ID**，无需清单。守门行为：
+- 插画无对应卡牌 → **失败**（防止死 ID 烘进 `assets/game`）
+- 卡牌无插画 → 报 gaps 但不失败（允许分批交付）
+- 尺寸非 512×390 → 警告
+
+实跑：`INGEST_CARDS_OK cards=40 seals=49 gaps=0`
+
+### 接入点
+- `battle_screen.gd`：手牌优先用插画窗（512×390 用 COVERED 裁切填满，
+  旧整卡仍用 CENTERED 以免切掉自带卡框）
+- `deck_screen.gd`：缩略图用插画窗 + **新增蜡封角标**（带稀有度/机制 tooltip）
+- 旧 `card_art()` 两处保持可用，其他屏不受影响
+
+## 架构验证（用户要求的核心）
+**实测新增一张卡**：`data/cards` 加一条（`rarity=rare`、带 `damage`）+
+建一个插画目录，**未改任何一行代码** → 跑迁移工具 →
+自动得到插画、判定 `rare`/`attack`、取到 `seal-rare-attack-128.png`；
+且 `v085_card_art_runner` 检查数**从 170 自动增长到 174** 覆盖了新卡。
+验证后已清除测试数据并复验还原（40 张、170 项）。
+
+## 主界面素材
+用户已按 `title/PROMPTS.md` 生成 7 张并加入清单；
+探针 `v085_props_runner` 正确抓到「清单有、catalog 未登记」（38→45 项转红），
+补上映射后转绿。其中 3 张初次抠图不净（`title_journal_new` 80.9% 不透明、
+`title_pocket_watch` 91.7%），调高容差至 0.22 后降到 26% / 25%，主体完整。
+**素材已就绪，主界面重塑尚未实现**（仍是旧面板）。
+
+## 新增探针
+`tests/ui/v085_card_art_runner.{gd,tscn}` → `V085_CARD_ART_OK checks=170`
+校验：每张卡都能解析插画与蜡封、稀有度/机制在合法枚举内、
+插画窗确为 512×390、未知 ID 不伪造蜡封、旧入口仍可用、
+**4×6 蜡封矩阵完整**（保证任何新卡组合已被覆盖）。
+检查数随卡牌数自动增长，无需维护。
+
+## 验证
+- `V085_CARD_ART=170`（新）、`V085_PROPS=45`、`V042_CARD_ART=181`、
+  `V041_CLOWN_ART=48`、`V07_DECK_UI=66`、`V031_CANON_BATTLE=111`、
+  `V013_CARD_PACK_OK` 等全绿
+- 全量 ui runner：失败项仍为既有 6 个（v056/v072/v077×2/v081/v082），**无新增**
+
+```text
+版本：v0.84.0（素材属 v0.85 预备）
+角色：UI
+任务：卡牌插画 + 蜡封矩阵 + 主界面素材接入，建立快速嵌入架构
+状态：完成（主界面重塑未实现，素材已就绪）
+修改文件：src/ui/card_art_catalog.gd（新）、art/tools/ingest_cards.gd（新）、
+          tests/ui/v085_card_art_runner.*（新）、src/ui/prop_ui_catalog.gd、
+          src/ui/battle_screen.gd、src/ui/deck_screen.gd、
+          props.manifest.json、docs/design/PROP_PIPELINE.md、本报告
+依赖：不改规则/数值/卡牌 ID/schema；机制推导只读数据，不写回
+验证：见上；含「新增卡零代码接入」实测与清理还原
+困难与候选方案：候选 A 扩展现有两套 card_art→否（债翻倍）；
+                候选 B 新建映射清单→否（仍需每卡登记）；
+                选「目录名即 ID」约定 + 数据推导蜡封，零登记
+最终解决：加卡 = 数据一条 + 目录一个 + 跑一条命令
+风险：机制推导为启发式，新增特殊卡需复查蜡封是否贴切（探针会报枚举合法性，
+      但判不出「语义是否贴切」）
+跨角色请求：玩法/数据：新卡务必填 rarity；美术：插画严格 512×390 无字
+下一步入口：主界面重塑（素材已就绪）；或卡框 7 层合成（paper/frame/pip/panel/seal）
+```
+
+---
+
+# 追加：主界面重塑为「同一张桌子」（2026-11-24）
+
+## 设计
+主界面与日记屏共用同一张桌子，区别只是**书合着 vs 摊开**。
+每个菜单项变成桌上的一件实物：
+
+| 入口 | 桌上物件 | 原按钮文字（保留）|
+|---|---|---|
+| 继续 | 合着的皮面日记 | 继续上次战斗 |
+| 新局 | 墨水瓶 | 开始新游戏 |
+| 挑战 | 捆扎卷宗 | 进入挑战档案 |
+| 设置 | 黄铜怀表 | 设置与玩法说明 |
+| 熄烛 | 烛台 | 退出 |
+
+## 关键实现决策
+
+### 1) 不叠剪影，直接用定场图
+`title-desk-wide.png` **本身已含全部道具**（日记居中、烛台左、怀表/墨水瓶右上、
+卷宗右下）。最初实现是在定场图上再叠 5 张抠好的道具剪影 —— 看图后推翻：
+那会得到两套互相错位的道具。
+改为**只在定场图上定位热区**，各物件的屏幕矩形由 1920×1080 原图逐个量出换算成锚点。
+
+### 2) 保留全部按钮与文字（关键约束）
+`tests/integration/**` 的 monkey/destructive 探针靠**按钮文字**找入口
+（`_button_by_text(controller, "继续上次战斗")` 等）。v091 的挂起就是因为
+桌面改造换掉了入口名而探针没跟上。
+
+因此本次**不新建控件、不改任何按钮文字**：
+原 Button 被 `bind()` 重新挂到桌面层，变成覆盖该物件的**透明热区**，
+焦点顺序、禁用逻辑、信号全部不变。物件名由桌面层单独画小字说明。
+
+字形隐藏踩了一个坑：仅覆盖 `font_color` 系列**无效**（主题仍绘制），
+书面与卷宗上出现「继续上次战斗」「进入挑战档案」字样；
+最终加 `font_size = 1` + 全部状态色透明才真正消失。
+
+### 3) 桌面替换旧背景而非叠加
+首次 `move_child(desk, 1)` 后桌面不可见 —— 探针显示它被 index 2/3 的
+`SceneBackgroundHolder` / `SceneDim`（雨夜街景）盖住。
+改为隐藏那三层并把桌面移到 index 0。
+
+### 4) 禁用态
+禁用的入口把说明小字压暗（而非隐藏物件），避免邀请一次什么都不会发生的点击。
+`set_busy` / `set_challenge_available` 都接了 `_sync_desk()`。
+
+## 验证
+- **七个探针按钮全部可找到且可见**（实测）：继续上次战斗 / 开始新游戏 /
+  进入挑战档案 / 设置与玩法说明 / 退出 / 恢复上次备份 / 测试档案；
+  `is_continue_enabled()` / `is_challenge_enabled()` 正常。
+- 热区尺寸由锚点决定（如墨水瓶 171×200），初版因按钮残留
+  `custom_minimum_size` 无法铺满物件，已清零。
+- `V078_MONKEY_OK`、**`V079_MONKEY_OK`（1048 次操作，routes 含 `start`）**
+  —— 自动化主路径未被破坏。
+- 全量 ui runner：失败项仍为既有 6 个，**无新增**。
+- 截图：`.tools/ui-captures/start_screen.png`
+
+## 未做 / 风险
+- **「合上→翻开」的过场动画未实现**，点击日记仍是直接切屏。
+- 热区坐标是对着 1920×1080 定场图量的；**换定场图必须重量**（同日记屏道具摆位）。
+- 极端宽高比下 `KEEP_ASPECT_COVERED` 会裁掉边缘物件，热区随之偏移 —— 需真窗口
+  在非 16:9 下复验。
+
+```text
+版本：v0.84.0
+角色：UI
+任务：主界面重塑为桌面实物菜单
+状态：完成（过场动画未做）
+修改文件：src/ui/title_desk_stage.gd（新）、src/ui/start_screen.gd、本报告
+依赖：素材来自 prop_ui_catalog；缺图自动回退旧面板（has_art 判定）
+验证：7 按钮可达性实测、V078/V079 monkey 通过、全量 ui 无新增失败
+困难与候选方案：候选 A 新建 TextureButton 替换旧按钮→否（会打断探针按文字查找）；
+                候选 B 在定场图上叠道具剪影→否（与图内道具双重错位）；
+                选「保留按钮 + 透明热区 + 按原图量坐标」
+最终解决：表现层全新，控件树与探针面不变
+风险：换定场图需重量坐标；非 16:9 需复验
+跨角色请求：无
+下一步入口：合上→翻开过场；或卡框 7 层合成
+```
+
+---
+
+# 追加：修复 UID 重复 + 章节插画实际到位（2026-11-24）
+
+## 症状
+导入时报 8 条 `UID duplicate detected`，全部位于
+`assets/game/v0.85.0/diary/`。
+
+## 根因
+这 8 张章节插画连同各自的 `.import` 文件一起被复制进来，
+而 `.import` 里带 `uid=`，于是 **8 张图共用同一个 `uid://5f63hu8jq632`**。
+
+危害不止是刷屏警告：Godot 会把同 UID 的资源解析成**同一个**，
+画面上「看起来交付了」，实际可能渲染出另一张图 —— 而导入时只是 WARNING，极易漏过。
+
+## 处理
+1. 全仓扫描确认**仅此 8 个**文件受影响（`assets/` + `art/` 全量比对 uid）。
+2. 确认**无任何代码按该 uid 引用**，且 8 张图内容各不相同（md5 互异）。
+3. 删除这批 `.import` 并重跑 `--import`，Godot 重建出 8 个唯一 UID。
+4. 复扫：重复警告数 0，全仓无重复。
+
+## 顺带确认：章节插画已真正到位
+这 8 张正是 `ART_BRIEF_V085_DRAFT.md` §3 要求的左页叙事插画。实测：
+
+```
+scene.battle.moretti_home      delivered=true  1260x1770
+scene.battle.elliot_ruin       delivered=true  1260x1770
+…（8/8 全部）
+```
+
+**尺寸恰为 1260×1770**，即 BRIEF §1.1 推导的零裁切规格 —— 美术严格照规格交付，
+`diary_path_for()` 直接取用，无需改代码。现网日记左页已是实拍级插画
+（截图 `.tools/ui-captures/v084_desk_idle.png`）。
+
+## 新增防护
+`v085_props_runner` 增加**全仓 `.import` UID 唯一性检查**（38→46 项）。
+
+**有效性已实测**：人为把两张图的 uid 改成相同 →
+`V085_PROPS_FAIL: no duplicate import UIDs (["battle-moretti-home... == battle-wood-house..."])`
+并指出冲突双方；还原后转绿。不是永远绿的假检查。
+
+`PROP_PIPELINE.md` §7 补入该陷阱与正确做法（只复制 `.png`，让 Godot 生成 `.import`）。
+
+## 验证
+- 重复警告数 **0**；全仓 UID 无重复
+- `V085_DIARY_ART=20`、`V083=21`、`V055=59`、`V085_PROPS=46`、`V085_CARD_ART=170` 全绿
+- 全量 ui runner 失败项仍为既有 6 个，**无新增**
+
+```text
+版本：v0.84.0
+角色：UI
+任务：修复 .import UID 重复；确认章节插画到位
+状态：完成
+修改文件：assets/game/v0.85.0/diary/*.import（重建）、
+          tests/ui/v085_props_runner.gd、docs/design/PROP_PIPELINE.md、本报告
+验证：警告清零 + 全仓复扫 + UID 检查有效性实测（植入重复能被抓到）
+困难与候选方案：候选 A 手工逐个改 uid→否（易再错且不防复发）；
+                选「删 .import 让引擎重建」+ 加自动检查
+最终解决：重建唯一 UID，并把该陷阱变成探针断言
+风险：此坑会随任何「连 .import 一起复制」的交付复发，故加检查而非只改文档
+跨角色请求：美术/主协调者交付素材时只复制 .png，不要带 .import
+下一步入口：合上→翻开过场；或卡框 7 层合成
+```
+
+---
+
+# 追加：修复主界面点击失效 + 开卷过场（2026-11-24）
+
+## 症状
+用户反馈：七个入口看得见，但**实际点击好几个没反应**。
+
+## 根因（两个叠加，都是输入拾取问题）
+
+### 1) 全屏布局容器拦截点击（主因）
+左侧文字栏的 `MarginContainer` / `VBoxContainer` **宽度铺满整屏**（虽然文字只占左侧），
+而 Container 默认 `MOUSE_FILTER_STOP` —— 右侧道具（新局 / 挑战 / 熄烛）上的点击
+全被这些**不可见的空容器**吞掉。
+
+修复：新增 `_pass_through_layout()`，把 Container / Label / Panel 等纯排版节点设为
+`MOUSE_FILTER_IGNORE`；`BaseButton` / `Range` / `LineEdit` / `TextEdit` 等真正可交互的
+**跳过不动**，保持各自行为。
+
+### 2) 桌面层与屏幕本身的 filter
+- `TitleDeskStage` 原为 `MOUSE_FILTER_IGNORE` —— IGNORE 容器在拾取时**连同子节点一起被跳过**，
+  热区按钮根本收不到事件。改为 `PASS`。
+- `StartScreen` 自身从未设过 filter，默认 **STOP 且全屏**，同样吞点击。改为 `PASS`。
+- 桌面层原在 `move_child(desk, 0)`；GUI 拾取按**树序反向**遍历，index 0 反而最低。
+  改为移到**最末**。
+
+### 3) 热区矩形互相重叠
+日记热区 746×725 压住怀表（重叠 15949 px²），墨水瓶压住卷宗。
+按各物件实体范围重新量取，**重叠数降为 0**。
+
+## 验证（关键：排除测试自身干扰）
+批量点击测试一度显示「只有第一个成功」，追查发现是**前一次点击弹出的确认框/系统菜单
+未关闭**，挡住后续点击 —— 是探针缺陷，不是 UI 缺陷。
+
+最终改为**每个按钮独立一次进程**运行，互不干扰：
+
+```
+ONECLICK continue  -> OK
+ONECLICK new_game  -> OK
+ONECLICK challenge -> OK
+ONECLICK settings  -> OK
+ONECLICK quit      -> OK
+```
+
+**五个入口全部可点**（真窗口，非 headless）。
+
+## 开卷过场
+`title_desk_stage.gd` 新增 `play_open(key)` / `open_finished` / `reset_open()`：
+其余物件与说明小字先淡出（注意力收窄）→ 选中物件暖光亮起 →
+整个桌面推近 9% 并淡出 → 发信号切屏。
+
+接入 `_on_continue` / `_on_challenge`，经 `_emit_after_open()`：
+**无桌面（素材缺失）或动画被拒时立即直发**，菜单不会卡住。
+
+`set_busy(false)` 接 `reset_open()` —— 返回标题时复位，否则第二次进来是黑屏。
+
+实测：
+```
+opening_started=true
+signal_immediate=false      ← 不立即发，等动画
+signal_after=true delay=0.89s
+desk_alpha=0.00             ← 淡出到位
+after_return alpha=1.00     ← 返回复位
+second_open started=true / second_signal=true  ← 二次进入仍正常
+```
+
+## 回归
+- 全量 ui runner：失败项仍为既有 6 个，**无新增**
+- `V078_MONKEY_OK`、`V079_MONKEY_OK` —— 过场引入的延迟未打破自动化主路径
+
+```text
+版本：v0.84.0
+角色：UI
+任务：修复主界面点击失效；实现开卷过场
+状态：完成
+修改文件：src/ui/title_desk_stage.gd、src/ui/start_screen.gd、本报告
+验证：五入口独立进程逐个实测可点；过场时序/复位/二次进入实测；monkey 通过
+困难与候选方案：候选 A 给每个按钮单独提权→否（治标，容器仍会拦下一个新控件）；
+                选「排版节点统一 IGNORE + 交互节点跳过」，根治且对后续新增控件有效
+最终解决：拾取链三处 filter + 树序 + 热区去重叠
+风险：过场固定 ~0.9s；若后续需要可跳过（点击任意处立即切屏）尚未实现
+跨角色请求：无
+下一步入口：过场可跳过；或卡框 7 层合成
 ```
