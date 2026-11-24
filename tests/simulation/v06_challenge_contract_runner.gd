@@ -172,8 +172,13 @@ func _test_rewards_reference_existing_ids() -> void:
 
 
 func _test_sampling_output() -> void:
+	# tools/simulation/out/ is generated and untracked since v0.86 (R0-08); a
+	# clean checkout validates the sampling output only once it was generated.
+	if not FileAccess.file_exists(OUTPUT_PATH):
+		print("SIMULATION_NOTE generated output absent, skipped: %s" % OUTPUT_PATH)
+		return
 	var output := _load_json(OUTPUT_PATH)
-	_expect(not output.is_empty(), "challenge sampling output exists")
+	_expect(not output.is_empty(), "challenge sampling output parses")
 	if output.is_empty():
 		return
 	_expect(String(output.get("version", "")) == "v0.6.0", "sampling output version")

@@ -25,7 +25,7 @@ func _ready() -> void:
 	var rituals: Dictionary = _load_json(RITUALS_PATH)
 	var enemies: Dictionary = _load_json(ENEMIES_PATH)
 	var encounters: Dictionary = _load_json(ENCOUNTERS_PATH)
-	var sampling: Dictionary = _load_json(SAMPLING_PATH)
+	var sampling: Dictionary = _load_generated(SAMPLING_PATH)
 	var validator = SchemaValidatorScript.new()
 	_check_schema(validator, balance, BALANCE_SCHEMA_PATH, "balance")
 	_check_schema(validator, routes, ROUTES_SCHEMA_PATH, "routes")
@@ -81,87 +81,88 @@ func _ready() -> void:
 	_check(boss.get("phases", []).size() == 2, "mirror baron has two unique phases")
 	_check(encounters.get("encounters", []).size() == 3, "three v0.5 encounters exist")
 
-	_check(sampling.get("version", "") == "v0.5.0", "route sampling output is v0.5.0")
-	_check(
-		sampling.get("engine", "") == "RouteEngine+BattleEngine+ProgressionEngine",
-		"route sampling uses real domain engines"
-	)
-	_check(int(sampling.get("root_seed", 0)) == 20261108, "route sampling uses fixed root seed")
-	_check(int(sampling.get("samples_per_case", 0)) == 200, "route sampling runs 200 routes per case")
-	var cases: Array = sampling.get("cases", [])
-	_check(cases.size() == 6, "sampling covers three strategies and two identities")
-	var all_valid := true
-	var all_completed := true
-	var all_have_pressure := true
-	var all_have_boss_phases := true
-	var all_sequence_eight := true
-	var all_have_time_estimates := true
-	var all_within_adjusted_duration := true
-	var all_rest_choices_accounted := true
-	var aggregate_rest_choices: Dictionary = {}
-	for case in cases:
-		all_valid = all_valid and int(case.get("valid_runs", 0)) == 200
-		all_completed = all_completed and is_equal_approx(
-			float(case.get("route_completion_rate", 0.0)),
-			1.0
+	if not sampling.is_empty():
+		_check(sampling.get("version", "") == "v0.5.0", "route sampling output is v0.5.0")
+		_check(
+			sampling.get("engine", "") == "RouteEngine+BattleEngine+ProgressionEngine",
+			"route sampling uses real domain engines"
 		)
-		all_have_pressure = all_have_pressure and float(
-			case.get("average_pressure_events", 0.0)
-		) > 0.0
-		all_have_boss_phases = all_have_boss_phases and float(
-			case.get("average_boss_phase_events", 0.0)
-		) > 0.0
-		all_sequence_eight = all_sequence_eight and is_equal_approx(
-			float(case.get("average_final_sequence", 9.0)),
-			8.0
-		)
-		all_have_time_estimates = (
-			all_have_time_estimates
-			and float(case.get("average_conservative_minutes", 0.0)) > 0.0
-			and float(case.get("average_relaxed_minutes", 0.0)) > 0.0
-		)
-		all_within_adjusted_duration = (
-			all_within_adjusted_duration
-			and bool(case.get("target_15_30_met_midpoint", false))
-		)
-		var rest_choices: Dictionary = case.get("rest_choices", {})
-		var rest_total := 0
-		for rest_id in rest_choices:
-			var count := int(rest_choices[rest_id])
-			rest_total += count
-			aggregate_rest_choices[rest_id] = (
-				int(aggregate_rest_choices.get(rest_id, 0)) + count
+		_check(int(sampling.get("root_seed", 0)) == 20261108, "route sampling uses fixed root seed")
+		_check(int(sampling.get("samples_per_case", 0)) == 200, "route sampling runs 200 routes per case")
+		var cases: Array = sampling.get("cases", [])
+		_check(cases.size() == 6, "sampling covers three strategies and two identities")
+		var all_valid := true
+		var all_completed := true
+		var all_have_pressure := true
+		var all_have_boss_phases := true
+		var all_sequence_eight := true
+		var all_have_time_estimates := true
+		var all_within_adjusted_duration := true
+		var all_rest_choices_accounted := true
+		var aggregate_rest_choices: Dictionary = {}
+		for case in cases:
+			all_valid = all_valid and int(case.get("valid_runs", 0)) == 200
+			all_completed = all_completed and is_equal_approx(
+				float(case.get("route_completion_rate", 0.0)),
+				1.0
 			)
-		all_rest_choices_accounted = (
-			all_rest_choices_accounted
-			and rest_total == int(case.get("valid_runs", 0))
+			all_have_pressure = all_have_pressure and float(
+				case.get("average_pressure_events", 0.0)
+			) > 0.0
+			all_have_boss_phases = all_have_boss_phases and float(
+				case.get("average_boss_phase_events", 0.0)
+			) > 0.0
+			all_sequence_eight = all_sequence_eight and is_equal_approx(
+				float(case.get("average_final_sequence", 9.0)),
+				8.0
+			)
+			all_have_time_estimates = (
+				all_have_time_estimates
+				and float(case.get("average_conservative_minutes", 0.0)) > 0.0
+				and float(case.get("average_relaxed_minutes", 0.0)) > 0.0
+			)
+			all_within_adjusted_duration = (
+				all_within_adjusted_duration
+				and bool(case.get("target_15_30_met_midpoint", false))
+			)
+			var rest_choices: Dictionary = case.get("rest_choices", {})
+			var rest_total := 0
+			for rest_id in rest_choices:
+				var count := int(rest_choices[rest_id])
+				rest_total += count
+				aggregate_rest_choices[rest_id] = (
+					int(aggregate_rest_choices.get(rest_id, 0)) + count
+				)
+			all_rest_choices_accounted = (
+				all_rest_choices_accounted
+				and rest_total == int(case.get("valid_runs", 0))
+			)
+		_check(all_valid, "all route samples are valid")
+		_check(all_completed, "all sampled routes complete under their strategy assumptions")
+		_check(all_have_pressure, "all sampled cases trigger enemy pressure")
+		_check(all_have_boss_phases, "all sampled cases trigger boss phases")
+		_check(all_sequence_eight, "completed samples finish at sequence eight")
+		_check(all_have_time_estimates, "every sampled case has duration estimates")
+		_check(
+			all_within_adjusted_duration,
+			"duration estimates stay within the ADR-0008 15-30 minute target"
 		)
-	_check(all_valid, "all route samples are valid")
-	_check(all_completed, "all sampled routes complete under their strategy assumptions")
-	_check(all_have_pressure, "all sampled cases trigger enemy pressure")
-	_check(all_have_boss_phases, "all sampled cases trigger boss phases")
-	_check(all_sequence_eight, "completed samples finish at sequence eight")
-	_check(all_have_time_estimates, "every sampled case has duration estimates")
-	_check(
-		all_within_adjusted_duration,
-		"duration estimates stay within the ADR-0008 15-30 minute target"
-	)
-	_check(
-		all_rest_choices_accounted,
-		"every valid route records exactly one rest choice"
-	)
-	_check(
-		int(aggregate_rest_choices.get("rest.bandage", 0)) > 0,
-		"bandage rest is selected by at least one strategy sample"
-	)
-	_check(
-		int(aggregate_rest_choices.get("rest.seal_echo", 0)) > 0,
-		"seal echo rest is selected by at least one strategy sample"
-	)
-	_check(
-		sampling.get("time_model_minutes", {}).get("note", "").contains("Planning estimate"),
-		"time estimates are explicitly marked as planning-only"
-	)
+		_check(
+			all_rest_choices_accounted,
+			"every valid route records exactly one rest choice"
+		)
+		_check(
+			int(aggregate_rest_choices.get("rest.bandage", 0)) > 0,
+			"bandage rest is selected by at least one strategy sample"
+		)
+		_check(
+			int(aggregate_rest_choices.get("rest.seal_echo", 0)) > 0,
+			"seal echo rest is selected by at least one strategy sample"
+		)
+		_check(
+			sampling.get("time_model_minutes", {}).get("note", "").contains("Planning estimate"),
+			"time estimates are explicitly marked as planning-only"
+		)
 
 	if _failures.is_empty():
 		print("V05_ROUTE_TESTS_OK checks=%d" % _checks)
@@ -198,3 +199,12 @@ func _check(condition: bool, message: String) -> void:
 	_checks += 1
 	if not condition:
 		_failures.append(message)
+
+
+## Sampling outputs under tools/simulation/out/ are generated and untracked
+## since v0.86 (R0-08); a clean checkout validates them only once generated.
+func _load_generated(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		print("SIMULATION_NOTE generated output absent, skipped: %s" % path)
+		return {}
+	return _load_json(path)

@@ -14,8 +14,8 @@ func _ready() -> void:
 	var balance: Dictionary = _load_json(BALANCE_PATH)
 	var base_cards: Dictionary = _load_json(BASE_CARDS_PATH)
 	var progression: Dictionary = _load_json(PROGRESSION_PATH)
-	var economy: Dictionary = _load_json(ECONOMY_PATH)
-	var battle: Dictionary = _load_json(BATTLE_PATH)
+	var economy: Dictionary = _load_generated(ECONOMY_PATH)
+	var battle: Dictionary = _load_generated(BATTLE_PATH)
 
 	_check(int(balance.get("schema_version", 0)) == 2, "v0.4 draft uses schema version 2")
 	_check(balance.get("content_version", "") == "v0.4.0", "balance content version is v0.4.0")
@@ -106,93 +106,95 @@ func _ready() -> void:
 		"gravedigger adds two fragments to duplicates"
 	)
 
-	_check(economy.get("version", "") == "v0.4.0", "economy output version is v0.4.0")
-	_check(int(economy.get("root_seed", 0)) == 20261108, "economy output has fixed root seed")
-	_check(
-		int(economy.get("samples_per_strategy", 0)) == 1000,
-		"economy output samples 1000 loops per strategy"
-	)
-	var economy_strategies: Array = economy.get("strategies", [])
-	_check(economy_strategies.size() == 3, "economy output covers three strategies")
-	var strategy_by_id: Dictionary = {}
-	for strategy in economy_strategies:
-		strategy_by_id[String(strategy.get("id", ""))] = strategy
+	if not economy.is_empty():
+		_check(economy.get("version", "") == "v0.4.0", "economy output version is v0.4.0")
+		_check(int(economy.get("root_seed", 0)) == 20261108, "economy output has fixed root seed")
 		_check(
-			int(strategy.get("valid_loops", 0)) == 1000,
-			"economy strategy has 1000 valid loops"
+			int(economy.get("samples_per_strategy", 0)) == 1000,
+			"economy output samples 1000 loops per strategy"
+		)
+		var economy_strategies: Array = economy.get("strategies", [])
+		_check(economy_strategies.size() == 3, "economy output covers three strategies")
+		var strategy_by_id: Dictionary = {}
+		for strategy in economy_strategies:
+			strategy_by_id[String(strategy.get("id", ""))] = strategy
+			_check(
+				int(strategy.get("valid_loops", 0)) == 1000,
+				"economy strategy has 1000 valid loops"
+			)
+			_check(
+				is_equal_approx(
+					float(strategy.get("averages", {}).get("active_loop_rate", 0.0)),
+					1.0
+				),
+				"every economy strategy has a meaningful action"
+			)
+
+		var reporter: Dictionary = strategy_by_id.get("ticket_route_reporter", {})
+		_check(
+			int(reporter.get("averages", {}).get("pulls", 0)) == 4,
+			"reporter ticket route performs four pulls"
+		)
+		_check(
+			float(reporter.get("averages", {}).get("loops_with_pulls", 0.0)) == 1.0,
+			"reporter ticket route completes its gacha decision"
+		)
+
+		var doctor: Dictionary = strategy_by_id.get("upgrade_route_doctor", {})
+		_check(
+			int(doctor.get("averages", {}).get("pulls", 0)) == 0,
+			"doctor fragment route does not consume tickets"
+		)
+		_check(
+			int(doctor.get("averages", {}).get("upgrades_completed", 0)) == 1,
+			"doctor fragment route completes one first upgrade"
+		)
+
+		var gravedigger: Dictionary = strategy_by_id.get("fragment_route_gravedigger", {})
+		_check(
+			int(gravedigger.get("averages", {}).get("pulls", 0)) == 3,
+			"gravedigger ticket route performs three pulls"
+		)
+		_check(
+			float(gravedigger.get("averages", {}).get("loops_with_pulls", 0.0)) == 1.0,
+			"gravedigger ticket route completes its gacha decision"
+		)
+
+	if not battle.is_empty():
+		_check(battle.get("version", "") == "v0.4.0", "battle output version is v0.4.0")
+		_check(int(battle.get("sample_pairs", 0)) == 500, "battle output samples 500 pairs")
+		_check(int(battle.get("identity_health_bonus", 0)) == 4, "battle output applies doctor bonus")
+		var baseline: Dictionary = battle.get("baseline", {})
+		var upgraded: Dictionary = battle.get("upgraded", {})
+		_check(int(baseline.get("valid_samples", 0)) == 500, "baseline battle samples are valid")
+		_check(int(upgraded.get("valid_samples", 0)) == 500, "upgraded battle samples are valid")
+		_check(
+			is_equal_approx(float(baseline.get("win_rate", 0.0)), 1.0),
+			"doctor baseline wins teaching battle"
+		)
+		_check(
+			is_equal_approx(float(upgraded.get("win_rate", 0.0)), 1.0),
+			"upgraded doctor wins teaching battle"
 		)
 		_check(
 			is_equal_approx(
-				float(strategy.get("averages", {}).get("active_loop_rate", 0.0)),
-				1.0
+				float(baseline.get("average_damage_per_ink_dart_hit", 0.0)),
+				4.0
 			),
-			"every economy strategy has a meaningful action"
+			"baseline ink dart damage is four"
 		)
-
-	var reporter: Dictionary = strategy_by_id.get("ticket_route_reporter", {})
-	_check(
-		int(reporter.get("averages", {}).get("pulls", 0)) == 4,
-		"reporter ticket route performs four pulls"
-	)
-	_check(
-		float(reporter.get("averages", {}).get("loops_with_pulls", 0.0)) == 1.0,
-		"reporter ticket route completes its gacha decision"
-	)
-
-	var doctor: Dictionary = strategy_by_id.get("upgrade_route_doctor", {})
-	_check(
-		int(doctor.get("averages", {}).get("pulls", 0)) == 0,
-		"doctor fragment route does not consume tickets"
-	)
-	_check(
-		int(doctor.get("averages", {}).get("upgrades_completed", 0)) == 1,
-		"doctor fragment route completes one first upgrade"
-	)
-
-	var gravedigger: Dictionary = strategy_by_id.get("fragment_route_gravedigger", {})
-	_check(
-		int(gravedigger.get("averages", {}).get("pulls", 0)) == 3,
-		"gravedigger ticket route performs three pulls"
-	)
-	_check(
-		float(gravedigger.get("averages", {}).get("loops_with_pulls", 0.0)) == 1.0,
-		"gravedigger ticket route completes its gacha decision"
-	)
-
-	_check(battle.get("version", "") == "v0.4.0", "battle output version is v0.4.0")
-	_check(int(battle.get("sample_pairs", 0)) == 500, "battle output samples 500 pairs")
-	_check(int(battle.get("identity_health_bonus", 0)) == 4, "battle output applies doctor bonus")
-	var baseline: Dictionary = battle.get("baseline", {})
-	var upgraded: Dictionary = battle.get("upgraded", {})
-	_check(int(baseline.get("valid_samples", 0)) == 500, "baseline battle samples are valid")
-	_check(int(upgraded.get("valid_samples", 0)) == 500, "upgraded battle samples are valid")
-	_check(
-		is_equal_approx(float(baseline.get("win_rate", 0.0)), 1.0),
-		"doctor baseline wins teaching battle"
-	)
-	_check(
-		is_equal_approx(float(upgraded.get("win_rate", 0.0)), 1.0),
-		"upgraded doctor wins teaching battle"
-	)
-	_check(
-		is_equal_approx(
-			float(baseline.get("average_damage_per_ink_dart_hit", 0.0)),
-			4.0
-		),
-		"baseline ink dart damage is four"
-	)
-	_check(
-		is_equal_approx(
-			float(upgraded.get("average_damage_per_ink_dart_hit", 0.0)),
-			5.0
-		),
-		"level-one ink dart damage is five"
-	)
-	_check(
-		int(upgraded.get("ink_dart_damage", 0))
-		> int(baseline.get("ink_dart_damage", 0)),
-		"upgrade produces visible extra damage in real BattleEngine"
-	)
+		_check(
+			is_equal_approx(
+				float(upgraded.get("average_damage_per_ink_dart_hit", 0.0)),
+				5.0
+			),
+			"level-one ink dart damage is five"
+		)
+		_check(
+			int(upgraded.get("ink_dart_damage", 0))
+			> int(baseline.get("ink_dart_damage", 0)),
+			"upgrade produces visible extra damage in real BattleEngine"
+		)
 
 	if _failures.is_empty():
 		print("V04_ECONOMY_TESTS_OK checks=%d" % _checks)
@@ -221,3 +223,12 @@ func _check(condition: bool, message: String) -> void:
 	_checks += 1
 	if not condition:
 		_failures.append(message)
+
+
+## Sampling outputs under tools/simulation/out/ are generated and untracked
+## since v0.86 (R0-08); a clean checkout validates them only once generated.
+func _load_generated(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		print("SIMULATION_NOTE generated output absent, skipped: %s" % path)
+		return {}
+	return _load_json(path)
