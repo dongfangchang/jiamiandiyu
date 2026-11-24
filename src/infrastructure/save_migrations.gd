@@ -11,22 +11,6 @@ const V07_SAVE_VERSION := 5
 const V07_SAVE_SCHEMA_PATH := "res://data/schema/v0.7.0/save.schema.json"
 
 
-static func create_v04_service(save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY) -> AtomicSaveService:
-	var service := AtomicSaveService.new(
-		save_directory,
-		V04_SAVE_VERSION,
-		V04_SAVE_SCHEMA_PATH
-	)
-	var registered := service.register_migration(
-		1,
-		func(document: Dictionary) -> Dictionary:
-			return migrate_v1_to_v2(document)
-	)
-	if not registered.ok:
-		push_error("Failed to register v1 to v2 save migration: %s" % registered.message)
-	return service
-
-
 static func migrate_v1_to_v2(document: Dictionary) -> Dictionary:
 	var migrated := document.duplicate(true)
 	migrated["save_version"] = V04_SAVE_VERSION
@@ -52,33 +36,6 @@ static func migrate_v1_to_v2(document: Dictionary) -> Dictionary:
 			"migrated_from_v1": true,
 		}
 	return migrated
-
-
-static func create_v05_service(save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY) -> AtomicSaveService:
-	var service := AtomicSaveService.new(
-		save_directory,
-		V05_SAVE_VERSION,
-		V05_SAVE_SCHEMA_PATH
-	)
-	var migrate_v1 := func(document: Dictionary) -> Dictionary:
-		return migrate_v1_to_v2(document)
-	var migration_v1 := service.register_migration(
-		1,
-		migrate_v1,
-		V04_SAVE_SCHEMA_PATH
-	)
-	if not migration_v1.ok:
-		push_error("Failed to register v1 to v2 save migration: %s" % migration_v1.message)
-	var migrate_v2 := func(document: Dictionary) -> Dictionary:
-		return migrate_v2_to_v3(document)
-	var migration_v2 := service.register_migration(
-		2,
-		migrate_v2,
-		V05_SAVE_SCHEMA_PATH
-	)
-	if not migration_v2.ok:
-		push_error("Failed to register v2 to v3 save migration: %s" % migration_v2.message)
-	return service
 
 
 static func migrate_v2_to_v3(document: Dictionary) -> Dictionary:
@@ -112,39 +69,6 @@ static func migrate_v2_to_v3(document: Dictionary) -> Dictionary:
 	return migrated
 
 
-static func create_v06_service(save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY) -> AtomicSaveService:
-	var service := AtomicSaveService.new(
-		save_directory,
-		V06_SAVE_VERSION,
-		V06_SAVE_SCHEMA_PATH
-	)
-	var migration_v1 := service.register_migration(
-		1,
-		func(document: Dictionary) -> Dictionary:
-			return migrate_v1_to_v2(document),
-		V04_SAVE_SCHEMA_PATH
-	)
-	if not migration_v1.ok:
-		push_error("Failed to register v1 to v2 save migration: %s" % migration_v1.message)
-	var migration_v2 := service.register_migration(
-		2,
-		func(document: Dictionary) -> Dictionary:
-			return migrate_v2_to_v3(document),
-		V05_SAVE_SCHEMA_PATH
-	)
-	if not migration_v2.ok:
-		push_error("Failed to register v2 to v3 save migration: %s" % migration_v2.message)
-	var migration_v3 := service.register_migration(
-		3,
-		func(document: Dictionary) -> Dictionary:
-			return migrate_v3_to_v4(document),
-		V06_SAVE_SCHEMA_PATH
-	)
-	if not migration_v3.ok:
-		push_error("Failed to register v3 to v4 save migration: %s" % migration_v3.message)
-	return service
-
-
 static func migrate_v3_to_v4(document: Dictionary) -> Dictionary:
 	var migrated := document.duplicate(true)
 	migrated["save_version"] = V06_SAVE_VERSION
@@ -170,6 +94,7 @@ static func migrate_v3_to_v4(document: Dictionary) -> Dictionary:
 	return migrated
 
 
+# The only migration chain factory: every save loads through v1 -> v5.
 static func create_v07_service(
 	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
 ) -> AtomicSaveService:
