@@ -4,7 +4,7 @@
 
 ## 文件
 
-- `content_envelope.schema.json`：通用内容文档的最小版本信封。
+- ~~`content_envelope.schema.json`~~：v0.87.0 归档删除（无任何引用），恢复见 `art/ASSET_MANIFEST.md`「v0.87 归档」。
 - `save.schema.json`：本地存档的必需字段、基础类型和日期格式。
 - `balance.schema.json`：当前数值草案的顶层结构与稳定 ID 要求。
 - `battle_cards.schema.json`：战斗卡牌定义的稳定 ID、费用、目标类型、效果数组和效果 ID 枚举。
