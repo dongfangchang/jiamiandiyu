@@ -15,7 +15,7 @@ func _ready() -> void:
 	var cards_document: Dictionary = _load_json(CARDS_PATH)
 	var enemies_document: Dictionary = _load_json(ENEMIES_PATH)
 	var encounters_document: Dictionary = _load_json(ENCOUNTERS_PATH)
-	var simulation: Dictionary = _load_json(SIMULATION_PATH)
+	var simulation: Dictionary = _load_generated(SIMULATION_PATH)
 
 	_check(not balance.has("cards"), "balance must not duplicate card definitions")
 	_check(not balance.has("enemies"), "balance must not duplicate enemy definitions")
@@ -37,23 +37,24 @@ func _ready() -> void:
 		"first encounter uses two enemy lanes"
 	)
 
-	_check(simulation.get("engine", "") == "BattleEngine", "sampling must use BattleEngine")
-	_check(int(simulation.get("root_seed", 0)) == 20261108, "sampling root seed is fixed")
-	_check(int(simulation.get("samples_per_policy", 0)) == 1000, "sampling has 1000 samples")
-	_check(simulation.get("policies", []).size() == 4, "sampling has three policies and one probe")
+	if not simulation.is_empty():
+		_check(simulation.get("engine", "") == "BattleEngine", "sampling must use BattleEngine")
+		_check(int(simulation.get("root_seed", 0)) == 20261108, "sampling root seed is fixed")
+		_check(int(simulation.get("samples_per_policy", 0)) == 1000, "sampling has 1000 samples")
+		_check(simulation.get("policies", []).size() == 4, "sampling has three policies and one probe")
 
-	for policy in simulation.get("policies", []):
-		_check(int(policy.get("invalid_runs", -1)) == 0, "sampling must not contain invalid runs")
-		for round_key in policy.get("pressure_activations_by_round", {}).keys():
-			_check(
-				String(round_key) in ["5", "7", "9"],
-				"pressure may only activate on rounds five, seven and nine"
-			)
-		if String(policy.get("id", "")) == "pressure_probe":
-			_check(
-				int(policy.get("max_applied_pressure_bonus", 0)) == 3,
-				"pressure probe must observe the third pressure step"
-			)
+		for policy in simulation.get("policies", []):
+			_check(int(policy.get("invalid_runs", -1)) == 0, "sampling must not contain invalid runs")
+			for round_key in policy.get("pressure_activations_by_round", {}).keys():
+				_check(
+					String(round_key) in ["5", "7", "9"],
+					"pressure may only activate on rounds five, seven and nine"
+				)
+			if String(policy.get("id", "")) == "pressure_probe":
+				_check(
+					int(policy.get("max_applied_pressure_bonus", 0)) == 3,
+					"pressure probe must observe the third pressure step"
+				)
 
 	if _failures.is_empty():
 		print("SIMULATION_TESTS_OK checks=%d" % _checks)
@@ -82,3 +83,12 @@ func _check(condition: bool, message: String) -> void:
 	_checks += 1
 	if not condition:
 		_failures.append(message)
+
+
+## Sampling outputs under tools/simulation/out/ are generated and untracked
+## since v0.86 (R0-08); a clean checkout validates them only once generated.
+func _load_generated(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		print("SIMULATION_NOTE generated output absent, skipped: %s" % path)
+		return {}
+	return _load_json(path)

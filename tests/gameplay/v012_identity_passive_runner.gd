@@ -79,8 +79,11 @@ func _ready() -> void:
 	add_child(screen)
 	screen.apply_snapshot(snapshot)
 	await get_tree().process_frame
+	# The hub label prefix was shortened from 「身份特性：」 to 「特性：」 in the
+	# fixed-height layout pass (v0.31); assert the content-sourced passive text
+	# instead of a hardcoded prefix.
 	_expect(
-		_contains_label_text(screen, "身份特性"),
+		not passive_text.is_empty() and _contains_label_text(screen, passive_text),
 		"identity screen should display passive benefits"
 	)
 	screen.queue_free()

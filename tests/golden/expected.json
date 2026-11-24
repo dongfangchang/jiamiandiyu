@@ -1,0 +1,165 @@
+{
+  "identity_id": "identity.reporter",
+  "route_id": "route.v028.first_stage",
+  "schema_version": 1,
+  "seed": 20261124,
+  "stages": {
+    "01_start": {
+      "hash": "7207cdd3e7491a634471a14261684722e05a6cf25781a60dff05f44ff61e2117",
+      "summary": {
+        "attention": 0,
+        "completed_nodes": 0,
+        "corruption": 0,
+        "hp": 54,
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 3
+      }
+    },
+    "02_first_hunt": {
+      "hash": "2a7ecc10edb21240c7ff8a4ac00c2f062b4c0302bdba00e90a3b7a697cbe7454",
+      "summary": {
+        "attention": 0,
+        "commands": 11,
+        "completed_nodes": 1,
+        "corruption": 0,
+        "hp": 54,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 7,
+        "turns": 1
+      }
+    },
+    "03_tenant_trace": {
+      "hash": "f8f29eeb52640dd925ece5859954a99692372e2f5b2775bd1a8189dd6931ff49",
+      "summary": {
+        "attention": 0,
+        "commands": 38,
+        "completed_nodes": 2,
+        "corruption": 0,
+        "hp": 50,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 11,
+        "turns": 5
+      }
+    },
+    "04_mirror_pursuit": {
+      "hash": "50cc30297224f4d5f5981ac36e0b1f5f66472bb57b2f3c5c2be8026e4b396173",
+      "summary": {
+        "attention": 0,
+        "commands": 67,
+        "completed_nodes": 3,
+        "corruption": 0,
+        "hp": 47,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 15,
+        "turns": 9
+      }
+    },
+    "05_boundary": {
+      "hash": "194f957f534ca8aa8b4905ed7d41c69a26f9e9b587d672f5b491daf101ca4817",
+      "summary": {
+        "attention": 0,
+        "commands": 14,
+        "completed_nodes": 4,
+        "corruption": 1,
+        "hp": 47,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 19,
+        "turns": 2
+      }
+    },
+    "06_rest": {
+      "hash": "785bb22c9c965eaa5d5a78d4e613aa8d374f79b8d344d3901c654bd1febff01c",
+      "summary": {
+        "attention": 0,
+        "completed_nodes": 5,
+        "corruption": 1,
+        "hp": 54,
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 19
+      }
+    },
+    "07_lamud": {
+      "hash": "153f4d477a3482edfe6e5534ccaf8d459aec4da3a544d4f3bc4ed86278e64be9",
+      "summary": {
+        "attention": 0,
+        "commands": 31,
+        "completed_nodes": 6,
+        "corruption": 0,
+        "hp": 52,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 23,
+        "turns": 4
+      }
+    },
+    "08_baron": {
+      "hash": "910bca6ed1ba3f328b23ca08bc62384adeeb02a71d8b82a4d44a59d93921fc25",
+      "summary": {
+        "attention": 0,
+        "commands": 49,
+        "completed_nodes": 7,
+        "corruption": 6,
+        "hp": 49,
+        "outcome": "victory",
+        "progression_phase": "hub",
+        "route_phase": "map",
+        "sequence": 9,
+        "tickets": 27,
+        "turns": 6
+      }
+    },
+    "09_ascension": {
+      "hash": "5d989fa42bd2b1e221352e7696565e12465636fc472714e2cd6e79bf15a8ca7c",
+      "summary": {
+        "attention": 0,
+        "completed_nodes": 8,
+        "corruption": 6,
+        "hp": 49,
+        "progression_phase": "hub",
+        "route_phase": "completed",
+        "sequence": 8,
+        "tickets": 27
+      }
+    },
+    "10_gacha": {
+      "hash": "971788df84f86bb879c6d6348c5d428f936fa50def7dffaae05315ccad898f62",
+      "summary": {
+        "attention": 0,
+        "completed_nodes": 8,
+        "corruption": 6,
+        "hp": 49,
+        "progression_phase": "hub",
+        "route_phase": "completed",
+        "sequence": 8,
+        "tickets": 25
+      }
+    },
+    "11_checkpoint": {
+      "hash": "a81113260078aa5d4f725ce0ee49aa91eb143141f1d609ee88aa09e23c6d0460",
+      "summary": {
+        "code": "ok",
+        "content_version": "v0.7.0",
+        "ok": true,
+        "save_version": 5
+      }
+    }
+  }
+}

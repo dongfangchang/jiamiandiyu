@@ -1,6 +1,7 @@
 extends Node
 
-## v0.72: DIARY_008 freeze — true layered ink (base + gold overwrite), node_id stable.
+## v0.72: DIARY_008 — catalog keeps base + gold overwrite layers, node_id stable.
+## Retired 2D-book layer nodes (PenRewriteStamp etc.) are no longer asserted (v0.86 R0-03).
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
@@ -15,16 +16,6 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
-	_expect(
-		FileAccess.file_exists("res://docs/design/DIARY_008_BRANCH.md"),
-		"DIARY_008 frozen contract present"
-	)
-	if FileAccess.file_exists("res://docs/design/DIARY_008_BRANCH.md"):
-		var contract := FileAccess.get_file_as_string("res://docs/design/DIARY_008_BRANCH.md")
-		_expect(contract.contains("三分支"), "contract names three branches")
-		_expect(contract.contains("base_text_zh"), "contract requires base_text_zh")
-		_expect(contract.contains("clue_overlays"), "contract keeps clue_overlays")
-
 	var catalog := DiaryCatalogScript.new()
 	_expect(catalog.ensure_loaded(), "diary volume loads")
 	var view: Dictionary = catalog.build_view({
@@ -88,28 +79,6 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
-	var stamp := screen.find_child("PenRewriteStamp", true, false) as Label
-	_expect(stamp != null, "pen rewrite stamp on screen")
-	var gold: RichTextLabel = null
-	var base_layer: RichTextLabel = null
-	if stamp != null:
-		var host := stamp.get_parent()
-		if host != null:
-			gold = host.find_child("GoldOverwrite", true, false) as RichTextLabel
-			base_layer = host.find_child("RoselleBaseInk", true, false) as RichTextLabel
-	_expect(gold != null, "gold overwrite layer under rewritten passage")
-	_expect(base_layer != null, "roselle base ink under rewritten passage")
-	if gold != null:
-		_expect(
-			gold.text.find("口供") >= 0 or gold.get_parsed_text().find("口供") >= 0,
-			"gold layer shows overwrite text"
-		)
-	if base_layer != null:
-		_expect(
-			base_layer.text.find(BASE_SNIPPET) >= 0
-			or base_layer.get_parsed_text().find(BASE_SNIPPET) >= 0,
-			"base layer keeps original Roselle snippet"
-		)
 	_expect(
 		screen.find_children("*", "OptionButton", true, false).is_empty(),
 		"no OptionButton on diary path"

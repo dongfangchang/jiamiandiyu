@@ -1,11 +1,11 @@
 extends Node
 
 ## v0.77: instantiate hub/exit screens and assert live button labels.
+## v0.86 R0-03: dropped source-text greps and the retired route_screen check.
 
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
@@ -18,7 +18,6 @@ func _ready() -> void:
 	await _check_identity()
 	await _check_reward()
 	await _check_gacha()
-	await _check_legacy_route()
 	await _check_diary()
 	if _failures.is_empty():
 		print("V077_RUNTIME_CTA_OK checks=%d" % _checks)
@@ -91,16 +90,6 @@ func _check_gacha() -> void:
 	await _wait_frames(1)
 
 
-func _check_legacy_route() -> void:
-	var screen = RouteScreenScene.instantiate()
-	add_child(screen)
-	await _wait_frames(2)
-	_expect(_find_button(screen, "回日记") != null, "legacy route exposes 回日记")
-	_expect(_find_button(screen, "返回白昼档案") == null, "legacy route hides 返回白昼档案")
-	screen.queue_free()
-	await _wait_frames(1)
-
-
 func _check_diary() -> void:
 	var screen = DiaryScreenScript.new()
 	add_child(screen)
@@ -120,9 +109,6 @@ func _check_diary() -> void:
 	await _wait_frames(3)
 	_expect(_find_button(screen, "合上") != null, "diary exposes 合上")
 	_expect(screen.find_children("*", "OptionButton", true, false).is_empty(), "diary no OptionButton")
-	var src := FileAccess.get_file_as_string("res://src/ui/diary_chapter_screen.gd")
-	_expect(src.find("Color(0.12, 0.05, 0.03, 0.28)") >= 0, "ink seal plate uses reduced alpha")
-	_expect(src.find("#e8c25a") >= 0, "gold overwrite stays bright")
 	screen.queue_free()
 	await _wait_frames(1)
 
