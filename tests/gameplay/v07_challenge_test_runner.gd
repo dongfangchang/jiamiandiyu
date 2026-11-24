@@ -1,5 +1,6 @@
 extends Node
 
+const RouteContentData := preload("res://tests/fixtures/route_content_data.gd")
 const ChallengeEngineScript := preload("res://src/gameplay/challenge_engine.gd")
 const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
@@ -370,6 +371,12 @@ class ChallengeContentFixture:
 
 class RouteContentFixture:
 	extends RouteContentPort
+
+	func get_route_rules() -> Dictionary:
+		return RouteContentData.route_rules()
+
+	func get_annotation_catalog() -> Dictionary:
+		return RouteContentData.annotation_catalog()
 
 	var _routes: Dictionary = {}
 	var _rituals: Dictionary = {}

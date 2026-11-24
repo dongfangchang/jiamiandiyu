@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "content_version": "v0.55.0",
   "volume_id": "diary.tingen.volume_1",
   "route_id": "route.v028.first_stage",
@@ -84,5 +84,420 @@
         }
       ]
     }
-  ]
+  ],
+  "annotations": {
+    "pools": {
+      "pen_rewrite": {
+        "by_node": {
+          "route.v028.first_stage.node.first_hunt": "annotation.pen_rewrite.first_hunt",
+          "route.v028.first_stage.node.tenant_trace": "annotation.pen_rewrite.tenant_trace",
+          "route.v028.first_stage.node.mirror_pursuit": "annotation.pen_rewrite.mirror_pursuit",
+          "route.v028.first_stage.node.boundary": "annotation.pen_rewrite.boundary",
+          "route.v028.first_stage.node.rest": "annotation.pen_rewrite.rest",
+          "route.v028.first_stage.node.lamud": "annotation.pen_rewrite.lamud",
+          "route.v028.first_stage.node.baron": "annotation.pen_rewrite.baron",
+          "route.v028.first_stage.node.ascension": "annotation.pen_rewrite.ascension"
+        },
+        "cycle": [
+          "annotation.pen_rewrite.generic.00",
+          "annotation.pen_rewrite.generic.01",
+          "annotation.pen_rewrite.generic.02",
+          "annotation.pen_rewrite.generic.03",
+          "annotation.pen_rewrite.generic.04",
+          "annotation.pen_rewrite.generic.05",
+          "annotation.pen_rewrite.generic.06",
+          "annotation.pen_rewrite.generic.07",
+          "annotation.pen_rewrite.generic.08",
+          "annotation.pen_rewrite.generic.09",
+          "annotation.pen_rewrite.generic.10",
+          "annotation.pen_rewrite.generic.11"
+        ],
+        "default": "annotation.pen_rewrite.default"
+      },
+      "victory": {
+        "by_node": {
+          "route.v028.first_stage.node.first_hunt": "annotation.victory.first_hunt",
+          "route.v028.first_stage.node.tenant_trace": "annotation.victory.tenant_trace",
+          "route.v028.first_stage.node.mirror_pursuit": "annotation.victory.mirror_pursuit",
+          "route.v028.first_stage.node.boundary": "annotation.victory.boundary",
+          "route.v028.first_stage.node.rest": "annotation.victory.rest",
+          "route.v028.first_stage.node.lamud": "annotation.victory.lamud",
+          "route.v028.first_stage.node.baron": "annotation.victory.baron",
+          "route.v028.first_stage.node.ascension": "annotation.victory.ascension"
+        },
+        "cycle": [
+          "annotation.victory.generic.00",
+          "annotation.victory.generic.01",
+          "annotation.victory.generic.02",
+          "annotation.victory.generic.03",
+          "annotation.victory.generic.04"
+        ],
+        "default": "annotation.victory.default"
+      },
+      "defeat": {
+        "by_node": {
+          "route.v028.first_stage.node.first_hunt": "annotation.defeat.first_hunt",
+          "route.v028.first_stage.node.tenant_trace": "annotation.defeat.tenant_trace",
+          "route.v028.first_stage.node.mirror_pursuit": "annotation.defeat.mirror_pursuit",
+          "route.v028.first_stage.node.boundary": "annotation.defeat.boundary",
+          "route.v028.first_stage.node.rest": "annotation.defeat.rest",
+          "route.v028.first_stage.node.lamud": "annotation.defeat.lamud",
+          "route.v028.first_stage.node.baron": "annotation.defeat.baron",
+          "route.v028.first_stage.node.ascension": "annotation.defeat.ascension"
+        },
+        "cycle": [
+          "annotation.defeat.generic.00",
+          "annotation.defeat.generic.01",
+          "annotation.defeat.generic.02",
+          "annotation.defeat.generic.03",
+          "annotation.defeat.generic.04",
+          "annotation.defeat.generic.05",
+          "annotation.defeat.generic.06"
+        ],
+        "default": "annotation.defeat.default"
+      },
+      "reink": {
+        "by_node": {
+          "route.v028.first_stage.node.first_hunt": "annotation.reink.first_hunt",
+          "route.v028.first_stage.node.tenant_trace": "annotation.reink.tenant_trace",
+          "route.v028.first_stage.node.mirror_pursuit": "annotation.reink.mirror_pursuit",
+          "route.v028.first_stage.node.boundary": "annotation.reink.boundary",
+          "route.v028.first_stage.node.rest": "annotation.reink.rest",
+          "route.v028.first_stage.node.lamud": "annotation.reink.lamud",
+          "route.v028.first_stage.node.baron": "annotation.reink.baron",
+          "route.v028.first_stage.node.ascension": "annotation.reink.ascension"
+        },
+        "cycle": [
+          "annotation.reink.generic.00",
+          "annotation.reink.generic.01",
+          "annotation.reink.generic.02",
+          "annotation.reink.generic.03",
+          "annotation.reink.generic.04",
+          "annotation.reink.generic.05"
+        ],
+        "default": "annotation.reink.default"
+      },
+      "rest": {
+        "cycle": [
+          "annotation.rest.generic.00",
+          "annotation.rest.generic.01",
+          "annotation.rest.generic.02"
+        ]
+      },
+      "wipe": {
+        "cycle": [
+          "annotation.wipe.generic.00",
+          "annotation.wipe.generic.01",
+          "annotation.wipe.generic.02"
+        ]
+      }
+    },
+    "fixed": {
+      "pen_rewrite_marker": "annotation.pen_rewrite.marker",
+      "pen_rewrite_margin": "annotation.pen_rewrite.margin",
+      "ritual_failed": "annotation.ritual.failed"
+    },
+    "entries": {
+      "annotation.pen_rewrite.first_hunt": {
+        "text_zh": "「金痕改写家门一页：密修会找的不是克莱恩——是还活着的『证人』。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.tenant_trace": {
+        "text_zh": "「灵摆的指向被笔尖掰弯：废弃楼里先到的不是救援，是第二波屠杀。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.mirror_pursuit": {
+        "text_zh": "「提利尔仓库的记录被改：2-049 先咬住的是你，不是燕尾服小丑。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.boundary": {
+        "text_zh": "「魔镜旁注被覆写：镜子里多出的那张脸，会先念你的真名。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.rest": {
+        "text_zh": "「俱乐部守则多出一行暗金：尽信占卜者，蜡烛灭时最先失声。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.lamud": {
+        "text_zh": "「拉姆德教堂页边改写：铠甲里呼吸的不是风——是封存物在点名。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.baron": {
+        "text_zh": "「教导者一页被篡改：隐匿贤者要的不是亡妻，是你尚未消化的魔药。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.ascension": {
+        "text_zh": "「考核三问被金笔涂改：答对也只是把笑脸钉得更紧——小丑在等你。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.00": {
+        "text_zh": "「笔尖一顿——这段字被改成了另一个人的口供。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.01": {
+        "text_zh": "「页边多出一行不属于你的笔迹：别信占卜。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.02": {
+        "text_zh": "「0-08 把一句警告盖在原句上：雨夜有第三个人。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.03": {
+        "text_zh": "「墨水自行爬行，把『救援』改成了『诱饵』。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.04": {
+        "text_zh": "「原句还在，但主语被换成了你不认识的姓氏。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.05": {
+        "text_zh": "「羽毛笔停了一息：把这段从公开档案里抹掉。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.06": {
+        "text_zh": "「金痕压住旧墨：值夜者的记录被改成『勿靠近查尼斯门。』」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.07": {
+        "text_zh": "「0-08 把『队友』划掉，改写成『目击者会先死。』」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.08": {
+        "text_zh": "「罗塞尔的句号被撬开——插入半句廷根雨夜里的假名。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.09": {
+        "text_zh": "「覆写落下：『灵摆指向的不是人，是诱饵。』」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.10": {
+        "text_zh": "「页心多出一行暗金：占卜俱乐部今晚有第四把椅子。」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.generic.11": {
+        "text_zh": "「笔改过：把『安全的退路』改成『唯一的祭品。』」",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.default": {
+        "text_zh": "「0-08 改写了这段尚未读到的字句。」",
+        "ink_stain": false
+      },
+      "annotation.victory.first_hunt": {
+        "text_zh": "【0-08】分支·真相·家门：密修会退进雨里。暗金记下——厨房仍安全，名字还活着。",
+        "ink_stain": false
+      },
+      "annotation.victory.tenant_trace": {
+        "text_zh": "【0-08】分支·真相·废屋：艾略特还在呼吸。金笔停在楼梯口：第二波未追上这一叶。",
+        "ink_stain": false
+      },
+      "annotation.victory.mirror_pursuit": {
+        "text_zh": "【0-08】分支·真相·提利尔：2-049 先咬住了小丑。页脊留下半句——空气终于能呼吸。",
+        "ink_stain": false
+      },
+      "annotation.victory.boundary": {
+        "text_zh": "【0-08】分支·真相·魔镜：恶灵退离笑声。金批写着：别回头，镜面已空。",
+        "ink_stain": false
+      },
+      "annotation.victory.rest": {
+        "text_zh": "【0-08】分支·真相·俱乐部：守则两条仍可读。蜡烛灭前，你把扮演演完整了。",
+        "ink_stain": false
+      },
+      "annotation.victory.lamud": {
+        "text_zh": "【0-08】分支·真相·拉姆德：铠甲里的呼吸被圣水压住。页边暗金：封存物退回边界。",
+        "ink_stain": false
+      },
+      "annotation.victory.baron": {
+        "text_zh": "【0-08】分支·真相·教导者：低语断了一截。安静发丝落下——影子不再替他开口。",
+        "ink_stain": false
+      },
+      "annotation.victory.ascension": {
+        "text_zh": "【0-08】分支·真相·考核：三问落印，起誓未泄。笑脸钉进页脊——小丑的门开了一道缝。",
+        "ink_stain": false
+      },
+      "annotation.victory.generic.00": {
+        "text_zh": "【0-08】真相落下。暗金字迹在页边停住，像一声叹息。",
+        "ink_stain": false
+      },
+      "annotation.victory.generic.01": {
+        "text_zh": "【0-08】案情合上半页。雨声替你写下未说完的半句。",
+        "ink_stain": false
+      },
+      "annotation.victory.generic.02": {
+        "text_zh": "【0-08】存活被记入页脊——代价也一并洇开。",
+        "ink_stain": false
+      },
+      "annotation.victory.generic.03": {
+        "text_zh": "【0-08】分支·真相：你活着合上这一叶，金笔只肯承认一半事实。",
+        "ink_stain": false
+      },
+      "annotation.victory.generic.04": {
+        "text_zh": "【0-08】页边落下一滴暗金：活口留下了，名册却少了一行。",
+        "ink_stain": false
+      },
+      "annotation.victory.default": {
+        "text_zh": "【0-08】真相落下。暗金字迹在页边停住。",
+        "ink_stain": false
+      },
+      "annotation.defeat.first_hunt": {
+        "text_zh": "【0-08】夜色吞没·家门：雨夜里左轮哑了火，密修会的脚印仍停在厨房门外。章节未灭。",
+        "ink_stain": false
+      },
+      "annotation.defeat.tenant_trace": {
+        "text_zh": "【0-08】夜色吞没·废屋：艾略特的呼吸被墨渍盖住——你退回日记，第二波仍在楼梯上。",
+        "ink_stain": true
+      },
+      "annotation.defeat.mirror_pursuit": {
+        "text_zh": "【0-08】夜色吞没·提利尔：2-049 的迟缓先缠住你，燕尾服的笑还停在半空。可重入。",
+        "ink_stain": false
+      },
+      "annotation.defeat.boundary": {
+        "text_zh": "【0-08】夜色吞没·魔镜：镜中那张多余的脸先念了你的姓。恶灵未散，卷册未撕。",
+        "ink_stain": false
+      },
+      "annotation.defeat.rest": {
+        "text_zh": "【0-08】夜色吞没·俱乐部：蜡烛灭得太早，扮演守则洇成盲文。注视还在涨。",
+        "ink_stain": false
+      },
+      "annotation.defeat.lamud": {
+        "text_zh": "【0-08】夜色吞没·拉姆德：铠甲里的呼吸压过圣水。封存物试探成功了一寸，你仍可回页。",
+        "ink_stain": false
+      },
+      "annotation.defeat.baron": {
+        "text_zh": "【0-08】夜色吞没·教导者：隐匿贤者的低语先吞掉姓名。安静发丝未落下，章节未灭。",
+        "ink_stain": false
+      },
+      "annotation.defeat.ascension": {
+        "text_zh": "【0-08】夜色吞没·考核：三问未答完，笑脸已半盲。顶满污染只退回本叶——可重考。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.00": {
+        "text_zh": "【0-08】失败被写入纸背。墨痕爬行，遮住了旁人的名字。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.01": {
+        "text_zh": "【0-08】这一叶渗出血色：你还活着，但字句先死了一截。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.02": {
+        "text_zh": "【0-08】笔尖偏了。悲剧被当成注脚，钉在页边。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.03": {
+        "text_zh": "【0-08】分支·夜色吞没：败局渗进纸背，旁人的名字先被抹黑。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.04": {
+        "text_zh": "【0-08】夜色吞没这一叶——你退回日记，章节未灭，字句已半盲。",
+        "ink_stain": false
+      },
+      "annotation.defeat.generic.05": {
+        "text_zh": "【0-08】败笔成潮：墨渍从页角回涌，可读的线索沉进雨声里。",
+        "ink_stain": true
+      },
+      "annotation.defeat.generic.06": {
+        "text_zh": "【0-08】软失败落印。命运未撕毁卷册，只是把下一句涂成盲文。",
+        "ink_stain": false
+      },
+      "annotation.defeat.default": {
+        "text_zh": "【0-08】夜色吞没这一叶。章节未灭，字句已半盲。",
+        "ink_stain": false
+      },
+      "annotation.reink.first_hunt": {
+        "text_zh": "【0-08】墨渍回涌·家门：窗缝里的名字被重新涂黑，只剩雨声。",
+        "ink_stain": true
+      },
+      "annotation.reink.tenant_trace": {
+        "text_zh": "【0-08】墨渍回涌·废屋：灵摆指向被墨封堵住，呼吸声沉进楼板。",
+        "ink_stain": true
+      },
+      "annotation.reink.mirror_pursuit": {
+        "text_zh": "【0-08】墨渍回涌·提利尔：仓库页边洇开，2-049 与小丑的字缝再次合拢。",
+        "ink_stain": true
+      },
+      "annotation.reink.boundary": {
+        "text_zh": "【0-08】墨渍回涌·魔镜：女孩的笑声被涂成污斑，镜面多出的脸又隐去。",
+        "ink_stain": true
+      },
+      "annotation.reink.rest": {
+        "text_zh": "【0-08】墨渍回涌·俱乐部：守则两条被夜色吞没，第四把椅子只剩墨渍。",
+        "ink_stain": true
+      },
+      "annotation.reink.lamud": {
+        "text_zh": "【0-08】墨渍回涌·拉姆德：教堂页角封存物的呼吸再次盖住圣水旁注。",
+        "ink_stain": true
+      },
+      "annotation.reink.baron": {
+        "text_zh": "【0-08】墨渍回涌·教导者：亡妻与贤者的句子重新沉进纸缝，可灵性擦拭。",
+        "ink_stain": true
+      },
+      "annotation.reink.ascension": {
+        "text_zh": "【0-08】墨渍回涌·考核：三问字迹被墨封凝固，笑脸只剩半个轮廓。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.00": {
+        "text_zh": "【0-08】墨渍回涌，这段字迹再次被夜色吞没。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.01": {
+        "text_zh": "【0-08】墨渍回涌——旁人的线索被重新涂黑。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.02": {
+        "text_zh": "【0-08】墨渍回涌。未读的字重新沉进雨夜里。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.03": {
+        "text_zh": "【0-08】墨渍回涌·夜色回灌：刚露出的字缝又被墨封堵住。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.04": {
+        "text_zh": "【0-08】墨渍回涌如潮。分支·吞没把下一句重新藏进纸缝。",
+        "ink_stain": true
+      },
+      "annotation.reink.generic.05": {
+        "text_zh": "【0-08】败后余墨爬行——可拭的污渍盖住了尚未读到的姓名。",
+        "ink_stain": false
+      },
+      "annotation.reink.default": {
+        "text_zh": "【0-08】墨渍回涌，这段字迹再次被夜色吞没。",
+        "ink_stain": true
+      },
+      "annotation.rest.generic.00": {
+        "text_zh": "【0-08】休整写进页边：呼吸平稳了一些，注视却未退尽。",
+        "ink_stain": false
+      },
+      "annotation.rest.generic.01": {
+        "text_zh": "【0-08】蜡烛熄了一支。伤口收束，扮演仍在继续。",
+        "ink_stain": false
+      },
+      "annotation.rest.generic.02": {
+        "text_zh": "【0-08】俱乐部的茶渍晕开：你借来一晚安宁。",
+        "ink_stain": false
+      },
+      "annotation.wipe.generic.00": {
+        "text_zh": "【灵性】指尖发热，墨渍退开一线——字迹重新可读。",
+        "ink_stain": true
+      },
+      "annotation.wipe.generic.01": {
+        "text_zh": "【灵性】雨夜里搓热掌心，墨渍终于松动。",
+        "ink_stain": true
+      },
+      "annotation.wipe.generic.02": {
+        "text_zh": "【灵性】灵性灼过纸面：被吞没的字句重新浮起。",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.marker": {
+        "text_zh": "【0-08】墨迹改写了尚未读到的字句。",
+        "ink_stain": false
+      },
+      "annotation.pen_rewrite.margin": {
+        "text_zh": "笔改过",
+        "ink_stain": false
+      },
+      "annotation.ritual.failed": {
+        "text_zh": "【0-08】考核未通过。污染退潮一寸——日记仍摊开，可再起誓。",
+        "ink_stain": false
+      }
+    }
+  }
 }

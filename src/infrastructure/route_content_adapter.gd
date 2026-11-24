@@ -18,13 +18,21 @@ var base_encounters_version: String = ""
 var _default_route_id: StringName = &""
 var _routes_by_id: Dictionary = {}
 var _rituals_by_id: Dictionary = {}
+var _route_rules: Dictionary = {}
+var _annotation_catalog: Dictionary = {}
 
 
 func _init(
 	routes_document: Dictionary,
 	rituals_document: Dictionary,
-	catalog: CampaignContentCatalog
+	catalog: CampaignContentCatalog,
+	balance_document: Dictionary = {},
+	diary_document: Dictionary = {}
 ) -> void:
+	var rules: Variant = balance_document.get("route", {})
+	_route_rules = rules.duplicate(true) if rules is Dictionary else {}
+	var annotations: Variant = diary_document.get("annotations", {})
+	_annotation_catalog = annotations.duplicate(true) if annotations is Dictionary else {}
 	content_version = String(routes_document.get("content_version", ""))
 	base_cards_version = String(routes_document.get("base_cards_version", ""))
 	base_encounters_version = String(
@@ -66,6 +74,14 @@ func get_route(route_id: StringName) -> Dictionary:
 func get_ritual(ritual_id: StringName) -> Dictionary:
 	var value: Variant = _rituals_by_id.get(String(ritual_id), {})
 	return value.duplicate(true) if value is Dictionary else {}
+
+
+func get_route_rules() -> Dictionary:
+	return _route_rules.duplicate(true)
+
+
+func get_annotation_catalog() -> Dictionary:
+	return _annotation_catalog.duplicate(true)
 
 
 func has_route(route_id: StringName) -> bool:

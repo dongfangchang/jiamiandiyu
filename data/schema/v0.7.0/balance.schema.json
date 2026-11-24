@@ -31,7 +31,34 @@
     "gacha": {"type": "object"},
     "upgrade": {"type": "object"},
     "reward": {"type": "object"},
-    "route": {"type": "object"},
+    "route": {
+      "type": "object",
+      "required": ["spirit_wipe_cost", "pen_rewrite", "defeat_penalty", "ritual_soft_fail_corruption_margin", "default_run_state"],
+      "properties": {
+        "spirit_wipe_cost": {"type": "integer", "minimum": 0},
+        "pen_rewrite": {
+          "type": "object",
+          "required": ["every_n", "phase"],
+          "properties": {
+            "every_n": {"type": "integer", "minimum": 1},
+            "phase": {"type": "integer", "minimum": 0}
+          }
+        },
+        "defeat_penalty": {
+          "type": "object",
+          "required": ["corruption", "attention"],
+          "properties": {
+            "corruption": {"type": "integer", "minimum": 0},
+            "attention": {"type": "integer", "minimum": 0}
+          }
+        },
+        "ritual_soft_fail_corruption_margin": {"type": "integer", "minimum": 0},
+        "default_run_state": {
+          "type": "object",
+          "required": ["hp", "max_hp", "spirit", "max_spirit", "corruption", "max_corruption", "attention", "max_attention"]
+        }
+      }
+    },
     "challenge": {"type": "object"}
   },
   "additionalProperties": true

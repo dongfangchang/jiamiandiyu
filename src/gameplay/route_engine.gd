@@ -21,144 +21,22 @@ const OUTCOME_DEFEAT: StringName = &"defeat"
 const ROUTE_OUTCOME_COMPLETED: StringName = &"completed"
 const ROUTE_OUTCOME_FAILED: StringName = &"failed"
 
-## Diary spirit wipe: clear 0-08 re-ink on a locked clue.
-const SPIRIT_WIPE_COST := 2
-## 0-08 rewrite fires on roughly one in three victories (deterministic).
-const PEN_REWRITE_EVERY_N := 3
+const OPEN_SELECT_NODE := "select_node"
+const OPEN_BEGIN_ASCENSION := "begin_ascension"
 
-const PEN_REWRITE_TEXTS: Array[String] = [
-	"「笔尖一顿——这段字被改成了另一个人的口供。」",
-	"「页边多出一行不属于你的笔迹：别信占卜。」",
-	"「0-08 把一句警告盖在原句上：雨夜有第三个人。」",
-	"「墨水自行爬行，把『救援』改成了『诱饵』。」",
-	"「原句还在，但主语被换成了你不认识的姓氏。」",
-	"「羽毛笔停了一息：把这段从公开档案里抹掉。」",
-	"「金痕压住旧墨：值夜者的记录被改成『勿靠近查尼斯门。』」",
-	"「0-08 把『队友』划掉，改写成『目击者会先死。』」",
-	"「罗塞尔的句号被撬开——插入半句廷根雨夜里的假名。」",
-	"「覆写落下：『灵摆指向的不是人，是诱饵。』」",
-	"「页心多出一行暗金：占卜俱乐部今晚有第四把椅子。」",
-	"「笔改过：把『安全的退路』改成『唯一的祭品。』」",
+const RUN_STAT_KEYS: Array[String] = [
+	"hp", "max_hp", "spirit", "max_spirit",
+	"corruption", "max_corruption", "attention", "max_attention",
 ]
 
-## Per-clue Branch B overwrite (Tingen volume). Unknown ids fall back to PEN_REWRITE_TEXTS.
-const PEN_REWRITE_BY_NODE: Dictionary = {
-	"route.v028.first_stage.node.first_hunt":
-		"「金痕改写家门一页：密修会找的不是克莱恩——是还活着的『证人』。」",
-	"route.v028.first_stage.node.tenant_trace":
-		"「灵摆的指向被笔尖掰弯：废弃楼里先到的不是救援，是第二波屠杀。」",
-	"route.v028.first_stage.node.mirror_pursuit":
-		"「提利尔仓库的记录被改：2-049 先咬住的是你，不是燕尾服小丑。」",
-	"route.v028.first_stage.node.boundary":
-		"「魔镜旁注被覆写：镜子里多出的那张脸，会先念你的真名。」",
-	"route.v028.first_stage.node.rest":
-		"「俱乐部守则多出一行暗金：尽信占卜者，蜡烛灭时最先失声。」",
-	"route.v028.first_stage.node.lamud":
-		"「拉姆德教堂页边改写：铠甲里呼吸的不是风——是封存物在点名。」",
-	"route.v028.first_stage.node.baron":
-		"「教导者一页被篡改：隐匿贤者要的不是亡妻，是你尚未消化的魔药。」",
-	"route.v028.first_stage.node.ascension":
-		"「考核三问被金笔涂改：答对也只是把笑脸钉得更紧——小丑在等你。」",
+## Annotation text lives in the diary data (`annotations` section); the
+## engine only picks ids. These ids are used when a pool or fixed key is absent.
+const ANNOTATION_ID_PREFIX := "annotation."
+const FIXED_ANNOTATION_DEFAULTS: Dictionary = {
+	"pen_rewrite_marker": "annotation.pen_rewrite.marker",
+	"pen_rewrite_margin": "annotation.pen_rewrite.margin",
+	"ritual_failed": "annotation.ritual.failed",
 }
-
-const VICTORY_ANNOTATIONS: Array[String] = [
-	"【0-08】真相落下。暗金字迹在页边停住，像一声叹息。",
-	"【0-08】案情合上半页。雨声替你写下未说完的半句。",
-	"【0-08】存活被记入页脊——代价也一并洇开。",
-	"【0-08】分支·真相：你活着合上这一叶，金笔只肯承认一半事实。",
-	"【0-08】页边落下一滴暗金：活口留下了，名册却少了一行。",
-]
-
-## Per-clue Branch A victory notes (Tingen). Unknown ids fall back to VICTORY_ANNOTATIONS.
-const VICTORY_ANNOTATIONS_BY_NODE: Dictionary = {
-	"route.v028.first_stage.node.first_hunt":
-		"【0-08】分支·真相·家门：密修会退进雨里。暗金记下——厨房仍安全，名字还活着。",
-	"route.v028.first_stage.node.tenant_trace":
-		"【0-08】分支·真相·废屋：艾略特还在呼吸。金笔停在楼梯口：第二波未追上这一叶。",
-	"route.v028.first_stage.node.mirror_pursuit":
-		"【0-08】分支·真相·提利尔：2-049 先咬住了小丑。页脊留下半句——空气终于能呼吸。",
-	"route.v028.first_stage.node.boundary":
-		"【0-08】分支·真相·魔镜：恶灵退离笑声。金批写着：别回头，镜面已空。",
-	"route.v028.first_stage.node.rest":
-		"【0-08】分支·真相·俱乐部：守则两条仍可读。蜡烛灭前，你把扮演演完整了。",
-	"route.v028.first_stage.node.lamud":
-		"【0-08】分支·真相·拉姆德：铠甲里的呼吸被圣水压住。页边暗金：封存物退回边界。",
-	"route.v028.first_stage.node.baron":
-		"【0-08】分支·真相·教导者：低语断了一截。安静发丝落下——影子不再替他开口。",
-	"route.v028.first_stage.node.ascension":
-		"【0-08】分支·真相·考核：三问落印，起誓未泄。笑脸钉进页脊——小丑的门开了一道缝。",
-}
-
-const DEFEAT_ANNOTATIONS: Array[String] = [
-	"【0-08】失败被写入纸背。墨痕爬行，遮住了旁人的名字。",
-	"【0-08】这一叶渗出血色：你还活着，但字句先死了一截。",
-	"【0-08】笔尖偏了。悲剧被当成注脚，钉在页边。",
-	"【0-08】分支·夜色吞没：败局渗进纸背，旁人的名字先被抹黑。",
-	"【0-08】夜色吞没这一叶——你退回日记，章节未灭，字句已半盲。",
-	"【0-08】败笔成潮：墨渍从页角回涌，可读的线索沉进雨声里。",
-	"【0-08】软失败落印。命运未撕毁卷册，只是把下一句涂成盲文。",
-]
-
-## Per-clue Branch C defeat notes (Tingen). Unknown ids fall back to DEFEAT_ANNOTATIONS.
-const DEFEAT_ANNOTATIONS_BY_NODE: Dictionary = {
-	"route.v028.first_stage.node.first_hunt":
-		"【0-08】夜色吞没·家门：雨夜里左轮哑了火，密修会的脚印仍停在厨房门外。章节未灭。",
-	"route.v028.first_stage.node.tenant_trace":
-		"【0-08】夜色吞没·废屋：艾略特的呼吸被墨渍盖住——你退回日记，第二波仍在楼梯上。",
-	"route.v028.first_stage.node.mirror_pursuit":
-		"【0-08】夜色吞没·提利尔：2-049 的迟缓先缠住你，燕尾服的笑还停在半空。可重入。",
-	"route.v028.first_stage.node.boundary":
-		"【0-08】夜色吞没·魔镜：镜中那张多余的脸先念了你的姓。恶灵未散，卷册未撕。",
-	"route.v028.first_stage.node.rest":
-		"【0-08】夜色吞没·俱乐部：蜡烛灭得太早，扮演守则洇成盲文。注视还在涨。",
-	"route.v028.first_stage.node.lamud":
-		"【0-08】夜色吞没·拉姆德：铠甲里的呼吸压过圣水。封存物试探成功了一寸，你仍可回页。",
-	"route.v028.first_stage.node.baron":
-		"【0-08】夜色吞没·教导者：隐匿贤者的低语先吞掉姓名。安静发丝未落下，章节未灭。",
-	"route.v028.first_stage.node.ascension":
-		"【0-08】夜色吞没·考核：三问未答完，笑脸已半盲。顶满污染只退回本叶——可重考。",
-}
-
-const REINK_ANNOTATIONS: Array[String] = [
-	"【0-08】墨渍回涌，这段字迹再次被夜色吞没。",
-	"【0-08】墨渍回涌——旁人的线索被重新涂黑。",
-	"【0-08】墨渍回涌。未读的字重新沉进雨夜里。",
-	"【0-08】墨渍回涌·夜色回灌：刚露出的字缝又被墨封堵住。",
-	"【0-08】墨渍回涌如潮。分支·吞没把下一句重新藏进纸缝。",
-	"【0-08】败后余墨爬行——可拭的污渍盖住了尚未读到的姓名。",
-]
-
-## Per-clue re-ink stains after defeat. Unknown ids fall back to REINK_ANNOTATIONS.
-const REINK_ANNOTATIONS_BY_NODE: Dictionary = {
-	"route.v028.first_stage.node.first_hunt":
-		"【0-08】墨渍回涌·家门：窗缝里的名字被重新涂黑，只剩雨声。",
-	"route.v028.first_stage.node.tenant_trace":
-		"【0-08】墨渍回涌·废屋：灵摆指向被墨封堵住，呼吸声沉进楼板。",
-	"route.v028.first_stage.node.mirror_pursuit":
-		"【0-08】墨渍回涌·提利尔：仓库页边洇开，2-049 与小丑的字缝再次合拢。",
-	"route.v028.first_stage.node.boundary":
-		"【0-08】墨渍回涌·魔镜：女孩的笑声被涂成污斑，镜面多出的脸又隐去。",
-	"route.v028.first_stage.node.rest":
-		"【0-08】墨渍回涌·俱乐部：守则两条被夜色吞没，第四把椅子只剩墨渍。",
-	"route.v028.first_stage.node.lamud":
-		"【0-08】墨渍回涌·拉姆德：教堂页角封存物的呼吸再次盖住圣水旁注。",
-	"route.v028.first_stage.node.baron":
-		"【0-08】墨渍回涌·教导者：亡妻与贤者的句子重新沉进纸缝，可灵性擦拭。",
-	"route.v028.first_stage.node.ascension":
-		"【0-08】墨渍回涌·考核：三问字迹被墨封凝固，笑脸只剩半个轮廓。",
-}
-
-const REST_ANNOTATIONS: Array[String] = [
-	"【0-08】休整写进页边：呼吸平稳了一些，注视却未退尽。",
-	"【0-08】蜡烛熄了一支。伤口收束，扮演仍在继续。",
-	"【0-08】俱乐部的茶渍晕开：你借来一晚安宁。",
-]
-
-const WIPE_ANNOTATIONS: Array[String] = [
-	"【灵性】指尖发热，墨渍退开一线——字迹重新可读。",
-	"【灵性】雨夜里搓热掌心，墨渍终于松动。",
-	"【灵性】灵性灼过纸面：被吞没的字句重新浮起。",
-]
 
 var _content: RouteContentPort
 var _requested_route_id: StringName
@@ -169,6 +47,9 @@ var _nodes: Array[Dictionary] = []
 var _node_by_id: Dictionary = {}
 var _rest_options: Dictionary = {}
 var _ritual: Dictionary = {}
+## Route balance (data/balance `route`), validated in _load_route.
+var _rules: Dictionary = {}
+var _annotations: Dictionary = {}
 
 var _state: Dictionary = {}
 var _revision: int = 0
@@ -253,6 +134,9 @@ func get_snapshot() -> RouteSnapshot:
 	var available_id := String(_state.get("available_node_id", ""))
 	var selected_id := String(_state.get("selected_node_id", ""))
 	var unlocked: Array = _unlocked_node_ids()
+	var annotations: Dictionary = _clue_annotations()
+	var overlays: Dictionary = _clue_overlays()
+	var prior_complete := true
 	for node in _nodes:
 		var node_id := String(node["id"])
 		var node_state := "locked"
@@ -275,16 +159,12 @@ func get_snapshot() -> RouteSnapshot:
 			"reward_hint_zh": String(node.get("reward_hint_zh", "")),
 			"source_zh": String(node.get("source_zh", "")),
 			"state": node_state,
-		})
+		}.merged(_diary_node_flags(node, prior_complete, annotations, overlays)))
+		prior_complete = prior_complete and node_id in completed
 	var current_node_id := selected_id if not selected_id.is_empty() else available_id
 	var current_scene_id := _scene_id_for_node(current_node_id)
 	var phase := StringName(_state.get("phase", PHASE_MAP))
-	var annotations: Dictionary = _state.get("clue_annotations", {})
-	if not annotations is Dictionary:
-		annotations = {}
-	var overlays: Dictionary = _state.get("clue_overlays", {})
-	if not overlays is Dictionary:
-		overlays = {}
+	var legacy_annotations: Variant = _state.get("legacy_clue_annotations_zh", {})
 	return RouteSnapshot.new({
 		"revision": _revision,
 		"route_id": String(_route_id),
@@ -303,12 +183,15 @@ func get_snapshot() -> RouteSnapshot:
 		"unlocked_node_ids": unlocked.duplicate(),
 		"clue_annotations": annotations.duplicate(true),
 		"clue_overlays": overlays.duplicate(true),
+		"legacy_clue_annotations_zh": (
+			legacy_annotations.duplicate(true) if legacy_annotations is Dictionary else {}
+		),
 		"nodes": node_views,
 		"run_state": _state.get("run_state", {}).duplicate(true),
 		"rest_options": _available_rest_options(),
 		"route_outcome": String(_state.get("route_outcome", "")),
 		"end_reason": String(_state.get("end_reason", "")),
-		"spirit_wipe_cost": SPIRIT_WIPE_COST,
+		"spirit_wipe_cost": _wipe_cost(),
 		"sequence": get_sequence_state().to_dictionary(),
 		"ritual": get_ritual_snapshot().to_dictionary(),
 		"can_begin_ascension": _can_begin_ascension(),
@@ -348,7 +231,9 @@ func get_ritual_snapshot() -> RitualSnapshot:
 		),
 		"hint_text": String(ritual_state.get("hint_text", "")),
 		"corruption": int(_state.get("run_state", {}).get("corruption", 0)),
-		"max_corruption": int(_state.get("run_state", {}).get("max_corruption", 10)),
+		"max_corruption": int(_state.get("run_state", {}).get(
+			"max_corruption", _default_stat("max_corruption")
+		)),
 		"spirit": int(_state.get("run_state", {}).get("spirit", 0)),
 		"result": String(ritual_state.get("result", "")),
 	}
@@ -389,12 +274,12 @@ func get_sequence_state() -> SequenceState:
 	return SequenceState.new({
 		"pathway_id": String(sequence_source.get("pathway_id", "seer")),
 		"pathway_name_zh": String(
-			sequence_source.get("pathway_name_zh", "占卜家")
+			sequence_source.get("pathway_name_zh", "")
 		),
 		"current_sequence": current_sequence,
 		"next_sequence": next_sequence,
 		"next_sequence_name_zh": String(
-			sequence_source.get("next_sequence_name_zh", "小丑")
+			sequence_source.get("next_sequence_name_zh", "")
 		),
 		"advancement_state": sequence_state,
 	})
@@ -420,9 +305,9 @@ func get_battle_player_state() -> Dictionary:
 		"spirit": int(run_state.get("spirit", 0)),
 		"max_spirit": int(run_state.get("max_spirit", 0)),
 		"corruption": int(run_state.get("corruption", 0)),
-		"max_corruption": int(run_state.get("max_corruption", 10)),
+		"max_corruption": int(run_state.get("max_corruption", _default_stat("max_corruption"))),
 		"attention": int(run_state.get("attention", 0)),
-		"max_attention": int(run_state.get("max_attention", 10)),
+		"max_attention": int(run_state.get("max_attention", _default_stat("max_attention"))),
 		"statuses": [],
 	}
 
@@ -483,10 +368,7 @@ func _resolve_node(
 	if outcome == OUTCOME_DEFEAT:
 		## Diary soft-fail: tragic annotation, attribute sting, re-ink one other clue.
 		## Failed clue stays incomplete so the player may retry.
-		_annotate_clue(
-			String(node_id),
-			_defeat_annotation_for(String(node_id))
-		)
+		_annotate_clue(String(node_id), _pool_annotation("defeat", String(node_id)))
 		_apply_defeat_diary_penalties()
 		_reink_one_unlocked_clue(String(node_id))
 		_unlock_node(String(node_id))
@@ -504,10 +386,7 @@ func _resolve_node(
 		_state["end_reason"] = "corruption_limit"
 		_emit(&"RouteFailed", {"reason_code": "corruption_limit"})
 		return _success()
-	_annotate_clue(
-		String(node_id),
-		_victory_annotation_for(String(node_id))
-	)
+	_annotate_clue(String(node_id), _pool_annotation("victory", String(node_id)))
 	_complete_node(String(node_id))
 	_unlock_after_victory(String(node_id))
 	_pen_rewrite_locked_clue(String(node_id))
@@ -543,13 +422,13 @@ func _use_rest(rest_id: StringName) -> RouteCommandResult:
 		int(run_state.get("corruption", 0))
 		+ int(effects.get("corruption_delta", 0)),
 		0,
-		int(run_state.get("max_corruption", 10))
+		int(run_state.get("max_corruption", _default_stat("max_corruption")))
 	)
 	run_state["attention"] = clampi(
 		int(run_state.get("attention", 0))
 		+ int(effects.get("attention_delta", 0)),
 		0,
-		int(run_state.get("max_attention", 10))
+		int(run_state.get("max_attention", _default_stat("max_attention")))
 	)
 	_state["run_state"] = run_state
 	var node_id := String(_state.get("selected_node_id", ""))
@@ -559,7 +438,7 @@ func _use_rest(rest_id: StringName) -> RouteCommandResult:
 		"effects": effects.duplicate(true),
 	})
 	_state["selected_node_id"] = ""
-	_annotate_clue(node_id, REST_ANNOTATIONS[_revision % REST_ANNOTATIONS.size()])
+	_annotate_clue(node_id, _pool_annotation("rest", node_id))
 	_complete_node(node_id)
 	_unlock_after_victory(node_id)
 	_advance_after_completed_node()
@@ -570,37 +449,39 @@ func _wipe_ink(node_id: StringName) -> RouteCommandResult:
 	if StringName(_state.get("phase", "")) != PHASE_MAP:
 		return _rejected(&"wrong_phase")
 	var target := String(node_id)
-	if target.is_empty() or not _node_by_id.has(target):
-		return _rejected(&"invalid_node")
-	var completed: Array = _state.get("completed_node_ids", [])
-	var unlocked := _unlocked_node_ids()
-	if target in completed:
-		return _rejected(&"already_completed")
-	if target in unlocked:
-		return _rejected(&"already_readable")
-	var annotations: Dictionary = _state.get("clue_annotations", {})
-	if not annotations is Dictionary:
-		annotations = {}
-	var note := String(annotations.get(target, ""))
-	if note.find("墨渍") < 0:
-		return _rejected(&"nothing_to_wipe")
+	var blocked := _wipe_block_reason(target)
+	if blocked != &"":
+		return _rejected(blocked)
+	var cost := _wipe_cost()
 	var run_state: Dictionary = _state.get("run_state", {}).duplicate(true)
-	var spirit := int(run_state.get("spirit", 0))
-	if spirit < SPIRIT_WIPE_COST:
-		return _rejected(&"insufficient_spirit")
-	run_state["spirit"] = spirit - SPIRIT_WIPE_COST
+	run_state["spirit"] = int(run_state.get("spirit", 0)) - cost
 	_state["run_state"] = run_state
 	_unlock_node(target)
-	var wipe_note := WIPE_ANNOTATIONS[_revision % WIPE_ANNOTATIONS.size()]
+	var wipe_note := _pool_annotation("wipe", target)
 	_annotate_clue(target, wipe_note)
 	_sync_available_node_id()
 	_emit(&"InkWiped", {
 		"node_id": target,
-		"spirit_spent": SPIRIT_WIPE_COST,
+		"spirit_spent": cost,
 		"spirit": int(run_state["spirit"]),
-		"annotation_zh": wipe_note,
+		"annotation_id": wipe_note,
 	})
 	return _success()
+
+
+## Same checks, same order as WIPE_INK acceptance (phase aside); empty = would apply.
+func _wipe_block_reason(target: String) -> StringName:
+	if target.is_empty() or not _node_by_id.has(target):
+		return &"invalid_node"
+	if target in _state.get("completed_node_ids", []):
+		return &"already_completed"
+	if target in _unlocked_node_ids():
+		return &"already_readable"
+	if not _annotation_stained(String(_clue_annotations().get(target, ""))):
+		return &"nothing_to_wipe"
+	if int(_state.get("run_state", {}).get("spirit", 0)) < _wipe_cost():
+		return &"insufficient_spirit"
+	return &""
 
 
 func _begin_ascension() -> RouteCommandResult:
@@ -745,7 +626,9 @@ func _complete_ritual() -> void:
 		"pathway_id": "seer",
 		"from_sequence": 9,
 		"to_sequence": 8,
-		"sequence_name_zh": "小丑",
+		"sequence_name_zh": String(
+			_route.get("sequence", {}).get("next_sequence_name_zh", "")
+		),
 	})
 	_emit(&"RouteCompleted", {"route_id": String(_route_id)})
 
@@ -755,19 +638,15 @@ func _fail_ritual(reason: StringName) -> void:
 	var reason_str := String(reason)
 	var ritual_node_id := String(_state.get("selected_node_id", ""))
 	var run_state: Dictionary = _state.get("run_state", {})
-	var max_c := int(run_state.get("max_corruption", 10))
+	var max_c := int(run_state.get("max_corruption", _default_stat("max_corruption")))
 	## Bleed off enough corruption that one careful retry + hints remains possible.
 	run_state["corruption"] = mini(
 		int(run_state.get("corruption", 0)),
-		maxi(0, max_c - 2)
+		maxi(0, max_c - int(_rules["ritual_soft_fail_corruption_margin"]))
 	)
 	_state["run_state"] = run_state
 	if not ritual_node_id.is_empty():
-		var annotations: Dictionary = _state.get("clue_annotations", {})
-		annotations[ritual_node_id] = (
-			"【0-08】考核未通过。污染退潮一寸——日记仍摊开，可再起誓。"
-		)
-		_state["clue_annotations"] = annotations
+		_annotate_clue(ritual_node_id, _fixed_annotation("ritual_failed"))
 	_state["ritual_state"] = {}
 	_state["selected_node_id"] = ""
 	_state["phase"] = String(PHASE_MAP)
@@ -878,18 +757,31 @@ func _sync_available_node_id() -> void:
 	_state["available_node_id"] = ""
 
 
-func _annotate_clue(node_id: String, text_zh: String) -> void:
-	var annotations: Dictionary = _state.get("clue_annotations", {})
-	if not annotations is Dictionary:
-		annotations = {}
-	annotations[node_id] = text_zh
+func _annotate_clue(node_id: String, annotation_id: String) -> void:
+	var annotations := _clue_annotations()
+	annotations[node_id] = annotation_id
 	_state["clue_annotations"] = annotations
+	var legacy: Variant = _state.get("legacy_clue_annotations_zh", {})
+	if legacy is Dictionary and legacy.has(node_id):
+		legacy.erase(node_id)
+		_state["legacy_clue_annotations_zh"] = legacy
+
+
+func _clue_annotations() -> Dictionary:
+	var value: Variant = _state.get("clue_annotations", {})
+	return value if value is Dictionary else {}
+
+
+func _clue_overlays() -> Dictionary:
+	var value: Variant = _state.get("clue_overlays", {})
+	return value if value is Dictionary else {}
 
 
 func _pen_rewrite_locked_clue(after_node_id: String) -> void:
 	## Branch B: 0-08 rewrites one still-locked clue without new card/route IDs.
-	## Weight: about 1/3 of victories (revision modulo == 2), so A stays the common beat.
-	if PEN_REWRITE_EVERY_N > 1 and (_revision % PEN_REWRITE_EVERY_N) != 2:
+	## Cadence comes from balance route.pen_rewrite so A stays the common beat.
+	var every_n := int(_rules["pen_rewrite"]["every_n"])
+	if every_n > 1 and (_revision % every_n) != int(_rules["pen_rewrite"]["phase"]):
 		return
 	var unlocked := _unlocked_node_ids()
 	var completed: Array = _state.get("completed_node_ids", [])
@@ -907,70 +799,110 @@ func _pen_rewrite_locked_clue(after_node_id: String) -> void:
 		break
 	if target.is_empty():
 		return
-	var overlays: Dictionary = _state.get("clue_overlays", {})
-	if not overlays is Dictionary:
-		overlays = {}
-	var text_zh := _pen_rewrite_text_for(target)
+	var overlays := _clue_overlays()
+	var rewrite_id := _pool_annotation("pen_rewrite", target)
 	overlays[target] = {
-		"text_zh": text_zh,
+		"annotation_id": rewrite_id,
 		"source": "0-08",
-		"margin_note_zh": "笔改过",
+		"margin_note_id": _fixed_annotation("pen_rewrite_margin"),
 	}
 	_state["clue_overlays"] = overlays
-	_annotate_clue(target, "【0-08】墨迹改写了尚未读到的字句。")
+	_annotate_clue(target, _fixed_annotation("pen_rewrite_marker"))
 	_emit(&"ClueRewritten", {
 		"node_id": target,
-		"text_zh": text_zh,
+		"annotation_id": rewrite_id,
 	})
 
 
-func _pen_rewrite_text_for(node_id: String) -> String:
-	var mapped := String(PEN_REWRITE_BY_NODE.get(node_id, ""))
-	if not mapped.is_empty():
-		return mapped
-	if PEN_REWRITE_TEXTS.is_empty():
-		return "「0-08 改写了这段尚未读到的字句。」"
-	return PEN_REWRITE_TEXTS[_revision % PEN_REWRITE_TEXTS.size()]
+## Per-node id first, then the cycle by revision, then the pool default.
+func _pool_annotation(pool_id: String, node_id: String) -> String:
+	var pools: Variant = _annotations.get("pools", {})
+	var pool: Variant = pools.get(pool_id, {}) if pools is Dictionary else {}
+	if not pool is Dictionary:
+		pool = {}
+	var by_node: Variant = pool.get("by_node", {})
+	if by_node is Dictionary:
+		var mapped := String(by_node.get(node_id, ""))
+		if not mapped.is_empty():
+			return mapped
+	var cycle: Variant = pool.get("cycle", [])
+	if cycle is Array and not cycle.is_empty():
+		return String(cycle[_revision % cycle.size()])
+	return String(pool.get("default", "%s%s.default" % [ANNOTATION_ID_PREFIX, pool_id]))
 
 
-func _victory_annotation_for(node_id: String) -> String:
-	var mapped := String(VICTORY_ANNOTATIONS_BY_NODE.get(node_id, ""))
-	if not mapped.is_empty():
-		return mapped
-	if VICTORY_ANNOTATIONS.is_empty():
-		return "【0-08】真相落下。暗金字迹在页边停住。"
-	return VICTORY_ANNOTATIONS[_revision % VICTORY_ANNOTATIONS.size()]
+func _fixed_annotation(key: String) -> String:
+	var fixed: Variant = _annotations.get("fixed", {})
+	var value := String(fixed.get(key, "")) if fixed is Dictionary else ""
+	return value if not value.is_empty() else String(FIXED_ANNOTATION_DEFAULTS.get(key, ""))
 
 
-func _defeat_annotation_for(node_id: String) -> String:
-	var mapped := String(DEFEAT_ANNOTATIONS_BY_NODE.get(node_id, ""))
-	if not mapped.is_empty():
-		return mapped
-	if DEFEAT_ANNOTATIONS.is_empty():
-		return "【0-08】夜色吞没这一叶。章节未灭，字句已半盲。"
-	return DEFEAT_ANNOTATIONS[_revision % DEFEAT_ANNOTATIONS.size()]
+func _annotation_entry(annotation_id: String) -> Dictionary:
+	var entries: Variant = _annotations.get("entries", {})
+	if not entries is Dictionary:
+		return {}
+	var entry: Variant = entries.get(annotation_id, {})
+	return entry if entry is Dictionary else {}
 
 
-func _reink_annotation_for(node_id: String) -> String:
-	var mapped := String(REINK_ANNOTATIONS_BY_NODE.get(node_id, ""))
-	if not mapped.is_empty():
-		return mapped
-	if REINK_ANNOTATIONS.is_empty():
-		return "【0-08】墨渍回涌，这段字迹再次被夜色吞没。"
-	return REINK_ANNOTATIONS[_revision % REINK_ANNOTATIONS.size()]
+## Re-ink stains are what a spirit wipe can clear (data flag `ink_stain`).
+func _annotation_stained(annotation_id: String) -> bool:
+	return bool(_annotation_entry(annotation_id).get("ink_stain", false))
+
+
+func _wipe_cost() -> int:
+	return int(_rules.get("spirit_wipe_cost", 0))
+
+
+func _default_stat(key: String) -> int:
+	return int(_rules.get("default_run_state", {}).get(key, 0))
+
+
+## Diary-facing flags so the UI never re-derives navigation or wipe rules.
+func _diary_node_flags(
+	node: Dictionary,
+	prior_complete: bool,
+	annotations: Dictionary,
+	overlays: Dictionary
+) -> Dictionary:
+	var node_id := String(node.get("id", ""))
+	var annotation_id := String(annotations.get(node_id, ""))
+	var annotation_ids: Array[String] = []
+	if not annotation_id.is_empty():
+		annotation_ids.append(annotation_id)
+	var overlay: Variant = overlays.get(node_id, {})
+	if overlay is Dictionary:
+		var overlay_id := String(overlay.get("annotation_id", ""))
+		if not overlay_id.is_empty():
+			annotation_ids.append(overlay_id)
+	var in_map := StringName(_state.get("phase", "")) == PHASE_MAP
+	return {
+		"can_open": prior_complete,
+		"can_advance": node_id in _state.get("completed_node_ids", []),
+		"open_command": (
+			OPEN_BEGIN_ASCENSION
+			if StringName(node.get("type", "")) == NODE_RITUAL
+			else OPEN_SELECT_NODE
+		),
+		"ink_stained": _annotation_stained(annotation_id),
+		"wipeable": in_map and _wipe_block_reason(node_id) == &"",
+		"wipe_cost": _wipe_cost(),
+		"annotation_id": annotation_id,
+		"annotation_ids": annotation_ids,
+	}
 
 
 func _apply_defeat_diary_penalties() -> void:
 	var run_state: Dictionary = _state.get("run_state", {}).duplicate(true)
 	run_state["corruption"] = clampi(
-		int(run_state.get("corruption", 0)) + 1,
+		int(run_state.get("corruption", 0)) + int(_rules["defeat_penalty"]["corruption"]),
 		0,
-		int(run_state.get("max_corruption", 10))
+		int(run_state.get("max_corruption", _default_stat("max_corruption")))
 	)
 	run_state["attention"] = clampi(
-		int(run_state.get("attention", 0)) + 1,
+		int(run_state.get("attention", 0)) + int(_rules["defeat_penalty"]["attention"]),
 		0,
-		int(run_state.get("max_attention", 10))
+		int(run_state.get("max_attention", _default_stat("max_attention")))
 	)
 	_state["run_state"] = run_state
 
@@ -988,7 +920,7 @@ func _reink_one_unlocked_clue(exclude_node_id: String) -> void:
 		var victim := candidates[0]
 		unlocked.erase(victim)
 		_state["unlocked_node_ids"] = unlocked
-		_annotate_clue(victim, _reink_annotation_for(victim))
+		_annotate_clue(victim, _pool_annotation("reink", victim))
 		_sync_available_node_id()
 		return
 	## Fallback: stain the next locked clue so spirit wipe has a target.
@@ -1001,7 +933,7 @@ func _reink_one_unlocked_clue(exclude_node_id: String) -> void:
 			or candidate in unlocked
 		):
 			continue
-		_annotate_clue(candidate, _reink_annotation_for(candidate))
+		_annotate_clue(candidate, _pool_annotation("reink", candidate))
 		return
 
 
@@ -1018,12 +950,12 @@ func _apply_battle_player_state(player_state: Dictionary) -> void:
 	run_state["corruption"] = clampi(
 		int(run_state.get("corruption", 0)),
 		0,
-		int(run_state.get("max_corruption", 10))
+		int(run_state.get("max_corruption", _default_stat("max_corruption")))
 	)
 	run_state["attention"] = clampi(
 		int(run_state.get("attention", 0)),
 		0,
-		int(run_state.get("max_attention", 10))
+		int(run_state.get("max_attention", _default_stat("max_attention")))
 	)
 	_state["run_state"] = run_state
 
@@ -1041,7 +973,7 @@ func _apply_corruption(amount: int) -> void:
 	run_state["corruption"] = clampi(
 		before + amount,
 		0,
-		int(run_state.get("max_corruption", 10))
+		int(run_state.get("max_corruption", _default_stat("max_corruption")))
 	)
 	_state["run_state"] = run_state
 	_emit(&"RiskChanged", {
@@ -1163,6 +1095,10 @@ func _load_route() -> bool:
 		route_id = _content.get_default_route_id()
 	if route_id.is_empty():
 		return false
+	if not _load_rules(_content.get_route_rules()):
+		return false
+	var annotations_value: Variant = _content.get_annotation_catalog()
+	_annotations = annotations_value if annotations_value is Dictionary else {}
 	var route_value: Variant = _content.get_route(route_id)
 	if not route_value is Dictionary or route_value.is_empty():
 		return false
@@ -1208,6 +1144,40 @@ func _load_route() -> bool:
 		if option_id.is_empty() or _rest_options.has(option_id):
 			return false
 		_rest_options[option_id] = option
+	return true
+
+
+func _load_rules(value: Variant) -> bool:
+	if not value is Dictionary:
+		return false
+	var rules: Dictionary = value
+	var pen: Variant = rules.get("pen_rewrite")
+	var penalty: Variant = rules.get("defeat_penalty")
+	var defaults: Variant = rules.get("default_run_state")
+	if not pen is Dictionary or not penalty is Dictionary or not defaults is Dictionary:
+		return false
+	for key in ["spirit_wipe_cost", "ritual_soft_fail_corruption_margin"]:
+		if not rules.has(key) or int(rules[key]) < 0:
+			return false
+	if not pen.has("every_n") or int(pen["every_n"]) < 1 or not pen.has("phase"):
+		return false
+	if not penalty.has("corruption") or not penalty.has("attention"):
+		return false
+	var run_defaults := {}
+	for key in RUN_STAT_KEYS:
+		if not defaults.has(key):
+			return false
+		run_defaults[key] = int(defaults[key])
+	_rules = {
+		"spirit_wipe_cost": int(rules["spirit_wipe_cost"]),
+		"ritual_soft_fail_corruption_margin": int(rules["ritual_soft_fail_corruption_margin"]),
+		"pen_rewrite": {"every_n": int(pen["every_n"]), "phase": int(pen["phase"])},
+		"defeat_penalty": {
+			"corruption": int(penalty["corruption"]),
+			"attention": int(penalty["attention"]),
+		},
+		"default_run_state": run_defaults,
+	}
 	return true
 
 
@@ -1261,14 +1231,14 @@ func _new_state() -> Dictionary:
 		if run_state_value is Dictionary
 		else {}
 	)
-	run_state["hp"] = maxi(0, int(run_state.get("hp", 54)))
-	run_state["max_hp"] = maxi(1, int(run_state.get("max_hp", 54)))
-	run_state["spirit"] = maxi(0, int(run_state.get("spirit", 3)))
-	run_state["max_spirit"] = maxi(0, int(run_state.get("max_spirit", 3)))
-	run_state["corruption"] = maxi(0, int(run_state.get("corruption", 0)))
-	run_state["max_corruption"] = maxi(1, int(run_state.get("max_corruption", 10)))
-	run_state["attention"] = maxi(0, int(run_state.get("attention", 0)))
-	run_state["max_attention"] = maxi(1, int(run_state.get("max_attention", 10)))
+	run_state["hp"] = maxi(0, int(run_state.get("hp", _default_stat("hp"))))
+	run_state["max_hp"] = maxi(1, int(run_state.get("max_hp", _default_stat("max_hp"))))
+	run_state["spirit"] = maxi(0, int(run_state.get("spirit", _default_stat("spirit"))))
+	run_state["max_spirit"] = maxi(0, int(run_state.get("max_spirit", _default_stat("max_spirit"))))
+	run_state["corruption"] = maxi(0, int(run_state.get("corruption", _default_stat("corruption"))))
+	run_state["max_corruption"] = maxi(1, int(run_state.get("max_corruption", _default_stat("max_corruption"))))
+	run_state["attention"] = maxi(0, int(run_state.get("attention", _default_stat("attention"))))
+	run_state["max_attention"] = maxi(1, int(run_state.get("max_attention", _default_stat("max_attention"))))
 	run_state["hp"] = mini(int(run_state["hp"]), int(run_state["max_hp"]))
 	run_state["corruption"] = mini(
 		int(run_state["corruption"]),
@@ -1341,8 +1311,71 @@ func _restore_state(value: Dictionary) -> bool:
 			return false
 	restored["phase"] = String(phase)
 	restored["completed_node_ids"] = completed
+	_normalize_legacy_annotations(restored)
 	_state = restored
 	return true
+
+
+## Pre-v0.88 states stored annotation text. Exact matches map back to ids;
+## anything else is kept display-only as legacy_*_zh (save v6 migration: T5).
+func _normalize_legacy_annotations(state: Dictionary) -> void:
+	var annotations_value: Variant = state.get("clue_annotations", {})
+	var annotations: Dictionary = annotations_value if annotations_value is Dictionary else {}
+	var legacy_value: Variant = state.get("legacy_clue_annotations_zh", {})
+	var legacy: Dictionary = legacy_value if legacy_value is Dictionary else {}
+	for node_id in annotations.keys():
+		var value := String(annotations[node_id])
+		if value.begins_with(ANNOTATION_ID_PREFIX):
+			continue
+		var mapped := _annotation_id_for_text(value)
+		if mapped.is_empty():
+			legacy[node_id] = value
+			annotations.erase(node_id)
+		else:
+			annotations[node_id] = mapped
+	state["clue_annotations"] = annotations
+	if not legacy.is_empty():
+		state["legacy_clue_annotations_zh"] = legacy
+	var overlays_value: Variant = state.get("clue_overlays", {})
+	var overlays: Dictionary = overlays_value if overlays_value is Dictionary else {}
+	for node_id in overlays.keys():
+		var overlay: Variant = overlays[node_id]
+		if not overlay is Dictionary:
+			continue
+		_normalize_legacy_field(overlay, "text_zh", "annotation_id", "legacy_text_zh")
+		_normalize_legacy_field(
+			overlay, "margin_note_zh", "margin_note_id", "legacy_margin_note_zh"
+		)
+	state["clue_overlays"] = overlays
+
+
+func _normalize_legacy_field(
+	record: Dictionary, text_key: String, id_key: String, legacy_key: String
+) -> void:
+	if not record.has(text_key):
+		return
+	var text := String(record[text_key])
+	record.erase(text_key)
+	if not String(record.get(id_key, "")).is_empty():
+		return
+	var mapped := _annotation_id_for_text(text)
+	if mapped.is_empty():
+		record[legacy_key] = text
+	else:
+		record[id_key] = mapped
+
+
+func _annotation_id_for_text(text: String) -> String:
+	if text.is_empty():
+		return ""
+	var entries: Variant = _annotations.get("entries", {})
+	if not entries is Dictionary:
+		return ""
+	for annotation_id in entries.keys():
+		var entry: Variant = entries[annotation_id]
+		if entry is Dictionary and String(entry.get("text_zh", "")) == text:
+			return String(annotation_id)
+	return ""
 
 
 func _validate_run_state(run_state: Dictionary) -> bool:
@@ -1429,6 +1462,8 @@ func _reset_runtime() -> void:
 	_node_by_id.clear()
 	_rest_options.clear()
 	_ritual.clear()
+	_rules = {}
+	_annotations = {}
 	_state = {}
 	_revision = 0
 	_pending_events.clear()

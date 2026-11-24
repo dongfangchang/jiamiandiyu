@@ -29,3 +29,21 @@ func get_route(route_id: StringName) -> Dictionary:
 func get_ritual(ritual_id: StringName) -> Dictionary:
 	var value: Variant = _rituals_by_id.get(String(ritual_id), {})
 	return value.duplicate(true) if value is Dictionary else {}
+
+
+## Route rules / annotations come from the same files the game loads.
+func get_route_rules() -> Dictionary:
+	var rules: Variant = _read_json("res://data/balance/v0.7.0/balance.json").get("route", {})
+	return rules if rules is Dictionary else {}
+
+
+func get_annotation_catalog() -> Dictionary:
+	var catalog: Variant = _read_json(
+		"res://data/diaries/v0.55.0/tingen_volume_1.json"
+	).get("annotations", {})
+	return catalog if catalog is Dictionary else {}
+
+
+func _read_json(path: String) -> Dictionary:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return parsed if parsed is Dictionary else {}

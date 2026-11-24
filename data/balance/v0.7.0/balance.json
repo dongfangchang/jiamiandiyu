@@ -2,6 +2,28 @@
   "schema_version": 2,
   "content_version": "v0.7.0",
   "status": "draft",
+  "route": {
+    "spirit_wipe_cost": 2,
+    "pen_rewrite": {
+      "every_n": 3,
+      "phase": 2
+    },
+    "defeat_penalty": {
+      "corruption": 1,
+      "attention": 1
+    },
+    "ritual_soft_fail_corruption_margin": 2,
+    "default_run_state": {
+      "hp": 54,
+      "max_hp": 54,
+      "spirit": 3,
+      "max_spirit": 3,
+      "corruption": 0,
+      "max_corruption": 10,
+      "attention": 0,
+      "max_attention": 10
+    }
+  },
   "player": {
     "max_health": 54,
     "starting_health": 54,

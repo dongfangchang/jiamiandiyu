@@ -1,5 +1,6 @@
 extends Node
 
+const RouteContentData := preload("res://tests/fixtures/route_content_data.gd")
 const BattleEngineScript := preload("res://src/gameplay/battle_engine.gd")
 const RouteEngineScript := preload("res://src/gameplay/route_engine.gd")
 
@@ -402,10 +403,10 @@ func _test_battle_defeat_ends_route() -> void:
 		"soft defeat should return to map phase"
 	)
 	_check(
-		String(result.snapshot.data.get("clue_annotations", {}).get(
+		RouteContentData.annotation_text(String(result.snapshot.data.get("clue_annotations", {}).get(
 			"route.v050.node.first_hunt",
 			""
-		)).find("0-08") >= 0,
+		))).find("0-08") >= 0,
 		"soft defeat should write a 0-08 annotation"
 	)
 	_check(
@@ -599,6 +600,12 @@ func _check(condition: bool, message: String) -> void:
 
 class RouteTestContent:
 	extends RouteContentPort
+
+	func get_route_rules() -> Dictionary:
+		return RouteContentData.route_rules()
+
+	func get_annotation_catalog() -> Dictionary:
+		return RouteContentData.annotation_catalog()
 
 	var initial_run_state_override: Dictionary = {}
 	var _routes: Dictionary = {}

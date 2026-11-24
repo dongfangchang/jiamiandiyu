@@ -29,6 +29,8 @@ const DEFAULT_V07_RITUALS_PATH := "res://data/rituals/v0.7.0/rituals.json"
 const DEFAULT_V07_RITUALS_SCHEMA_PATH := "res://data/schema/v0.7.0/rituals.schema.json"
 const DEFAULT_V07_BALANCE_PATH := "res://data/balance/v0.7.0/balance.json"
 const DEFAULT_V07_BALANCE_SCHEMA_PATH := "res://data/schema/v0.7.0/balance.schema.json"
+const DEFAULT_DIARY_PATH := "res://data/diaries/v0.55.0/tingen_volume_1.json"
+const DEFAULT_DIARY_SCHEMA_PATH := "res://data/schema/v0.7.0/diary.schema.json"
 const DEFAULT_V07_PROGRESSION_PATH := "res://data/cards/v0.7.0/progression.json"
 const DEFAULT_V07_PROGRESSION_SCHEMA_PATH := "res://data/schema/v0.7.0/progression.schema.json"
 const DEFAULT_V07_CHALLENGE_PATH := "res://data/challenges/v0.7.0/challenges.json"
@@ -46,6 +48,7 @@ const V07_DOCUMENTS := [
 	["balance", DEFAULT_V07_BALANCE_PATH, DEFAULT_V07_BALANCE_SCHEMA_PATH],
 	["progression", DEFAULT_V07_PROGRESSION_PATH, DEFAULT_V07_PROGRESSION_SCHEMA_PATH],
 	["decks", DEFAULT_DECK_PATH, DEFAULT_DECK_SCHEMA_PATH],
+	["diary", DEFAULT_DIARY_PATH, DEFAULT_DIARY_SCHEMA_PATH],
 ]
 
 
@@ -137,7 +140,9 @@ static func start_route_v07(
 	var route_content := RouteContentAdapterScript.new(
 		documents.routes,
 		documents.rituals,
-		catalog
+		catalog,
+		documents.balance,
+		documents.diary
 	)
 	if not route_content.is_valid():
 		return InfrastructureResultScript.failure(

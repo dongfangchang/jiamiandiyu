@@ -30,3 +30,11 @@ func get_route(route_id: StringName) -> Dictionary:
 
 func get_ritual(ritual_id: StringName) -> Dictionary:
 	return _base.get_ritual(ritual_id).duplicate(true)
+
+
+func get_route_rules() -> Dictionary:
+	return _base.get_route_rules()
+
+
+func get_annotation_catalog() -> Dictionary:
+	return _base.get_annotation_catalog()
