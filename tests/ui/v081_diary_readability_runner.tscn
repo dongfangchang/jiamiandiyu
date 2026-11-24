@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://tests/ui/v081_diary_readability_runner.gd" id="1"]
-
-[node name="V081DiaryReadabilityRunner" type="Node"]
-script = ExtResource("1")
