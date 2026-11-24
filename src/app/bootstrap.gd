@@ -2,7 +2,6 @@ class_name AppBootstrap
 extends RefCounted
 
 const InfrastructureResultScript := preload("res://src/infrastructure/infrastructure_result.gd")
-const JsonDocumentLoaderScript := preload("res://src/infrastructure/json_document_loader.gd")
 const BattleContentAdapterScript := preload("res://src/infrastructure/battle_content_adapter.gd")
 const BattleBalanceAdapterScript := preload("res://src/infrastructure/battle_balance_adapter.gd")
 const CampaignContentCatalogScript := preload("res://src/infrastructure/campaign_content_catalog.gd")
@@ -17,38 +16,13 @@ const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
 const DeckCommandScript := preload("res://src/core/deck_command.gd")
 
-const DEFAULT_V07_CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
-const DEFAULT_V07_CARDS_SCHEMA_PATH := "res://data/schema/v0.7.0/cards.schema.json"
-const DEFAULT_V07_ENEMIES_PATH := "res://data/enemies/v0.7.0/enemies.json"
-const DEFAULT_V07_ENEMIES_SCHEMA_PATH := "res://data/schema/v0.7.0/enemies.schema.json"
-const DEFAULT_V07_ENCOUNTERS_PATH := "res://data/encounters/v0.7.0/encounters.json"
-const DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH := "res://data/schema/v0.7.0/encounters.schema.json"
-const DEFAULT_V07_ROUTES_PATH := "res://data/routes/v0.7.0/routes.json"
-const DEFAULT_V07_ROUTES_SCHEMA_PATH := "res://data/schema/v0.7.0/routes.schema.json"
-const DEFAULT_V07_RITUALS_PATH := "res://data/rituals/v0.7.0/rituals.json"
-const DEFAULT_V07_RITUALS_SCHEMA_PATH := "res://data/schema/v0.7.0/rituals.schema.json"
-const DEFAULT_V07_BALANCE_PATH := "res://data/balance/v0.7.0/balance.json"
-const DEFAULT_V07_BALANCE_SCHEMA_PATH := "res://data/schema/v0.7.0/balance.schema.json"
-const DEFAULT_DIARY_PATH := "res://data/diaries/v0.55.0/tingen_volume_1.json"
-const DEFAULT_DIARY_SCHEMA_PATH := "res://data/schema/v0.7.0/diary.schema.json"
-const DEFAULT_V07_PROGRESSION_PATH := "res://data/cards/v0.7.0/progression.json"
-const DEFAULT_V07_PROGRESSION_SCHEMA_PATH := "res://data/schema/v0.7.0/progression.schema.json"
-const DEFAULT_V07_CHALLENGE_PATH := "res://data/challenges/v0.7.0/challenges.json"
-const DEFAULT_V07_CHALLENGE_SCHEMA_PATH := "res://data/schema/v0.7.0/challenges.schema.json"
-const DEFAULT_DECK_PATH := "res://data/decks/v0.7.0/decks.json"
-const DEFAULT_DECK_SCHEMA_PATH := "res://data/schema/v0.7.0/decks.schema.json"
+const ContentManifestScript := preload("res://src/infrastructure/content_manifest.gd")
+const CheckpointCodecScript := preload("res://src/app/checkpoint_codec.gd")
 
-# Load order defines which stage a failure reports first.
-const V07_DOCUMENTS := [
-	["cards", DEFAULT_V07_CARDS_PATH, DEFAULT_V07_CARDS_SCHEMA_PATH],
-	["enemies", DEFAULT_V07_ENEMIES_PATH, DEFAULT_V07_ENEMIES_SCHEMA_PATH],
-	["encounters", DEFAULT_V07_ENCOUNTERS_PATH, DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH],
-	["routes", DEFAULT_V07_ROUTES_PATH, DEFAULT_V07_ROUTES_SCHEMA_PATH],
-	["rituals", DEFAULT_V07_RITUALS_PATH, DEFAULT_V07_RITUALS_SCHEMA_PATH],
-	["balance", DEFAULT_V07_BALANCE_PATH, DEFAULT_V07_BALANCE_SCHEMA_PATH],
-	["progression", DEFAULT_V07_PROGRESSION_PATH, DEFAULT_V07_PROGRESSION_SCHEMA_PATH],
-	["decks", DEFAULT_DECK_PATH, DEFAULT_DECK_SCHEMA_PATH],
-	["diary", DEFAULT_DIARY_PATH, DEFAULT_DIARY_SCHEMA_PATH],
+# Load order defines which stage a failure reports first. Paths come from data/manifest.json.
+const V07_DOCUMENT_KINDS: Array[String] = [
+	"cards", "enemies", "encounters", "routes", "rituals",
+	"balance", "progression", "decks", "diary",
 ]
 
 
@@ -59,13 +33,12 @@ static func create_services(run_seed: int) -> AppServices:
 static func get_route_previews_v07(
 	paths: Dictionary = {}
 ) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var routes_result := loader.load_document(
-		String(paths.get("routes", DEFAULT_V07_ROUTES_PATH)),
-		String(paths.get("routes_schema", DEFAULT_V07_ROUTES_SCHEMA_PATH))
-	)
+	var manifest := _load_manifest(paths)
+	if not manifest.ok:
+		return manifest
+	var routes_result: InfrastructureResult = manifest.data.load_kind("routes", paths)
 	if not routes_result.ok:
-		return _with_stage(routes_result, &"routes")
+		return routes_result
 	var previews: Array[Dictionary] = []
 	for route_value in routes_result.data.get("routes", []):
 		if not route_value is Dictionary:
@@ -118,7 +91,11 @@ static func start_route_v07(
 	checkpoint_slot: String = "checkpoint",
 	resume_from_checkpoint: bool = false
 ) -> InfrastructureResult:
-	var loaded_documents := _load_v07_documents(paths)
+	var manifest_result := _load_manifest(paths)
+	if not manifest_result.ok:
+		return manifest_result
+	var manifest: ContentManifest = manifest_result.data
+	var loaded_documents := _load_v07_documents(manifest, paths)
 	if not loaded_documents.ok:
 		return loaded_documents
 	var documents: Dictionary = loaded_documents.data
@@ -191,7 +168,11 @@ static func start_route_v07(
 	var save_directory := String(
 		paths.get("save_directory", AtomicSaveService.DEFAULT_DIRECTORY)
 	)
-	var save_service := SaveMigrationsScript.create_v07_service(save_directory)
+	var save_service := SaveMigrationsScript.create_service(
+		save_directory,
+		SaveMigrationsScript.build_annotation_lookup(documents.diary),
+		manifest.content_revision
+	)
 	var selected_seed := run_seed
 	var selected_route_id := StringName(paths.get("route_id", ""))
 	var progression_state: Dictionary = {}
@@ -214,7 +195,7 @@ static func start_route_v07(
 		selected_seed = int(envelope.get("rng_seed", run_seed))
 		var saved_progression: Variant = envelope.get("progression", {})
 		if saved_progression is Dictionary:
-			progression_state = saved_progression.duplicate(true)
+			progression_state = CheckpointCodecScript.decode_progression(saved_progression)
 		var saved_route: Variant = envelope.get("route", {})
 		if (
 			bool(paths.get("restore_route_state", true))
@@ -223,7 +204,7 @@ static func start_route_v07(
 		):
 			var stored_state: Variant = saved_route.get("state", {})
 			if stored_state is Dictionary:
-				route_state = stored_state.duplicate(true)
+				route_state = CheckpointCodecScript.decode_route_state(stored_state)
 				var stored_route_id := StringName(
 					stored_state.get("route_id", "")
 				)
@@ -238,7 +219,7 @@ static func start_route_v07(
 		):
 			var saved_deck_state: Variant = saved_deck.get("state", {})
 			if saved_deck_state is Dictionary:
-				deck_state = saved_deck_state.duplicate(true)
+				deck_state = CheckpointCodecScript.decode_deck_state(saved_deck_state)
 	if (
 		not resume_from_checkpoint
 		and bool(paths.get("test_profile", false))
@@ -328,8 +309,8 @@ static func start_route_v07(
 		selected_seed,
 		checkpoint_slot,
 		deck_engine,
-		"v0.7.0",
-		5,
+		manifest.content_revision,
+		CheckpointCodecScript.SAVE_VERSION,
 		selected_route_id
 	)
 	var initialized_route := session.initialize(route_state)
@@ -340,7 +321,7 @@ static func start_route_v07(
 		{
 			"resumed": resume_from_checkpoint,
 			"route_id": String(selected_route_id),
-			"content_version": "v0.7.0",
+			"content_revision": manifest.content_revision,
 			"sequence_state": resumed_sequence,
 		}
 	)
@@ -350,7 +331,7 @@ static func inspect_route_checkpoint_v07(
 	save_slot: String = "checkpoint",
 	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
 ) -> InfrastructureResult:
-	var service := SaveMigrationsScript.create_v07_service(save_directory)
+	var service := SaveMigrationsScript.create_service(save_directory)
 	var slot_info := service.inspect_slot(save_slot)
 	if not slot_info.ok:
 		return slot_info
@@ -391,13 +372,12 @@ static func start_challenge_v07(
 	if not base_result.ok:
 		return _with_stage(base_result, &"challenge_base_route")
 	var base_session: RouteSession = base_result.data
-	var loader := JsonDocumentLoaderScript.new()
-	var challenge_result := loader.load_document(
-		String(paths.get("challenges", DEFAULT_V07_CHALLENGE_PATH)),
-		String(paths.get("challenges_schema", DEFAULT_V07_CHALLENGE_SCHEMA_PATH))
-	)
+	var manifest := _load_manifest(paths)
+	if not manifest.ok:
+		return manifest
+	var challenge_result: InfrastructureResult = manifest.data.load_kind("challenges", paths)
 	if not challenge_result.ok:
-		return _with_stage(challenge_result, &"challenges")
+		return challenge_result
 	var challenge_content := ChallengeContentAdapterScript.new(
 		challenge_result.data,
 		base_session.catalog,
@@ -423,14 +403,7 @@ static func start_challenge_v07(
 			{"challenge_id": String(selected_challenge_id)}
 		)
 
-	var save_service := SaveMigrationsScript.create_v07_service(
-		String(
-			paths.get(
-				"save_directory",
-				AtomicSaveService.DEFAULT_DIRECTORY
-			)
-		)
-	)
+	var save_service: AtomicSaveService = base_session.services.saves
 	var saved := save_service.load_slot(checkpoint_slot)
 	var challenge_state: Dictionary = {}
 	var reward_applied := false
@@ -454,7 +427,7 @@ static func start_challenge_v07(
 		if saved_challenge is Dictionary:
 			var state_value: Variant = saved_challenge.get("state", {})
 			if state_value is Dictionary:
-				challenge_state = state_value.duplicate(true)
+				challenge_state = CheckpointCodecScript.decode_challenge_state(state_value)
 			reward_applied = bool(
 				saved_challenge.get("reward_applied", false)
 			)
@@ -487,8 +460,8 @@ static func start_challenge_v07(
 		int(base_session.root_seed),
 		checkpoint_slot,
 		base_session.deck_engine,
-		"v0.7.0",
-		5
+		base_session.content_revision,
+		base_session.save_version
 	)
 	var initialized := session.initialize(
 		challenge_state,
@@ -501,7 +474,7 @@ static func start_challenge_v07(
 		{
 			"resumed": resume_from_checkpoint,
 			"challenge_id": String(selected_challenge_id),
-			"content_version": "v0.7.0",
+			"content_revision": base_session.content_revision,
 			"unlocked": bool(
 				session.get_challenge_snapshot().data.get(
 					"unlocked",
@@ -550,7 +523,7 @@ static func restore_checkpoint_backup(
 	save_slot: String = "checkpoint",
 	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
 ) -> InfrastructureResult:
-	var service := SaveMigrationsScript.create_v07_service(save_directory)
+	var service := SaveMigrationsScript.create_service(save_directory)
 	var backup := service.load_backup(save_slot)
 	if not backup.ok:
 		return InfrastructureResultScript.failure(
@@ -623,7 +596,7 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 		else []
 	)
 	return {
-		"content_version": String(envelope.get("content_version", "")),
+		"content_revision": int(envelope.get("content_revision", 0)),
 		"created_at": String(envelope.get("created_at", "")),
 		"rng_seed": int(envelope.get("rng_seed", 0)),
 		"pathway": String(profile.get("pathway", "")),
@@ -672,18 +645,19 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 	}
 
 
-static func _load_v07_documents(paths: Dictionary) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
+static func _load_manifest(paths: Dictionary) -> InfrastructureResult:
+	return ContentManifestScript.load_manifest(
+		String(paths.get("manifest", ContentManifestScript.DEFAULT_PATH))
+	)
+
+
+static func _load_v07_documents(manifest: ContentManifest, paths: Dictionary) -> InfrastructureResult:
 	var documents := {}
-	for spec in V07_DOCUMENTS:
-		var key: String = spec[0]
-		var loaded := loader.load_document(
-			String(paths.get(key, spec[1])),
-			String(paths.get(key + "_schema", spec[2]))
-		)
+	for kind in V07_DOCUMENT_KINDS:
+		var loaded := manifest.load_kind(kind, paths)
 		if not loaded.ok:
-			return _with_stage(loaded, StringName(key))
-		documents[key] = loaded.data
+			return loaded
+		documents[kind] = loaded.data
 	return InfrastructureResultScript.success(documents)
 
 

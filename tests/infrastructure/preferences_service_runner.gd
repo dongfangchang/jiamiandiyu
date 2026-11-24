@@ -75,7 +75,7 @@ func _expect(condition: bool, message: String) -> void:
 
 func _test_backup_restore() -> void:
 	var save_directory := TEST_DIRECTORY.path_join("saves")
-	var service = SaveMigrationsScript.create_v07_service(save_directory)
+	var service = SaveMigrationsScript.create_service(save_directory)
 	var older := _save_envelope(8, "older")
 	var current := _save_envelope(9, "current")
 	_expect(service.save_slot("checkpoint", older).ok, "backup baseline should save")
@@ -94,37 +94,13 @@ func _test_backup_restore() -> void:
 
 
 func _save_envelope(sequence: int, marker: String) -> Dictionary:
-	return {
-		"save_version": 5,
-		"content_version": "v0.7.0",
-		"created_at": "2026-11-08T00:00:00Z",
-		"rng_seed": 20261108,
-		"profile": {
-			"pathway": "seer",
-			"sequence": sequence,
-			"identity_id": "identity.reporter",
-		},
-		"run": {
-			"checkpoint_kind": "route",
-			"marker": marker,
-		},
-		"collection": {},
-		"progression": {
-			"phase": "hub",
-			"identity_id": "identity.reporter",
-			"collection": {},
-		},
-		"route": {"phase": "map"},
-		"challenge": {"phase": "inactive"},
-		"deck": {
-			"initialized": true,
-			"state": {
-				"current_card_ids": [],
-				"presets": [],
-				"confirmed": false,
-			},
-		},
-	}
+	# A real v6 checkpoint (frozen fixture), varied by sequence and checkpoint kind.
+	var envelope: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://tests/infrastructure/fixtures/saves/v6.json"
+	))
+	envelope["profile"]["sequence"] = sequence
+	envelope["run"]["checkpoint_kind"] = marker
+	return envelope
 
 
 func _remove_tree(relative_path: String) -> void:

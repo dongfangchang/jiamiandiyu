@@ -8,10 +8,11 @@ const DeckCommandScript := preload("res://src/core/deck_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
 const RouteEngineScript := preload("res://src/gameplay/route_engine.gd")
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
-const CheckpointEnvelopeBuilderScript := preload("res://src/app/checkpoint_envelope_builder.gd")
+const CheckpointCodecScript := preload("res://src/app/checkpoint_codec.gd")
 
-const DEFAULT_CONTENT_VERSION := "v0.6.0"
-const DEFAULT_SAVE_VERSION := 4
+# Real values come from data/manifest.json via AppBootstrap.
+const DEFAULT_CONTENT_REVISION := 1
+const DEFAULT_SAVE_VERSION := CheckpointCodecScript.SAVE_VERSION
 const BATTLE_NODE_TYPES: Array[String] = ["normal", "elite", "boss"]
 
 var services: AppServices
@@ -22,7 +23,7 @@ var progression_content: ProgressionContentPort
 var progression: ProgressionEngine
 var route_content: RouteContentAdapter
 var deck_engine: DeckEngine = null
-var content_version: String = DEFAULT_CONTENT_VERSION
+var content_revision: int = DEFAULT_CONTENT_REVISION
 var save_version: int = DEFAULT_SAVE_VERSION
 var root_seed: int
 var checkpoint_slot: String
@@ -47,7 +48,7 @@ func _init(
 	run_seed: int,
 	save_slot: String,
 	deck_engine_value: DeckEngine = null,
-	content_version_value: String = DEFAULT_CONTENT_VERSION,
+	content_revision_value: int = DEFAULT_CONTENT_REVISION,
 	save_version_value: int = DEFAULT_SAVE_VERSION,
 	route_id_value: StringName = &""
 ) -> void:
@@ -59,7 +60,7 @@ func _init(
 	progression = progression_engine
 	route_content = route_content_port
 	deck_engine = deck_engine_value
-	content_version = content_version_value
+	content_revision = content_revision_value
 	save_version = save_version_value
 	root_seed = run_seed
 	checkpoint_slot = save_slot
@@ -525,13 +526,13 @@ func _build_checkpoint_envelope(kind: String) -> Dictionary:
 		)
 	for definition_id in active_deck:
 		deck_summary[definition_id] = int(deck_summary.get(definition_id, 0)) + 1
-	return CheckpointEnvelopeBuilderScript.build(
+	return CheckpointCodecScript.build(
 		progression_state,
 		progression_snapshot,
 		route_state,
 		sequence,
 		root_seed,
-		content_version,
+		content_revision,
 		save_version,
 		kind,
 		_last_battle,

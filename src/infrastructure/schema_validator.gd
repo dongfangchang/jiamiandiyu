@@ -3,6 +3,8 @@ extends RefCounted
 
 const MAX_REPORTED_ERRORS := 24
 
+var _root_schema: Dictionary = {}
+
 
 func validate_document(document: Variant, schema_path: String) -> InfrastructureResult:
 	if not (schema_path.begins_with("res://") or schema_path.begins_with("user://")):
@@ -36,6 +38,7 @@ func validate_document(document: Variant, schema_path: String) -> Infrastructure
 		)
 
 	var errors: Array[String] = []
+	_root_schema = json.data
 	_validate_value(document, json.data, "$", errors)
 	if not errors.is_empty():
 		return InfrastructureResult.failure(
@@ -49,6 +52,12 @@ func validate_document(document: Variant, schema_path: String) -> Infrastructure
 func _validate_value(value: Variant, schema: Dictionary, path: String, errors: Array[String]) -> void:
 	if errors.size() >= MAX_REPORTED_ERRORS:
 		return
+	if schema.has("$ref"):
+		var resolved := _resolve_ref(String(schema["$ref"]))
+		if resolved.is_empty():
+			_add_error(errors, path, "unresolvable $ref '%s'" % schema["$ref"])
+			return
+		schema = resolved
 
 	if schema.has("const") and not _values_equal(value, schema["const"]):
 		_add_error(errors, path, "must equal %s" % str(schema["const"]))
@@ -71,6 +80,17 @@ func _validate_value(value: Variant, schema: Dictionary, path: String, errors: A
 			_validate_string(value, schema, path, errors)
 		TYPE_INT, TYPE_FLOAT:
 			_validate_number(value, schema, path, errors)
+
+
+## Only local "#/$defs/<name>" references are supported.
+func _resolve_ref(reference: String) -> Dictionary:
+	if not reference.begins_with("#/$defs/"):
+		return {}
+	var definitions: Variant = _root_schema.get("$defs", {})
+	if not definitions is Dictionary:
+		return {}
+	var target: Variant = definitions.get(reference.trim_prefix("#/$defs/"), {})
+	return target if target is Dictionary else {}
 
 
 func _validate_object(value: Dictionary, schema: Dictionary, path: String, errors: Array[String]) -> void:

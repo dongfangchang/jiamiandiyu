@@ -336,7 +336,7 @@ func _test_route_session_and_node_resume() -> void:
 
 func _test_v1_and_v2_migrations() -> void:
 	var migration_directory := TEST_ROOT.path_join("migrations")
-	var service = SaveMigrationsScript.create_v07_service(migration_directory)
+	var service = SaveMigrationsScript.create_service(migration_directory)
 	var progression := {
 		"phase": "identity_selection",
 		"identity_id": "",
@@ -365,7 +365,7 @@ func _test_v1_and_v2_migrations() -> void:
 	)
 	_expect(v2_loaded.ok, "v2 save should migrate to the current version")
 	if v2_loaded.ok:
-		_expect(int(v2_loaded.data.save_version) == 5, "v2 migration should produce save version five")
+		_expect(int(v2_loaded.data.save_version) == SaveMigrationsScript.CURRENT_SAVE_VERSION, "v2 migration should produce the current save version")
 		_expect(
 			not bool(v2_loaded.data.route.initialized),
 			"v2 migration should create an uninitialized route"
@@ -393,7 +393,7 @@ func _test_v1_and_v2_migrations() -> void:
 		])
 	_expect(v1_loaded.ok, "v1 save should migrate through the full chain")
 	if v1_loaded.ok:
-		_expect(int(v1_loaded.data.save_version) == 5, "v1 migration should produce save version five")
+		_expect(int(v1_loaded.data.save_version) == SaveMigrationsScript.CURRENT_SAVE_VERSION, "v1 migration should produce the current save version")
 		_expect(
 			bool(v1_loaded.data.progression.get("migrated_from_v1", false)),
 			"v1 migration should mark progression reset"

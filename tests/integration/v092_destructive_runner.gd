@@ -50,7 +50,7 @@ func _ready() -> void:
 
 func _test_corrupt_primary_backup_restore() -> void:
 	var save_directory := TEST_ROOT.path_join("corrupt_restore")
-	var service = SaveMigrationsScript.create_v07_service(save_directory)
+	var service = SaveMigrationsScript.create_service(save_directory)
 	_expect(
 		service.save_slot("checkpoint", _save_envelope(8, "older")).ok,
 		"backup restore setup should save the older checkpoint"
@@ -111,7 +111,7 @@ func _test_corrupt_primary_backup_restore() -> void:
 func _test_corrupt_primary_backup_restore_through_ui() -> void:
 	var root := TEST_ROOT.path_join("ui_restore")
 	var save_directory := root.path_join("saves")
-	var service = SaveMigrationsScript.create_v07_service(save_directory)
+	var service = SaveMigrationsScript.create_service(save_directory)
 	service.save_slot("checkpoint", _save_envelope(8, "older"))
 	service.save_slot("checkpoint", _save_envelope(9, "current"))
 	_write_text(service.get_slot_path("checkpoint"), "{broken-json")
@@ -171,7 +171,7 @@ func _test_corrupt_primary_backup_restore_through_ui() -> void:
 func _test_battle_exit_resumes_without_test_profile_contamination() -> void:
 	var root := TEST_ROOT.path_join("exit_resume")
 	var save_directory := root.path_join("saves")
-	var service = SaveMigrationsScript.create_v07_service(save_directory)
+	var service = SaveMigrationsScript.create_service(save_directory)
 	service.save_slot("checkpoint", _save_envelope(8, "normal"))
 	var normal_before := _read_text(service.get_slot_path("checkpoint"))
 	var preferences_path := root.path_join("preferences.json")
@@ -709,37 +709,15 @@ func _status_text(status_id: String) -> String:
 
 
 func _save_envelope(sequence: int, marker: String) -> Dictionary:
-	return {
-		"save_version": 5,
-		"content_version": "v0.7.0",
-		"created_at": "2026-11-08T00:00:00Z",
-		"rng_seed": 20261108,
-		"profile": {
-			"pathway": "seer",
-			"sequence": sequence,
-			"identity_id": "identity.reporter",
-		},
-		"run": {
-			"checkpoint_kind": "route",
-			"marker": marker,
-		},
-		"collection": {},
-		"progression": {
-			"phase": "hub",
-			"identity_id": "identity.reporter",
-			"collection": {},
-		},
-		"route": {"phase": "map"},
-		"challenge": {"phase": "inactive"},
-		"deck": {
-			"initialized": true,
-			"state": {
-				"current_card_ids": [],
-				"presets": [],
-				"confirmed": false,
-			},
-		},
-	}
+	# A real v6 checkpoint (frozen fixture), varied by sequence and checkpoint kind.
+	var envelope: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://tests/infrastructure/fixtures/saves/v6.json"
+	))
+	envelope["profile"]["sequence"] = sequence
+	envelope["run"]["checkpoint_kind"] = marker
+	# The normal checkpoint has an unconfirmed deck, so the title must gate the challenge.
+	envelope["deck"]["state"]["confirmed"] = false
+	return envelope
 
 
 func _read_json_object(path: String) -> Dictionary:

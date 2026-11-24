@@ -1,0 +1,129 @@
+{
+  "collection": {},
+  "content_version": "v0.5.0",
+  "created_at": "2026-11-24T08:00:00Z",
+  "profile": {
+    "identity_id": "identity.reporter",
+    "pathway": "seer",
+    "sequence": 9
+  },
+  "progression": {
+    "collection": {
+      "card.skill.calm_breath": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.coffin_nail": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.focus": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.ink_dart": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.insight": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.lantern_step": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.omen": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.paper_guard": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.piercing_omen": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.second_look": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      },
+      "card.skill.warding_circle": {
+        "copies": 1,
+        "fragments": 0,
+        "level": 0
+      }
+    },
+    "divination_tickets": 3,
+    "identity_id": "identity.reporter",
+    "last_battle_outcome": "victory",
+    "last_gacha_results": [],
+    "phase": "hub",
+    "pity_counter": 0,
+    "revision": 12,
+    "reward_option_ids": []
+  },
+  "rng_seed": 773,
+  "route": {
+    "completed_node_ids": [
+      "route.v028.first_stage.node.first_hunt"
+    ],
+    "initialized": true,
+    "phase": "map",
+    "route_id": "route.v028.first_stage",
+    "run_state": {
+      "attention": 0,
+      "corruption": 1,
+      "hp": 41,
+      "max_attention": 10,
+      "max_corruption": 10,
+      "max_hp": 54,
+      "max_spirit": 3,
+      "spirit": 3
+    },
+    "sequence_state": "locked",
+    "state": {
+      "available_node_id": "route.v028.first_stage.node.tenant_trace",
+      "completed_node_ids": [
+        "route.v028.first_stage.node.first_hunt"
+      ],
+      "end_reason": "",
+      "phase": "map",
+      "revision": 3,
+      "ritual_state": {},
+      "route_id": "route.v028.first_stage",
+      "route_outcome": "",
+      "run_state": {
+        "attention": 0,
+        "corruption": 1,
+        "hp": 41,
+        "max_attention": 10,
+        "max_corruption": 10,
+        "max_hp": 54,
+        "max_spirit": 3,
+        "spirit": 3
+      },
+      "selected_node_id": "",
+      "sequence_state": "locked"
+    }
+  },
+  "run": {
+    "checkpoint_kind": "route",
+    "current_node_id": "route.v028.first_stage.node.tenant_trace",
+    "deck_summary": {},
+    "encounter_id": "encounter.tenant_trace",
+    "last_battle": {}
+  },
+  "save_version": 3
+}

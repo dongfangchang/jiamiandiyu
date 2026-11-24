@@ -390,13 +390,13 @@ func _test_v4_to_v5_migration() -> void:
 			saved_v4.details,
 		])
 	_expect(saved_v4.ok, "valid v4 fixture should save")
-	var v5_service := SaveMigrationsScript.create_v07_service(directory)
+	var v5_service := SaveMigrationsScript.create_service(directory)
 	var loaded := v5_service.load_slot("legacy_v4")
-	_expect(loaded.ok, "v4 save should migrate to v5")
+	_expect(loaded.ok, "v4 save should migrate to the current version")
 	if loaded.ok:
 		_expect(
-			int(loaded.data.get("save_version", 0)) == 5,
-			"migrated save should report version five"
+			int(loaded.data.get("save_version", 0)) == SaveMigrationsScript.CURRENT_SAVE_VERSION,
+			"migrated save should report the current version"
 		)
 		_expect(
 			loaded.data.get("deck", {}).get("migrated_from_v4", false),

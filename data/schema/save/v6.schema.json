@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Save v6 (ADR-0033)",
+  "description": "Strict at every level that can be enumerated. Open maps: id-keyed maps (collection, deck_summary, clue maps, deck presets) and SequenceState dictionaries (challenge.sequence_state, challenge.state.sequence_state).",
+  "type": "object",
+  "required": ["save_version", "content_revision", "created_at", "rng_seed", "profile", "run", "collection", "progression", "route", "challenge", "deck"],
+  "properties": {
+    "save_version": {"type": "integer", "const": 6},
+    "content_revision": {"type": "integer", "minimum": 1},
+    "created_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T"},
+    "rng_seed": {"type": "integer"},
+    "profile": {
+      "type": "object",
+      "required": ["pathway", "sequence"],
+      "properties": {
+        "pathway": {"type": "string"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "identity_id": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "run": {
+      "type": "object",
+      "required": ["checkpoint_kind"],
+      "properties": {
+        "checkpoint_kind": {"type": "string", "minLength": 1},
+        "encounter_id": {"type": "string"},
+        "current_node_id": {"type": "string"},
+        "deck_summary": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "last_battle": {
+          "type": "object",
+          "properties": {
+            "battle_id": {"type": "string"},
+            "node_id": {"type": "string"},
+            "outcome": {"type": "string"},
+            "reason_code": {"type": "string"},
+            "round_number": {"type": "integer", "minimum": 0},
+            "revision": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "collection": {"type": "object", "additionalProperties": {"$ref": "#/$defs/card_state"}},
+    "progression": {"$ref": "#/$defs/progression"},
+    "route": {
+      "type": "object",
+      "required": ["initialized", "route_id", "phase", "run_state", "completed_node_ids", "sequence_state", "state"],
+      "properties": {
+        "initialized": {"type": "boolean"},
+        "route_id": {"type": "string"},
+        "phase": {"type": "string"},
+        "run_state": {"$ref": "#/$defs/run_state_or_empty"},
+        "completed_node_ids": {"$ref": "#/$defs/id_list"},
+        "sequence_state": {"type": "string"},
+        "state": {"$ref": "#/$defs/route_state"},
+        "migrated_from_v2": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "challenge": {
+      "type": "object",
+      "required": ["challenge_id", "phase", "selected_modifier_id", "challenge_outcome", "state"],
+      "properties": {
+        "challenge_id": {"type": "string"},
+        "phase": {"$ref": "#/$defs/challenge_phase"},
+        "selected_modifier_id": {"type": "string"},
+        "challenge_outcome": {"type": "string"},
+        "reward_applied": {"type": "boolean"},
+        "sequence_state": {"type": "object"},
+        "state": {
+          "type": "object",
+          "properties": {
+            "challenge_id": {"type": "string"},
+            "phase": {"$ref": "#/$defs/challenge_phase"},
+            "selected_modifier_id": {"type": "string"},
+            "challenge_outcome": {"type": "string"},
+            "route_state": {"$ref": "#/$defs/route_state"},
+            "sequence_state": {"type": "object"},
+            "reward_applied": {"type": "boolean"},
+            "revision": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "migrated_from_v3": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "deck": {
+      "type": "object",
+      "required": ["initialized", "state"],
+      "properties": {
+        "initialized": {"type": "boolean"},
+        "state": {
+          "type": "object",
+          "properties": {
+            "phase": {"type": "string"},
+            "current_card_ids": {"$ref": "#/$defs/id_list"},
+            "selected_preset_id": {"type": "string"},
+            "presets": {"type": "object", "additionalProperties": {"$ref": "#/$defs/id_list"}},
+            "confirmed": {"type": "boolean"},
+            "confirmed_card_ids": {"$ref": "#/$defs/id_list"},
+            "revision": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "migrated_from_v4": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id_list": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "card_state": {
+      "type": "object",
+      "required": ["copies", "level", "fragments"],
+      "properties": {
+        "copies": {"type": "integer", "minimum": 0},
+        "level": {"type": "integer", "minimum": 0},
+        "fragments": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "gacha_result": {
+      "type": "object",
+      "required": ["definition_id", "rarity"],
+      "properties": {
+        "definition_id": {"type": "string", "minLength": 1},
+        "rarity": {"type": "string"},
+        "duplicate": {"type": "boolean"},
+        "fragments": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "progression": {
+      "type": "object",
+      "required": ["phase", "identity_id", "divination_tickets", "collection", "pity_counter", "reward_option_ids", "last_battle_outcome", "last_gacha_results", "revision"],
+      "properties": {
+        "phase": {"type": "string", "enum": ["identity_selection", "hub", "reward"]},
+        "identity_id": {"type": "string"},
+        "divination_tickets": {"type": "integer", "minimum": 0},
+        "collection": {"type": "object", "additionalProperties": {"$ref": "#/$defs/card_state"}},
+        "pity_counter": {"type": "integer", "minimum": 0},
+        "reward_option_ids": {"$ref": "#/$defs/id_list"},
+        "last_battle_outcome": {"type": "string"},
+        "last_gacha_results": {"type": "array", "items": {"$ref": "#/$defs/gacha_result"}},
+        "gacha_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["draw_index", "pull_count", "results"],
+            "properties": {
+              "draw_index": {"type": "integer", "minimum": 1},
+              "pull_count": {"type": "integer", "minimum": 1},
+              "results": {"type": "array", "items": {"$ref": "#/$defs/gacha_result"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "sequence_reward_target_id": {"type": "string"},
+        "potion_inventory": {"$ref": "#/$defs/id_list"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "digestion": {
+          "type": "object",
+          "properties": {
+            "potion_id": {"type": "string"},
+            "from_sequence": {"type": "integer"},
+            "to_sequence": {"type": "integer"},
+            "to_sequence_name_zh": {"type": "string"},
+            "progress": {"type": "integer", "minimum": 0},
+            "required": {"type": "integer", "minimum": 0},
+            "consumed": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        },
+        "revision": {"type": "integer", "minimum": 0},
+        "migrated_from_v1": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "run_state": {
+      "type": "object",
+      "required": ["hp", "max_hp", "spirit", "max_spirit", "corruption", "max_corruption", "attention", "max_attention"],
+      "properties": {
+        "hp": {"type": "integer", "minimum": 0},
+        "max_hp": {"type": "integer", "minimum": 1},
+        "spirit": {"type": "integer", "minimum": 0},
+        "max_spirit": {"type": "integer", "minimum": 0},
+        "corruption": {"type": "integer", "minimum": 0},
+        "max_corruption": {"type": "integer", "minimum": 1},
+        "attention": {"type": "integer", "minimum": 0},
+        "max_attention": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "run_state_or_empty": {
+      "type": "object",
+      "properties": {
+        "hp": {"type": "integer", "minimum": 0},
+        "max_hp": {"type": "integer", "minimum": 1},
+        "spirit": {"type": "integer", "minimum": 0},
+        "max_spirit": {"type": "integer", "minimum": 0},
+        "corruption": {"type": "integer", "minimum": 0},
+        "max_corruption": {"type": "integer", "minimum": 1},
+        "attention": {"type": "integer", "minimum": 0},
+        "max_attention": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "ritual_state": {
+      "type": "object",
+      "properties": {
+        "ritual_id": {"type": "string"},
+        "step_index": {"type": "integer", "minimum": 0},
+        "hints_used": {"type": "integer", "minimum": 0},
+        "hinted_steps": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "errors": {"type": "integer", "minimum": 0},
+        "hint_text": {"type": "string"},
+        "status": {"type": "string"},
+        "result": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "clue_overlay": {
+      "type": "object",
+      "properties": {
+        "annotation_id": {"type": "string", "pattern": "^annotation\\."},
+        "source": {"type": "string"},
+        "margin_note_id": {"type": "string", "pattern": "^annotation\\."},
+        "legacy_text_zh": {"type": "string"},
+        "legacy_margin_note_zh": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "route_state": {
+      "type": "object",
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "phase": {"type": "string", "enum": ["map", "battle_pending", "rest_pending", "ritual", "completed", "failed"]},
+        "available_node_id": {"type": "string"},
+        "selected_node_id": {"type": "string"},
+        "completed_node_ids": {"$ref": "#/$defs/id_list"},
+        "unlocked_node_ids": {"$ref": "#/$defs/id_list"},
+        "clue_annotations": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^annotation\\."}},
+        "legacy_clue_annotations_zh": {"type": "object", "additionalProperties": {"type": "string"}},
+        "clue_overlays": {"type": "object", "additionalProperties": {"$ref": "#/$defs/clue_overlay"}},
+        "run_state": {"$ref": "#/$defs/run_state"},
+        "ritual_state": {"$ref": "#/$defs/ritual_state"},
+        "sequence_state": {"type": "string"},
+        "route_outcome": {"type": "string"},
+        "end_reason": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "challenge_phase": {"type": "string", "enum": ["inactive", "locked", "modifier_selection", "active", "completed", "failed"]}
+  }
+}

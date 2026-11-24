@@ -95,46 +95,7 @@ func _ready() -> void:
 	_expect(not engine.submit(RouteCommandScript.wipe_ink(StringName(stained_id))).accepted, "cannot wipe already readable clue")
 	_expect(engine.submit(RouteCommandScript.select_node(StringName(next_id))).accepted, "can retry defeated clue")
 
-	_test_legacy_text_state(content)
 	_finish()
-
-
-## A pre-v0.88 save stored annotation text; known text maps back to its id,
-## unknown text survives display-only and is never treated as an id.
-func _test_legacy_text_state(content: RouteContentPort) -> void:
-	var fresh := RouteEngineScript.new(content, ROUTE_ID)
-	fresh.initialize()
-	var state := fresh.export_persistent_state()
-	var p := "route.v028.first_stage.node."
-	var reink_id := String(RouteContentData.annotation_catalog().get("pools", {}).get("reink", {}).get("by_node", {}).get(p + "mirror_pursuit", ""))
-	state["clue_annotations"] = {
-		p + "first_hunt": "【0-08】自由书写的旧旁注。",
-		p + "mirror_pursuit": RouteContentData.annotation_text(reink_id),
-	}
-	state["clue_overlays"] = {
-		p + "boundary": {"text_zh": "旧存档里的改写文本", "source": "0-08", "margin_note_zh": "笔改过"},
-	}
-	var restored := RouteEngineScript.new(content, ROUTE_ID)
-	_expect(restored.initialize(state).accepted, "legacy text state loads")
-	var data := restored.get_snapshot().data
-	var annotations: Dictionary = data.get("clue_annotations", {})
-	_expect(String(annotations.get(p + "mirror_pursuit", "")) == reink_id, "known legacy text maps back to its id")
-	_expect(not annotations.has(p + "first_hunt"), "unknown legacy text is not kept as an id")
-	_expect(
-		String(data.get("legacy_clue_annotations_zh", {}).get(p + "first_hunt", "")) == "【0-08】自由书写的旧旁注。",
-		"unknown legacy text kept display-only"
-	)
-	var overlay: Dictionary = data.get("clue_overlays", {}).get(p + "boundary", {})
-	_expect(String(overlay.get("legacy_text_zh", "")) == "旧存档里的改写文本", "overlay legacy text kept as legacy_text_zh")
-	_expect(not overlay.has("text_zh"), "overlay text_zh no longer stored")
-	_expect(String(overlay.get("margin_note_id", "")) == "annotation.pen_rewrite.margin", "legacy margin text maps to id")
-	var mirror_view := {}
-	for node_value in data.get("nodes", []):
-		if String(node_value.get("id", "")) == p + "mirror_pursuit":
-			mirror_view = node_value
-	_expect(bool(mirror_view.get("ink_stained", false)), "mapped legacy stain stays wipeable content")
-	var exported_overlay: Dictionary = restored.export_persistent_state().get("clue_overlays", {}).get(p + "boundary", {})
-	_expect(not exported_overlay.has("text_zh"), "export stores ids, not overlay text")
 
 
 func _expect(condition: bool, label: String) -> void:

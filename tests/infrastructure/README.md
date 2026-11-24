@@ -25,7 +25,9 @@
 - 应用服务装配与 v0.7 存档检查（缺失 / 已加载 / 损坏带备份）
 - v0.5 路线/仪式 schema、跨版本基础卡包与敌人阶段（仅 schema 与适配器）
 - 经 `start_route_v07` 的身份到五节点路线、节点边界恢复、首领与晋升持久化
-- 唯一迁移链 `SaveMigrations.create_v07_service`：v1/v2/v3/v4 -> v5
+- 唯一迁移链 `SaveMigrations.create_service`：v1–v5 -> v6（ADR-0033；先按源版本 schema 校验，再逐步迁移、按目标 schema 校验、检查不变量）
+- 存档 fixture `fixtures/saves/v1..v6` + 损坏 / 过新 / 源 schema 不合法：`save_fixture_runner.gd`
+- 内容清单 `data/manifest.json` 与内容校验：`content_manifest_runner.gd`（命令行：`tools/validate_content.gd`）
 - 挑战定义/schema、修饰引用、经 `start_challenge_v07` 的挑战会话语义与恢复
 
 测试使用 `user://mask_whispers_infrastructure_tests`，运行前后自动清理。

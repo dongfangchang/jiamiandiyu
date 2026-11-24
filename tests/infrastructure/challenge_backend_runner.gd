@@ -203,8 +203,8 @@ func _test_challenge_session_and_resume() -> void:
 		base.root_seed,
 		SLOT,
 		base.deck_engine,
-		"v0.7.0",
-		5
+		base.content_revision,
+		base.save_version
 	)
 	var initialized := session.initialize()
 	_expect(initialized.ok, "challenge session should initialize")
@@ -290,8 +290,8 @@ func _test_challenge_session_and_resume() -> void:
 		base.root_seed,
 		"locked_checkpoint",
 		base.deck_engine,
-		"v0.7.0",
-		5
+		base.content_revision,
+		base.save_version
 	)
 	_expect(locked_session.initialize().ok, "locked challenge should initialize")
 	_expect(
@@ -523,7 +523,7 @@ func _test_challenge_reward_recovery_and_save_failure() -> void:
 
 func _test_v3_to_v4_migration() -> void:
 	var directory := TEST_ROOT.path_join("migrations_v3")
-	var service := SaveMigrationsScript.create_v07_service(directory)
+	var service := SaveMigrationsScript.create_service(directory)
 	var v3 := {
 		"save_version": 3,
 		"content_version": "v0.5.0",
@@ -555,7 +555,7 @@ func _test_v3_to_v4_migration() -> void:
 	var loaded := _write_and_load(service, "legacy_v3", v3)
 	_expect(loaded.ok, "v3 save should migrate to the current version")
 	if loaded.ok:
-		_expect(int(loaded.data.save_version) == 5, "migration should produce save version five")
+		_expect(int(loaded.data.save_version) == SaveMigrationsScript.CURRENT_SAVE_VERSION, "migration should produce the current save version")
 		_expect(
 			loaded.data.challenge.phase == "inactive",
 			"v3 migration should create an inactive challenge section"
@@ -571,7 +571,7 @@ func _test_v3_to_v4_migration() -> void:
 		)
 		var backup := service.load_backup("legacy_v3")
 		_expect(
-			backup.ok and int(backup.data.save_version) == 5,
+			backup.ok and int(backup.data.save_version) == SaveMigrationsScript.CURRENT_SAVE_VERSION,
 			"v3 backup should be readable through the migration chain"
 		)
 
@@ -631,8 +631,8 @@ func _new_challenge_session(
 		base.root_seed,
 		slot,
 		base.deck_engine,
-		"v0.7.0",
-		5
+		base.content_revision,
+		base.save_version
 	)
 
 

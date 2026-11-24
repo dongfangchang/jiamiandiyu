@@ -1311,71 +1311,8 @@ func _restore_state(value: Dictionary) -> bool:
 			return false
 	restored["phase"] = String(phase)
 	restored["completed_node_ids"] = completed
-	_normalize_legacy_annotations(restored)
 	_state = restored
 	return true
-
-
-## Pre-v0.88 states stored annotation text. Exact matches map back to ids;
-## anything else is kept display-only as legacy_*_zh (save v6 migration: T5).
-func _normalize_legacy_annotations(state: Dictionary) -> void:
-	var annotations_value: Variant = state.get("clue_annotations", {})
-	var annotations: Dictionary = annotations_value if annotations_value is Dictionary else {}
-	var legacy_value: Variant = state.get("legacy_clue_annotations_zh", {})
-	var legacy: Dictionary = legacy_value if legacy_value is Dictionary else {}
-	for node_id in annotations.keys():
-		var value := String(annotations[node_id])
-		if value.begins_with(ANNOTATION_ID_PREFIX):
-			continue
-		var mapped := _annotation_id_for_text(value)
-		if mapped.is_empty():
-			legacy[node_id] = value
-			annotations.erase(node_id)
-		else:
-			annotations[node_id] = mapped
-	state["clue_annotations"] = annotations
-	if not legacy.is_empty():
-		state["legacy_clue_annotations_zh"] = legacy
-	var overlays_value: Variant = state.get("clue_overlays", {})
-	var overlays: Dictionary = overlays_value if overlays_value is Dictionary else {}
-	for node_id in overlays.keys():
-		var overlay: Variant = overlays[node_id]
-		if not overlay is Dictionary:
-			continue
-		_normalize_legacy_field(overlay, "text_zh", "annotation_id", "legacy_text_zh")
-		_normalize_legacy_field(
-			overlay, "margin_note_zh", "margin_note_id", "legacy_margin_note_zh"
-		)
-	state["clue_overlays"] = overlays
-
-
-func _normalize_legacy_field(
-	record: Dictionary, text_key: String, id_key: String, legacy_key: String
-) -> void:
-	if not record.has(text_key):
-		return
-	var text := String(record[text_key])
-	record.erase(text_key)
-	if not String(record.get(id_key, "")).is_empty():
-		return
-	var mapped := _annotation_id_for_text(text)
-	if mapped.is_empty():
-		record[legacy_key] = text
-	else:
-		record[id_key] = mapped
-
-
-func _annotation_id_for_text(text: String) -> String:
-	if text.is_empty():
-		return ""
-	var entries: Variant = _annotations.get("entries", {})
-	if not entries is Dictionary:
-		return ""
-	for annotation_id in entries.keys():
-		var entry: Variant = entries[annotation_id]
-		if entry is Dictionary and String(entry.get("text_zh", "")) == text:
-			return String(annotation_id)
-	return ""
 
 
 func _validate_run_state(run_state: Dictionary) -> bool:
