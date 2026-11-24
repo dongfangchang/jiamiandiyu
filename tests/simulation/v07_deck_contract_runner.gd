@@ -6,8 +6,8 @@ const BattleContentAdapterScript := preload(
 const BattleBalanceAdapterScript := preload(
 	"res://src/infrastructure/battle_balance_adapter.gd"
 )
-const BattleRandomAdapterScript := preload(
-	"res://src/infrastructure/battle_random_adapter.gd"
+const SeededRandomAdapterScript := preload(
+	"res://src/infrastructure/seeded_random_adapter.gd"
 )
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
 const DeckCommandScript := preload("res://src/core/deck_command.gd")
@@ -178,7 +178,7 @@ func _test_upgrade_effect_in_battle_content() -> void:
 	var progression = ProgressionEngineScript.new(
 		content,
 		balance,
-		BattleRandomAdapterScript.new(random_service.get_stream(&"gacha.draw"))
+		SeededRandomAdapterScript.new(random_service.get_stream(&"gacha.draw"))
 	)
 	var initial_state := _full_collection_state("identity.reporter")
 	initial_state["collection"]["card.skill.ink_dart"]["level"] = 1

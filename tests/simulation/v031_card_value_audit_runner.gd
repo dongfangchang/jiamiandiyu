@@ -113,7 +113,7 @@ func card_budget(card: Dictionary) -> float:
 	var budget := float(BUDGET.get(int(card.get("cost_spirit", 0)), 0.0))
 	if String(card.get("rarity", "common")) == "rare":
 		budget += 1.0
-	if String(card.get("sequence_band", "")).contains("序列8"):
+	if SequenceTier.required_for(card) < SequenceTier.BASE:
 		budget += 1.0
 	if bool(card.get("exhaust", false)):
 		budget *= 1.3

@@ -197,7 +197,7 @@ func _run_tyrell(size: Vector2i) -> void:
 	_expect(screen.get("_ritual_label").text.contains("1"), "ritual tracker shows the preparation stack")
 	var payoff: Label = screen.get("_ritual_payoff_label")
 	_expect(
-		payoff != null and (payoff.text.contains("驱邪预计") or payoff.text.contains("伤")),
+		payoff != null and payoff.text.contains("驱邪"),
 		"ritual payoff readout is visible"
 	)
 	var after := _region_rects(screen)

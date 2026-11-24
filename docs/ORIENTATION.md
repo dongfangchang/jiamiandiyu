@@ -227,6 +227,7 @@ Bug：S1/S2 要有 `docs/bugs/BUG-xxxx.md`；先复现→根因→前向修，�
 | [`AGENTS.md`](../AGENTS.md) | 角色、所有权、质量门 |
 | [`PROJECT_CHARTER.md`](PROJECT_CHARTER.md) | 产品目标与范围 |
 | [`ARCHITECTURE_CONTRACT.md`](ARCHITECTURE_CONTRACT.md) | 分层与端口 |
+| [`architecture/EXPERIENCE_ARCHITECTURE.md`](architecture/EXPERIENCE_ARCHITECTURE.md) | **体验框架（书桌世界）**：所有 UI 和美术的上位约束 |
 | [`architecture/ROADMAP.md`](architecture/ROADMAP.md) | 分阶段路线（R0–R4 整治 → P1–P3 → 1.0） |
 | [`architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md) | 目标目录、效果注册表、快照/文案/资源约定、测试规则 |
 | [`architecture/REVIEW_2026-11-24.md`](architecture/REVIEW_2026-11-24.md) | 架构审查缺陷清单（AR-xx） |

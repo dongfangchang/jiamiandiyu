@@ -43,7 +43,7 @@ func _test_battle_readability_and_exit() -> void:
 		"雨夜测试",
 		{&"card.skill.coffin_nail": "棺钉"},
 		{&"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(
 				true,
 				BattlePlayability.PLAYABLE

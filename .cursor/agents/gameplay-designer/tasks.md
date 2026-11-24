@@ -4,6 +4,21 @@
 
 ## 进行中 / 待办
 
+> **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
+> 当前版本 v0.88（R2 + 热修）由**主会话**并行执行，标注 `owner: 主会话` 的条目**不要重复开工**，也不要改它们的文件。
+
+### GD-R2 · v0.88 R2 第一波 T1/T2/T3（战斗 / 路线日记 / 成长牌组）
+- status: doing
+- owner: 主会话——**勿重复**
+
+### GD-X3-02 · 日记卷 / 章 / 扉页 / 终章数据结构
+- status: blocked
+- 来源: ROADMAP X3-02；EXPERIENCE §6
+- 改哪些: `data/diaries/**`、日记 schema、内容校验
+- 完成标准: 每章都有扉页开和终章开；每开都有插画键；校验能报告缺失
+- 阻塞: X2 完成后开版
+
+
 ### GP-01 · 内容冻结守门（整治期）
 - status: doing
 - 来源: ADR-0031；ACTIVE_PLAN D 区

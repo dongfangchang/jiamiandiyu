@@ -30,6 +30,12 @@ var _backdrop: TextureRect
 var _slots: Dictionary = {}
 var _captions: Dictionary = {}
 var _opening := false
+## Black sheet over the whole desk for the end of the open beat. The desk is
+## the top layer of the title, and the legacy panel (title, checkpoint
+## summary, backup/test buttons) still lives underneath it; fading the desk
+## itself out would reveal that panel. Darkening forward hands a black frame
+## to the router overlay instead.
+var _cover: ColorRect
 
 
 func _ready() -> void:
@@ -41,6 +47,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_build_backdrop()
 	_build_props()
+	_build_cover()
 
 
 func has_art() -> bool:
@@ -104,6 +111,27 @@ func _build_props() -> void:
 		_captions[key] = caption
 
 
+func _build_cover() -> void:
+	_cover = ColorRect.new()
+	_cover.name = "TitleOpenCover"
+	_cover.color = Color(0, 0, 0, 1)
+	_cover.modulate.a = 0.0
+	_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cover.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	add_child(_cover)
+
+
+func _keep_cover_on_top() -> void:
+	## bind() reparents buttons onto the desk after _ready; the cover must stay
+	## the last child so it darkens them too.
+	if is_instance_valid(_cover):
+		move_child(_cover, get_child_count() - 1)
+
+
+func get_open_cover() -> ColorRect:
+	return _cover
+
+
 signal open_finished
 
 
@@ -145,7 +173,8 @@ func play_open(key: String) -> bool:
 		var zoom := 1.0 + 0.09
 		tween.chain().tween_property(_backdrop, "scale", Vector2(zoom, zoom), 0.42) \
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.chain().tween_property(self, "modulate:a", 0.0, 0.22)
+	_keep_cover_on_top()
+	tween.chain().tween_property(_cover, "modulate:a", 1.0, 0.22)
 	tween.chain().tween_callback(func() -> void:
 		_opening = false
 		open_finished.emit()
@@ -157,6 +186,8 @@ func reset_open() -> void:
 	## Called when returning to the title so a second visit is not blank.
 	_opening = false
 	modulate.a = 1.0
+	if is_instance_valid(_cover):
+		_cover.modulate.a = 0.0
 	if is_instance_valid(_backdrop):
 		_backdrop.scale = Vector2.ONE
 	for key in _slots.keys():
@@ -214,6 +245,7 @@ func bind(key: String, button: Button) -> bool:
 	button.size_flags_horizontal = Control.SIZE_FILL
 	button.size_flags_vertical = Control.SIZE_FILL
 
+	_keep_cover_on_top()
 	button.mouse_entered.connect(_on_hover.bind(key, true))
 	button.mouse_exited.connect(_on_hover.bind(key, false))
 	_refresh_slot(key, button)

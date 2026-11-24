@@ -266,7 +266,7 @@ static func start_route_v07(
 	var progression_engine := ProgressionEngine.new(
 		progression_content,
 		global_balance,
-		services.create_battle_random(&"gacha.draw")
+		services.create_random(&"gacha.draw")
 	)
 	var initialized_progression := progression_engine.initialize(
 		progression_state

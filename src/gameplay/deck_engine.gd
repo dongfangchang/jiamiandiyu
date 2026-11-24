@@ -22,7 +22,7 @@ var _preset_order: Array[String] = []
 var _preset_content: Dictionary = {}
 var _catalog_ids: Array[String] = []
 var _owned_ids: Dictionary = {}
-var _current_sequence: int = 9
+var _current_sequence: int = SequenceTier.BASE
 
 var _revision: int = 0
 var _state: Dictionary = {}
@@ -37,7 +37,7 @@ func _init(content: DeckContentPort, battle_content: BattleContentPort) -> void:
 func initialize(
 	owned_card_ids: Array,
 	initial_state: Dictionary = {},
-	current_sequence: int = 9
+	current_sequence: int = SequenceTier.BASE
 ) -> DeckCommandResult:
 	_reset_runtime()
 	_current_sequence = current_sequence
@@ -319,8 +319,7 @@ func _confirm_deck() -> DeckCommandResult:
 
 
 func _required_sequence(definition: Dictionary) -> int:
-	var sequence_band := String(definition.get("sequence_band", "序列9"))
-	return 8 if sequence_band.contains("序列8") or sequence_band.contains("→8") else 9
+	return SequenceTier.required_for(definition)
 
 
 func _card_add_reason(definition_id: String, current_ids: Array[String]) -> StringName:
@@ -555,7 +554,7 @@ func _initialization_error(reason: StringName) -> DeckCommandResult:
 
 
 func _reset_runtime() -> void:
-	_current_sequence = 9
+	_current_sequence = SequenceTier.BASE
 	_required_size = 0
 	_default_preset_id = &""
 	_preset_order.clear()

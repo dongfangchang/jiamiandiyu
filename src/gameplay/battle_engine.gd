@@ -11,9 +11,6 @@ const OUTCOME_NONE: StringName = &""
 const OUTCOME_VICTORY: StringName = &"victory"
 const OUTCOME_DEFEAT: StringName = &"defeat"
 
-const ENEMY_PRESSURE_INTERVAL_ROUNDS: int = 2
-const ENEMY_PRESSURE_TRIGGER_COUNT: int = 3
-
 const SUPPORTED_EFFECTS: Array[StringName] = [
 	&"damage",
 	&"block",
@@ -43,8 +40,15 @@ const SUPPORTED_STATUSES: Array[String] = [
 	"sluggish",
 ]
 
-const RITUAL_MAX_STACKS: int = 3
-const DEFAULT_DANGER_THRESHOLD: int = 9
+## Integer rule parameters every battle balance must supply under battle.rules.
+const REQUIRED_RULE_KEYS: Array[String] = [
+	"ritual_max_stacks",
+	"danger_intent_corruption_at",
+	"foresight_reduction",
+	"attention_bonus_at_hunter",
+	"attention_bonus_at_max",
+	"corruption_round_hp_loss",
+]
 
 var _content: BattleContentPort
 var _balance: BattleBalancePort
@@ -71,6 +75,9 @@ var _starting_hand: int = 0
 var _turn_draw_to_hand_size: int = 0
 var _max_hand_size: int = 0
 var _enemy_pressure_start_round: int = 0
+var _enemy_pressure_interval: int = 0
+var _enemy_pressure_trigger_count: int = 0
+var _enemy_pressure_bonus: int = 0
 var _chain_threshold: int = 0
 var _chain_damage: int = 0
 var _chain_draw: int = 0
@@ -82,7 +89,11 @@ var _turn_played_ids: Array[String] = []
 var _turn_triggered_synergies: Array[String] = []
 var _turn_last_enemy_target: StringName = &""
 var _synergies: Array[Dictionary] = []
-var _danger_threshold: int = DEFAULT_DANGER_THRESHOLD
+var _danger_threshold: int = 0
+## Integer rule parameters from battle.rules, keyed by REQUIRED_RULE_KEYS.
+var _rules: Dictionary = {}
+## threat id -> risk amount added per enemy action (battle.rules.threat_risk).
+var _threat_risk: Dictionary = {}
 var _attention_hunter_at: int = 0
 var _corruption_penalty_at: int = 0
 ## Consumed by discard effects during the current play_card resolution.
@@ -118,14 +129,22 @@ func initialize(
 	var turn_draw_value: Variant = _balance.get_value(&"player.turn_draw_to_hand_size")
 	var max_hand_value: Variant = _balance.get_value(&"player.max_hand_size")
 	var pressure_value: Variant = _balance.get_value(&"battle.enemy_pressure_start_round")
+	var pressure_rules: Variant = _balance.get_value(&"battle.enemy_pressure")
+	var danger_value: Variant = _balance.get_value(&"battle.danger_threshold")
+	var rules_value: Variant = _balance.get_value(&"battle.rules")
 	if (
 		max_rounds_value == null
 		or starting_hand_value == null
 		or turn_draw_value == null
 		or max_hand_value == null
 		or pressure_value == null
+		or pressure_rules == null
+		or danger_value == null
+		or rules_value == null
 	):
 		return _initialization_error(&"balance_missing")
+	if not _load_rule_parameters(pressure_rules, rules_value):
+		return _initialization_error(&"balance_invalid")
 
 	_max_rounds = int(max_rounds_value)
 	_starting_hand = int(starting_hand_value)
@@ -155,9 +174,7 @@ func initialize(
 		or _chain_spirit < 0
 	):
 		return _initialization_error(&"balance_invalid")
-	var danger_value: Variant = _balance.get_value(&"battle.danger_threshold")
-	if danger_value != null:
-		_danger_threshold = maxi(1, int(danger_value))
+	_danger_threshold = maxi(1, int(danger_value))
 	var attention_thresholds: Variant = _balance.get_value(&"risk.attention_thresholds")
 	if attention_thresholds is Dictionary:
 		_attention_hunter_at = maxi(0, int(attention_thresholds.get("hunter_at", 0)))
@@ -245,10 +262,9 @@ func query_card_play(
 		return BattlePlayability.new(false, BattlePlayability.CARD_NOT_IN_HAND)
 	var card: Dictionary = _hand[card_index]
 	var definition: Dictionary = _get_card_definition(card)
-	if int(definition.get("cost_spirit", -1)) < 0:
-		return BattlePlayability.new(false, &"definition_error")
-	if int(_player["spirit"]) < int(definition["cost_spirit"]):
-		return BattlePlayability.new(false, BattlePlayability.INSUFFICIENT_SPIRIT)
+	var cost_check := _card_cost_block_reason(definition)
+	if cost_check != BattlePlayability.PLAYABLE:
+		return BattlePlayability.new(false, cost_check)
 	if not _is_target_valid(definition, target_id):
 		return BattlePlayability.new(false, BattlePlayability.INVALID_TARGET)
 	var discard_check := _validate_discard_choice(
@@ -273,9 +289,15 @@ func get_snapshot() -> BattleSnapshot:
 			"target_type": String(definition.get("target_type", "none")),
 			"exhaust": bool(definition.get("exhaust", false)),
 			"consumes_ritual": bool(definition.get("consumes_ritual", false)),
-			"required_discard": _required_discard_count(definition),
+			"required_discard": _effective_required_discard(definition),
 			"synergy_ids": _synergy_ids_for_card(String(card["definition_id"])),
 		})
+		var blocked_reason := _hand_card_block_reason(definition)
+		hand_views[-1]["playable"] = blocked_reason == BattlePlayability.PLAYABLE
+		hand_views[-1]["blocked_reason"] = (
+			"" if blocked_reason == BattlePlayability.PLAYABLE else String(blocked_reason)
+		)
+		hand_views[-1]["preview"] = _card_preview(definition)
 
 	var enemy_views: Array[Dictionary] = []
 	var max_pressure: int = 0
@@ -299,6 +321,7 @@ func get_snapshot() -> BattleSnapshot:
 			"block": int(enemy["block"]),
 			"base_attack": int(enemy.get("base_attack", 0)),
 			"threat": String(enemy.get("threat", "")),
+			"threat_amount": _threat_amount(String(enemy.get("threat", ""))),
 			"traits": enemy.get("traits", []).duplicate(),
 			"statuses": enemy["statuses"].duplicate(true),
 			"intent": enemy["intent"].duplicate(true),
@@ -317,6 +340,9 @@ func get_snapshot() -> BattleSnapshot:
 	var outcome_value: StringName = _outcome
 	var outcome_reason_value: StringName = _outcome_reason
 	var battle_id_value: StringName = _battle_id
+	var player_view: Dictionary = _player.duplicate(true)
+	if not player_view.is_empty():
+		player_view["ritual_payoff_preview"] = _ritual_payoff_preview()
 	return BattleSnapshot.new({
 		"revision": revision_value,
 		"battle_id": String(battle_id_value),
@@ -331,7 +357,7 @@ func get_snapshot() -> BattleSnapshot:
 			"draw": _chain_draw,
 			"spirit": _chain_spirit,
 		},
-		"player": _player.duplicate(true),
+		"player": player_view,
 		"hand": hand_views,
 		"draw_pile_count": _draw_pile.size(),
 		"discard_pile_count": _discard_pile.size(),
@@ -340,7 +366,7 @@ func get_snapshot() -> BattleSnapshot:
 		"synergies": _synergy_views(),
 		"ritual": {
 			"stacks": _player_status_stacks(&"ritual_preparation"),
-			"max": RITUAL_MAX_STACKS,
+			"max": _rule("ritual_max_stacks"),
 		},
 		"risk_pressure": {
 			"attention_penalty": _attention_penalty(),
@@ -659,7 +685,8 @@ func _generate_enemy_intents() -> void:
 		var intent_id := String(template.get("intent_id", "attack"))
 		enemy["intent"] = {
 			"intent_id": intent_id,
-			"display_name_zh": String(template.get("display_name_zh", _default_intent_name(intent_id))),
+			"variant_id": String(template.get("variant_id", "")),
+			"display_name_zh": String(template.get("display_name_zh", "")),
 			"description_zh": String(template.get("description_zh", "")),
 			"damage_delta": int(template.get("damage_delta", 0)),
 			"corruption": int(template.get("corruption", 0)),
@@ -686,24 +713,8 @@ func _current_intent_template(enemy: Dictionary) -> Dictionary:
 	var index: int = maxi(0, _round_number - 1) % int(intents.size())
 	var template: Dictionary = intents[index] if intents[index] is Dictionary else {"intent_id": "attack"}
 	if String(template.get("intent_id", "attack")) == "curse" and _find_status_index(enemy["statuses"], &"silenced") >= 0:
-		return {
-			"intent_id": "attack",
-			"display_name_zh": "失声后的扑击",
-			"description_zh": "能力被窃走或压制，只能发动普通攻击。",
-		}
+		return {"intent_id": "attack", "variant_id": "silenced"}
 	return template
-
-
-func _default_intent_name(intent_id: String) -> String:
-	match intent_id:
-		"curse":
-			return "诅咒"
-		"fortify":
-			return "防备"
-		"cry":
-			return "啼哭"
-		_:
-			return "攻击"
 
 
 func _refresh_enemy_intent_damage(enemy: Dictionary) -> void:
@@ -717,7 +728,10 @@ func _refresh_enemy_intent_damage(enemy: Dictionary) -> void:
 		+ int(intent.get("damage_delta", 0))
 	)
 	intent["damage"] = damage
-	intent["danger"] = damage + _attention_penalty() >= _danger_threshold or int(intent.get("corruption", 0)) >= 2
+	intent["danger"] = (
+		damage + _attention_penalty() >= _danger_threshold
+		or int(intent.get("corruption", 0)) >= _rule("danger_intent_corruption_at")
+	)
 	if bool(intent.get("revealed", false)):
 		intent["visible_fields"] = _intent_visible_fields(intent)
 	enemy["intent"] = intent
@@ -727,6 +741,7 @@ func _intent_visible_fields(intent: Dictionary) -> Dictionary:
 	return {
 		"damage": int(intent.get("damage", 0)),
 		"intent_id": String(intent.get("intent_id", "attack")),
+		"variant_id": String(intent.get("variant_id", "")),
 		"display_name_zh": String(intent.get("display_name_zh", "")),
 		"corruption": int(intent.get("corruption", 0)),
 		"attention": int(intent.get("attention", 0)),
@@ -767,11 +782,12 @@ func _resolve_enemy_action(enemy: Dictionary) -> void:
 		raw_damage += attention_bonus
 	var foresight_index := _find_status_index(_player["statuses"], &"foresight")
 	if foresight_index >= 0 and raw_damage > 0:
-		raw_damage = maxi(0, raw_damage - 1)
+		var reduction := _rule("foresight_reduction")
+		raw_damage = maxi(0, raw_damage - reduction)
 		_player["statuses"].remove_at(foresight_index)
 		_emit(&"ForesightConsumed", {
 			"enemy_id": String(enemy["id"]),
-			"reduction": 1,
+			"reduction": reduction,
 		})
 	var weaken_index: int = _find_status_index(enemy["statuses"], &"weaken")
 	if weaken_index >= 0:
@@ -788,6 +804,7 @@ func _resolve_enemy_action(enemy: Dictionary) -> void:
 	_emit(&"EnemyActed", {
 		"enemy_id": String(enemy["id"]),
 		"intent_id": String(intent.get("intent_id", "attack")),
+		"variant_id": String(intent.get("variant_id", "")),
 		"display_name_zh": String(intent.get("display_name_zh", "")),
 		"damage": raw_damage,
 		"attention_bonus": attention_bonus,
@@ -806,20 +823,24 @@ func _resolve_enemy_action(enemy: Dictionary) -> void:
 		return
 	var threat := String(enemy.get("threat", ""))
 	if threat == "corruption" and not silenced:
-		_apply_risk(&"corruption", 2, "enemy_threat")
+		_apply_risk(&"corruption", _threat_amount(threat), "enemy_threat")
 	elif threat == "attention":
-		_apply_risk(&"attention", 1, "enemy_threat")
+		_apply_risk(&"attention", _threat_amount(threat), "enemy_threat")
+
+
+func _threat_amount(threat: String) -> int:
+	return int(_threat_risk.get(threat, 0))
 
 
 func _apply_enemy_pressure_if_due() -> bool:
 	var offset: int = _round_number - _enemy_pressure_start_round
 	var last_offset: int = (
-		ENEMY_PRESSURE_INTERVAL_ROUNDS * (ENEMY_PRESSURE_TRIGGER_COUNT - 1)
+		_enemy_pressure_interval * (_enemy_pressure_trigger_count - 1)
 	)
 	if (
 		offset < 0
 		or offset > last_offset
-		or offset % ENEMY_PRESSURE_INTERVAL_ROUNDS != 0
+		or offset % _enemy_pressure_interval != 0
 	):
 		return false
 
@@ -827,7 +848,7 @@ func _apply_enemy_pressure_if_due() -> bool:
 	var current_bonus: int = 0
 	for enemy in _enemies:
 		if _is_alive(enemy):
-			enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0)) + 1
+			enemy["pressure_bonus"] = int(enemy.get("pressure_bonus", 0)) + _enemy_pressure_bonus
 			current_bonus = maxi(current_bonus, int(enemy["pressure_bonus"]))
 			living_count += 1
 	if living_count > 0:
@@ -1000,14 +1021,15 @@ func _apply_effect(
 				&"ritual_preparation",
 				int(effect.get("amount", 1)),
 				99,
-				RITUAL_MAX_STACKS
+				_rule("ritual_max_stacks")
 			)
 			var ritual_after := _player_status_stacks(&"ritual_preparation")
 			if ritual_after > ritual_before:
 				_emit(&"RitualProgressed", {
 					"before": ritual_before,
 					"after": ritual_after,
-					"max": RITUAL_MAX_STACKS,
+					"max": _rule("ritual_max_stacks"),
+					"payoff_damage": int(_ritual_payoff_preview().get("damage", 0)),
 				})
 		&"risk":
 			_apply_risk(StringName(effect["risk_id"]), int(effect["amount"]))
@@ -1084,10 +1106,29 @@ func _as_string_array(value: Variant) -> Array[String]:
 
 
 func _resolve_ritual_scaling(definition: Dictionary) -> Array:
+	if not bool(definition.get("consumes_ritual", false)):
+		return definition.get("effects", []).duplicate(true)
+	var stacks := _player_status_stacks(&"ritual_preparation")
+	var effects := _ritual_scaled_effects(definition, stacks)
+	var ritual_index := _find_status_index(_player["statuses"], &"ritual_preparation")
+	if ritual_index >= 0:
+		_player["statuses"].remove_at(ritual_index)
+	_emit(&"RitualCompleted", {
+		"definition_id": String(definition.get("id", "")),
+		"stacks": stacks,
+		"max": _rule("ritual_max_stacks"),
+		"complete": stacks >= _rule("ritual_max_stacks"),
+		"payoff_damage": int(_effects_preview(effects)["damage"]),
+	})
+	return effects
+
+
+## Card effects with per_ritual_stack bonuses applied for the given stacks.
+## Pure: shared by play resolution and snapshot previews.
+func _ritual_scaled_effects(definition: Dictionary, stacks: int) -> Array:
 	var effects: Array = definition.get("effects", []).duplicate(true)
 	if not bool(definition.get("consumes_ritual", false)):
 		return effects
-	var stacks := _player_status_stacks(&"ritual_preparation")
 	for index in range(effects.size()):
 		if not effects[index] is Dictionary:
 			continue
@@ -1102,15 +1143,6 @@ func _resolve_ritual_scaling(definition: Dictionary) -> Array:
 			field = "stacks"
 		effect[field] = int(effect.get(field, 0)) + per_stack * stacks
 		effects[index] = effect
-	var ritual_index := _find_status_index(_player["statuses"], &"ritual_preparation")
-	if ritual_index >= 0:
-		_player["statuses"].remove_at(ritual_index)
-	_emit(&"RitualCompleted", {
-		"definition_id": String(definition.get("id", "")),
-		"stacks": stacks,
-		"max": RITUAL_MAX_STACKS,
-		"complete": stacks >= RITUAL_MAX_STACKS,
-	})
 	return effects
 
 
@@ -1631,7 +1663,7 @@ func auto_discard_ids_for(card_instance_id: StringName) -> Array[StringName]:
 	if card_index < 0:
 		return result
 	var definition: Dictionary = _get_card_definition(_hand[card_index])
-	var required := mini(_required_discard_count(definition), maxi(0, _hand.size() - 1))
+	var required := _effective_required_discard(definition)
 	for card in _hand:
 		var id := StringName(card.get("instance_id", ""))
 		if id == card_instance_id or id.is_empty():
@@ -1658,6 +1690,120 @@ func _required_discard_count(definition: Dictionary) -> int:
 	return total
 
 
+## Discards the player must choose for a card in hand: capped by the other cards held.
+func _effective_required_discard(definition: Dictionary) -> int:
+	return mini(_required_discard_count(definition), maxi(0, _hand.size() - 1))
+
+
+func _card_cost_block_reason(definition: Dictionary) -> StringName:
+	if int(definition.get("cost_spirit", -1)) < 0:
+		return &"definition_error"
+	if int(_player["spirit"]) < int(definition["cost_spirit"]):
+		return BattlePlayability.INSUFFICIENT_SPIRIT
+	return BattlePlayability.PLAYABLE
+
+
+## Card-level gate for the snapshot: whether some target/discard choice can play it now.
+func _hand_card_block_reason(definition: Dictionary) -> StringName:
+	if _phase != PHASE_PLAYER_ACTION:
+		return BattlePlayability.WRONG_PHASE
+	var reason := _card_cost_block_reason(definition)
+	if reason != BattlePlayability.PLAYABLE:
+		return reason
+	if StringName(definition.get("target_type", "none")) == &"enemy":
+		for enemy in _enemies:
+			if _is_alive(enemy):
+				return BattlePlayability.PLAYABLE
+		return BattlePlayability.INVALID_TARGET
+	return BattlePlayability.PLAYABLE
+
+
+## Effect totals a card would resolve with right now (ritual scaling applied),
+## before target-side modifiers such as mark or block.
+func _card_preview(definition: Dictionary) -> Dictionary:
+	var stacks := _player_status_stacks(&"ritual_preparation")
+	var preview := _effects_preview(_ritual_scaled_effects(definition, stacks))
+	preview["ritual_consumed"] = stacks if bool(definition.get("consumes_ritual", false)) else 0
+	return preview
+
+
+func _ritual_payoff_preview() -> Dictionary:
+	if _content == null or _player.is_empty():
+		return {}
+	var stacks := _player_status_stacks(&"ritual_preparation")
+	for definition_id in _deck_definition_ids:
+		var definition: Dictionary = _content.get_card_definition(StringName(definition_id))
+		if not bool(definition.get("consumes_ritual", false)):
+			continue
+		return {
+			"definition_id": definition_id,
+			"stacks": stacks,
+			"damage": int(_card_preview(definition)["damage"]),
+		}
+	return {}
+
+
+## Unconditional totals at the top level; condition-gated effects under "conditional".
+func _effects_preview(effects: Array) -> Dictionary:
+	var preview := _empty_effect_totals()
+	var conditional := _empty_effect_totals()
+	for effect_value in effects:
+		if not effect_value is Dictionary:
+			continue
+		var effect: Dictionary = effect_value
+		var condition: Variant = effect.get("condition", null)
+		var gated: bool = condition is Dictionary and not condition.is_empty()
+		_accumulate_effect(conditional if gated else preview, effect)
+	preview["conditional"] = conditional
+	return preview
+
+
+func _empty_effect_totals() -> Dictionary:
+	return {
+		"damage": 0,
+		"block": 0,
+		"heal": 0,
+		"draw": 0,
+		"spirit": 0,
+		"discard": 0,
+		"self_hp_loss": 0,
+		"ritual_stacks": 0,
+		"corruption": 0,
+		"attention": 0,
+		"statuses": [],
+	}
+
+
+func _accumulate_effect(totals: Dictionary, effect: Dictionary) -> void:
+	match StringName(effect.get("effect_id", "")):
+		&"damage", &"damage_all":
+			totals["damage"] += maxi(0, int(effect.get("amount", 0)))
+		&"block":
+			totals["block"] += int(effect.get("amount", 0))
+		&"heal":
+			totals["heal"] += int(effect.get("amount", 0))
+		&"lose_hp":
+			totals["self_hp_loss"] += maxi(0, int(effect.get("amount", 0)))
+		&"draw":
+			totals["draw"] += int(effect.get("count", 0))
+		&"discard":
+			totals["discard"] += int(effect.get("count", 0))
+		&"spirit":
+			totals["spirit"] += int(effect.get("amount", 0))
+		&"prepare_ritual":
+			totals["ritual_stacks"] += int(effect.get("amount", 1))
+		&"risk":
+			var risk_id := String(effect.get("risk_id", ""))
+			if totals.has(risk_id):
+				totals[risk_id] += int(effect.get("amount", 0))
+		&"apply_status":
+			totals["statuses"].append({
+				"status_id": String(effect.get("status_id", "")),
+				"stacks": int(effect.get("stacks", 0)),
+				"target": String(effect.get("target", "")),
+			})
+
+
 func _normalize_discard_ids(discard_ids: Array) -> Array[StringName]:
 	var result: Array[StringName] = []
 	var seen: Dictionary = {}
@@ -1675,10 +1821,7 @@ func _validate_discard_choice(
 	definition: Dictionary,
 	discard_ids: Array
 ) -> StringName:
-	var required := mini(
-		_required_discard_count(definition),
-		maxi(0, _hand.size() - 1)
-	)
+	var required := _effective_required_discard(definition)
 	if required <= 0:
 		return BattlePlayability.PLAYABLE
 	var chosen := _normalize_discard_ids(discard_ids)
@@ -1760,7 +1903,12 @@ func _reset_runtime() -> void:
 	_turn_triggered_synergies.clear()
 	_turn_last_enemy_target = &""
 	_synergies.clear()
-	_danger_threshold = DEFAULT_DANGER_THRESHOLD
+	_danger_threshold = 0
+	_rules = {}
+	_threat_risk = {}
+	_enemy_pressure_interval = 0
+	_enemy_pressure_trigger_count = 0
+	_enemy_pressure_bonus = 0
 	_attention_hunter_at = 0
 	_corruption_penalty_at = 0
 	_player = {}
@@ -1771,6 +1919,37 @@ func _reset_runtime() -> void:
 	_discard_pile.clear()
 	_hand.clear()
 	_pending_events.clear()
+
+
+func _load_rule_parameters(pressure_value: Variant, rules_value: Variant) -> bool:
+	if not pressure_value is Dictionary or not rules_value is Dictionary:
+		return false
+	var pressure: Dictionary = pressure_value
+	for key in ["interval_rounds", "trigger_count", "bonus_per_trigger"]:
+		if not _is_positive_integer(pressure.get(key)):
+			return false
+	_enemy_pressure_interval = int(pressure["interval_rounds"])
+	_enemy_pressure_trigger_count = int(pressure["trigger_count"])
+	_enemy_pressure_bonus = int(pressure["bonus_per_trigger"])
+	var rules: Dictionary = rules_value
+	for key in REQUIRED_RULE_KEYS:
+		if not _is_non_negative_integer(rules.get(key)):
+			return false
+		_rules[key] = int(rules[key])
+	if int(_rules["ritual_max_stacks"]) <= 0:
+		return false
+	var threat_value: Variant = rules.get("threat_risk")
+	if not threat_value is Dictionary:
+		return false
+	for threat_id in threat_value:
+		if not _is_non_negative_integer(threat_value[threat_id]):
+			return false
+		_threat_risk[String(threat_id)] = int(threat_value[threat_id])
+	return true
+
+
+func _rule(key: String) -> int:
+	return int(_rules.get(key, 0))
 
 
 func _prepare_enemy_runtime(enemy: Dictionary) -> bool:
@@ -1935,15 +2114,17 @@ func _attention_penalty() -> int:
 	if _player.is_empty() or _attention_hunter_at <= 0:
 		return 0
 	var attention := int(_player.get("attention", 0))
-	if attention >= int(_player.get("max_attention", 10)):
-		return 2
-	return 1 if attention >= _attention_hunter_at else 0
+	if attention >= int(_player.get("max_attention", 0)):
+		return _rule("attention_bonus_at_max")
+	return _rule("attention_bonus_at_hunter") if attention >= _attention_hunter_at else 0
 
 
 func _corruption_penalty() -> int:
 	if _player.is_empty() or _corruption_penalty_at <= 0:
 		return 0
-	return 1 if int(_player.get("corruption", 0)) >= _corruption_penalty_at else 0
+	if int(_player.get("corruption", 0)) >= _corruption_penalty_at:
+		return _rule("corruption_round_hp_loss")
+	return 0
 
 
 func _apply_sluggish() -> void:

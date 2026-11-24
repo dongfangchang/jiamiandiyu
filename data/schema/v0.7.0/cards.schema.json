@@ -28,9 +28,16 @@
           "category",
           "cost_spirit",
           "target_type",
-          "effects"
+          "effects",
+          "required_sequence"
         ],
         "properties": {
+          "required_sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9,
+            "description": "Lowest-numbered sequence tier needed to use this card (9 = starting tier). Rules read this; sequence_band is display text only."
+          },
           "id": {
             "type": "string",
             "pattern": "^card\\."

@@ -205,8 +205,8 @@ func _test_upgrade() -> void:
 		}
 	)
 	var collection := [
-		{"definition_id": "card.skill.ink_dart", "copies": 2, "level": 0, "fragments": 8, "max_level": 3, "next_upgrade_cost": 6},
-		{"definition_id": "card.skill.focus", "copies": 1, "level": 0, "fragments": 0, "max_level": 3, "next_upgrade_cost": 6},
+		{"definition_id": "card.skill.ink_dart", "copies": 2, "level": 0, "fragments": 8, "max_level": 3, "next_upgrade_cost": 6, "can_upgrade": true, "upgrade_cost": 6},
+		{"definition_id": "card.skill.focus", "copies": 1, "level": 0, "fragments": 0, "max_level": 3, "next_upgrade_cost": 6, "can_upgrade": false, "upgrade_cost": 6},
 	]
 	screen.apply_snapshot(_progression_snapshot({
 		"phase": "hub",
