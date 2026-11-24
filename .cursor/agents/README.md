@@ -33,11 +33,30 @@
 
 协作协议全文：`docs/TEAM_PROTOCOL.md`。
 
+## 任务队列（先立后做）
+
+每个角色目录：`.cursor/agents/<role>/tasks.md`  
+协议：`_meta/TASKS_FORMAT.md`。
+
+| 角色 | 任务文件 |
+|---|---|
+| product-manager | `product-manager/tasks.md` |
+| architect | `architect/tasks.md` |
+| coordinator | `coordinator/tasks.md` |
+| ui-designer | `ui-designer/tasks.md` |
+| art | `art/tasks.md` |
+| gameplay-designer | `gameplay-designer/tasks.md` |
+| numerical-designer | `numerical-designer/tasks.md` |
+| local-backend | `local-backend/tasks.md` |
+
+**纪律**：无匹配任务条目不得改生产文件；开工标 `doing`，收工标 `done`/`cancelled` 并写证据。
+
 ## 技能框架（自学循环）
 
 | 组件 | 路径 |
 |---|---|
 | 循环协议 | `_meta/SKILL_LOOP.md` |
+| 任务格式 | `_meta/TASKS_FORMAT.md` |
 | 工具注册 | `_meta/TOOL_REGISTRY.md` |
 | 技能成品 | `../skills/` + `REGISTRY.md` |
 | 角色记忆 | `../agent-memory/<role>/` |
@@ -48,9 +67,9 @@
 
 提交/推送时**必须包含**若有变更的：
 
-- `.cursor/agents/**`
+- `.cursor/agents/**`（含各 `tasks.md`）
 - `.cursor/skills/**`
 - `.cursor/agent-memory/**`
 - `.cursor/rules/**`
 
-禁止把 journal/drafts 留在本机不推。跨项目通用框架另见用户级 `~/.cursor/agents/` 与用户 Agent Store 的 `skills/`。
+禁止把 journal/drafts/tasks 留在本机不推。跨项目通用框架另见用户级 `~/.cursor/agents/` 与用户 Agent Store 的 `skills/`。

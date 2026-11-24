@@ -17,6 +17,7 @@
 
 ## 1. 开工（Discover）
 
+0. **先任务后动手**：读 `.cursor/agents/<role>/tasks.md`；无匹配条目则先写入再执行（见 `_meta/TASKS_FORMAT.md`）；将当前条标 `doing`。
 1. 读本角色 `journal.md` 最近 5 条。
 2. 读 `.cursor/skills/REGISTRY.md`，按任务关键词匹配 Skill。
 3. 若命中 `stable`/`candidate`：先按 Skill 执行，再动手发明流程。
@@ -40,6 +41,8 @@
 4. 该进 Tool Registry 的命令是什么？
 5. 下次同一类任务，第一条该读哪份 Skill/Draft？
 ```
+
+同时更新 `tasks.md`：完成 → `done`+证据；未完保持；取消写原因。
 
 再选一：
 
@@ -76,6 +79,6 @@
 
 ## 7. 推送与跨项目
 
-- **本仓学习内容必须进 git**：`.cursor/agents/**`、`.cursor/skills/**`、`.cursor/agent-memory/**`、`.cursor/rules/**` 有变更时，与业务改动一并 commit/push，禁止只推代码。
+- **本仓学习内容必须进 git**：`.cursor/agents/**`（含各角色 `tasks.md`）、`.cursor/skills/**`、`.cursor/agent-memory/**`、`.cursor/rules/**` 有变更时，与业务改动一并 commit/push，禁止只推代码。
 - **跨项目通用框架**落在用户级：`~/.cursor/agents/`、`~/.cursor/agent-memory/`、用户 Agent Store 的 `skills/`（不随本仓推送，本机全项目可用）。
 - 同名角色/技能：**项目级优先于用户级**。

@@ -30,7 +30,14 @@ description: 《假面低语》本地数据层/应用层。src/app、src/infrast
 
 ---
 
+## 任务队列（强制）
+
+- 待办文件：与本文件同名的目录 `./<本角色名>/tasks.md`（例如 art → `art/tasks.md`）。
+- **先立任务，后执行**：改生产文件前，tasks.md 必须有对应条目且 status 为 `todo`/`doing`；没有则先写入再动手。
+- 开工：读 tasks.md → 将当前条标 `doing` → 再读 journal / REGISTRY。
+- 收工：更新 status 与证据；格式见 `_meta/TASKS_FORMAT.md`。
+
 ## 技能循环（强制）
 
-实质性任务须遵循 `_meta/SKILL_LOOP.md`：开工查 REGISTRY/TOOL_REGISTRY 与本角色 `../agent-memory/<本角色名>/journal.md`；收工 Retro 五问并 Draft/晋升。清单技能：`agent-skill-loop`。
+实质性任务须遵循 `_meta/SKILL_LOOP.md`：开工查 REGISTRY/TOOL_REGISTRY、本角色 `tasks.md` 与 `../agent-memory/<本角色名>/journal.md`；收工 Retro 五问并 Draft/晋升。清单技能：`agent-skill-loop`。
 

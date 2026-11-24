@@ -14,7 +14,8 @@ alwaysApply: true
 - 跨职能任务：**委派**对应 subagent，而不是一个人改光所有目录。
 - 开场先对齐 `docs/CURRENT_VERSION.md` 与角色所有权。
 - 冲突升级给 **product-manager**；集成/迁资源给 **coordinator**。
-- 收工走 `agent-skill-loop`；推送时把 `.cursor/**` 学习内容一并入库。
+- 收工走 `agent-skill-loop`；推送时把 `.cursor/**` 学习内容（含各角色 `tasks.md`）一并入库。
+- **先立任务后执行**：各角色待办在 `.cursor/agents/<role>/tasks.md`。
 
 ## 用户可点名
 
