@@ -4,6 +4,15 @@
 
 ## 进行中 / 待办
 
+### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
+- status: todo
+- 来源: 2026-11-24 轮询。ADR-0035（Forward+）和 ADR-0036 复核（Mobile + 调优）冲突，由用户裁决。
+- 做法:
+  1. **在用户裁决前，不要提交 `project.godot` 的 rendering_method 改动。**
+  2. 先做与渲染器无关的调优（色调映射、环境光、烛光主光、页面材质 `specular_mode = SPECULAR_DISABLED`）。参数见 `tests/ui/renderer_eval_look.gd` 和 ADR-0036。
+  3. 曝光与辉光混合方式按当前渲染器分支设置（ADR-0036 中有数值）。
+  4. 任何渲染器下，正文对比度都必须 ≥ 4.5（ADR-0036 实测 Mobile 为 4.04，需要加深墨色或提亮纸色）。
+
 ### UI-P0-3-reject · 画面升级退回：背景板遮住书页，正文和题名不可见
 - status: todo
 - 优先级: P0（最高）

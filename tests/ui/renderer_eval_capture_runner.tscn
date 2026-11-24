@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/ui/renderer_eval_capture_runner.gd" id="1"]
+
+[node name="RendererEvalCaptureRunner" type="Node"]
+script = ExtResource("1")
