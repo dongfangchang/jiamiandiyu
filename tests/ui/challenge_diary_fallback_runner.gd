@@ -1,4 +1,6 @@
 extends Node
+
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
 ## BUG-0038: route nodes without a diary entry get fallback spreads whose seal
 ## issues the same RouteCommand as a main spread; the main volume is unchanged.
 
@@ -28,6 +30,7 @@ var _routes: Dictionary = {}
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_routes = _load_routes()
 	_expect(_routes.has(MAIN_ROUTE) and _routes.has(CHALLENGE_ROUTE), "route content loads")
 	_test_main_view_unchanged()

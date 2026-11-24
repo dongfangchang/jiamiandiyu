@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.55: diary chapter hub replaces route-tree map UI.
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
@@ -13,6 +15,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var catalog := DiaryCatalogScript.new()
 	_expect(catalog.ensure_loaded(), "diary volume loads")
 	var view := catalog.build_view({
@@ -101,7 +104,7 @@ func _ready() -> void:
 	}))
 	await get_tree().process_frame
 	_expect(screen.get_page_count() >= 2, "screen page count")
-	_expect(screen.get_background_path() == SceneCatalog.UI_CANVAS, "uses rain-night canvas")
+	_expect(screen.get_background_path() == SceneCatalog.ui_canvas(), "uses rain-night canvas")
 	_expect(not screen.is_page_flipping(), "not flipping on load")
 	## v0.84 P0: enter control is desk WaxSealButton (legacy ClueHit retired from main path).
 	var wax := screen.find_child("WaxSealButton", true, false) as Button

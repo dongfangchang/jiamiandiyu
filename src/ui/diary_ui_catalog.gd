@@ -1,11 +1,12 @@
 extends RefCounted
 
-## UI-side diary volume → Spread list (FileAccess stays out of gameplay).
+## UI-side diary volume → Spread list. The volume is the schema-validated
+## document the app loads at startup and hands over via `configure()` (R2-09);
+## this file never opens content itself.
 ## v0.84 P0: one main clue → one spread (cross-page level).
 ## BUG-0038: route nodes the volume does not map (challenge routes) get plain
 ## fallback spreads titled by the node's own display name.
 
-const DIARY_PATH := "res://data/diaries/v0.55.0/tingen_volume_1.json"
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
 ## Clue visual states matching the flip subsystem contract.
@@ -24,27 +25,28 @@ const SNAPSHOT_FLAG_KEYS: Array[String] = [
 ]
 const OPEN_SELECT_NODE := "select_node"
 
+static var _configured_volume: Dictionary = {}
+
 var _volume: Dictionary = {}
 var _pages: Array = []
 var _loaded := false
+
+
+static func configure(volume: Dictionary) -> void:
+	_configured_volume = volume
+
+
+static func is_configured() -> bool:
+	return not _configured_volume.is_empty()
 
 
 func ensure_loaded() -> bool:
 	if _loaded:
 		return not _pages.is_empty()
 	_loaded = true
-	if not FileAccess.file_exists(DIARY_PATH):
-		return false
-	var file := FileAccess.open(DIARY_PATH, FileAccess.READ)
-	if file == null:
-		return false
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary:
-		return false
-	_volume = parsed
-	_pages = _volume.get("pages", [])
-	if not _pages is Array:
-		_pages = []
+	_volume = _configured_volume
+	var pages: Variant = _volume.get("pages", [])
+	_pages = pages if pages is Array else []
 	return not _pages.is_empty()
 
 

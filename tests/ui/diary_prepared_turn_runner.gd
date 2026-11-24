@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## Diary turn must be prepared, not loaded: with neighbours supplied, a
 ## committed turn lands on a pair that was already filled and rendered, the
 ## commit itself does no blocking texture load, and the same three page pairs
@@ -21,6 +23,7 @@ var _desk: Control
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	TableSfx.set_muted(true)
 	_spreads = _make_spreads()
 	_expect(_spreads.size() >= 4, "need at least 4 illustrated spreads (%d)" % _spreads.size())
@@ -139,7 +142,7 @@ func _same_ids(a: Array, b: Array) -> bool:
 
 func _make_spreads() -> Array:
 	var out: Array = []
-	for scene_id in SceneCatalog.DIARY_PATHS.keys():
+	for scene_id in SceneCatalog.diary_scene_ids():
 		var path := SceneCatalog.diary_path_for(String(scene_id))
 		if path.is_empty() or not ResourceLoader.exists(path):
 			continue

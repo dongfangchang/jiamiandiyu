@@ -1,38 +1,42 @@
 extends RefCounted
 
-const ROUTE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+
 ## Quiet rain-night canvas under route chrome.
 const ROUTE_BACKGROUND_DIM := 0.32
-const REST_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const RITUAL_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 ## Chapter bosses (失控的老尼尔 / 梅高欧丝) share the red-eyed monster art.
-const BOSS_ART := "res://assets/game/v0.48.0/enemies/enemy-mirror-baron.png"
-const ROUTE_ICON_BASE := "res://assets/game/v0.24.0/v0.5.0/icons/"
-const RITUAL_CARD_BASE := "res://assets/game/v0.24.0/v0.5.0/rituals/"
+const BOSS_ENEMY_ID := "enemy.mirror_baron"
 
-const ROUTE_STATE_ICON := {
-	"locked": "route-pending.png",
-	"available": "route-current.png",
-	"completed": "route-completed.png",
-}
 
-const RITUAL_STEP_ART := {
-	"select_ids": "ritual-card-name-record.png",
-	"ordered_ids": "ritual-card-chronology.png",
-	"select_id": "ritual-card-seal.png",
-}
+static func route_background() -> String:
+	return SceneCatalog.path_for("scene.hub.route_map", "hub")
+
+
+static func rest_background() -> String:
+	return SceneCatalog.path_for("scene.hub.rest_blackthorn", "rest")
+
+
+static func ritual_background() -> String:
+	return SceneCatalog.path_for("scene.ritual.obituary", "ritual")
+
+
+static func boss_art() -> String:
+	return AssetRegistry.lookup("enemies", BOSS_ENEMY_ID)
 
 
 static func route_state_icon(state: String) -> String:
-	return ROUTE_ICON_BASE + String(
-		ROUTE_STATE_ICON.get(state, "route-pending.png")
-	)
+	var path := AssetRegistry.lookup("icons", "icon.route." + state)
+	return path if not path.is_empty() else AssetRegistry.fallback("route_state")
+
+
+static func ritual_outcome_icon(success: bool) -> String:
+	return AssetRegistry.lookup("icons", "icon.ritual.success" if success else "icon.ritual.failure")
 
 
 static func ritual_step_art(step_type: String) -> String:
-	return RITUAL_CARD_BASE + String(
-		RITUAL_STEP_ART.get(step_type, "ritual-card-seal.png")
-	)
+	var path := AssetRegistry.lookup("ritual_steps", step_type)
+	return path if not path.is_empty() else AssetRegistry.fallback("ritual_step")
 
 
 static func node_type_text(node_type: String) -> String:

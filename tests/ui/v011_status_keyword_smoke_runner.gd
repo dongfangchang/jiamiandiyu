@@ -1,15 +1,18 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
-const AppControllerScript := preload("res://src/app/app_controller.gd")
+const EffectText := preload("res://src/ui/text/effect_text.gd")
 
 var _passed := 0
 var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await _test_status_badge()
 	_test_mark_explanation()
 	if _failures.is_empty():
@@ -150,19 +153,17 @@ func _test_status_badge() -> void:
 
 
 func _test_mark_explanation() -> void:
-	var controller = AppControllerScript.new()
-	var text := String(controller.call("_format_card_effects", {
+	var text := EffectText.format_card_effects({
 		"effects": [{
 			"effect_id": "apply_status",
 			"status_id": "mark",
 			"stacks": 2,
 		}],
-	}))
+	})
 	_expect(
 		text.contains("附加等量伤害"),
 		"card details should explain what mark does"
 	)
-	controller.free()
 
 
 func _contains_label_text(root: Node, needle: String) -> bool:

@@ -147,7 +147,7 @@ func get_status_text() -> String:
 
 
 func get_background_path() -> String:
-	return SceneCatalog.UI_CANVAS
+	return SceneCatalog.ui_canvas()
 
 
 func get_page_count() -> int:

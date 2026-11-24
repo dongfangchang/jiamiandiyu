@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.36.0: battle participation — turn stamp, discard altar, aim preview helpers.
 ## Does not simulate OS drag; verifies presentation surface + snapshot-driven copy.
 
@@ -16,6 +18,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_expect(
 		BattleTableFeel.turn_stamp_zh("player_action").contains("你的回合"),
 		"player turn stamp copy"

@@ -5,6 +5,7 @@ signal retry_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
 var _result_label: Label
 var _detail_label: Label
@@ -72,7 +73,7 @@ func is_return_enabled() -> bool:
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		"res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+		SceneCatalog.ui_canvas(),
 		UiTheme.C_BG,
 		0.32
 	)

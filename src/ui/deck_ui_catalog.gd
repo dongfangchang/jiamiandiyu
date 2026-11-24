@@ -1,53 +1,7 @@
 extends RefCounted
 
-const BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
-const V07_CARD_DIR := "res://assets/game/v0.24.0/v0.7.0/cards/"
-const V013_CARD_DIR := "res://assets/game/v0.24.0/v0.13.0/cards/"
-const V03_CARD_DIR := "res://assets/game/v0.24.0/v0.3.0/cards/"
-const V041_CARD_DIR := "res://assets/game/v0.41.0/cards/"
-const V042_CARD_DIR := "res://assets/game/v0.42.0/cards/"
-
-const V07_CARD_IDS: Array[String] = [
-	"card.skill.warding_circle",
-	"card.skill.lantern_step",
-	"card.skill.whispered_hunch",
-	"card.skill.mirrored_memory",
-	"card.skill.fated_echo",
-	"card.skill.piercing_omen",
-	"card.skill.coffin_nail",
-	"card.skill.second_sight",
-	"card.skill.dream_question",
-	"card.skill.mirror_ward",
-	"card.skill.severed_string",
-	"card.skill.last_rites",
-]
-
-const V041_CARD_IDS: Array[String] = [
-	"card.skill.veil_step",
-	"card.skill.severed_fate",
-	"card.skill.paper_swarm",
-	"card.skill.mirror_shard",
-	"card.skill.last_witness",
-	"card.skill.false_death",
-	"card.skill.sealed_answer",
-	"card.skill.hollow_bell",
-]
-
-const V042_CARD_IDS: Array[String] = [
-	"card.skill.ink_scarlet",
-	"card.skill.echo_reading",
-	"card.skill.midnight_ledger",
-	"card.skill.borrowed_breath",
-	"card.skill.glass_thesis",
-	"card.skill.hungry_symbol",
-	"card.skill.candle_archive",
-	"card.skill.omen_chorus",
-	"card.skill.closed_eye",
-	"card.skill.black_thread",
-	"card.skill.eclipse",
-	"card.skill.red_corridor",
-]
+const CardArt := preload("res://src/ui/card_art_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
 const PRESET_NAMES := {
 	"deck.preset.ward": "值夜者制式装备",
@@ -92,36 +46,13 @@ const PRESET_GUIDANCE := {
 }
 
 
+static func background() -> String:
+	return SceneCatalog.path_for("scene.hub.deck_archive", "hub")
+
+
 static func card_art(definition_id: String) -> String:
-	var suffix := definition_id.get_slice(".", definition_id.get_slice_count(".") - 1)
-	if not suffix.is_empty():
-		if definition_id in V042_CARD_IDS:
-			var gap_path := V042_CARD_DIR + "card_skill_%s.png" % suffix
-			if ResourceLoader.exists(gap_path):
-				return gap_path
-		if definition_id in V041_CARD_IDS:
-			var clown_path := V041_CARD_DIR + "card_skill_%s.png" % suffix
-			if ResourceLoader.exists(clown_path):
-				return clown_path
-		if definition_id in [
-			"card.skill.dream_question",
-			"card.skill.mirror_ward",
-			"card.skill.severed_string",
-			"card.skill.last_rites",
-		]:
-			return V013_CARD_DIR + "card_skill_%s.png" % suffix
-		var v07_path := V07_CARD_DIR + "card_skill_%s.png" % suffix
-		if suffix in V07_CARD_IDS.map(
-			func(value: String) -> String:
-				return value.get_slice(".", value.get_slice_count(".") - 1)
-		):
-			return v07_path
-		var legacy_path := V03_CARD_DIR + "card-skill-%s.png" % suffix.replace("_", "-")
-		if ResourceLoader.exists(legacy_path):
-			return legacy_path
-		if ResourceLoader.exists(v07_path):
-			return v07_path
-	return CARD_BACK
+	## Kept for callers outside src/ui; the plate now lives in the registry.
+	return CardArt.card_art(definition_id)
 
 
 static func target_text(target_type: String) -> String:

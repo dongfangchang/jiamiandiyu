@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UI asset registry (stable id -> res:// path); only src/ui/asset_registry.gd reads it",
+  "type": "object",
+  "required": [
+    "schema_version", "generated_by", "fallbacks", "cards", "seals", "enemies",
+    "identities", "scenes", "diary_pages", "status_icons", "icons", "ritual_steps", "props"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "generated_by": {"type": "string", "minLength": 1},
+    "fallbacks": {
+      "type": "object",
+      "required": ["card_back", "scene.battle", "scene.rest", "scene.ritual"],
+      "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}
+    },
+    "cards": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "window": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"},
+          "plate": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}
+        }
+      }
+    },
+    "seals": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"},
+          "small": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}
+        }
+      }
+    },
+    "enemies": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "identities": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "scenes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "diary_pages": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "status_icons": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "icons": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "ritual_steps": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}},
+    "props": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^res://assets/[a-z0-9_./-]+\\.png$"}}
+  }
+}

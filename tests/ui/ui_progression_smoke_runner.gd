@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
@@ -16,6 +18,7 @@ var _captured_upgrade := ""
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	await _test_assets()
 	await _test_identity_and_hub()

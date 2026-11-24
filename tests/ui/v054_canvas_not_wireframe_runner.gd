@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.54: scene PNG is the canvas; chrome modules stay translucent (not wireframe slabs).
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
@@ -13,6 +15,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	## Readable modules (not ghost-through); canvas shows in gutters/floor only.
 	_expect(UiTheme.MODULE_ALPHA >= 0.88, "module alpha readable")
 	_expect(UiTheme.C_MODULE.a >= 0.88, "C_MODULE not ghost-transparent")
@@ -22,7 +25,7 @@ func _ready() -> void:
 	host.size = Vector2(1600, 900)
 	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(host)
-	UiTheme.add_background(host, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.22)
+	UiTheme.add_background(host, RouteCatalog.route_background(), UiTheme.C_BG, 0.22)
 	await get_tree().process_frame
 	_expect(host.get_node_or_null("SceneBackgroundHolder") != null, "canvas holder present")
 	_expect(host.find_child("SceneBackground", true, false) != null, "scene texture present")

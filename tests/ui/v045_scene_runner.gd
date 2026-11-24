@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const BattleScreenScript := preload("res://src/ui/battle_screen.gd")
 
@@ -14,6 +16,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	for scene_id in P1.keys():
 		var path := String(P1[scene_id])

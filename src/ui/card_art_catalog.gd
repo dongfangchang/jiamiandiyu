@@ -1,24 +1,14 @@
 extends RefCounted
 
 ## Single source of truth for card visuals: illustration, rarity shell and
-## mechanic seal. Replaces the two divergent `card_art()` implementations
-## (a 40-row hardcoded dict in progression_ui_catalog, and a five-branch
-## version-directory if-chain in deck_ui_catalog) that had to be edited in
-## lockstep whenever a card was added.
+## mechanic seal. Paths come from the asset registry (R2-10); rarity and
+## mechanic are derived from card definitions the app injects at startup via
+## `configure()` (R2-09) — the UI never opens content files itself.
 ##
-## Adding a card now needs NO code change here:
-##   1. drop art at  <ART_DIR>/<card.id>/art.png
-##   2. the card's own `rarity` + effects/tags in data/cards/** drive the seal
-## Everything degrades: a card with no art falls back to the legacy plate and
-## then to the card back, so a half-delivered batch never blanks the UI.
+## Resolution order for a face: v0.85 art window -> legacy plate -> card back.
+## Everything degrades, so a half-delivered batch never blanks the UI.
 
-const ART_DIR := "res://assets/game/v0.85.0/cards"
-const SEAL_DIR := "res://assets/game/v0.85.0/seals"
-const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
-const CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
-
-## Legacy full-card plates, kept as the fallback until v0.85 art covers a card.
-const LegacyDeck := preload("res://src/ui/deck_ui_catalog.gd")
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
 
 const RARITIES: Array[String] = ["common", "uncommon", "rare", "mythic"]
 const MECHANICS: Array[String] = [
@@ -32,22 +22,12 @@ const DIVINATION_TAGS: Array[String] = [
 ]
 
 static var _meta: Dictionary = {}
-static var _loaded := false
 
 
-static func _ensure_loaded() -> void:
-	if _loaded:
-		return
-	_loaded = true
-	if not FileAccess.file_exists(CARDS_PATH):
-		return
-	var file := FileAccess.open(CARDS_PATH, FileAccess.READ)
-	if file == null:
-		return
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if not parsed is Dictionary:
-		return
-	for entry_value in (parsed as Dictionary).get("cards", []):
+static func configure(card_definitions: Array) -> void:
+	## Called by the app with the loaded, schema-validated card definitions.
+	_meta.clear()
+	for entry_value in card_definitions:
 		if not entry_value is Dictionary:
 			continue
 		var card: Dictionary = entry_value
@@ -58,6 +38,10 @@ static func _ensure_loaded() -> void:
 			"rarity": _rarity_of(card),
 			"mechanic": _mechanic_of(card),
 		}
+
+
+static func is_configured() -> bool:
+	return not _meta.is_empty()
 
 
 static func _rarity_of(card: Dictionary) -> String:
@@ -96,13 +80,11 @@ static func _mechanic_of(card: Dictionary) -> String:
 
 
 static func rarity_of(definition_id: String) -> String:
-	_ensure_loaded()
 	var meta: Dictionary = _meta.get(definition_id, {})
 	return String(meta.get("rarity", "common"))
 
 
 static func mechanic_of(definition_id: String) -> String:
-	_ensure_loaded()
 	var meta: Dictionary = _meta.get(definition_id, {})
 	return String(meta.get("mechanic", "support"))
 
@@ -112,8 +94,8 @@ static func art_window(definition_id: String) -> String:
 	## card has no v0.85 art yet, so callers can fall back to a legacy plate.
 	if definition_id.is_empty():
 		return ""
-	var path := "%s/%s/art.png" % [ART_DIR, definition_id]
-	return path if ResourceLoader.exists(path) else ""
+	var path := AssetRegistry.card_window(definition_id)
+	return path if not path.is_empty() and ResourceLoader.exists(path) else ""
 
 
 static func has_art_window(definition_id: String) -> bool:
@@ -125,32 +107,39 @@ static func seal(definition_id: String, small := false) -> String:
 	## An unknown id gets no seal rather than a plausible-looking default —
 	## stamping "common/support" on a card that does not exist would hide a
 	## content bug behind valid-looking art.
-	_ensure_loaded()
 	if not _meta.has(definition_id):
 		return ""
-	var name := "seal-%s-%s%s.png" % [
-		rarity_of(definition_id),
-		mechanic_of(definition_id),
-		"-128" if small else "",
-	]
-	var path := "%s/%s" % [SEAL_DIR, name]
-	return path if ResourceLoader.exists(path) else ""
+	var path := AssetRegistry.seal(rarity_of(definition_id), mechanic_of(definition_id), small)
+	return path if not path.is_empty() and ResourceLoader.exists(path) else ""
+
+
+static func seal_path(rarity: String, mechanic: String, small := false) -> String:
+	## Matrix lookup without a card, for probes that audit the 4x6 set.
+	return AssetRegistry.seal(rarity, mechanic, small)
+
+
+static func card_back() -> String:
+	return AssetRegistry.fallback("card_back")
 
 
 static func card_art(definition_id: String) -> String:
-	## Compatibility entry for existing screens that still expect a single
-	## full-card image. Prefers the legacy composed plate because the v0.85
-	## delivery is an art WINDOW, not a finished card face.
-	var legacy := LegacyDeck.card_art(definition_id)
-	if legacy != CARD_BACK and ResourceLoader.exists(legacy):
-		return legacy
-	return CARD_BACK
+	## Full composed plate for screens that expect one image; card back when
+	## the card has none.
+	var plate := AssetRegistry.card_plate(definition_id)
+	if not plate.is_empty() and ResourceLoader.exists(plate):
+		return plate
+	return card_back()
+
+
+static func display_art(definition_id: String) -> String:
+	## What a card face shows: art window, else plate, else card back.
+	var window := art_window(definition_id)
+	return window if not window.is_empty() else card_art(definition_id)
 
 
 static func missing_art() -> PackedStringArray:
 	## Lets probes report "not delivered yet" instead of silently showing a
 	## fallback that looks like success.
-	_ensure_loaded()
 	var out: PackedStringArray = []
 	for id in _meta.keys():
 		if not has_art_window(String(id)):
@@ -160,7 +149,6 @@ static func missing_art() -> PackedStringArray:
 
 
 static func all_card_ids() -> PackedStringArray:
-	_ensure_loaded()
 	var out: PackedStringArray = []
 	for id in _meta.keys():
 		out.append(String(id))
@@ -170,4 +158,3 @@ static func all_card_ids() -> PackedStringArray:
 
 static func clear_cache() -> void:
 	_meta.clear()
-	_loaded = false

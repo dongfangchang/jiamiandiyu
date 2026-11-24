@@ -25,18 +25,18 @@ func _ready() -> void:
 		_expect(ResourceLoader.exists(path), "%s exists" % scene_id)
 		_expect(SceneCatalog.path_for(scene_id) == path, "%s scene catalog" % scene_id)
 
-	_expect(RouteCatalog.ROUTE_BACKGROUND == String(P3["scene.hub.route_map"]), "route catalog")
-	_expect(DeckCatalog.BACKGROUND == String(P3["scene.hub.deck_archive"]), "deck catalog")
+	_expect(RouteCatalog.route_background() == String(P3["scene.hub.route_map"]), "route catalog")
+	_expect(DeckCatalog.background() == String(P3["scene.hub.deck_archive"]), "deck catalog")
 	_expect(
-		ProgressionCatalog.IDENTITY_BACKGROUND == String(P3["scene.title.mask_desk"]),
+		ProgressionCatalog.identity_background() == String(P3["scene.title.mask_desk"]),
 		"identity catalog"
 	)
 	_expect(
-		ProgressionCatalog.GACHA_BACKGROUND == String(P3["scene.hub.gacha_altar"]),
+		ProgressionCatalog.gacha_background() == String(P3["scene.hub.gacha_altar"]),
 		"gacha catalog"
 	)
 	_expect(
-		StartScreenScript.TITLE_BACKGROUND == String(P3["scene.title.mask_desk"]),
+		StartScreenScript.title_background() == String(P3["scene.title.mask_desk"]),
 		"start title background"
 	)
 	_finish()

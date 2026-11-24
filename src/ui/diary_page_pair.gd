@@ -157,7 +157,7 @@ func set_art(path: String, texture: Texture2D) -> void:
 		left_art.modulate = Color.WHITE
 	left_art.stretch_mode = (
 		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		if texture != null and path.get_base_dir() == SceneCatalog.DIARY_ART_DIR
+		if texture != null and SceneCatalog.is_diary_leaf(path)
 		else TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	)
 	request_redraw()

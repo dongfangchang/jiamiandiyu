@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.85 prop pipeline probe.
 ## Asserts the manifest, the keyed outputs and the runtime catalog agree, and
 ## that a MISSING prop degrades instead of breaking the screen.
@@ -14,6 +16,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	## Manifest parses and every declared output is registered in the catalog.
 	var f := FileAccess.open(MANIFEST, FileAccess.READ)
 	_expect(f != null, "props manifest present")
@@ -30,7 +33,7 @@ func _ready() -> void:
 				var row: Dictionary = row_value
 				var id := String(row.get("id", ""))
 				_expect(
-					PropCatalog.PROPS.has(id),
+					PropCatalog.ids().has(id),
 					"catalog knows manifest id %s" % id
 				)
 

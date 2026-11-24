@@ -86,13 +86,13 @@ func get_status_text() -> String:
 
 
 func get_background_path() -> String:
-	return ChallengeCatalog.SELECTION_BACKGROUND
+	return ChallengeCatalog.selection_background()
 
 
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		ChallengeCatalog.SELECTION_BACKGROUND,
+		ChallengeCatalog.selection_background(),
 		UiTheme.C_BG,
 		0.23
 	)

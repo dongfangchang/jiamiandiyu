@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.37.0: archive desk scanability — deck tiles/cost, preset face matchup,
 ## gacha empty-state copy, hub seal grid. No OptionButton on these screens.
 
@@ -14,6 +16,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	await _test_deck_desk()
 	await _test_gacha_empty()

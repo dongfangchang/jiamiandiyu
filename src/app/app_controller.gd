@@ -26,6 +26,11 @@ const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
 const DiagnosticsServiceScript := preload("res://src/infrastructure/playtest_diagnostics_service.gd")
 const ScreenRouterScript := preload("res://src/app/screen_router.gd")
+const JsonDocumentLoaderScript := preload("res://src/infrastructure/json_document_loader.gd")
+const CardArtCatalogScript := preload("res://src/ui/card_art_catalog.gd")
+const DiaryUiCatalogScript := preload("res://src/ui/diary_ui_catalog.gd")
+const EffectTextScript := preload("res://src/ui/text/effect_text.gd")
+const AppTextScript := preload("res://src/ui/text/app_text.gd")
 
 const ROUTE_START: StringName = &"start"
 const ROUTE_CHALLENGE_HUB: StringName = &"challenge_hub"
@@ -99,11 +104,39 @@ var _testing_mode := false
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	configure_ui_content()
 	_ensure_router()
 	get_tree().auto_accept_quit = _testing_mode
 	_load_preferences()
 	_start_diagnostics()
 	show_start_screen()
+
+
+## R2-09: the UI never opens content files. Card definitions and the diary
+## volume are loaded once here through the schema-validating loader and handed
+## to the UI catalogs as read-only views. Static so tests that build screens
+## without an AppController can reuse the same path.
+static func configure_ui_content(force := false) -> bool:
+	if not force and CardArtCatalogScript.is_configured() and DiaryUiCatalogScript.is_configured():
+		return true
+	var loader := JsonDocumentLoaderScript.new()
+	var cards := loader.load_document(
+		AppBootstrapScript.DEFAULT_V07_CARDS_PATH,
+		AppBootstrapScript.DEFAULT_V07_CARDS_SCHEMA_PATH
+	)
+	var diary := loader.load_document(
+		AppBootstrapScript.DEFAULT_DIARY_PATH,
+		AppBootstrapScript.DEFAULT_DIARY_SCHEMA_PATH
+	)
+	if cards.ok:
+		CardArtCatalogScript.configure(cards.data.get("cards", []))
+	else:
+		push_error("ui content: cards failed to load (%s)" % cards.code)
+	if diary.ok:
+		DiaryUiCatalogScript.configure(diary.data)
+	else:
+		push_error("ui content: diary failed to load (%s)" % diary.code)
+	return cards.ok and diary.ok
 
 
 func configure_for_testing(
@@ -197,7 +230,7 @@ func start_new_game(
 		false
 	)
 	if not result.ok:
-		_report_error(result, "新的调查未能开始。")
+		_report_error(result, AppTextScript.text("toast.new_game_failed"))
 		return result
 	_set_session(result.data)
 	_record_diagnostic("route_started", {"seed": resolved_seed, "kind": "first_route"})
@@ -217,7 +250,7 @@ func start_test_game(seed_value: int = -1) -> InfrastructureResult:
 		false
 	)
 	if not result.ok:
-		_report_error(result, "测试档案未能创建。")
+		_report_error(result, AppTextScript.text("toast.test_profile_create_failed"))
 		return result
 	checkpoint_slot = TEST_PROFILE_SLOT
 	_set_session(result.data)
@@ -225,7 +258,7 @@ func start_test_game(seed_value: int = -1) -> InfrastructureResult:
 		_session.save_checkpoint("test_profile")
 	)
 	if not initial_checkpoint.ok:
-		_report_error(initial_checkpoint, "测试档案未能保存。")
+		_report_error(initial_checkpoint, AppTextScript.text("toast.test_profile_save_failed"))
 		return initial_checkpoint
 	_record_diagnostic("test_profile_started", {"seed": resolved_seed})
 	_show_current_state()
@@ -251,7 +284,7 @@ func start_new_challenge(
 		true
 	)
 	if not result.ok:
-		_report_error(result, "挑战未能开始。")
+		_report_error(result, AppTextScript.text("toast.challenge_start_failed"))
 		return result
 	_set_session(result.data)
 	_record_diagnostic("challenge_started", {
@@ -369,7 +402,7 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 		start_screen.show_checkpoint_status(
 			"corrupt",
 			{"backup_available": false},
-			"检查点检查失败。原始文件未被覆盖，请保留诊断记录。",
+			AppTextScript.text("checkpoint.inspect_failed"),
 			_preferences
 		)
 		return
@@ -382,7 +415,7 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 		)
 		if not bool(_last_checkpoint_summary.get("deck_confirmed", false)):
 			_last_checkpoint_summary["challenge_available"] = false
-			_last_checkpoint_summary["challenge_reason"] = "请先通过继续游戏确认出战牌组"
+			_last_checkpoint_summary["challenge_reason"] = AppTextScript.text("challenge.reason.deck_unconfirmed")
 		start_screen.show_checkpoint_status(
 			"loaded",
 			_last_checkpoint_summary,
@@ -399,9 +432,9 @@ func _refresh_checkpoint_summary(start_screen: Control) -> void:
 			"corrupt",
 			{"backup_available": backup_available},
 			(
-				"主检查点损坏，可用上次备份恢复。恢复操作不会自动覆盖原档。"
+				AppTextScript.text("checkpoint.corrupt_with_backup")
 				if backup_available
-				else "主检查点损坏，且没有可用的上次备份。原始文件已保留。"
+				else AppTextScript.text("checkpoint.corrupt_no_backup")
 			),
 			_preferences
 		)
@@ -549,7 +582,7 @@ func _show_challenge_hub() -> void:
 		return
 	var previews := _challenge_hub_previews()
 	if not previews.ok:
-		_report_error(previews, "挑战档案暂时无法打开。")
+		_report_error(previews, AppTextScript.text("toast.challenge_hub_unavailable"))
 		return
 	_challenge_sequence_state = previews.data.sequence_state.duplicate(true)
 	_swap(ChallengeHubScreenScene, ROUTE_CHALLENGE_HUB, func(screen: Control) -> void:
@@ -846,7 +879,7 @@ func _show_route_screen() -> void:
 			var challenge = _session.get_challenge_snapshot()
 			var selected: Dictionary = challenge.data.get("selected_modifier", {})
 			screen.set_challenge_context(
-				String(challenge.data.get("display_name_zh", "挑战")),
+				String(challenge.data.get("display_name_zh", AppTextScript.text("challenge.fallback_name"))),
 				String(selected.get("display_name_zh", ""))
 			)
 			screen.result_requested.connect(_show_challenge_result)
@@ -1007,10 +1040,10 @@ func _show_battle() -> void:
 		_report_error(InfrastructureResult.failure(
 			&"battle_snapshot_missing",
 			"Route battle snapshot is unavailable."
-		), "战斗未能展开。")
+		), AppTextScript.text("toast.battle_open_failed"))
 		return
 	var labels := _build_display_labels(snapshot)
-	var encounter_name := "未知遭遇"
+	var encounter_name := AppTextScript.text("encounter.fallback_name")
 	var resolved = _session.resolve_current_encounter()
 	if resolved.ok:
 		encounter_name = String(
@@ -1179,7 +1212,7 @@ func _on_potion_requested(potion_id: StringName) -> void:
 		_report_error(InfrastructureResult.failure(
 			result.reason_code,
 			"Potion cannot be consumed now."
-		), "魔药当前不可服用。")
+		), AppTextScript.text("toast.potion_unavailable"))
 		return
 	_show_current_state()
 
@@ -1205,7 +1238,7 @@ func _on_route_retry_requested() -> void:
 		false
 	)
 	if not result.ok:
-		_report_error(result, "重新探索未能开始。")
+		_report_error(result, AppTextScript.text("toast.route_retry_failed"))
 		return
 	_set_session(result.data)
 	_record_diagnostic("route_retry_requested", {})
@@ -1337,7 +1370,7 @@ func _build_effect_previews() -> Dictionary:
 			var definition: Dictionary = content.get_card_definition(
 				StringName(definition_key)
 			)
-			levels.append(_format_card_effects(definition))
+			levels.append(EffectTextScript.format_card_effects(definition))
 		previews[definition_key] = levels
 	return previews
 
@@ -1350,7 +1383,7 @@ func _card_detail(
 	var detail := base.duplicate(true)
 	var definition_id := String(definition.get("id", ""))
 	detail["description"] = String(definition.get("description_zh", ""))
-	detail["effect_text"] = _format_card_effects(definition)
+	detail["effect_text"] = EffectTextScript.format_card_effects(definition)
 	detail["category"] = String(definition.get("category", "skill"))
 	detail["rarity"] = String(definition.get("rarity", "common"))
 	detail["exhaust"] = bool(definition.get("exhaust", false))
@@ -1371,140 +1404,6 @@ func _card_detail(
 	return detail
 
 
-func _format_card_effects(definition: Dictionary) -> String:
-	var parts: Array[String] = []
-	if bool(definition.get("consumes_ritual", false)):
-		parts.append("消耗全部仪式准备")
-	for effect_value in definition.get("effects", []):
-		if not effect_value is Dictionary:
-			continue
-		var text := _format_single_effect(effect_value)
-		if text.is_empty():
-			continue
-		var condition_text := _format_effect_condition(effect_value.get("condition", {}))
-		parts.append(condition_text + text if not condition_text.is_empty() else text)
-	var result := "；".join(parts) if not parts.is_empty() else "无直接数值效果"
-	if bool(definition.get("exhaust", false)):
-		result = "单场一次。" + result
-	return result
-
-
-func _format_single_effect(effect: Dictionary) -> String:
-	var effect_id := String(effect.get("effect_id", ""))
-	var per_stack := int(effect.get("per_ritual_stack", 0))
-	var ritual_suffix := "（每层准备+%d）" % per_stack if per_stack != 0 else ""
-	var target := String(effect.get("target", ""))
-	var all_prefix := "所有敌人" if target == "all_enemies" else ""
-	match effect_id:
-		"damage":
-			return "造成 %d 伤害%s" % [int(effect.get("amount", 0)), ritual_suffix]
-		"damage_all":
-			return "对所有敌人造成 %d 伤害%s" % [int(effect.get("amount", 0)), ritual_suffix]
-		"block":
-			return "获得 %d 护盾" % int(effect.get("amount", 0))
-		"heal":
-			return "恢复 %d 生命" % int(effect.get("amount", 0))
-		"lose_hp":
-			return "失去 %d 生命（代价）" % int(effect.get("amount", 0))
-		"spirit":
-			return "获得 %d 灵性" % int(effect.get("amount", 0))
-		"draw":
-			return "抽 %d 张牌" % int(effect.get("count", 0))
-		"apply_status":
-			var status_id := StringName(effect.get("status_id", ""))
-			var stacks := int(effect.get("stacks", 0))
-			match status_id:
-				&"bound":
-					return "%s束缚 %d 回合（跳过行动）" % [all_prefix, stacks]
-				&"evasion":
-					return "获得 %d 闪避" % stacks
-				&"sluggish":
-					return "副作用：下回合灵性 -%d" % stacks
-				&"silenced":
-					return "使其失声 %d 回合（无法诅咒）" % int(effect.get("duration", stacks))
-				&"weaken":
-					return "%s下一次攻击 -%d" % [all_prefix if not all_prefix.is_empty() else "敌人", stacks]
-				&"mark":
-					return "%s施加 %d 层标记（下次受伤时附加等量伤害并消耗）" % [all_prefix, stacks]
-				_:
-					return "%s施加 %d 层%s" % [all_prefix, stacks, _status_label(status_id)]
-		"remove_status":
-			return "移除 %s" % _status_label(StringName(effect.get("status_id", "")))
-		"reveal_intent":
-			return "揭示意图（预见）"
-		"reveal_all":
-			return "揭示全部意图（预见）"
-		"steal_attack":
-			return "窃取 %d 点攻击" % int(effect.get("amount", 0))
-		"prepare_ritual":
-			return "仪式准备 +%d" % int(effect.get("amount", 1))
-		"risk":
-			var risk_name := "污染" if String(effect.get("risk_id", "")) == "corruption" else "被注视"
-			return "%s %+d" % [risk_name, int(effect.get("amount", 0))]
-		"discard":
-			return "弃置 %d 张牌" % int(effect.get("count", 0))
-	return String(effect_id)
-
-
-func _format_effect_condition(condition_value: Variant) -> String:
-	if not condition_value is Dictionary or condition_value.is_empty():
-		return ""
-	var condition: Dictionary = condition_value
-	if condition.has("target_has_trait"):
-		var names: Array[String] = []
-		var traits: Variant = condition["target_has_trait"]
-		for trait_id in (traits if traits is Array else [traits]):
-			names.append(_trait_label(String(trait_id)))
-		return "若目标为%s：" % "/".join(names)
-	if condition.has("target_has_status"):
-		return "若目标处于%s：" % _status_label(StringName(condition["target_has_status"]))
-	if condition.has("any_enemy_danger"):
-		return "若有危险意图："
-	if condition.has("target_intent_revealed"):
-		return "若意图已揭示："
-	return "满足条件时："
-
-
-func _trait_label(trait_id: String) -> String:
-	match trait_id:
-		"spirit":
-			return "灵体"
-		"undead":
-			return "不死"
-		"filth":
-			return "污秽"
-		"lost_control":
-			return "失控者"
-		"beyonder":
-			return "非凡者"
-		"human":
-			return "普通人"
-		_:
-			return trait_id
-
-
-func _status_label(status_id: StringName) -> String:
-	match status_id:
-		&"mark":
-			return "标记"
-		&"weaken":
-			return "削弱"
-		&"bound":
-			return "束缚"
-		&"evasion":
-			return "闪避"
-		&"silenced":
-			return "失声"
-		&"sluggish":
-			return "迟缓"
-		&"foresight":
-			return "预见"
-		&"ritual_preparation":
-			return "仪式准备"
-		_:
-			return String(status_id)
-
-
 func _on_new_game_requested() -> void:
 	if _router_busy():
 		return
@@ -1514,13 +1413,13 @@ func _on_new_game_requested() -> void:
 func _show_route_selection() -> void:
 	var previews := AppBootstrapScript.get_route_previews_v07({})
 	if not previews.ok:
-		_report_error(previews, "调查路线暂时无法载入。")
+		_report_error(previews, AppTextScript.text("toast.route_select_unavailable"))
 		return
 	_swap(RouteSelectScreenScene, ROUTE_ROUTE_SELECT, func(screen: Control) -> void:
 		screen.route_selected.connect(_on_route_selected)
 		screen.back_requested.connect(_navigate_back)
 		if get_back_target(ROUTE_ROUTE_SELECT) == ROUTE_HUB:
-			screen.set_back_label("回身份档案")
+			screen.set_back_label(AppTextScript.text("nav.back_to_identity"))
 		screen.set_routes(previews.data)
 	)
 
@@ -1571,7 +1470,7 @@ func _on_restore_backup_requested() -> void:
 			_screen.show_backup_restore_result(false, restored.message)
 		return
 	if _screen != null and _screen.has_method("show_backup_restore_result"):
-		_screen.show_backup_restore_result(true, "备份已恢复。")
+		_screen.show_backup_restore_result(true, AppTextScript.text("checkpoint.backup_restored"))
 	_refresh_checkpoint_summary(_screen)
 
 
@@ -1648,7 +1547,7 @@ func _notification(what: int) -> void:
 func _on_feedback_submitted(feedback: Dictionary) -> void:
 	if _diagnostics == null:
 		if _screen != null and _screen.has_method("show_feedback_save_state"):
-			_screen.show_feedback_save_state(false, "诊断服务未初始化。")
+			_screen.show_feedback_save_state(false, AppTextScript.text("feedback.diagnostics_unavailable"))
 		return
 	var result = _diagnostics.save_feedback(
 		String(feedback.get("text", "")),
@@ -1659,7 +1558,7 @@ func _on_feedback_submitted(feedback: Dictionary) -> void:
 	if _screen != null and _screen.has_method("show_feedback_save_state"):
 		_screen.show_feedback_save_state(
 			result.ok,
-			String(result.message if not result.ok else "已保存在本机。")
+			String(result.message if not result.ok else AppTextScript.text("feedback.saved_locally"))
 		)
 
 

@@ -60,13 +60,13 @@ func on_enter() -> void:
 
 
 func get_background_path() -> String:
-	return RouteCatalog.ROUTE_BACKGROUND
+	return RouteCatalog.route_background()
 
 
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		RouteCatalog.ROUTE_BACKGROUND,
+		RouteCatalog.route_background(),
 		UiTheme.C_BG,
 		RouteCatalog.ROUTE_BACKGROUND_DIM
 	)
@@ -162,7 +162,7 @@ func _build_route_card(route: Dictionary) -> Control:
 	column.add_theme_constant_override("separation", 16)
 	pad.add_child(column)
 	var icon := TextureRect.new()
-	icon.texture = load(RouteCatalog.ROUTE_ICON_BASE + ("route-current.png" if playable else "route-pending.png"))
+	icon.texture = load(RouteCatalog.route_state_icon("available" if playable else "locked"))
 	icon.custom_minimum_size = Vector2(112, 112)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

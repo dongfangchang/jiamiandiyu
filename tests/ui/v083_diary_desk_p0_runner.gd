@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.84 / BRIEF V083_*: desk 3D book P0 probes.
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
@@ -12,6 +14,7 @@ var _last_command = null
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var catalog := DiaryCatalogScript.new()
 	_expect(catalog.ensure_loaded(), "diary volume loads")
 	var nodes := _tingen_nodes()

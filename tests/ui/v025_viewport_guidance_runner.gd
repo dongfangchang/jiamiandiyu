@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 
@@ -10,6 +12,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	for viewport_size in VIEWPORTS:
 		await _test_viewport(viewport_size)
 	if _failures.is_empty():

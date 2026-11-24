@@ -1,22 +1,24 @@
 extends RefCounted
 
-const SELECTION_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const RESULT_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const ICON_BASE := "res://assets/game/v0.24.0/v0.6.0/icons/"
-const EMBLEM := "res://assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png"
-const ICON_BASE_V07 := "res://assets/game/v0.24.0/v0.7.0/icons/"
-const EMBLEM_V07 := "res://assets/game/v0.24.0/v0.7.0/icons/challenge_broken_procession.png"
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
-const MODIFIER_ICONS := {
-	"modifier.rushed_reflection": "modifier-pressure-advance.png",
-	"modifier.tainted_margins": "modifier-mirror-echo.png",
-	"modifier.fractured_deck": "modifier-compact-deck.png",
+## Per-challenge presentation (AR-16): which story arc a challenge belongs to.
+## Screens read these fields instead of branching on challenge ids; an unknown
+## challenge uses DEFAULT_PRESENTATION.
+const PRESENTATION := {
+	"challenge.v060.mirror_echoes": {
+		"arc_zh": "安提哥努斯笔记案",
+		"select_tag_zh": "可重复挑战",
+	},
+	"challenge.v070.broken_procession": {
+		"arc_zh": "邪神子嗣降临",
+		"select_tag_zh": "第二挑战",
+	},
 }
-
-const MODIFIER_ICONS_V07 := {
-	"modifier.obituary_echo": "modifier_obituary_echo.png",
-	"modifier.twin_shadow": "modifier_twin_shadow.png",
-	"modifier.ritual_vigil": "modifier_ritual_vigil.png",
+const DEFAULT_PRESENTATION := {
+	"arc_zh": "安提哥努斯笔记案",
+	"select_tag_zh": "可重复挑战",
 }
 
 const CHALLENGE_NAMES := {
@@ -40,19 +42,40 @@ const REWARD_NAMES := {
 }
 
 
+static func selection_background() -> String:
+	return SceneCatalog.path_for("scene.hub.challenge_board", "hub")
+
+
+static func result_background() -> String:
+	return SceneCatalog.path_for("scene.hub.challenge_result", "hub")
+
+
+static func presentation(challenge_id: String) -> Dictionary:
+	return PRESENTATION.get(challenge_id, DEFAULT_PRESENTATION)
+
+
+static func selection_eyebrow(challenge_id: String) -> String:
+	var entry := presentation(challenge_id)
+	return "%s · %s" % [String(entry.get("arc_zh", "")), String(entry.get("select_tag_zh", ""))]
+
+
+static func result_eyebrow(challenge_id: String) -> String:
+	return "%s · 传承" % String(presentation(challenge_id).get("arc_zh", ""))
+
+
 static func modifier_icon(modifier_id: String) -> String:
-	if MODIFIER_ICONS_V07.has(modifier_id):
-		return ICON_BASE_V07 + String(MODIFIER_ICONS_V07[modifier_id])
-	var file_name := String(
-		MODIFIER_ICONS.get(modifier_id, "modifier-restricted-reward.png")
-	)
-	return ICON_BASE + file_name
+	var path := AssetRegistry.lookup("icons", modifier_id)
+	return path if not path.is_empty() else AssetRegistry.fallback("modifier")
+
+
+static func deck_restricted_icon() -> String:
+	return AssetRegistry.lookup("icons", "icon.deck.restricted")
 
 
 static func challenge_emblem(challenge_id: String) -> String:
-	if challenge_id == "challenge.v070.broken_procession":
-		return EMBLEM_V07
-	return EMBLEM
+	## Registry is keyed by challenge id; no id special cases here.
+	var path := AssetRegistry.lookup("icons", challenge_id)
+	return path if not path.is_empty() else AssetRegistry.fallback("challenge_emblem")
 
 
 static func challenge_name(challenge_id: String) -> String:
@@ -77,8 +100,8 @@ static func route_name(route_id: String) -> String:
 
 
 static func outcome_icon(completed: bool) -> String:
-	return ICON_BASE + (
-		"challenge-success.png" if completed else "challenge-failure.png"
+	return AssetRegistry.lookup(
+		"icons", "icon.challenge.success" if completed else "icon.challenge.failure"
 	)
 
 

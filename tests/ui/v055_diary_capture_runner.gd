@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## Capture diary chapter via SubViewport (works headless).
 ## Writes idle spread + mid-settlement pen beat.
 
@@ -11,6 +13,7 @@ const OUT_PEN := "res://.tools/ui-captures/v055_diary_pen_beat.png"
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DirAccess.make_dir_recursive_absolute(
 		ProjectSettings.globalize_path("res://.tools/ui-captures")
 	)

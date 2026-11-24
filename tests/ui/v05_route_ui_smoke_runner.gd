@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
@@ -18,6 +20,7 @@ var _hub_requests := 0
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	_test_assets()
 	await _test_rest_screen()

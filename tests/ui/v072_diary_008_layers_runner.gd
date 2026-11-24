@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.72: DIARY_008 — catalog keeps base + gold overwrite layers, node_id stable.
 ## Retired 2D-book layer nodes (PenRewriteStamp etc.) are no longer asserted (v0.86 R0-03).
 
@@ -16,6 +18,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var catalog := DiaryCatalogScript.new()
 	_expect(catalog.ensure_loaded(), "diary volume loads")
 	var view: Dictionary = catalog.build_view({

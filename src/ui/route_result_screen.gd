@@ -86,13 +86,13 @@ func get_title_text() -> String:
 
 
 func get_background_path() -> String:
-	return SceneCatalog.UI_CANVAS
+	return SceneCatalog.ui_canvas()
 
 
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		SceneCatalog.UI_CANVAS,
+		SceneCatalog.ui_canvas(),
 		UiTheme.C_BG,
 		0.58
 	)
@@ -206,9 +206,7 @@ func _render_result() -> void:
 		UiTheme.C_GOLD if completed else UiTheme.C_DANGER_TEXT
 	)
 	_result_icon.texture = load(
-		RouteCatalog.ROUTE_ICON_BASE + (
-			"ritual-success.png" if completed else "ritual-failure.png"
-		)
+		RouteCatalog.ritual_outcome_icon(completed)
 	)
 	var completed_nodes: Array = _snapshot_data.get("completed_node_ids", [])
 	var nodes: Array = _snapshot_data.get("nodes", [])

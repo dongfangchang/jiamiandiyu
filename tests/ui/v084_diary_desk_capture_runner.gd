@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.84 desk P0 visual capture (1600×900).
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
@@ -10,6 +12,7 @@ const OUT_FLIP := "res://.tools/ui-captures/v084_desk_flip.png"
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DirAccess.make_dir_recursive_absolute(
 		ProjectSettings.globalize_path("res://.tools/ui-captures")
 	)

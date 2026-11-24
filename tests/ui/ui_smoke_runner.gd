@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const ResultScreenScene := preload("res://scenes/ui/result_screen.tscn")
@@ -13,6 +15,7 @@ var _captured_command: BattleCommand
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	await _test_start_screen()
 	await _test_battle_screen()

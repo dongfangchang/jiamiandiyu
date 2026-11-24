@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.44: P0 scene PNGs exist; catalog resolves; route nodes carry scene_id.
 
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
@@ -21,6 +23,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	for scene_id in P0.keys():
 		var path := String(P0[scene_id])

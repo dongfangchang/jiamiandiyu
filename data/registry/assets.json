@@ -1,0 +1,390 @@
+{
+  "cards": {
+    "card.skill.black_thread": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_black_thread.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.black_thread/art.png"
+    },
+    "card.skill.borrowed_breath": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_borrowed_breath.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.borrowed_breath/art.png"
+    },
+    "card.skill.calm_breath": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-calm-breath.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.calm_breath/art.png"
+    },
+    "card.skill.candle_archive": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_candle_archive.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.candle_archive/art.png"
+    },
+    "card.skill.closed_eye": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_closed_eye.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.closed_eye/art.png"
+    },
+    "card.skill.coffin_nail": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_coffin_nail.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.coffin_nail/art.png"
+    },
+    "card.skill.dream_question": {
+      "plate": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_dream_question.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.dream_question/art.png"
+    },
+    "card.skill.echo_reading": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_echo_reading.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.echo_reading/art.png"
+    },
+    "card.skill.eclipse": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_eclipse.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.eclipse/art.png"
+    },
+    "card.skill.false_death": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_false_death.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.false_death/art.png"
+    },
+    "card.skill.fated_echo": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_fated_echo.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.fated_echo/art.png"
+    },
+    "card.skill.focus": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-focus.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.focus/art.png"
+    },
+    "card.skill.glass_thesis": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_glass_thesis.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.glass_thesis/art.png"
+    },
+    "card.skill.hollow_bell": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_hollow_bell.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.hollow_bell/art.png"
+    },
+    "card.skill.hungry_symbol": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_hungry_symbol.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.hungry_symbol/art.png"
+    },
+    "card.skill.ink_dart": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.ink_dart/art.png"
+    },
+    "card.skill.ink_scarlet": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_ink_scarlet.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.ink_scarlet/art.png"
+    },
+    "card.skill.insight": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-insight.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.insight/art.png"
+    },
+    "card.skill.lantern_step": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_lantern_step.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.lantern_step/art.png"
+    },
+    "card.skill.last_rites": {
+      "plate": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.last_rites/art.png"
+    },
+    "card.skill.last_witness": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_last_witness.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.last_witness/art.png"
+    },
+    "card.skill.midnight_ledger": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_midnight_ledger.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.midnight_ledger/art.png"
+    },
+    "card.skill.mirror_shard": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_mirror_shard.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.mirror_shard/art.png"
+    },
+    "card.skill.mirror_ward": {
+      "plate": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.mirror_ward/art.png"
+    },
+    "card.skill.mirrored_memory": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_mirrored_memory.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.mirrored_memory/art.png"
+    },
+    "card.skill.omen": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-omen.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.omen/art.png"
+    },
+    "card.skill.omen_chorus": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_omen_chorus.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.omen_chorus/art.png"
+    },
+    "card.skill.paper_guard": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-paper-guard.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.paper_guard/art.png"
+    },
+    "card.skill.paper_swarm": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_paper_swarm.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.paper_swarm/art.png"
+    },
+    "card.skill.piercing_omen": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_piercing_omen.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.piercing_omen/art.png"
+    },
+    "card.skill.red_corridor": {
+      "plate": "res://assets/game/v0.42.0/cards/card_skill_red_corridor.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.red_corridor/art.png"
+    },
+    "card.skill.sealed_answer": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_sealed_answer.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.sealed_answer/art.png"
+    },
+    "card.skill.second_look": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-second-look.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.second_look/art.png"
+    },
+    "card.skill.second_sight": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_second_sight.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.second_sight/art.png"
+    },
+    "card.skill.severed_fate": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_severed_fate.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.severed_fate/art.png"
+    },
+    "card.skill.severed_string": {
+      "plate": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.severed_string/art.png"
+    },
+    "card.skill.veil_step": {
+      "plate": "res://assets/game/v0.41.0/cards/card_skill_veil_step.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.veil_step/art.png"
+    },
+    "card.skill.warding_circle": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_warding_circle.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.warding_circle/art.png"
+    },
+    "card.skill.whisper": {
+      "plate": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-whisper.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.whisper/art.png"
+    },
+    "card.skill.whispered_hunch": {
+      "plate": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_whispered_hunch.png",
+      "window": "res://assets/game/v0.85.0/cards/card.skill.whispered_hunch/art.png"
+    }
+  },
+  "diary_pages": {
+    "scene.battle.blackthorn_neil": "res://assets/game/v0.85.0/diary/battle-blackthorn-neil.png",
+    "scene.battle.elliot_ruin": "res://assets/game/v0.85.0/diary/battle-elliot-ruin.png",
+    "scene.battle.lamud_chapel": "res://assets/game/v0.85.0/diary/battle-lamud-chapel.png",
+    "scene.battle.moretti_home": "res://assets/game/v0.85.0/diary/battle-moretti-home.png",
+    "scene.battle.tyrell_warehouse": "res://assets/game/v0.85.0/diary/battle-tyrell-warehouse.png",
+    "scene.battle.wood_house": "res://assets/game/v0.85.0/diary/battle-wood-house.png",
+    "scene.rest.divination_club": "res://assets/game/v0.85.0/diary/rest-divination-club.png",
+    "scene.ritual.clown_ascension": "res://assets/game/v0.85.0/diary/ritual-clown-ascension.png"
+  },
+  "enemies": {
+    "enemy.candle_moth": "res://assets/game/v0.48.0/enemies/enemy-candle-moth.png",
+    "enemy.mirror_baron": "res://assets/game/v0.48.0/enemies/enemy-mirror-baron.png",
+    "enemy.mirror_hound": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound.png",
+    "enemy.mirror_hound_echo": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound-echo.png",
+    "enemy.tingen.kidnapper": "res://assets/game/v0.48.0/enemies/enemy-tingen-kidnapper.png",
+    "enemy.tingen.knight_wraith": "res://assets/game/v0.48.0/enemies/enemy-tingen-knight-wraith.png",
+    "enemy.tingen.megose": "res://assets/game/v0.48.0/enemies/enemy-tingen-megose.png",
+    "enemy.tingen.rampager": "res://assets/game/v0.48.0/enemies/enemy-tingen-rampager.png",
+    "enemy.weeping_tenant": "res://assets/game/v0.48.0/enemies/enemy-weeping-tenant.png"
+  },
+  "fallbacks": {
+    "card_back": "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png",
+    "challenge_emblem": "res://assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png",
+    "modifier": "res://assets/game/v0.24.0/v0.6.0/icons/modifier-restricted-reward.png",
+    "reward": "res://assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png",
+    "ritual_step": "res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-seal.png",
+    "route_state": "res://assets/game/v0.24.0/v0.5.0/icons/route-pending.png",
+    "scene.battle": "res://assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png",
+    "scene.rest": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.ritual": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+  },
+  "generated_by": "godot --headless --path . --script res://tools/gen_asset_registry.gd (v0.88 R2-10 migration; edit by hand afterwards)",
+  "icons": {
+    "challenge.v060.mirror_echoes": "res://assets/game/v0.24.0/v0.6.0/icons/challenge-emblem.png",
+    "challenge.v070.broken_procession": "res://assets/game/v0.24.0/v0.7.0/icons/challenge_broken_procession.png",
+    "icon.challenge.failure": "res://assets/game/v0.24.0/v0.6.0/icons/challenge-failure.png",
+    "icon.challenge.success": "res://assets/game/v0.24.0/v0.6.0/icons/challenge-success.png",
+    "icon.deck.restricted": "res://assets/game/v0.24.0/v0.6.0/icons/deck-restricted.png",
+    "icon.reward.card_fragments": "res://assets/game/v0.24.0/v0.4.0/icons/card-shard.png",
+    "icon.reward.divination_tickets": "res://assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png",
+    "icon.ritual.failure": "res://assets/game/v0.24.0/v0.5.0/icons/ritual-failure.png",
+    "icon.ritual.success": "res://assets/game/v0.24.0/v0.5.0/icons/ritual-success.png",
+    "icon.route.available": "res://assets/game/v0.24.0/v0.5.0/icons/route-current.png",
+    "icon.route.completed": "res://assets/game/v0.24.0/v0.5.0/icons/route-completed.png",
+    "icon.route.locked": "res://assets/game/v0.24.0/v0.5.0/icons/route-pending.png",
+    "icon.upgrade.1": "res://assets/game/v0.24.0/v0.4.0/icons/upgrade-1.png",
+    "icon.upgrade.2": "res://assets/game/v0.24.0/v0.4.0/icons/upgrade-2.png",
+    "icon.upgrade.3": "res://assets/game/v0.24.0/v0.4.0/icons/upgrade-3.png",
+    "modifier.fractured_deck": "res://assets/game/v0.24.0/v0.6.0/icons/modifier-compact-deck.png",
+    "modifier.obituary_echo": "res://assets/game/v0.24.0/v0.7.0/icons/modifier_obituary_echo.png",
+    "modifier.ritual_vigil": "res://assets/game/v0.24.0/v0.7.0/icons/modifier_ritual_vigil.png",
+    "modifier.rushed_reflection": "res://assets/game/v0.24.0/v0.6.0/icons/modifier-pressure-advance.png",
+    "modifier.tainted_margins": "res://assets/game/v0.24.0/v0.6.0/icons/modifier-mirror-echo.png",
+    "modifier.twin_shadow": "res://assets/game/v0.24.0/v0.7.0/icons/modifier_twin_shadow.png"
+  },
+  "identities": {
+    "identity.doctor": "res://assets/game/v0.48.0/identities/card-identity-doctor.png",
+    "identity.gravedigger": "res://assets/game/v0.48.0/identities/card-identity-gravedigger.png",
+    "identity.reporter": "res://assets/game/v0.48.0/identities/card-identity-reporter.png"
+  },
+  "props": {
+    "bookmark": "res://assets/ui/diary/props/bookmark.png",
+    "candle": "res://assets/ui/diary/props/candle.png",
+    "corner_ornament": "res://assets/ui/diary/props/corner-ornament.png",
+    "desk_wood": "res://assets/ui/diary/props/desk-wood.png",
+    "inkwell": "res://assets/ui/diary/props/inkwell.png",
+    "open_journal": "res://assets/ui/diary/props/open-journal.png",
+    "parchment_sheet": "res://assets/ui/diary/props/parchment-sheet.png",
+    "quill_pen": "res://assets/ui/diary/props/quill-pen.png",
+    "title_candle_snuffer": "res://assets/ui/diary/props/title-candle-snuffer.png",
+    "title_desk_wide": "res://assets/ui/diary/props/title-desk-wide.png",
+    "title_dossier_stack": "res://assets/ui/diary/props/title-dossier-stack.png",
+    "title_journal_closed": "res://assets/ui/diary/props/title-journal-closed.png",
+    "title_journal_new": "res://assets/ui/diary/props/title-journal-new.png",
+    "title_note_slip": "res://assets/ui/diary/props/title-note-slip.png",
+    "title_pocket_watch": "res://assets/ui/diary/props/title-pocket-watch.png",
+    "token_archive": "res://assets/ui/diary/props/token-archive.png",
+    "token_available": "res://assets/ui/diary/props/token-available.png",
+    "token_failed": "res://assets/ui/diary/props/token-failed.png",
+    "token_silence": "res://assets/ui/diary/props/token-silence.png",
+    "wax_seal": "res://assets/ui/diary/props/wax-seal.png"
+  },
+  "ritual_steps": {
+    "ordered_ids": "res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-chronology.png",
+    "select_id": "res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-seal.png",
+    "select_ids": "res://assets/game/v0.24.0/v0.5.0/rituals/ritual-card-name-record.png"
+  },
+  "scenes": {
+    "scene.battle.blackthorn_neil": "res://assets/game/v0.44.0/scenes/battle-blackthorn-neil.png",
+    "scene.battle.elliot_ruin": "res://assets/game/v0.45.0/scenes/battle-elliot-ruin.png",
+    "scene.battle.lamud_chapel": "res://assets/game/v0.44.0/scenes/battle-lamud-chapel.png",
+    "scene.battle.megose_descent": "res://assets/game/v0.46.0/scenes/battle-megose-descent.png",
+    "scene.battle.moretti_home": "res://assets/game/v0.45.0/scenes/battle-moretti-home.png",
+    "scene.battle.tingen_old_house": "res://assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png",
+    "scene.battle.tyrell_warehouse": "res://assets/game/v0.44.0/scenes/battle-tyrell-warehouse.png",
+    "scene.battle.wood_house": "res://assets/game/v0.45.0/scenes/battle-wood-house.png",
+    "scene.hub.challenge_board": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.challenge_result": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.deck_archive": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.gacha_altar": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.rest_blackthorn": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.reward_archive": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.hub.route_map": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.rest.chanis_gate": "res://assets/game/v0.46.0/scenes/rest-chanis-gate.png",
+    "scene.rest.divination_club": "res://assets/game/v0.44.0/scenes/rest-divination-club.png",
+    "scene.ritual.above_fog": "res://assets/game/v0.46.0/scenes/ritual-above-fog.png",
+    "scene.ritual.ascension": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.ritual.clown_ascension": "res://assets/game/v0.44.0/scenes/ritual-clown-ascension.png",
+    "scene.ritual.obituary": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.title.mask_desk": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png",
+    "scene.ui.canvas": "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+  },
+  "schema_version": 1,
+  "seals": {
+    "common.attack": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-attack.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-attack-128.png"
+    },
+    "common.curse": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-curse.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-curse-128.png"
+    },
+    "common.defense": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-defense.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-defense-128.png"
+    },
+    "common.divination": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-divination.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-divination-128.png"
+    },
+    "common.ritual": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-ritual.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-ritual-128.png"
+    },
+    "common.support": {
+      "full": "res://assets/game/v0.85.0/seals/seal-common-support.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-common-support-128.png"
+    },
+    "mythic.attack": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-attack.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-attack-128.png"
+    },
+    "mythic.curse": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-curse.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-curse-128.png"
+    },
+    "mythic.defense": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-defense.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-defense-128.png"
+    },
+    "mythic.divination": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-divination.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-divination-128.png"
+    },
+    "mythic.ritual": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-ritual.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-ritual-128.png"
+    },
+    "mythic.support": {
+      "full": "res://assets/game/v0.85.0/seals/seal-mythic-support.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-mythic-support-128.png"
+    },
+    "rare.attack": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-attack.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-attack-128.png"
+    },
+    "rare.curse": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-curse.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-curse-128.png"
+    },
+    "rare.defense": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-defense.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-defense-128.png"
+    },
+    "rare.divination": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-divination.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-divination-128.png"
+    },
+    "rare.ritual": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-ritual.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-ritual-128.png"
+    },
+    "rare.support": {
+      "full": "res://assets/game/v0.85.0/seals/seal-rare-support.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-rare-support-128.png"
+    },
+    "uncommon.attack": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-attack.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-attack-128.png"
+    },
+    "uncommon.curse": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-curse.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-curse-128.png"
+    },
+    "uncommon.defense": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-defense.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-defense-128.png"
+    },
+    "uncommon.divination": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-divination.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-divination-128.png"
+    },
+    "uncommon.ritual": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-ritual.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-ritual-128.png"
+    },
+    "uncommon.support": {
+      "full": "res://assets/game/v0.85.0/seals/seal-uncommon-support.png",
+      "small": "res://assets/game/v0.85.0/seals/seal-uncommon-support-128.png"
+    }
+  },
+  "status_icons": {
+    "ascension": "res://assets/game/v0.24.0/v0.3.0/status/status-ascension.png",
+    "attack": "res://assets/game/v0.24.0/v0.3.0/status/status-attack.png",
+    "attention": "res://assets/game/v0.24.0/v0.3.0/status/status-attention.png",
+    "block": "res://assets/game/v0.24.0/v0.3.0/status/status-block.png",
+    "corruption": "res://assets/game/v0.24.0/v0.3.0/status/status-corruption.png",
+    "draw": "res://assets/game/v0.24.0/v0.3.0/status/status-draw.png",
+    "health": "res://assets/game/v0.24.0/v0.3.0/status/status-health.png",
+    "madness": "res://assets/game/v0.24.0/v0.3.0/status/status-madness.png",
+    "persona": "res://assets/game/v0.24.0/v0.3.0/status/status-persona.png",
+    "relic": "res://assets/game/v0.24.0/v0.3.0/status/status-relic.png",
+    "rite": "res://assets/game/v0.24.0/v0.3.0/status/status-rite.png",
+    "spirit": "res://assets/game/v0.24.0/v0.3.0/status/status-spirit.png"
+  }
+}

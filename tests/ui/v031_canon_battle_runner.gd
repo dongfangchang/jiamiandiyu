@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.31.0: drives the real BattleEngine with real Tingen content (cards,
 ## synergies, enemies) into the real BattleScreen, verifies that boss phases,
 ## rituals and canon synergies are visible, and that none of the dynamic
@@ -21,6 +23,7 @@ var _catalog
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_cards_document = _read_json("res://data/cards/v0.7.0/cards.json")
 	_catalog = CampaignContentCatalogScript.new()
 	var loaded = _catalog.load_from_documents(

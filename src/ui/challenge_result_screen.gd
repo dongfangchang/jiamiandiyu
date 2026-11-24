@@ -61,7 +61,7 @@ func is_retry_enabled() -> bool:
 
 
 func get_background_path() -> String:
-	return ChallengeCatalog.RESULT_BACKGROUND
+	return ChallengeCatalog.result_background()
 
 
 func get_emblem_path() -> String:
@@ -73,7 +73,7 @@ func get_emblem_path() -> String:
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		ChallengeCatalog.RESULT_BACKGROUND,
+		ChallengeCatalog.result_background(),
 		UiTheme.C_BG,
 		0.26
 	)
@@ -154,11 +154,7 @@ func _render() -> void:
 	)
 	_result_icon.texture = load(ChallengeCatalog.outcome_icon(completed))
 	var challenge_id := String(_snapshot_data.get("challenge_id", ""))
-	_eyebrow_label.text = (
-		"邪神子嗣降临 · 传承"
-		if challenge_id == "challenge.v070.broken_procession"
-		else "安提哥努斯笔记案 · 传承"
-	)
+	_eyebrow_label.text = ChallengeCatalog.result_eyebrow(challenge_id)
 	var route: Dictionary = _snapshot_data.get("route", {})
 	var run_state: Dictionary = route.get("run_state", {})
 	var sequence: Dictionary = _snapshot_data.get("sequence", {})

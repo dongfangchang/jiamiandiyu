@@ -26,35 +26,35 @@ func _ready() -> void:
 		_expect(SceneCatalog.path_for(scene_id) == path, "%s scene catalog" % scene_id)
 
 	_expect(
-		ChallengeCatalog.SELECTION_BACKGROUND == String(P4["scene.hub.challenge_board"]),
+		ChallengeCatalog.selection_background() == String(P4["scene.hub.challenge_board"]),
 		"challenge selection catalog"
 	)
 	_expect(
-		ChallengeCatalog.RESULT_BACKGROUND == String(P4["scene.hub.challenge_result"]),
+		ChallengeCatalog.result_background() == String(P4["scene.hub.challenge_result"]),
 		"challenge result catalog"
 	)
 	_expect(
-		ProgressionCatalog.REWARD_BACKGROUND == String(P4["scene.hub.reward_archive"]),
+		ProgressionCatalog.reward_background() == String(P4["scene.hub.reward_archive"]),
 		"reward catalog"
 	)
 	_expect(
-		ProgressionCatalog.UPGRADE_BACKGROUND == String(P4["scene.hub.reward_archive"]),
+		ProgressionCatalog.upgrade_background() == String(P4["scene.hub.reward_archive"]),
 		"upgrade catalog"
 	)
 	_expect(
-		RouteCatalog.REST_BACKGROUND == String(P4["scene.hub.rest_blackthorn"]),
+		RouteCatalog.rest_background() == String(P4["scene.hub.rest_blackthorn"]),
 		"rest catalog"
 	)
 	_expect(
-		RouteCatalog.RITUAL_BACKGROUND == String(P4["scene.ritual.obituary"]),
+		RouteCatalog.ritual_background() == String(P4["scene.ritual.obituary"]),
 		"ritual catalog"
 	)
 	_expect(
-		SceneCatalog.FALLBACK_REST == String(P4["scene.hub.rest_blackthorn"]),
+		SceneCatalog.fallback_for("rest") == String(P4["scene.hub.rest_blackthorn"]),
 		"fallback rest"
 	)
 	_expect(
-		SceneCatalog.FALLBACK_RITUAL == String(P4["scene.ritual.obituary"]),
+		SceneCatalog.fallback_for("ritual") == String(P4["scene.ritual.obituary"]),
 		"fallback ritual"
 	)
 	_finish()

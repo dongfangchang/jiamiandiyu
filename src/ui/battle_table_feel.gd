@@ -4,6 +4,7 @@ extends RefCounted
 ## rules or damage.
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
 
 const DRAG_THRESHOLD_PX := 14.0
 const HOVER_SCALE := 1.16
@@ -105,7 +106,7 @@ static func diegetic_meter(
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	var icon_path := "res://assets/game/v0.24.0/v0.3.0/status/status-%s.png" % icon_id
+	var icon_path := AssetRegistry.lookup("status_icons", icon_id)
 	if ResourceLoader.exists(icon_path):
 		icon.texture = load(icon_path) as Texture2D
 	title_row.add_child(icon)

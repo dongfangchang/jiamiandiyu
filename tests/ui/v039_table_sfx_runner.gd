@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.39.0: procedural table SFX facade + mute + start-screen ops hint.
 
 const TableSfx := preload("res://src/ui/table_sfx.gd")
@@ -17,6 +19,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	_test_tone_facade()
 	_test_preferences_normalize()

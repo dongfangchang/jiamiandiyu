@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
 
 ## v0.42: gap cards wired; all 40 skill cards resolve off card-back.
@@ -28,6 +30,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var battle = BattleScreenScript.new()
 	add_child(battle)
 	await get_tree().process_frame
@@ -59,7 +62,7 @@ func _ready() -> void:
 		skill_count += 1
 		var art := ProgressionCatalog.card_art(definition_id)
 		_expect(not art.is_empty(), "%s has art path" % definition_id)
-		_expect(art != ProgressionCatalog.CARD_BACK, "%s not card back" % definition_id)
+		_expect(art != ProgressionCatalog.card_back(), "%s not card back" % definition_id)
 		_expect(ResourceLoader.exists(art), "%s art file exists" % definition_id)
 	_expect(skill_count == 40, "forty skill cards audited")
 	battle.queue_free()

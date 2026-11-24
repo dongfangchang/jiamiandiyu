@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## Empirical audit shots: rewrite layers, defeat stain, high corruption, rest pending.
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
@@ -10,6 +12,7 @@ var _viewport: SubViewport
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(1600, 900)

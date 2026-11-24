@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.84 flip-arc burst: samples a REAL programmatic turn (play_flip) at fixed
 ## offsets so the easing curve, the mid-turn content swap and the settle can be
 ## eyeballed as a strip. Poses are NOT forced — this captures what ships.
@@ -19,6 +21,7 @@ var _mains := [
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1600, 900)

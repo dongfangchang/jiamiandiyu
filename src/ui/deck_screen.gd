@@ -186,7 +186,7 @@ func get_deck_state_text() -> String:
 
 
 func get_background_path() -> String:
-	return DeckCatalog.BACKGROUND
+	return DeckCatalog.background()
 
 
 func inspect_card(definition_id: String) -> bool:
@@ -217,7 +217,7 @@ func get_visible_card_ids() -> Array[String]:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, DeckCatalog.BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, DeckCatalog.background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 42)

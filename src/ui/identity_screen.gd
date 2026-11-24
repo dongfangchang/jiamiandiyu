@@ -124,11 +124,11 @@ func get_status_text() -> String:
 
 
 func get_background_path() -> String:
-	return ProgressionCatalog.IDENTITY_BACKGROUND
+	return ProgressionCatalog.identity_background()
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.IDENTITY_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, ProgressionCatalog.identity_background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 64)

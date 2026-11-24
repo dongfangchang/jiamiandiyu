@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## Capture the diary desk idle and bouncing off a sealed leaf.
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
@@ -10,6 +12,7 @@ const OUT_RESIST := "res://.tools/ui-captures/v056_diary_resist.png"
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DirAccess.make_dir_recursive_absolute(
 		ProjectSettings.globalize_path("res://.tools/ui-captures")
 	)

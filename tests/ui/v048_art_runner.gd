@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const BattleScreenScript := preload("res://src/ui/battle_screen.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
@@ -27,6 +29,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	var seen_paths: Dictionary = {}
 	var battle = BattleScreenScript.new()
@@ -52,7 +55,7 @@ func _ready() -> void:
 		)
 
 	_expect(
-		RouteCatalog.BOSS_ART == String(ENEMY_ART[&"enemy.mirror_baron"]),
+		RouteCatalog.boss_art() == String(ENEMY_ART[&"enemy.mirror_baron"]),
 		"route boss art uses Neil portrait"
 	)
 	battle.queue_free()

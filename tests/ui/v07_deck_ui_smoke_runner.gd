@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
 const ChallengeHubScene := preload("res://scenes/ui/challenge_hub_screen.tscn")
 const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
@@ -19,6 +21,7 @@ var _deck_requests := 0
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	_test_assets()
 	await _test_deck_screen()

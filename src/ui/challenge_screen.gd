@@ -141,7 +141,7 @@ func get_reward_text() -> String:
 
 
 func get_background_path() -> String:
-	return ChallengeCatalog.SELECTION_BACKGROUND
+	return ChallengeCatalog.selection_background()
 
 
 func get_challenge_title() -> String:
@@ -161,7 +161,7 @@ func get_emblem_path() -> String:
 func _build() -> void:
 	UiTheme.add_background(
 		self,
-		ChallengeCatalog.SELECTION_BACKGROUND,
+		ChallengeCatalog.selection_background(),
 		UiTheme.C_BG,
 		0.20
 	)
@@ -239,7 +239,7 @@ func _build_premise() -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 18)
 	var icon := TextureRect.new()
-	icon.texture = load(ChallengeCatalog.ICON_BASE + "deck-restricted.png")
+	icon.texture = load(ChallengeCatalog.deck_restricted_icon())
 	icon.custom_minimum_size = Vector2(58, 58)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -292,10 +292,7 @@ func _render() -> void:
 		"display_name_zh",
 		ChallengeCatalog.challenge_name(challenge_id)
 	))
-	if challenge_id == "challenge.v070.broken_procession":
-		_eyebrow_label.text = "邪神子嗣降临 · 第二挑战"
-	else:
-		_eyebrow_label.text = "安提哥努斯笔记案 · 可重复挑战"
+	_eyebrow_label.text = ChallengeCatalog.selection_eyebrow(challenge_id)
 	_heading_label.text = challenge_name
 	_description_label.text = String(_snapshot_data.get(
 		"description_zh",

@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.53: scene canvas floor band is bare — no UI chrome over y≈800–900;
 ## background covers the viewport and pins texture bottom to canvas bottom.
 
@@ -14,6 +16,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_expect(UiTheme.SAFE_BOTTOM_REVEAL >= 96, "canvas floor strip ≥96px")
 
 	var host := Control.new()
@@ -21,7 +24,7 @@ func _ready() -> void:
 	host.size = Vector2(1600, 900)
 	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(host)
-	UiTheme.add_background(host, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.22)
+	UiTheme.add_background(host, RouteCatalog.route_background(), UiTheme.C_BG, 0.22)
 	await get_tree().process_frame
 	await get_tree().process_frame
 

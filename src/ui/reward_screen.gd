@@ -104,11 +104,11 @@ func on_enter() -> void:
 
 
 func get_background_path() -> String:
-	return ProgressionCatalog.REWARD_BACKGROUND
+	return ProgressionCatalog.reward_background()
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.REWARD_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, ProgressionCatalog.reward_background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 66)

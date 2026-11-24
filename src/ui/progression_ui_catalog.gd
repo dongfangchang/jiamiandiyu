@@ -1,79 +1,49 @@
 extends RefCounted
 
-const IDENTITY_ART := {
-	"identity.reporter": "res://assets/game/v0.48.0/identities/card-identity-reporter.png",
-	"identity.doctor": "res://assets/game/v0.48.0/identities/card-identity-doctor.png",
-	"identity.gravedigger": "res://assets/game/v0.48.0/identities/card-identity-gravedigger.png",
-}
-
-const CARD_ART := {
-	"card.skill.ink_dart": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
-	"card.skill.paper_guard": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-paper-guard.png",
-	"card.skill.calm_breath": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-calm-breath.png",
-	"card.skill.focus": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-focus.png",
-	"card.skill.insight": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-insight.png",
-	"card.skill.omen": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-omen.png",
-	"card.skill.whisper": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-whisper.png",
-	"card.skill.second_look": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-second-look.png",
-	"card.skill.warding_circle": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_warding_circle.png",
-	"card.skill.lantern_step": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_lantern_step.png",
-	"card.skill.whispered_hunch": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_whispered_hunch.png",
-	"card.skill.mirrored_memory": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_mirrored_memory.png",
-	"card.skill.fated_echo": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_fated_echo.png",
-	"card.skill.piercing_omen": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_piercing_omen.png",
-	"card.skill.coffin_nail": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_coffin_nail.png",
-	"card.skill.second_sight": "res://assets/game/v0.24.0/v0.7.0/cards/card_skill_second_sight.png",
-	"card.skill.dream_question": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_dream_question.png",
-	"card.skill.mirror_ward": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
-	"card.skill.severed_string": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
-	"card.skill.last_rites": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
-	"card.skill.veil_step": "res://assets/game/v0.41.0/cards/card_skill_veil_step.png",
-	"card.skill.severed_fate": "res://assets/game/v0.41.0/cards/card_skill_severed_fate.png",
-	"card.skill.paper_swarm": "res://assets/game/v0.41.0/cards/card_skill_paper_swarm.png",
-	"card.skill.mirror_shard": "res://assets/game/v0.41.0/cards/card_skill_mirror_shard.png",
-	"card.skill.last_witness": "res://assets/game/v0.41.0/cards/card_skill_last_witness.png",
-	"card.skill.false_death": "res://assets/game/v0.41.0/cards/card_skill_false_death.png",
-	"card.skill.sealed_answer": "res://assets/game/v0.41.0/cards/card_skill_sealed_answer.png",
-	"card.skill.hollow_bell": "res://assets/game/v0.41.0/cards/card_skill_hollow_bell.png",
-	"card.skill.ink_scarlet": "res://assets/game/v0.42.0/cards/card_skill_ink_scarlet.png",
-	"card.skill.echo_reading": "res://assets/game/v0.42.0/cards/card_skill_echo_reading.png",
-	"card.skill.midnight_ledger": "res://assets/game/v0.42.0/cards/card_skill_midnight_ledger.png",
-	"card.skill.borrowed_breath": "res://assets/game/v0.42.0/cards/card_skill_borrowed_breath.png",
-	"card.skill.glass_thesis": "res://assets/game/v0.42.0/cards/card_skill_glass_thesis.png",
-	"card.skill.hungry_symbol": "res://assets/game/v0.42.0/cards/card_skill_hungry_symbol.png",
-	"card.skill.candle_archive": "res://assets/game/v0.42.0/cards/card_skill_candle_archive.png",
-	"card.skill.omen_chorus": "res://assets/game/v0.42.0/cards/card_skill_omen_chorus.png",
-	"card.skill.closed_eye": "res://assets/game/v0.42.0/cards/card_skill_closed_eye.png",
-	"card.skill.black_thread": "res://assets/game/v0.42.0/cards/card_skill_black_thread.png",
-	"card.skill.eclipse": "res://assets/game/v0.42.0/cards/card_skill_eclipse.png",
-	"card.skill.red_corridor": "res://assets/game/v0.42.0/cards/card_skill_red_corridor.png",
-}
-
-const CARD_BACK := "res://assets/game/v0.24.0/v0.4.0/cards/card-back-sealed-omen.png"
-const IDENTITY_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const REWARD_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const GACHA_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const UPGRADE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
-const TICKET_ICON := "res://assets/game/v0.24.0/v0.4.0/icons/divination-ticket.png"
-const SHARD_ICON := "res://assets/game/v0.24.0/v0.4.0/icons/card-shard.png"
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
+const CardArt := preload("res://src/ui/card_art_catalog.gd")
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 
 
 static func identity_art(identity_id: String) -> String:
-	return String(IDENTITY_ART.get(identity_id, ""))
+	return AssetRegistry.lookup("identities", identity_id)
 
 
 static func card_art(definition_id: String) -> String:
-	var art := String(CARD_ART.get(definition_id, ""))
-	return art if not art.is_empty() and ResourceLoader.exists(art) else CARD_BACK
+	return CardArt.card_art(definition_id)
+
+
+static func card_back() -> String:
+	return CardArt.card_back()
+
+
+static func identity_background() -> String:
+	return SceneCatalog.path_for("scene.title.mask_desk", "hub")
+
+
+static func reward_background() -> String:
+	return SceneCatalog.path_for("scene.hub.reward_archive", "hub")
+
+
+static func gacha_background() -> String:
+	return SceneCatalog.path_for("scene.hub.gacha_altar", "hub")
+
+
+static func upgrade_background() -> String:
+	return SceneCatalog.path_for("scene.hub.reward_archive", "hub")
+
+
+static func ticket_icon() -> String:
+	return AssetRegistry.lookup("icons", "icon.reward.divination_tickets")
 
 
 static func upgrade_icon(level: int) -> String:
-	var clamped := clampi(level, 1, 3)
-	return "res://assets/game/v0.24.0/v0.4.0/icons/upgrade-%d.png" % clamped
+	return AssetRegistry.lookup("icons", "icon.upgrade.%d" % clampi(level, 1, 3))
 
 
 static func reward_icon(kind: String) -> String:
-	return SHARD_ICON if kind == "card_fragments" else TICKET_ICON
+	var path := AssetRegistry.lookup("icons", "icon.reward." + kind)
+	return path if not path.is_empty() else AssetRegistry.fallback("reward")
 
 
 static func reward_guidance(kind: String) -> Dictionary:

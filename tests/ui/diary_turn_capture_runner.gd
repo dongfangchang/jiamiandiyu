@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## GPU strip of one forward turn on the bare desk stage, with the frame gap
 ## around the commit. `-- --old=<res path>` runs a different stage script
 ## (e.g. a copy of the pre-v0.88 stage) for a before/after comparison.
@@ -18,6 +20,7 @@ var _neighbours := false
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	TableSfx.set_muted(true)
 	var script_path := "res://src/ui/diary_desk_stage.gd"
 	var tag := "after"
@@ -80,7 +83,7 @@ func _apply() -> void:
 
 func _make_spreads() -> Array:
 	var out: Array = []
-	for scene_id in SceneCatalog.DIARY_PATHS.keys():
+	for scene_id in SceneCatalog.diary_scene_ids():
 		var path := SceneCatalog.diary_path_for(String(scene_id))
 		if path.is_empty() or not ResourceLoader.exists(path):
 			continue

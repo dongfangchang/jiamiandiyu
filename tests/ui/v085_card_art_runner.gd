@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.85 card art architecture probe.
 ## The point is not "the files exist" but "adding a card needs no code edit":
 ## every id in data/cards/** must resolve art + seal purely by convention.
@@ -14,6 +16,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var ids := CardArt.all_card_ids()
 	_expect(ids.size() >= 40, "catalog reads card data (%d ids)" % ids.size())
 
@@ -77,7 +80,7 @@ func _ready() -> void:
 	var gaps: Array[String] = []
 	for rarity in CardArt.RARITIES:
 		for mechanic in CardArt.MECHANICS:
-			var p := "%s/seal-%s-%s.png" % [CardArt.SEAL_DIR, rarity, mechanic]
+			var p := CardArt.seal_path(rarity, mechanic)
 			if not ResourceLoader.exists(p):
 				gaps.append("%s-%s" % [rarity, mechanic])
 	_expect(gaps.is_empty(), "seal matrix 4x6 complete (gaps=%s)" % str(gaps))

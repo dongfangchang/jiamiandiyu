@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.33.0 UI: preset cards show 适合 / 慎用 from snapshot fields.
 
 const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
@@ -11,6 +13,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	await _test_guidance_render()
 	await _test_sequence_locked_reason()

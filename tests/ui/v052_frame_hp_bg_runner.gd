@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.52: 7th hand card stays inside HandPanel; HP meters not clipped;
 ## SceneDim is a bottom-clearing gradient veil.
 
@@ -15,6 +17,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_expect(SceneCatalog.dim_for("battle") <= 0.30, "battle dim modest")
 	_expect(RouteCatalog.ROUTE_BACKGROUND_DIM <= 0.40, "route dim modest")
 	_expect(UiTheme.SAFE_BOTTOM_REVEAL >= 96, "bottom reveal margin reserved")
@@ -24,7 +27,7 @@ func _ready() -> void:
 	host.custom_minimum_size = Vector2(1600, 900)
 	host.size = Vector2(1600, 900)
 	add_child(host)
-	UiTheme.add_background(host, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.22)
+	UiTheme.add_background(host, RouteCatalog.route_background(), UiTheme.C_BG, 0.22)
 	await get_tree().process_frame
 	var dim := host.get_node_or_null("SceneDim")
 	_expect(dim is TextureRect, "SceneDim is gradient texture")

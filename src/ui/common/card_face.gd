@@ -7,19 +7,13 @@ extends RefCounted
 ## plus the rarity x mechanic seal derived from the card's own data.
 
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
-const DeckCatalog := preload("res://src/ui/deck_ui_catalog.gd")
 
 const NAME_ART := "CardArt"
 const NAME_SEAL := "CardSeal"
 
 
 static func art_path(definition_id: String) -> String:
-	var path := CardArt.art_window(definition_id)
-	if path.is_empty() and not definition_id.is_empty():
-		path = DeckCatalog.card_art(definition_id)
-	if path.is_empty() or not ResourceLoader.exists(path):
-		path = CardArt.CARD_BACK
-	return path
+	return CardArt.display_art(definition_id)
 
 
 static func make_art(definition_id: String, min_size := Vector2.ZERO, tint := Color.WHITE) -> TextureRect:

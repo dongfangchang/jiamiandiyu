@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
@@ -11,6 +13,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await get_tree().process_frame
 	_expect(RouteCatalog.ROUTE_BACKGROUND_DIM <= 0.35, "route dim not crushing art")
 	_expect(SceneCatalog.dim_for("battle") <= 0.35, "battle dim not crushing art")
@@ -19,7 +22,7 @@ func _ready() -> void:
 	host.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	host.custom_minimum_size = Vector2(1600, 900)
 	add_child(host)
-	UiTheme.add_background(host, RouteCatalog.ROUTE_BACKGROUND, UiTheme.C_BG, 0.28)
+	UiTheme.add_background(host, RouteCatalog.route_background(), UiTheme.C_BG, 0.28)
 	await get_tree().process_frame
 	var bg := host.find_child("SceneBackground", true, false) as TextureRect
 	_expect(bg != null, "scene background exists")

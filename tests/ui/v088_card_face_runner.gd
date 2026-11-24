@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.88 H-01: gacha and upgrade must show the same card face as the deck
 ## screen (v0.85 art window + rarity x mechanic seal), not the legacy
 ## 40-row plate table in progression_ui_catalog.
@@ -15,6 +17,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var gacha: Control = GachaScreen.new()
 	var upgrade: Control = UpgradeScreen.new()
 	var deck: Control = DeckScreen.new()
@@ -63,7 +66,7 @@ func _ready() -> void:
 		deck_tile.free()
 
 	## Unknown ids degrade to the card back and get no invented seal.
-	_expect(CardFace.art_path("card.does.not.exist") == CardArt.CARD_BACK, "unknown id falls back to card back")
+	_expect(CardFace.art_path("card.does.not.exist") == CardArt.card_back(), "unknown id falls back to card back")
 	_expect(CardFace.make_seal("card.does.not.exist") == null, "unknown id gets no seal")
 
 	if _failures.is_empty():

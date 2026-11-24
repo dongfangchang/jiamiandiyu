@@ -117,11 +117,11 @@ func get_scene_id() -> String:
 func get_background_path() -> String:
 	if not _scene_id.is_empty():
 		return SceneCatalog.path_for(_scene_id, "rest")
-	return RouteCatalog.REST_BACKGROUND
+	return RouteCatalog.rest_background()
 
 
 func _build() -> void:
-	UiTheme.add_background(self, RouteCatalog.REST_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, RouteCatalog.rest_background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 72)

@@ -127,7 +127,7 @@ func get_guidance_text() -> String:
 
 
 func get_background_path() -> String:
-	return ProgressionCatalog.GACHA_BACKGROUND
+	return ProgressionCatalog.gacha_background()
 
 
 func get_card_name(definition_id: String) -> String:
@@ -158,7 +158,7 @@ func get_empty_state_text() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, ProgressionCatalog.GACHA_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, ProgressionCatalog.gacha_background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 68)
@@ -189,7 +189,7 @@ func _build() -> void:
 	top.add_child(resource_box)
 	_ticket_label = UiTheme.label("占卜券 0", 18, UiTheme.C_PAPER)
 	resource_box.add_child(_add_icon_label(
-		ProgressionCatalog.TICKET_ICON,
+		ProgressionCatalog.ticket_icon(),
 		_ticket_label
 	))
 	_pity_label = UiTheme.label("稀有保底 0 / 0", 15, UiTheme.C_GOLD)
@@ -344,7 +344,7 @@ func _show_empty_results() -> void:
 	pack_column.add_theme_constant_override("separation", 10)
 	pack_pad.add_child(pack_column)
 	var back := TextureRect.new()
-	back.texture = load(ProgressionCatalog.CARD_BACK)
+	back.texture = load(ProgressionCatalog.card_back())
 	back.custom_minimum_size = Vector2(0, 220)
 	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -414,7 +414,7 @@ func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 	flip_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(flip_area)
 	var back := TextureRect.new()
-	back.texture = load(ProgressionCatalog.CARD_BACK)
+	back.texture = load(ProgressionCatalog.card_back())
 	back.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

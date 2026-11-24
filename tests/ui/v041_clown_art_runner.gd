@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
 
 ## v0.41.0: clown card art exists and catalog/battle/deck resolve the same path.
@@ -24,6 +26,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	var battle = BattleScreenScript.new()
 	add_child(battle)
 	await get_tree().process_frame
@@ -42,7 +45,7 @@ func _ready() -> void:
 			"%s battle prefers v0.85 art window" % definition_id
 		)
 		_expect(progression_path == deck_path, "%s progression and deck share plate" % definition_id)
-		_expect(progression_path != ProgressionCatalog.CARD_BACK, "%s not card back" % definition_id)
+		_expect(progression_path != ProgressionCatalog.card_back(), "%s not card back" % definition_id)
 	battle.queue_free()
 	_finish()
 

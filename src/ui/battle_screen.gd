@@ -12,7 +12,6 @@ const BattleCommandScript := preload("res://src/core/battle_command.gd")
 const BattleCommandResultScript := preload("res://src/core/battle_command_result.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
-const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
 const EXIT_BEAT_SEC := 0.8
@@ -38,18 +37,7 @@ const REASON_NAMES := {
 	"ok": "命令已完成",
 }
 
-const BATTLE_BACKGROUND := "res://assets/game/v0.24.0/v0.3.0/scenes/battle-tingen-old-house.png"
-const ENEMY_ART_BY_DEFINITION := {
-	&"enemy.candle_moth": "res://assets/game/v0.48.0/enemies/enemy-candle-moth.png",
-	&"enemy.tingen.kidnapper": "res://assets/game/v0.48.0/enemies/enemy-tingen-kidnapper.png",
-	&"enemy.mirror_hound": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound.png",
-	&"enemy.tingen.rampager": "res://assets/game/v0.48.0/enemies/enemy-tingen-rampager.png",
-	&"enemy.mirror_hound_echo": "res://assets/game/v0.48.0/enemies/enemy-mirror-hound-echo.png",
-	&"enemy.weeping_tenant": "res://assets/game/v0.48.0/enemies/enemy-weeping-tenant.png",
-	&"enemy.tingen.knight_wraith": "res://assets/game/v0.48.0/enemies/enemy-tingen-knight-wraith.png",
-	&"enemy.mirror_baron": "res://assets/game/v0.48.0/enemies/enemy-mirror-baron.png",
-	&"enemy.tingen.megose": "res://assets/game/v0.48.0/enemies/enemy-tingen-megose.png",
-}
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
 const RITUAL_SLOT_NAMES := ["灵性之墙", "烛火与祭品", "尊名回应"]
 const IntentText := preload("res://src/ui/text/intent_text.gd")
 const TRAIT_NAMES := {
@@ -65,7 +53,6 @@ const THREAT_NAMES := {
 	"corruption": "每次攻击污染",
 	"attention": "每次攻击被注视",
 }
-const STATUS_ICON_BASE := "res://assets/game/v0.24.0/v0.3.0/status/"
 
 var _snapshot: BattleSnapshot
 var _scene_id := ""
@@ -304,22 +291,17 @@ func get_scene_id() -> String:
 
 
 func get_background_path() -> String:
-	if not _scene_id.is_empty():
-		return SceneCatalog.path_for(_scene_id, "battle")
-	return BATTLE_BACKGROUND
+	return SceneCatalog.path_for(_scene_id, "battle")
 
 
 func get_enemy_art_path(definition_id: StringName) -> String:
-	return String(ENEMY_ART_BY_DEFINITION.get(definition_id, ""))
+	return AssetRegistry.lookup("enemies", String(definition_id))
 
 
 func get_card_art_path(definition_id: StringName) -> String:
 	## v0.85 art window first — it is the illustration alone, so it reads far
 	## better than a whole card face shrunk into a 26px strip.
-	var window := CardArt.art_window(String(definition_id))
-	if not window.is_empty():
-		return window
-	return ProgressionCatalog.card_art(String(definition_id))
+	return CardArt.display_art(String(definition_id))
 
 
 func get_card_effect_text(definition_id: StringName) -> String:
@@ -364,7 +346,7 @@ func is_exit_confirmation_visible() -> bool:
 
 
 func get_status_icon_path(icon_id: String) -> String:
-	return STATUS_ICON_BASE.path_join("status-" + icon_id + ".png")
+	return AssetRegistry.lookup("status_icons", icon_id)
 
 
 func inspect_enemy(actor_id: String) -> bool:
@@ -498,7 +480,7 @@ func end_turn() -> void:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, BATTLE_BACKGROUND, UiTheme.C_BG, SceneCatalog.dim_for("battle"))
+	UiTheme.add_background(self, SceneCatalog.fallback_for("battle"), UiTheme.C_BG, SceneCatalog.dim_for("battle"))
 	_effects_layer = Control.new()
 	_effects_layer.name = "EffectsLayer"
 	_effects_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

@@ -175,7 +175,7 @@ func get_scene_id() -> String:
 func get_background_path() -> String:
 	if not _scene_id.is_empty():
 		return SceneCatalog.path_for(_scene_id, "ritual")
-	return RouteCatalog.RITUAL_BACKGROUND
+	return RouteCatalog.ritual_background()
 
 
 func is_submit_enabled() -> bool:
@@ -191,7 +191,7 @@ func get_hint_button_text() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, RouteCatalog.RITUAL_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, RouteCatalog.ritual_background(), UiTheme.C_BG, 0.32)
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	safe.add_theme_constant_override("margin_left", 54)
@@ -446,9 +446,7 @@ func _render_result(status: String) -> void:
 	var success := status == "completed"
 	var icon := TextureRect.new()
 	icon.texture = load(
-		RouteCatalog.ROUTE_ICON_BASE + (
-			"ritual-success.png" if success else "ritual-failure.png"
-		)
+		RouteCatalog.ritual_outcome_icon(success)
 	)
 	icon.custom_minimum_size = Vector2(112, 112)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -467,9 +465,7 @@ func _render_result(status: String) -> void:
 		UiTheme.C_PAPER
 	))
 	_art_rect.texture = load(
-		RouteCatalog.ROUTE_ICON_BASE + (
-			"ritual-success.png" if success else "ritual-failure.png"
-		)
+		RouteCatalog.ritual_outcome_icon(success)
 	)
 	_set_status(
 		"晋升结果已归档。" if success else "考核未通过，可回日记重考。",

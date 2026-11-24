@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.77: instantiate hub/exit screens and assert live button labels.
 ## v0.86 R0-03: dropped source-text greps and the retired route_screen check.
 
@@ -15,6 +17,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await _check_identity()
 	await _check_reward()
 	await _check_gacha()

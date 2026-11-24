@@ -11,7 +11,8 @@ signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const TitleDeskStage := preload("res://src/ui/title_desk_stage.gd")
-const TITLE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
+const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+const TITLE_SCENE_ID := "scene.title.mask_desk"
 
 var _continue_button: Button
 var _new_game_button: Button
@@ -43,6 +44,10 @@ var _busy := false
 var _open_key := ""
 var _checkpoint_status := "none"
 var _challenge_available := false
+
+
+static func title_background() -> String:
+	return SceneCatalog.path_for(TITLE_SCENE_ID, "title")
 
 
 func _ready() -> void:
@@ -200,7 +205,7 @@ func get_status_text() -> String:
 
 
 func _build() -> void:
-	UiTheme.add_background(self, TITLE_BACKGROUND, UiTheme.C_BG, 0.32)
+	UiTheme.add_background(self, title_background(), UiTheme.C_BG, 0.32)
 
 	var safe := MarginContainer.new()
 	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

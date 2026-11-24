@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const ResultScreenScene := preload("res://scenes/ui/result_screen.tscn")
@@ -29,6 +31,7 @@ const OUTPUT_DIRECTORY := "res://.tools/ui-captures"
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	DisplayServer.window_set_size(_capture_size())
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIRECTORY))
 	await get_tree().process_frame

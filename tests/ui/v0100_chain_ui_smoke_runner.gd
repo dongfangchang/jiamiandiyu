@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const BattleScreenScene := preload("res://scenes/ui/battle_screen.tscn")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const BattleCommandResultScript := preload("res://src/core/battle_command_result.gd")
@@ -11,6 +13,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	await _test_chain_progress_and_burst()
 	await _test_missing_chain_field_is_safe()
 	if _failures.is_empty():

@@ -1,8 +1,11 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 const DeskStage := preload("res://src/ui/diary_desk_stage.gd")
 const DiaryCatalog := preload("res://src/ui/diary_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+const AssetRegistry := preload("res://src/ui/asset_registry.gd")
 const TableSfx := preload("res://src/ui/table_sfx.gd")
 const Ui := preload("res://src/ui/mask_ui_theme.gd")
 
@@ -12,6 +15,7 @@ var _activations := 0
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	TableSfx.set_muted(true)
 	var host := SubViewport.new()
 	host.size = Vector2i(1280, 720)
@@ -38,7 +42,7 @@ func _ready() -> void:
 	var wood := _texture_at(DeskStage.WOOD_PATH, Vector2i(2048, 2048))
 	var scene_id := "scene.battle.moretti_home"
 	var scene_path := SceneCatalog.path_for(scene_id)
-	var portrait_path := SceneCatalog.DIARY_ART_DIR.path_join(SceneCatalog.DIARY_PATHS[scene_id])
+	var portrait_path := AssetRegistry.lookup("diary_pages", scene_id)
 	var portrait := _texture_at(portrait_path, Vector2i(1260, 1770))
 	desk = DeskStage.new()
 	host.add_child(desk)

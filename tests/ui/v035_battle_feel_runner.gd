@@ -1,5 +1,7 @@
 extends Node
 
+const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
+
 ## v0.35.0: battle table feel — diegetic meters, aim overlay, intent rows,
 ## synergy-hint meta on hand cards. Does not simulate OS drag in headless;
 ## verifies the control surface exists and snapshot-driven presentation works.
@@ -16,6 +18,7 @@ var _failures: Array[String] = []
 
 
 func _ready() -> void:
+	UiContentFixture.ensure()
 	_expect(
 		BattleTableFeel.intent_icon_id("attack") == "attack",
 		"attack intent maps to attack icon"
