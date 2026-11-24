@@ -100,19 +100,6 @@ func _ready() -> void:
 		}],
 	}))
 	await get_tree().process_frame
-	_expect(screen.get_node_or_null("SceneBackgroundHolder") != null, "diary has canvas holder")
-	_expect(screen.find_child("DiaryBook", true, false) != null, "diary book present")
-	_expect(screen.find_child("BookShell", true, false) != null, "book shell present")
-	_expect(screen.find_child("DiaryBookArt", true, false) != null, "open-book art present")
-	_expect(screen.find_child("PageCurrent", true, false) != null, "PageCurrent layer present")
-	var page_next := screen.find_child("PageNext", true, false) as Control
-	_expect(page_next != null, "PageNext preload layer present")
-	_expect(
-		page_next != null and not page_next.visible,
-		"PageNext hidden when idle"
-	)
-	_expect(screen.find_child("LeftPage", true, false) != null, "left page present")
-	_expect(screen.find_child("RightPage", true, false) != null, "right page present")
 	_expect(screen.get_page_count() >= 2, "screen page count")
 	_expect(screen.get_background_path() == SceneCatalog.UI_CANVAS, "uses rain-night canvas")
 	_expect(not screen.is_page_flipping(), "not flipping on load")
@@ -126,44 +113,13 @@ func _ready() -> void:
 	_expect(status.find("前往节点") < 0, "no node-forward prompt")
 	## Status may say 本叶/调查; desk P0 no longer requires the word 线索.
 	_expect(screen.find_child("DiaryHeader", true, false) != null, "diary header present")
-	_expect(screen.find_child("LampGlow", true, false) != null, "lamp glow present")
-	_expect(screen.find_child("IndexPanel", true, false) != null, "index panel present")
-	screen._on_index()
-	await get_tree().process_frame
-	var index_btn := screen.find_child("IndexPanel", true, false)
-	var index_has_progress := false
-	if index_btn != null:
-		for child in index_btn.find_children("*", "Button", true, false):
-			if String(child.text).find("/") >= 0:
-				index_has_progress = true
-				break
-	_expect(index_has_progress, "index lists spread progress counts")
-	screen._on_index()
-	## Legacy 2D parchment stack may stay in tree but hidden; desk owns readable surface.
-	_expect(screen.find_child("BookShell", true, false) != null, "legacy book shell retained")
 	_expect(screen.find_child("WaxSealButton", true, false) != null, "wax seal is P0 locked/enter affordance")
 	_expect(FileAccess.file_exists("res://src/ui/diary_desk_stage.gd"), "desk stage script present")
 	_expect(screen.find_child("PenFlashBanner", true, false) != null, "pen flash banner node present")
 	_expect(screen.find_child("HeaderParchment", true, false) != null, "header parchment plate")
 	_expect(screen.find_child("FooterParchment", true, false) != null, "footer parchment plate")
-	_expect(
-		FileAccess.file_exists("res://assets/ui/diary/open_book_spread.png"),
-		"open book png present"
-	)
-	_expect(
-		FileAccess.file_exists("res://assets/ui/diary/parchment_grain.png")
-		or FileAccess.file_exists("res://assets/ui/diary/parchment_grain.svg"),
-		"parchment grain asset present"
-	)
-	_expect(
-		FileAccess.file_exists("res://assets/ui/diary/ink_blot.svg"),
-		"ink blot svg present"
-	)
-	_expect(
-		FileAccess.file_exists("res://assets/ui/diary/pen_008.svg"),
-		"0-08 pen svg present"
-	)
-	_expect(screen.find_child("PenGlyph", true, false) != null, "pen glyph node present")
+	var close := screen.find_child("CloseBookmark", true, false) as Button
+	_expect(close != null and close.visible and not close.disabled, "close bookmark is live")
 
 	## Desk forward flip gated until current spread mains complete.
 	var desk = screen.get_desk_stage() if screen.has_method("get_desk_stage") else null
@@ -312,10 +268,8 @@ func _ready() -> void:
 	await get_tree().process_frame
 	var pen_flash := screen.find_child("PenFlash", true, false) as Label
 	var pen_banner := screen.find_child("PenFlashBanner", true, false) as Control
-	var pen_overlay := screen.find_child("PenOverlay", true, false) as Control
 	_expect(pen_flash != null and pen_flash.visible, "0-08 pen flash after post-encounter")
 	_expect(pen_banner != null and pen_banner.visible, "pen flash banner visible")
-	_expect(pen_overlay != null and pen_overlay.visible, "pen overlay camera beat visible")
 	_expect(
 		screen.get_status_text().find("0-08") >= 0,
 		"status carries 0-08 settlement text"

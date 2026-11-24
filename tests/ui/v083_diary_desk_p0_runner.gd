@@ -54,10 +54,13 @@ func _ready() -> void:
 	_expect(screen.find_child("CandleMesh", true, false) != null, "CandleMesh present")
 	_expect(screen.find_child("RightPageHinge", true, false) != null, "spine hinge present")
 	_expect(screen.find_child("WaxSealHit", true, false) != null, "screen wax hit present")
-	_expect(
-		screen.has_method("legacy_book_art_visible") and not screen.legacy_book_art_visible(),
-		"V083_NO_BOOK_ART_PATH"
-	)
+	## The desk stage is the only page carrier: no flat open-book plate anywhere.
+	var flat_book_art := false
+	for rect in screen.find_children("*", "TextureRect", true, false):
+		var tex := (rect as TextureRect).texture
+		if tex != null and tex.resource_path.ends_with("open_book_spread.png"):
+			flat_book_art = true
+	_expect(not flat_book_art, "V083_NO_BOOK_ART_PATH")
 	var desk = screen.get_desk_stage() if screen.has_method("get_desk_stage") else null
 	_expect(desk != null, "desk stage present")
 	if desk != null and desk.has_method("book_is_fullbleed"):

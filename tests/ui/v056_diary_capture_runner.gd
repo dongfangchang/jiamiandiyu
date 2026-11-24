@@ -1,6 +1,6 @@
 extends Node
 
-## Capture immersion diary: mold/candle/gold overwrite + resist seep.
+## Capture the diary desk idle and bouncing off a sealed leaf.
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
@@ -60,7 +60,8 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 
-	screen._resist_flip("墨封试压——纸页合回。")
+	## Forward into a sealed leaf: the desk stage bounces the page back.
+	screen.get_desk_stage().flip_committed.emit(1)
 	await get_tree().create_timer(0.22).timeout
 	await get_tree().process_frame
 	if not _save_shot(viewport, OUT_RESIST):
