@@ -38,7 +38,7 @@
 4. **长期方向与下一阶段**：[`docs/architecture/ROADMAP.md`](architecture/ROADMAP.md)
    - v0.85 关版后进入**架构整治期 R0–R4**（v0.86–v0.91）：先建安全网（统一测试 + 黄金回放），再删死代码、统一事实源、拆分大文件，然后回到内容生产（P1–P3 → 1.0）。
    - 问题清单：[`architecture/REVIEW_2026-11-24.md`](architecture/REVIEW_2026-11-24.md)（用 `AR-xx` 引用）；终点形态：[`architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md)。
-   - 已知坑（R0 之前不要被误导）：钉死版本号的测试已在 v0.86 删除（R0-03），战斗卡图覆盖问题已修复（AR-01）；跑测试用 `tools/run_tests.sh`；黄金回放 `tests/golden/` 是纯重构的判定标准；`diary_chapter_screen.gd` 约一半是隐藏的旧载体死代码（AR-42）。
+   - 已知坑（R0 之前不要被误导）：钉死版本号的测试已在 v0.86 删除（R0-03），战斗卡图覆盖问题已修复（AR-01）；跑测试用 `tools/run_tests.sh`；黄金回放 `tests/golden/` 是纯重构的判定标准；v0.87 已删除日记 2D 旧载体、route_screen、ui_preview 和 legacy bootstrap 入口（−4,253 行）；切屏统一走 `src/app/screen_router.gd`。
 
 ---
 
@@ -191,7 +191,6 @@ Bug：S1/S2 要有 `docs/bugs/BUG-xxxx.md`；先复现→根因→前向修，�
 ### 不要一上来就读
 
 - 全部 `docs/versions/v0.*.md`——日常看 `VERSION_INDEX` + `VERSION_LOG`；复盘看 `docs/archive/`
-- 整份 `diary_chapter_screen.gd`（历史沉浸特效很多；先确认你的改动是否还走 DeskStage 主路径）  
 - README 里偏旧的「当前基线 v0.25」段落（以 `CURRENT_VERSION` 为准）
 
 ---

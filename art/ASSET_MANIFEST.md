@@ -340,3 +340,14 @@ git checkout archive/pre-v0.87-assets -- <path>
 - `assets/game/{scenes,v0.13.0,v0.47.0,v0.49.0}/`：`art/tools/render_title_svg.gd`、`render_v013_cards.gd`、`render_v047_p3_scenes.gd`、`render_v049_shell_scenes.gd` 及对应 `.mjs` 以其为输出目录；按保守规则整目录保留，待美术确认后可归档。
 - 逐字节重复：`assets/ui/diary/desk_wood.png` = `props/desk-wood.png`、`wax_seal_available.png` = `props/wax-seal.png`（`props/` 经 `prop_ui_catalog.gd` 的 `PROP_DIR` 动态引用）；`assets/game/v0.24.0/cards/card-identity-reporter.png` = `templates/card-frame.png`（后者登记在 `v0.24.0/render-manifest.json`）。两份均有引用，均保留。`assets/game/v0.85.0` 与 `art/**` 的重复不在本轮范围（不动 `art/**`）。
 - `data/balance/v0.2.0/balance_draft.json`、`data/schema/v0.2.0/battle_cards.schema.json`：仍被 `tests/infrastructure/test_runner.gd` 读取，保留。
+
+### v0.87 归档补充（R1-04 之后）
+
+R1-04 删除日记 2D 旧载体后，以下 `assets/ui/diary/` 文件已没有任何引用，一并从 `main` 删除。它们仍保留在标签 `archive/pre-v0.87-assets` 中：
+
+- `ink_blot.svg`、`bookmark_ribbon.png`、`parchment_grain.svg`、`pen_008.svg`（以及各自的 `.import`）
+- `candle_vignette.gdshader`、`gaze_distort.gdshader`（以及各自的 `.uid`）
+
+同批删除的数据：`data/balance/v0.2.0/balance_draft.json`、`data/schema/v0.2.0/battle_cards.schema.json`（R1-01 测试迁移后已无引用）。
+
+恢复：`git checkout archive/pre-v0.87-assets -- <path>`
