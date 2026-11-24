@@ -103,6 +103,12 @@ guard block "ui reads files directly (R2-09)" \
 	grep -rn --include='*.gd' --exclude='asset_registry.gd' 'FileAccess' src/ui
 guard block "ui asset path literals (R2-10; use data/registry/assets.json)" \
 	grep -rn --include='*.gd' 'res://assets/game/' src/ui
+# ADR-0034 D2: replaced screens are deleted, never covered or hidden.
+guard block "legacy title cover (ADR-0034 D2)" \
+	grep -rn 'TitleOpenCover' src/ui
+# Converted stations only; other screens still use add_background until X1/X2.
+guard block "converted stations use no background holder (ADR-0034 D2)" \
+	grep -rn 'SceneBackgroundHolder\|add_background(' src/ui/start_screen.gd src/ui/title_desk_stage.gd src/ui/title
 guard report "files over size budget" \
 	sh -c "find src -name '*.gd' -exec wc -l {} + | awk '\$2!=\"total\" && ((\$2 ~ /src\\/ui\\// && \$1>800) || (\$2 !~ /src\\/ui\\// && \$1>500))'"
 

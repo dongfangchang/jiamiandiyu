@@ -20,6 +20,7 @@ const DESTRUCTIVE_LABELS := {
 	"回到主菜单": true,
 	"退出战斗": true,
 	"退出": true,
+	"离开": true,
 	"关闭游戏": true,
 }
 
@@ -154,7 +155,7 @@ func _run_seed(seed_value: int) -> void:
 	if boot_route != "map" and boot_route != "hub":
 		## Fall back to a deterministic new-game path if test profile failed.
 		_trace.append("%d:0 boot_route=%s fallback_new_game" % [seed_value, boot_route])
-		for label in ["下一步", "开始新游戏", "选择此路线", "扮演此身份", "确认出战", "打开日记"]:
+		for label in ["下一步", "开始新游戏", "新的日记", "选择此路线", "扮演此身份", "确认出战", "打开日记"]:
 			var button := _button_by_text(_controller, label)
 			if button != null and _is_clickable(button):
 				_press(button, "%d:0 fallback=%s" % [seed_value, label])

@@ -1,5 +1,10 @@
 extends Control
 
+## station.title (ADR-0034): the shut diary on the desk, and a bookmark slip
+## carrying the save summary and a TEXT menu. The text items are the only
+## controls; the desk props are picture and only light up when an item is
+## hovered or focused.
+
 signal new_game_requested
 signal continue_requested
 signal challenge_requested
@@ -11,53 +16,45 @@ signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const TitleDeskStage := preload("res://src/ui/title_desk_stage.gd")
-const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
-const TITLE_SCENE_ID := "scene.title.mask_desk"
+const Paper := preload("res://src/ui/title/title_paper.gd")
+const TitleSheets := preload("res://src/ui/title/title_sheets.gd")
 
-var _continue_button: Button
-var _new_game_button: Button
-var _status_label: Label
-var _summary_label: Label
-var _version_label: Label
-var _challenge_button: Button
-var _challenge_hint: Label
-var _settings_button: Button
+const MENU_TEXT := {
+	"continue": "继续",
+	"new_game": "新的日记",
+	"challenge": "挑战",
+	"settings": "设置",
+	"quit": "离开",
+	"test_game": "测试档案",
+}
+## Slip rect in the 1600x900 design space, tucked against the book's edge.
+const SLIP_RECT := Rect2(930, 96, 470, 700)
+
 var _desk: Control
-var _quit_button: Button
-var _restore_backup_button: Button
-var _test_game_button: Button
-var _preferences_status: Label
+var _slip: Control
+var _items: Dictionary = {}
+var _status_label: Label
+var _detail_label: Label
+var _notice_label: Label
+var _version_label: Label
+var _sheets: RefCounted
 var _preferences: Dictionary = {}
 var _preferences_initialized := false
 var _backup_available := false
-var _confirm_new_game: ConfirmationDialog
-var _system_overlay: Control
-var _tutorial_overlay: Control
-var _feedback_overlay: Control
-var _feedback_status: Label
-var _feedback_text: TextEdit
-var _feedback_stage_index := 0
-var _feedback_pacing_index := 0
-var _feedback_stuck: CheckButton
-var _tutorial_step := 0
 var _busy := false
 var _open_key := ""
 var _checkpoint_status := "none"
 var _challenge_available := false
-
-
-static func title_background() -> String:
-	return SceneCatalog.path_for(TITLE_SCENE_ID, "title")
+var _challenge_hint := ""
 
 
 func _ready() -> void:
 	theme = UiTheme.build_theme()
-	## A Control defaults to MOUSE_FILTER_STOP, and this one is full-rect, so
-	## it consumed clicks before they reached the desk hotspots underneath it
-	## in pick order. PASS keeps it transparent to input while children still
-	## receive theirs.
-	mouse_filter = Control.MOUSE_FILTER_PASS
-	_build()
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_desk = TitleDeskStage.new()
+	add_child(_desk)
+	_build_slip()
+	_sheets = TitleSheets.new(self)
 	show_checkpoint_status("none")
 
 
@@ -72,406 +69,309 @@ func show_checkpoint_status(
 	if not preferences.is_empty():
 		_preferences = preferences.duplicate(true)
 		_preferences_initialized = true
-	if not is_instance_valid(_continue_button):
+	if not is_instance_valid(_status_label):
 		return
 	_busy = false
-	_continue_button.disabled = status != "loaded"
-	_new_game_button.disabled = false
-	_version_label.text = "v%s  ·  本地离线原型" % String(
-		ProjectSettings.get_setting("application/config/version", "0.25.0")
-	)
 	match status:
 		"loaded":
-			_continue_button.disabled = false
-			_status_label.text = "检测到可继续的检查点"
-			var last_battle: Dictionary = summary.get("last_battle", {})
-			var identity_name := _identity_name(String(summary.get("identity_id", "")))
-			var tickets := _optional_int(summary, ["divination_tickets"])
-			var collection_count := _optional_int(
-				summary,
-				["collection_count", "owned_card_count", "unique_owned_count"]
-			)
-			var pity_current := _optional_int(summary, ["pity_counter", "rare_pity_counter"])
-			var pity_limit := _optional_int(summary, ["rare_pity", "pity_limit"])
-			_version_label.text = "v%s  ·  本地离线原型" % String(
-				ProjectSettings.get_setting(
-					"application/config/version",
-					"0.25.0"
-				)
-			)
 			set_challenge_available(
 				bool(summary.get("challenge_available", false)),
 				String(summary.get("challenge_reason", ""))
 			)
-			_summary_label.text = (
-				"身份：%s  ·  序列 %d  ·  牌组 %d 张\n"
-				+ "占卜券：%s  ·  稀有保底：%s\n"
-				+ "收藏：%s\n"
-				+ "上一场：%s / 第 %d 回合  ·  保存于 %s"
-			) % [
-				identity_name,
+			_status_label.text = "%s · 序列 %d" % [
+				_identity_name(String(summary.get("identity_id", ""))),
 				int(summary.get("sequence", 0)),
-				int(summary.get("deck_size", 0)),
-				_format_value(tickets),
-				_format_pity(pity_current, pity_limit),
-				_format_value(collection_count),
-				_outcome_text(String(last_battle.get("outcome", ""))),
-				int(last_battle.get("round_number", 0)),
-				String(summary.get("created_at", "未知")),
 			]
+			_detail_label.text = _saved_at_text(String(summary.get("created_at", "")))
 		"corrupt":
-			_continue_button.disabled = true
 			set_challenge_available(false, "检查点不可读取")
-			_status_label.text = "检查点无法读取"
-			_summary_label.text = "原始存档已保留。" + (
+			_status_label.text = "日记无法读取"
+			_detail_label.text = "原始存档已保留。" + (
 				"\n" + error_message if not error_message.is_empty() else ""
 			)
 		_:
-			_continue_button.disabled = true
 			set_challenge_available(false, "完成序列 8 晋升后开放")
-			_status_label.text = "尚未建立检查点"
-			_summary_label.text = (
-				"身份：未选择  ·  占卜券：3（新游戏初始）\n"
-				+ "开始新游戏以选择白昼身份。战斗中退出会回到最近检查点。"
-			)
-	if is_instance_valid(_restore_backup_button):
-		_restore_backup_button.disabled = _busy or not _backup_available
+			_status_label.text = "尚无日记"
+			_detail_label.text = ""
+	_detail_label.visible = not _detail_label.text.is_empty()
+	_refresh_items()
+	if _sheets != null:
+		_sheets.set_backup_available(_backup_available and not _busy)
 	if (
 		_preferences_initialized
 		and not bool(_preferences.get("tutorial_seen", false))
-		and _tutorial_overlay == null
+		and not _sheets.is_tutorial_open()
 	):
-		_open_tutorial()
+		_sheets.open_tutorial()
 
 
 func get_summary_text() -> String:
-	return _summary_label.text if is_instance_valid(_summary_label) else ""
-
-
-func get_version_text() -> String:
-	return _version_label.text if is_instance_valid(_version_label) else ""
-
-
-func set_busy(busy: bool) -> void:
-	_busy = busy
-	## Coming back to the title after an open beat: restore the desk, or the
-	## screen would stay faded to black from the transition.
-	if not busy:
-		_open_key = ""
-	if not busy and is_instance_valid(_desk) and _desk.has_method("reset_open"):
-		_desk.reset_open()
-	if is_instance_valid(_continue_button):
-		_continue_button.disabled = _busy or _checkpoint_status != "loaded"
-	if is_instance_valid(_new_game_button):
-		_new_game_button.disabled = _busy
-	if is_instance_valid(_challenge_button):
-		_challenge_button.disabled = _busy or not _challenge_available
-	if is_instance_valid(_test_game_button):
-		_test_game_button.disabled = _busy
-	_sync_desk()
-
-
-func is_continue_enabled() -> bool:
-	return is_instance_valid(_continue_button) and not _continue_button.disabled
-
-
-func set_challenge_available(available: bool, reason: String = "") -> void:
-	_challenge_available = available
-	if is_instance_valid(_challenge_button):
-		_challenge_button.disabled = _busy or not available
-	_sync_desk()
-	if is_instance_valid(_challenge_hint):
-		_challenge_hint.text = (
-			"可重复挑战已解锁。"
-			if available
-			else (
-				reason
-				if not reason.is_empty()
-				else "完成序列 8 晋升后开放"
-			)
-		)
-
-
-func is_challenge_enabled() -> bool:
-	return is_instance_valid(_challenge_button) and not _challenge_button.disabled
-
-
-func get_challenge_hint_text() -> String:
-	return _challenge_hint.text if is_instance_valid(_challenge_hint) else ""
+	if not is_instance_valid(_status_label):
+		return ""
+	return (_status_label.text + "\n" + _detail_label.text).strip_edges()
 
 
 func get_status_text() -> String:
 	return _status_label.text if is_instance_valid(_status_label) else ""
 
 
-func _build() -> void:
-	UiTheme.add_background(self, title_background(), UiTheme.C_BG, 0.32)
+func get_version_text() -> String:
+	return _version_label.text if is_instance_valid(_version_label) else ""
 
-	var safe := MarginContainer.new()
-	safe.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	safe.add_theme_constant_override("margin_left", 72)
-	safe.add_theme_constant_override("margin_top", 54)
-	safe.add_theme_constant_override("margin_right", 72)
-	safe.add_theme_constant_override("margin_bottom", UiTheme.SAFE_BOTTOM_REVEAL)
-	add_child(safe)
 
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 18)
-	safe.add_child(column)
+func get_notice_text() -> String:
+	return _notice_label.text if is_instance_valid(_notice_label) else ""
 
-	var top_spacer := Control.new()
-	top_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(top_spacer)
 
-	var panel := UiTheme.padded_panel(
-		_build_panel_content(),
-		24,
-		UiTheme.C_MODULE_RAISED,
-		UiTheme.C_GOLD
+func get_menu_texts() -> PackedStringArray:
+	## Visible menu entries in reading order.
+	var out := PackedStringArray()
+	for key in ["continue", "new_game", "challenge", "settings", "quit", "test_game"]:
+		var item := _items.get(key) as Button
+		if item != null and item.visible:
+			out.append(item.text)
+	return out
+
+
+func get_desk() -> Control:
+	return _desk
+
+
+func set_busy(busy: bool) -> void:
+	_busy = busy
+	if not busy:
+		_open_key = ""
+		if is_instance_valid(_desk):
+			_desk.reset_open()
+	_refresh_items()
+
+
+func is_continue_enabled() -> bool:
+	return _is_live("continue")
+
+
+func set_challenge_available(available: bool, reason: String = "") -> void:
+	_challenge_available = available
+	_challenge_hint = (
+		"可重复挑战已解锁。"
+		if available
+		else (reason if not reason.is_empty() else "完成序列 8 晋升后开放")
 	)
-	panel.custom_minimum_size = Vector2(670, 0)
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	column.add_child(panel)
-
-	var bottom_spacer := Control.new()
-	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(bottom_spacer)
-
-	_install_desk(panel)
-
-	var footer := HBoxContainer.new()
-	column.add_child(footer)
-	footer.add_child(UiTheme.label(
-		"单人离线原型 · 所有进度仅保存在本机",
-		13,
-		UiTheme.C_MUTED
-	))
-	var footer_spacer := Control.new()
-	footer_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	footer.add_child(footer_spacer)
-	_version_label = UiTheme.label(
-		"v%s  ·  本地离线原型" % String(
-			ProjectSettings.get_setting("application/config/version", "0.25.0")
-		),
-		11,
-		UiTheme.C_GOLD
-	)
-	footer.add_child(_version_label)
+	_refresh_items()
 
 
-func _install_desk(panel: Control) -> void:
-	## Same desk as the diary, journal shut. The buttons themselves are kept —
-	## labels included, because integration probes find them by text — and are
-	## re-hosted as invisible hotspots over the prop art.
-	var desk = TitleDeskStage.new()
-	desk.name = "TitleDeskStage"
-	if not desk.has_art():
-		## Art not ingested yet: leave the classic panel exactly as it was.
+func is_challenge_enabled() -> bool:
+	return _is_live("challenge")
+
+
+func get_challenge_hint_text() -> String:
+	## The locked item is not listed; the reason stays queryable.
+	return _challenge_hint
+
+
+func on_enter() -> void:
+	for key in ["continue", "new_game"]:
+		var item := _items.get(key) as Button
+		if item != null and item.is_visible_in_tree() and not item.disabled:
+			item.grab_focus()
+			return
+
+
+func on_exit() -> void:
+	var key := _open_key
+	_open_key = ""
+	if key.is_empty() or not is_instance_valid(_desk):
 		return
-	_desk = desk
-	add_child(desk)
-	## The desk REPLACES the rain-street plate; hide that rather than paint the
-	## desk underneath it (it was being covered by the backdrop + dim layers).
-	for bg_name in ["SceneBackgroundHolder", "SceneDim", "SceneFallback"]:
-		var bg := get_node_or_null(NodePath(bg_name))
-		if bg is CanvasItem:
-			(bg as CanvasItem).visible = false
-	## GUI picking walks children in REVERSE tree order, so the LAST child is
-	## on top for input. At index 0 the desk sat behind the full-rect chrome
-	## Control (MOUSE_FILTER_STOP), which swallowed every click on a prop.
-	## Last place puts the hotspots on top; the desk is PASS and its backdrop
-	## IGNORE, so the panel text underneath still works where it shows.
-	move_child(desk, get_child_count() - 1)
-
-	var bound := 0
-	for pair in [
-		["continue", _continue_button],
-		["new_game", _new_game_button],
-		["challenge", _challenge_button],
-		["settings", _settings_button],
-		["quit", _quit_button],
-	]:
-		var button: Button = pair[1]
-		if button != null and desk.bind(String(pair[0]), button):
-			bound += 1
-	if bound == 0:
-		## Nothing could be re-hosted; keep the panel rather than show an
-		## undecorated desk with no way in.
-		remove_child(desk)
-		desk.queue_free()
-		_desk = null
+	if not bool(_desk.play_open(key)):
 		return
-
-	## The panel still carries the title, save summary and the secondary
-	## actions, but it must not sit on top of the journal. Strip the plate and
-	## pin it to the left margin, which the painted desk leaves empty.
-	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	panel.custom_minimum_size = Vector2(400, 0)
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	var holder := panel.get_parent()
-	if holder is BoxContainer:
-		(holder as BoxContainer).alignment = BoxContainer.ALIGNMENT_BEGIN
-	## Drop clear of the candle and its caption in the upper-left of the plate.
-	var safe := holder.get_parent() if holder != null else null
-	if safe is MarginContainer:
-		(safe as MarginContainer).add_theme_constant_override("margin_top", 300)
-	## The text column's layout containers span the FULL width even though the
-	## text only occupies the left side, and they default to MOUSE_FILTER_STOP.
-	## That swallowed clicks on the props to their right (new game / challenge
-	## / quit all died on an invisible MarginContainer). Make the chrome
-	## containers transparent to the mouse; the real controls inside keep
-	## their own filter and still work.
-	_pass_through_layout(safe)
-	_fade_panel_chrome()
-	_sync_desk()
+	await _desk.open_finished
 
 
-func _pass_through_layout(root: Node) -> void:
-	## Containers and plain labels must not intercept clicks; buttons, inputs
-	## and anything interactive keep whatever filter they already have.
-	if root == null:
+func show_backup_restore_result(success: bool, message: String) -> void:
+	_set_notice(("备份已恢复。" if success else "恢复失败：") + message, success)
+
+
+func show_preferences_save_state(success: bool, message: String = "") -> void:
+	_set_notice("设置已保存。" if success else "设置保存失败：" + message, success)
+
+
+func show_feedback_save_state(success: bool, message: String) -> void:
+	_sheets.show_feedback_result(success, message)
+
+
+func open_settings() -> void:
+	_sheets.open_settings(_preferences, _backup_available and not _busy)
+
+
+func close_settings() -> void:
+	_sheets.close_settings()
+
+
+func is_settings_open() -> bool:
+	return _sheets.is_settings_open()
+
+
+func is_confirm_open() -> bool:
+	return _sheets.is_confirm_open()
+
+
+func is_tutorial_open() -> bool:
+	return _sheets.is_tutorial_open()
+
+
+## --- TitleSheets callbacks -------------------------------------------------
+
+func set_preference(key: String, value: Variant) -> void:
+	_preferences[key] = value
+	preferences_changed.emit(_preferences.duplicate(true))
+
+
+func request_restore_backup() -> void:
+	if _busy or not _backup_available:
 		return
-	var stack: Array[Node] = [root]
-	while not stack.is_empty():
-		var node: Node = stack.pop_back()
-		for child in node.get_children():
-			stack.append(child)
-		if node is BaseButton or node is Range or node is LineEdit or node is TextEdit:
-			continue
-		if node is Container or node is Label or node is RichTextLabel or node is Panel:
-			(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+	restore_backup_requested.emit()
 
 
-func _fade_panel_chrome() -> void:
-	## Keep every control reachable, but let the desk be the picture: the
-	## primary actions now live on the objects, so their old row is redundant
-	## chrome sitting over the art.
-	for button in [_continue_button, _new_game_button, _challenge_button, _settings_button]:
-		if button == null:
-			continue
-		var row: Node = button.get_parent()
-		if row is Control and row != self:
-			## Rows are emptied by the re-parenting in bind(); collapse any
-			## that are now blank so they stop reserving vertical space.
-			var still_used := false
-			for child in (row as Control).get_children():
-				if child is Control and (child as Control).visible:
-					still_used = true
-					break
-			if not still_used:
-				(row as Control).visible = false
+func submit_feedback(feedback: Dictionary) -> void:
+	feedback_submitted.emit(feedback)
 
 
-func _sync_desk() -> void:
-	## Props mirror their button's enabled state (a dim prop must not invite a
-	## click that does nothing).
-	if not is_instance_valid(_desk) or not _desk.has_method("refresh"):
-		return
-	for pair in [
-		["continue", _continue_button],
-		["new_game", _new_game_button],
-		["challenge", _challenge_button],
-		["settings", _settings_button],
-		["quit", _quit_button],
-	]:
-		if pair[1] != null:
-			_desk.refresh(String(pair[0]), pair[1])
+func confirm_new_game() -> void:
+	_request_open("new_game", new_game_requested)
 
 
-func _build_panel_content() -> VBoxContainer:
-	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 16)
+## --- Slip and menu ---------------------------------------------------------
 
-	content.add_child(UiTheme.label("雾都入口", 15, UiTheme.C_GOLD))
-	var heading := UiTheme.label("假面低语", 48, UiTheme.C_TEXT)
-	heading.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.45))
-	content.add_child(heading)
-	content.add_child(UiTheme.wrapped_label(
-		"白天扮演凡人，黑夜偿还代价。进入第一场占卜家战斗，验证牌序、灵性与敌方压力。",
-		16,
-		UiTheme.C_PAPER
-	))
+func _build_slip() -> void:
+	var shadow := Paper.slip_shadow()
+	if shadow != null:
+		_place(shadow, Rect2(SLIP_RECT.position + Vector2(10, 14), SLIP_RECT.size))
+		add_child(shadow)
+	var sheet := Paper.slip(Vector2.ZERO, 48)
+	_slip = sheet["root"]
+	_slip.name = "BookmarkSlip"
+	_place(_slip, SLIP_RECT)
+	add_child(_slip)
+	var content: VBoxContainer = sheet["content"]
+	content.add_theme_constant_override("separation", 6)
 
-	var divider := ColorRect.new()
-	divider.color = UiTheme.C_LINE
-	divider.custom_minimum_size = Vector2(0, 1)
-	content.add_child(divider)
-
-	_status_label = UiTheme.label("正在检查本地进度……", 16, UiTheme.C_TEXT)
+	content.add_child(Paper.ink_label("假面低语", 38, Paper.INK, true))
+	_status_label = Paper.ink_label("", 22, Paper.INK)
+	_status_label.name = "SaveSummary"
 	content.add_child(_status_label)
-	_summary_label = UiTheme.wrapped_label("", 14, UiTheme.C_MUTED)
-	_summary_label.custom_minimum_size = Vector2(0, 112)
-	content.add_child(_summary_label)
+	_detail_label = Paper.wrapped_ink("", 17, Paper.INK_SOFT)
+	content.add_child(_detail_label)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 6)
+	content.add_child(gap)
+	content.add_child(Paper.rule())
 
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 12)
-	content.add_child(actions)
-	_continue_button = UiTheme.button("继续上次战斗", _on_continue, false, 180, true)
-	_new_game_button = UiTheme.button("开始新游戏", _on_new_game, true, 180, true)
-	var quit_button := UiTheme.button("退出", _on_quit, true, 92)
-	_quit_button = quit_button
-	actions.add_child(_continue_button)
-	actions.add_child(_new_game_button)
-	actions.add_child(quit_button)
+	var menu := VBoxContainer.new()
+	menu.name = "TitleMenu"
+	menu.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu.add_theme_constant_override("separation", 2)
+	content.add_child(menu)
+	_add_item(menu, "continue", _on_continue)
+	_add_item(menu, "new_game", _on_new_game)
+	_add_item(menu, "challenge", _on_challenge)
+	_add_item(menu, "settings", open_settings)
+	_add_item(menu, "quit", _on_quit)
+	if OS.is_debug_build():
+		var test_item := _add_item(menu, "test_game", _on_test_game, 18)
+		test_item.tooltip_text = "调试构建：解锁全部卡牌、资源和挑战"
 
-	var challenge_row := HBoxContainer.new()
-	challenge_row.add_theme_constant_override("separation", 12)
-	content.add_child(challenge_row)
-	_challenge_button = UiTheme.button(
-		"进入挑战档案",
-		_on_challenge,
-		false,
-		0
+	var filler := Control.new()
+	filler.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	filler.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(filler)
+	_notice_label = Paper.wrapped_ink("", 15, Paper.INK_SOFT)
+	content.add_child(_notice_label)
+	_version_label = Paper.ink_label(
+		"v%s · 本地离线原型" % String(
+			ProjectSettings.get_setting("application/config/version", "0.0.0")
+		),
+		15,
+		Paper.INK_SOFT
 	)
-	_challenge_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	challenge_row.add_child(_challenge_button)
-	_challenge_hint = UiTheme.label("", 12, UiTheme.C_MUTED)
-	_challenge_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	challenge_row.add_child(_challenge_hint)
+	content.add_child(_version_label)
 
-	var system_row := HBoxContainer.new()
-	system_row.add_theme_constant_override("separation", 12)
-	content.add_child(system_row)
-	_settings_button = UiTheme.button(
-		"设置与玩法说明",
-		_open_system_menu,
-		true,
-		0
-	)
-	_settings_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	system_row.add_child(_settings_button)
-	_restore_backup_button = UiTheme.button(
-		"恢复上次备份",
-		_on_restore_backup,
-		false,
-		180
-	)
-	_restore_backup_button.disabled = true
-	system_row.add_child(_restore_backup_button)
-	_test_game_button = UiTheme.button(
-		"测试档案",
-		_on_test_game,
-		true,
-		128
-	)
-	_test_game_button.tooltip_text = "解锁全部卡牌、资源和挑战，用于发布前测试"
-	system_row.add_child(_test_game_button)
-	_preferences_status = UiTheme.label("", 12, UiTheme.C_MUTED)
-	content.add_child(_preferences_status)
 
-	content.add_child(UiTheme.wrapped_label(
-		"提示：战斗不支持中途恢复；退出后会回到最近一次已确认的战后检查点。",
-		13,
-		UiTheme.C_DANGER_TEXT
-	))
-	return content
+func _add_item(menu: VBoxContainer, key: String, on_press: Callable, font_size: int = 28) -> Button:
+	var item := Paper.text_item(String(MENU_TEXT[key]), on_press, font_size)
+	item.name = "TitleItem_%s" % key
+	menu.add_child(item)
+	_items[key] = item
+	item.mouse_entered.connect(_sync_highlight.bind(key))
+	item.mouse_exited.connect(_sync_highlight.bind(key))
+	item.focus_entered.connect(_sync_highlight.bind(key))
+	item.focus_exited.connect(_sync_highlight.bind(key))
+	return item
 
+
+func _sync_highlight(key: String) -> void:
+	var item := _items.get(key) as Button
+	if item == null or not is_instance_valid(_desk):
+		return
+	var on := not item.disabled and (item.is_hovered() or item.has_focus())
+	_desk.highlight(key, on)
+
+
+func _refresh_items() -> void:
+	if _items.is_empty():
+		return
+	var has_checkpoint := _checkpoint_status == "loaded"
+	_set_item("continue", has_checkpoint, _busy)
+	_set_item("new_game", true, _busy)
+	_set_item("challenge", _challenge_available, _busy)
+	_set_item("settings", true, false)
+	_set_item("quit", true, _busy)
+	_set_item("test_game", true, _busy)
+
+
+func _set_item(key: String, listed: bool, disabled: bool) -> void:
+	## A condition that is not met removes the entry from the list; it is not
+	## a hidden leftover of another layout.
+	var item := _items.get(key) as Button
+	if item == null:
+		return
+	item.visible = listed
+	item.disabled = disabled
+	_sync_highlight(key)
+
+
+func _is_live(key: String) -> bool:
+	var item := _items.get(key) as Button
+	return item != null and item.visible and not item.disabled
+
+
+func _set_notice(text_value: String, success: bool) -> void:
+	if is_instance_valid(_notice_label):
+		_notice_label.text = text_value
+		_notice_label.add_theme_color_override(
+			"font_color", Paper.INK_SOFT if success else Paper.INK_ACTIVE
+		)
+	_sheets.show_settings_notice(text_value)
+
+
+func _place(node: Control, rect: Rect2) -> void:
+	var design: Vector2 = TitleDeskStage.DESIGN
+	node.anchor_left = rect.position.x / design.x
+	node.anchor_top = rect.position.y / design.y
+	node.anchor_right = rect.end.x / design.x
+	node.anchor_bottom = rect.end.y / design.y
+	node.offset_left = 0.0
+	node.offset_top = 0.0
+	node.offset_right = 0.0
+	node.offset_bottom = 0.0
+
+
+## --- Actions ---------------------------------------------------------------
 
 func _on_new_game() -> void:
 	if _busy:
 		return
 	if _checkpoint_status == "loaded":
-		_open_new_game_confirmation()
+		_sheets.open_confirm_new_game()
 		return
 	_request_open("new_game", new_game_requested)
 
@@ -488,32 +388,10 @@ func _on_challenge() -> void:
 	_request_open("challenge", challenge_requested)
 
 
-func _request_open(key: String, intent: Signal) -> void:
-	## Every exit from the title plays the same desk open beat, as the router's
-	## on_exit, so new game no longer hard-cuts while continue animates.
-	set_busy(true)
-	_open_key = key
-	intent.emit()
-
-
-func on_enter() -> void:
-	var target: Button = (
-		_continue_button
-		if is_instance_valid(_continue_button) and not _continue_button.disabled
-		else _new_game_button
-	)
-	if is_instance_valid(target) and target.is_visible_in_tree() and not target.disabled:
-		target.grab_focus()
-
-
-func on_exit() -> void:
-	var key := _open_key
-	_open_key = ""
-	if key.is_empty() or not is_instance_valid(_desk) or not _desk.has_method("play_open"):
+func _on_test_game() -> void:
+	if _busy:
 		return
-	if not bool(_desk.play_open(key)):
-		return
-	await _desk.open_finished
+	_request_open("test_game", test_game_requested)
 
 
 func _on_quit() -> void:
@@ -522,409 +400,14 @@ func _on_quit() -> void:
 	quit_requested.emit()
 
 
-func _open_new_game_confirmation() -> void:
-	if not is_instance_valid(_confirm_new_game):
-		_confirm_new_game = ConfirmationDialog.new()
-		_confirm_new_game.title = "覆盖当前进度？"
-		_confirm_new_game.dialog_text = (
-			"开始新游戏会从下一检查点起覆盖当前存档。"
-			+ "最近一次备份会保留，但可能不是最新进度。"
-		)
-		_confirm_new_game.ok_button_text = "开始新游戏"
-		_confirm_new_game.cancel_button_text = "取消"
-		_confirm_new_game.confirmed.connect(func() -> void:
-			_request_open("new_game", new_game_requested)
-		)
-		add_child(_confirm_new_game)
-	_confirm_new_game.popup_centered()
+func _request_open(key: String, intent: Signal) -> void:
+	## Every exit from the title plays the same push-in as the router's on_exit.
+	set_busy(true)
+	_open_key = key
+	intent.emit()
 
 
-func _on_restore_backup() -> void:
-	if _busy or not _backup_available:
-		return
-	restore_backup_requested.emit()
-
-
-func _on_test_game() -> void:
-	if _busy:
-		return
-	_request_open("new_game", test_game_requested)
-
-
-func show_backup_restore_result(success: bool, message: String) -> void:
-	if not is_instance_valid(_preferences_status):
-		return
-	_preferences_status.text = (
-		("备份已恢复。" if success else "恢复失败：") + message
-	)
-	_preferences_status.add_theme_color_override(
-		"font_color",
-		UiTheme.C_PAPER if success else UiTheme.C_DANGER_TEXT
-	)
-
-
-func show_preferences_save_state(success: bool, message: String = "") -> void:
-	if not is_instance_valid(_preferences_status):
-		return
-	_preferences_status.text = (
-		"设置已保存。" if success else "设置保存失败：" + message
-	)
-	_preferences_status.add_theme_color_override(
-		"font_color",
-		UiTheme.C_MUTED if success else UiTheme.C_DANGER_TEXT
-	)
-
-
-func _open_system_menu() -> void:
-	if is_instance_valid(_system_overlay):
-		_system_overlay.queue_free()
-		_system_overlay = null
-	var overlay := ColorRect.new()
-	overlay.color = Color(0.015, 0.018, 0.014, 0.84)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(overlay)
-	_system_overlay = overlay
-
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(center)
-	var content := VBoxContainer.new()
-	var panel := UiTheme.padded_panel(
-		content,
-		24,
-		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
-		UiTheme.C_GOLD
-	)
-	panel.custom_minimum_size = Vector2(760, 0)
-	center.add_child(panel)
-	content.add_theme_constant_override("separation", 14)
-	content.add_child(UiTheme.label("设置与玩法说明", 30, UiTheme.C_TEXT))
-	content.add_child(UiTheme.wrapped_label(
-		"身份决定一项资源或战斗修正；八张牌组决定可用手段。"
-		+ "战斗中会提升污染与被注视，休息和仪式用于控制风险。",
-		15,
-		UiTheme.C_PAPER
-	))
-
-	var fullscreen := CheckButton.new()
-	fullscreen.text = "全屏显示"
-	fullscreen.button_pressed = bool(_preferences.get("fullscreen", false))
-	fullscreen.toggled.connect(func(enabled: bool) -> void:
-		_preferences["fullscreen"] = enabled
-		preferences_changed.emit(_preferences.duplicate(true))
-	)
-	content.add_child(fullscreen)
-
-	var reduce_flash := CheckButton.new()
-	reduce_flash.text = "减少闪烁与高对比反馈"
-	reduce_flash.button_pressed = bool(_preferences.get("reduce_flash", false))
-	reduce_flash.toggled.connect(func(enabled: bool) -> void:
-		_preferences["reduce_flash"] = enabled
-		preferences_changed.emit(_preferences.duplicate(true))
-	)
-	content.add_child(reduce_flash)
-
-	var mute_sfx := CheckButton.new()
-	mute_sfx.name = "MuteSfxToggle"
-	mute_sfx.text = "静音桌面音效"
-	mute_sfx.button_pressed = bool(_preferences.get("mute_sfx", false))
-	mute_sfx.toggled.connect(func(enabled: bool) -> void:
-		_preferences["mute_sfx"] = enabled
-		preferences_changed.emit(_preferences.duplicate(true))
-	)
-	content.add_child(mute_sfx)
-
-	var scale_row := HBoxContainer.new()
-	scale_row.add_theme_constant_override("separation", 10)
-	content.add_child(scale_row)
-	scale_row.add_child(UiTheme.label("界面缩放", 16, UiTheme.C_TEXT))
-	var scale_values: Array[float] = [0.9, 1.0, 1.1]
-	var current_scale := float(_preferences.get("ui_scale", 1.0))
-	var scale_tabs := UiTheme.archive_tab_row(
-		["90%", "100%", "110%"],
-		_nearest_index(scale_values, current_scale),
-		func(index: int) -> void:
-			_preferences["ui_scale"] = scale_values[clampi(index, 0, 2)]
-			preferences_changed.emit(_preferences.duplicate(true)),
-		72.0
-	)
-	scale_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scale_row.add_child(scale_tabs)
-
-	var help := UiTheme.clip_label(
-		"战斗：拖放打出 · 弃置献祭坛 · 点选仍可用",
-		13,
-		UiTheme.C_MUTED
-	)
-	help.name = "OpsHint"
-	help.tooltip_text = (
-		"档案蜡封进牌组/祈愿；打开日记续读主线线索。"
-		+ "检查点仅在节点或战斗结算后保存；战斗中退出回到最近检查点。"
-		+ "存档位于 user://saves，设置在 user://preferences.json。"
-	)
-	content.add_child(help)
-	content.add_child(UiTheme.clip_label(
-		"档案可扫读 · 路线显示主线进度 · 挑战仍属占卜家途径",
-		12,
-		UiTheme.C_PAPER_DEEP
-	))
-	content.add_child(UiTheme.button(
-		"重新查看新手引导",
-		_open_tutorial,
-		false,
-		220
-	))
-	content.add_child(UiTheme.button(
-		"记录试玩反馈",
-		_open_feedback_form,
-		false,
-		220
-	))
-	var close := UiTheme.button("关闭", _close_system_menu, true, 120)
-	close.size_flags_horizontal = Control.SIZE_SHRINK_END
-	content.add_child(close)
-
-
-func _close_system_menu() -> void:
-	if is_instance_valid(_system_overlay):
-		_system_overlay.queue_free()
-		_system_overlay = null
-
-
-func _open_feedback_form() -> void:
-	if is_instance_valid(_system_overlay):
-		_close_system_menu()
-	if is_instance_valid(_feedback_overlay):
-		_feedback_overlay.queue_free()
-	var overlay := ColorRect.new()
-	overlay.color = Color(0.015, 0.018, 0.014, 0.9)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(overlay)
-	_feedback_overlay = overlay
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(center)
-	var content := VBoxContainer.new()
-	var panel := UiTheme.padded_panel(
-		content,
-		24,
-		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
-		UiTheme.C_GOLD
-	)
-	panel.custom_minimum_size = Vector2(760, 0)
-	center.add_child(panel)
-	content.add_theme_constant_override("separation", 12)
-	content.add_child(UiTheme.label("记录试玩反馈", 28, UiTheme.C_TEXT))
-	content.add_child(UiTheme.clip_label(
-		"仅保存在本机，不上传",
-		13,
-		UiTheme.C_MUTED
-	))
-	var text := TextEdit.new()
-	text.custom_minimum_size = Vector2(0, 160)
-	text.placeholder_text = "哪里有趣、哪里卡住、节奏是否合适……"
-	text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
-	content.add_child(text)
-	_feedback_text = text
-	_feedback_stage_index = 0
-	_feedback_pacing_index = 0
-	content.add_child(UiTheme.clip_label("反馈范围", 12, UiTheme.C_GOLD))
-	content.add_child(UiTheme.archive_tab_row(
-		["整体", "牌组", "战斗", "成长", "路线", "挑战"],
-		_feedback_stage_index,
-		func(index: int) -> void:
-			_feedback_stage_index = index,
-		78.0
-	))
-	content.add_child(UiTheme.clip_label("节奏感受", 12, UiTheme.C_GOLD))
-	content.add_child(UiTheme.archive_tab_row(
-		["合适", "偏快", "偏慢"],
-		_feedback_pacing_index,
-		func(index: int) -> void:
-			_feedback_pacing_index = index,
-		88.0
-	))
-	var stuck := CheckButton.new()
-	stuck.text = "当前有卡住或无法继续"
-	content.add_child(stuck)
-	_feedback_stuck = stuck
-	_feedback_status = UiTheme.label("", 13, UiTheme.C_MUTED)
-	content.add_child(_feedback_status)
-	var actions := HBoxContainer.new()
-	actions.alignment = BoxContainer.ALIGNMENT_END
-	actions.add_theme_constant_override("separation", 12)
-	content.add_child(actions)
-	actions.add_child(UiTheme.button(
-		"取消",
-		_close_feedback_form,
-		false,
-		100
-	))
-	actions.add_child(UiTheme.button(
-		"保存反馈",
-		_submit_feedback,
-		true,
-		140
-	))
-
-
-func _submit_feedback() -> void:
-	if not is_instance_valid(_feedback_text):
-		return
-	var feedback := {
-		"text": _feedback_text.text,
-		"stage": _feedback_stage_id(_feedback_stage_index),
-		"stuck": _feedback_stuck.button_pressed if is_instance_valid(_feedback_stuck) else false,
-		"pacing": _feedback_pacing_id(_feedback_pacing_index),
-	}
-	if String(feedback.text).strip_edges().is_empty():
-		_feedback_status.text = "请先写下一句反馈。"
-		_feedback_status.add_theme_color_override(
-			"font_color",
-			UiTheme.C_DANGER_TEXT
-		)
-		return
-	feedback_submitted.emit(feedback)
-
-
-func _close_feedback_form() -> void:
-	if is_instance_valid(_feedback_overlay):
-		_feedback_overlay.queue_free()
-		_feedback_overlay = null
-	_feedback_status = null
-	_feedback_text = null
-	_feedback_stuck = null
-	_feedback_stage_index = 0
-	_feedback_pacing_index = 0
-
-
-func show_feedback_save_state(success: bool, message: String) -> void:
-	if not is_instance_valid(_feedback_status):
-		return
-	_feedback_status.text = (
-		"反馈已保存。" if success else "反馈保存失败：" + message
-	)
-	_feedback_status.add_theme_color_override(
-		"font_color",
-		UiTheme.C_PAPER if success else UiTheme.C_DANGER_TEXT
-	)
-	if success:
-		get_tree().create_timer(0.8).timeout.connect(_close_feedback_form)
-
-
-func _feedback_stage_id(index: int) -> String:
-	var ids := ["overall", "deck", "battle", "growth", "route", "challenge"]
-	return ids[clampi(index, 0, ids.size() - 1)]
-
-
-func _feedback_pacing_id(index: int) -> String:
-	var ids := ["good", "too_fast", "too_slow"]
-	return ids[clampi(index, 0, ids.size() - 1)]
-
-
-func _open_tutorial() -> void:
-	if is_instance_valid(_system_overlay):
-		_close_system_menu()
-	if is_instance_valid(_tutorial_overlay):
-		_tutorial_overlay.queue_free()
-	_tutorial_step = 0
-	var overlay := ColorRect.new()
-	overlay.color = Color(0.015, 0.018, 0.014, 0.9)
-	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(overlay)
-	_tutorial_overlay = overlay
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(center)
-	var content := VBoxContainer.new()
-	var panel := UiTheme.padded_panel(
-		content,
-		28,
-		UiTheme.frost(0.055, 0.06, 0.048, UiTheme.CARD_ALPHA),
-		UiTheme.C_GOLD
-	)
-	panel.custom_minimum_size = Vector2(780, 360)
-	center.add_child(panel)
-	content.add_theme_constant_override("separation", 16)
-	content.add_child(UiTheme.label("首次游玩指引", 16, UiTheme.C_GOLD))
-	var body := UiTheme.wrapped_label("", 20, UiTheme.C_TEXT)
-	body.custom_minimum_size = Vector2(0, 190)
-	body.set_meta("tutorial_body", true)
-	content.add_child(body)
-	var progress := UiTheme.label("", 13, UiTheme.C_MUTED)
-	progress.set_meta("tutorial_progress", true)
-	content.add_child(progress)
-	var actions := HBoxContainer.new()
-	actions.alignment = BoxContainer.ALIGNMENT_END
-	actions.add_theme_constant_override("separation", 12)
-	content.add_child(actions)
-	actions.add_child(UiTheme.button("跳过", _finish_tutorial, false, 100))
-	actions.add_child(UiTheme.button("下一步", _advance_tutorial, true, 120))
-	_update_tutorial_view()
-
-
-func _advance_tutorial() -> void:
-	_tutorial_step += 1
-	if _tutorial_step >= _tutorial_steps().size():
-		_finish_tutorial()
-		return
-	_update_tutorial_view()
-
-
-func _update_tutorial_view() -> void:
-	if not is_instance_valid(_tutorial_overlay):
-		return
-	var steps := _tutorial_steps()
-	var body := _find_meta_node(_tutorial_overlay, "tutorial_body") as Label
-	var progress := _find_meta_node(_tutorial_overlay, "tutorial_progress") as Label
-	if body != null:
-		body.text = steps[clampi(_tutorial_step, 0, steps.size() - 1)]
-	if progress != null:
-		progress.text = "%d / %d" % [_tutorial_step + 1, steps.size()]
-
-
-func _finish_tutorial() -> void:
-	if is_instance_valid(_tutorial_overlay):
-		_tutorial_overlay.queue_free()
-		_tutorial_overlay = null
-	_preferences["tutorial_seen"] = true
-	preferences_changed.emit(_preferences.duplicate(true))
-
-
-func _tutorial_steps() -> Array[String]:
-	return [
-		"第一步：选择一项白昼身份。身份会改变一项战斗或资源倾向；先看清被动，再开始路线。",
-		"第二步：确认一套八张唯一卡牌。进入战斗后，点击整张手牌查看费用、目标和当前是否可打出。",
-		"第三步：选中卡牌后点击三列中的敌人。页面底部会显示当前选择和规则层返回的原因。",
-		"第四步：灵性用完或完成本回合计划后，点击“结束回合”。敌人行动后才会进入下一回合。",
-		"第五步：污染与被注视会改变路线风险。休息时在即时生命和下一战资源之间取舍。",
-		"第六步：首领战后完成短仪式即可晋升。检查点只在安全边界保存，退出后可从最近检查点继续。",
-	]
-
-
-func _find_meta_node(root: Node, key: String) -> Node:
-	for child in root.get_children():
-		if bool(child.get_meta(key, false)):
-			return child
-		var nested := _find_meta_node(child, key)
-		if nested != null:
-			return nested
-	return null
-
-
-func _nearest_index(values: Array[float], target: float) -> int:
-	var best_index := 0
-	var best_distance := absf(values[0] - target)
-	for index in range(1, values.size()):
-		var distance := absf(values[index] - target)
-		if distance < best_distance:
-			best_index = index
-			best_distance = distance
-	return best_index
-
+## --- Text ------------------------------------------------------------------
 
 func _identity_name(identity_id: String) -> String:
 	match identity_id:
@@ -935,39 +418,13 @@ func _identity_name(identity_id: String) -> String:
 		"identity.gravedigger":
 			return "守墓人"
 		"":
-			return "未选择"
+			return "未选择身份"
 		_:
 			return identity_id
 
 
-func _outcome_text(outcome: String) -> String:
-	match outcome:
-		"victory":
-			return "胜利"
-		"defeat":
-			return "失败"
-		"":
-			return "暂无战斗记录"
-		_:
-			return outcome
-
-
-func _optional_int(summary: Dictionary, keys: Array[String]) -> int:
-	for key in keys:
-		if summary.has(key):
-			return int(summary[key])
-	return -1
-
-
-func _format_value(value: int) -> String:
-	return str(value) if value >= 0 else "摘要未提供"
-
-
-func _format_pity(current: int, limit: int) -> String:
-	if current >= 0 and limit > 0:
-		return "%d/%d" % [current, limit]
-	if current >= 0:
-		return str(current)
-	if limit > 0:
-		return "上限 %d" % limit
-	return "摘要未提供"
+func _saved_at_text(created_at: String) -> String:
+	if created_at.is_empty():
+		return ""
+	var stamp := created_at.replace("T", " ").trim_suffix("Z")
+	return "保存于 " + stamp.substr(0, 16)

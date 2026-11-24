@@ -4,7 +4,6 @@ const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
 const DeckCatalog := preload("res://src/ui/deck_ui_catalog.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
-const StartScreenScript := preload("res://src/ui/start_screen.gd")
 
 ## Hub shells share the quiet v0.54 rain-night UI canvas.
 const UI_CANVAS := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
@@ -34,10 +33,6 @@ func _ready() -> void:
 	_expect(
 		ProgressionCatalog.gacha_background() == String(P3["scene.hub.gacha_altar"]),
 		"gacha catalog"
-	)
-	_expect(
-		StartScreenScript.title_background() == String(P3["scene.title.mask_desk"]),
-		"start title background"
 	)
 	_finish()
 
