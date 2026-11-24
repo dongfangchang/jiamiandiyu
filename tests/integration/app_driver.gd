@@ -86,9 +86,32 @@ func node_id(short_name: String) -> String:
 	return NODE_PREFIX + short_name
 
 
+## Finds a visible, enabled text item on the current screen by its words.
+func text_item(text_value: String) -> BaseButton:
+	for node in screen().find_children("*", "BaseButton", true, false):
+		var button := node as Button
+		if (
+			button != null
+			and button.text == text_value
+			and button.is_visible_in_tree()
+			and not button.disabled
+		):
+			return button
+	return null
+
+
+## Presses a title menu item the way a click does; false when it is not listed.
+func press_title_item(text_value: String) -> bool:
+	var item := text_item(text_value)
+	if item == null:
+		return false
+	item.pressed.emit()
+	return true
+
+
 ## Title -> new game -> route select -> identity -> deck -> hub -> diary.
 func begin_campaign() -> void:
-	screen().new_game_requested.emit()
+	expect(press_title_item("新的日记"), "title lists 新的日记")
 	expect(await wait_route(&"route_select"), "new game opens route selection")
 	screen().choose_route(MAIN_ROUTE)
 	expect(await wait_route(&"identity"), "route choice opens identity selection")

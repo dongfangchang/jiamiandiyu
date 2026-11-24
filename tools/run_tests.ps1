@@ -70,6 +70,10 @@ Guard "block" "tests must not pin project version" @("tests") 'config/version='
 # asset_registry.gd is the one sanctioned reader (data/registry/assets.json).
 Guard "block" "ui reads files directly (R2-09)" @("src/ui") 'FileAccess' @("asset_registry.gd")
 Guard "block" "ui asset path literals (R2-10; use data/registry/assets.json)" @("src/ui") 'res://assets/game/'
+# ADR-0034 D2: replaced screens are deleted, never covered or hidden.
+Guard "block" "legacy title cover (ADR-0034 D2)" @("src/ui") 'TitleOpenCover'
+# Converted stations only; other screens still use add_background until X1/X2.
+Guard "block" "converted stations use no background holder (ADR-0034 D2)" @("src/ui/start_screen.gd", "src/ui/title_desk_stage.gd", "src/ui/title") 'SceneBackgroundHolder|add_background\('
 
 Write-Host ""
 Write-Host "run_tests: pass=$pass fail=$fail skipped=$skipped guard_block=$guardFail"

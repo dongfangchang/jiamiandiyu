@@ -21,6 +21,7 @@ const DESTRUCTIVE_LABELS := {
 	"回到主菜单": true,
 	"退出战斗": true,
 	"退出": true,
+	"离开": true,
 	"关闭游戏": true,
 }
 
@@ -64,7 +65,7 @@ const NAV_LABELS := {
 	"提交本步骤": true,
 	"获取仪式提示": true,
 	"退出仪式": true,
-	"进入挑战档案": true,
+	"挑战": true,
 }
 
 const KNOWN_ROUTES := {
@@ -187,7 +188,7 @@ func _run_seed(seed_value: int) -> void:
 	_note_route(seed_value, 0)
 	if String(_controller.get_current_route()) not in ["map", "hub"]:
 		_trace.append("%d:0 boot_fallback_new_game" % seed_value)
-		for label in ["下一步", "开始新游戏", "选择此路线", "扮演此身份", "确认出战", "打开日记"]:
+		for label in ["下一步", "开始新游戏", "新的日记", "选择此路线", "扮演此身份", "确认出战", "打开日记"]:
 			var button := _button_by_text(_controller, label)
 			if button != null and _is_clickable(button):
 				_press(button, "%d:0 fallback=%s" % [seed_value, label])
@@ -366,7 +367,7 @@ func _force_challenge(seed_value: int) -> void:
 	_controller.show_start_screen()
 	await _wait_frames(4)
 	_note_route(seed_value, -1)
-	var challenge := _button_by_text(_controller, "进入挑战档案")
+	var challenge := _button_by_text(_controller, "挑战")
 	if challenge == null:
 		_trace.append("%d:FORCE missing 进入挑战档案" % seed_value)
 		return

@@ -144,19 +144,23 @@ func _test_corrupt_primary_backup_restore_through_ui() -> void:
 			and not version_text.contains("WHISPERS"),
 			"title version text should use the current Chinese product version"
 		)
+	var settings_item := _button_by_text(controller, "设置")
+	_expect(settings_item != null, "title menu should list 设置")
+	if settings_item != null:
+		settings_item.pressed.emit()
+	await _wait_frames(2)
 	var restore_button := _button_by_text(controller, "恢复上次备份")
 	_expect(
 		restore_button != null and not restore_button.disabled,
-		"title screen should expose backup recovery for a corrupt primary"
+		"title settings slip should expose backup recovery for a corrupt primary"
 	)
 	if restore_button != null:
 		restore_button.pressed.emit()
 	await _wait_frames(4)
 	var start_screen: Control = controller.get_current_screen()
-	var preference_status := start_screen.get("_preferences_status") as Label
 	_expect(
-		preference_status != null
-		and preference_status.text.contains("备份已恢复"),
+		start_screen.has_method("get_notice_text")
+		and String(start_screen.call("get_notice_text")).contains("备份已恢复"),
 		"title-screen recovery should report success"
 	)
 	_expect(

@@ -38,7 +38,7 @@ func _return_to_title() -> void:
 func _test_challenge_hub_entry() -> void:
 	var start := _d.screen()
 	_d.expect(start.is_challenge_enabled(), "sequence eight unlocks the challenge entry")
-	start.challenge_requested.emit()
+	_d.expect(_d.press_title_item("挑战"), "title lists 挑战")
 	_d.expect(await _d.wait_route(&"challenge_hub"), "challenge entry opens the challenge hub")
 	var hub := _d.screen()
 	_d.expect(hub.get_challenge_count() == 2, "challenge hub lists both challenges")
@@ -49,7 +49,7 @@ func _test_challenge_hub_entry() -> void:
 	hub.request_exit()
 	_d.expect(await _d.wait_route(&"start"), "challenge hub exit returns to the title")
 	var started_msec := Time.get_ticks_msec()
-	_d.screen().challenge_requested.emit()
+	_d.expect(_d.press_title_item("挑战"), "title lists 挑战 again")
 	_d.expect(await _d.wait_route(&"challenge_hub"), "challenge hub reopens")
 	_d.expect(_d.screen().get_unlocked_count() == 1, "cached previews keep the unlock state")
 	_d.expect(Time.get_ticks_msec() - started_msec < 2000, "cached hub reopens quickly")
@@ -135,7 +135,7 @@ func _test_challenge_run_and_result() -> void:
 	_d.expect(await _d.wait_route(&"hub"), "challenge diary closes again")
 	_d.screen().main_menu_requested.emit()
 	_d.expect(await _d.wait_route(&"start"), "hub returns to the title")
-	_d.screen().continue_requested.emit()
+	_d.expect(_d.press_title_item("继续"), "title lists 继续")
 	_d.expect(await _d.wait_route(&"map"), "continue restores the challenge diary")
 	_d.expect(
 		_d.app.get_challenge_snapshot() != null

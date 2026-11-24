@@ -107,7 +107,7 @@ func _capture_settings() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	screen.show_checkpoint_status("none", {}, "", _preferences(true))
-	screen.call("_open_system_menu")
+	screen.open_settings()
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("settings_screen.png")

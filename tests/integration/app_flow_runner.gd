@@ -139,7 +139,7 @@ func _test_result_back_and_title_reset() -> void:
 	var start := _d.screen()
 	_d.expect(start.is_continue_enabled(), "completed route can be continued")
 	_d.expect(start.is_challenge_enabled(), "sequence eight unlocks the challenge entry")
-	start.continue_requested.emit()
+	_d.expect(_d.press_title_item("继续"), "title lists 继续")
 	_d.expect(await _d.wait_route(&"route_result"), "continue restores the route result")
 
 

@@ -40,7 +40,7 @@ func _test_start_screen() -> void:
 		"start screen shows the current Chinese version without English branding"
 	)
 	_expect(
-		screen.get_summary_text().contains("未选择"),
+		screen.get_summary_text() == "尚无日记",
 		"no-checkpoint summary avoids inventing an identity"
 	)
 	screen.show_checkpoint_status("loaded", {
@@ -56,7 +56,7 @@ func _test_start_screen() -> void:
 		"last_battle": {"outcome": "victory", "round_number": 4},
 	})
 	_expect(screen.is_continue_enabled(), "continue enabled with loaded checkpoint")
-	_expect(screen.get_status_text().contains("检查点"), "start screen shows checkpoint status")
+	_expect(screen.get_status_text().contains("序列 9"), "start screen shows the saved sequence")
 	_expect(
 		screen.get_version_text().contains("v%s" % String(
 			ProjectSettings.get_setting("application/config/version", "")
@@ -64,9 +64,8 @@ func _test_start_screen() -> void:
 		"loaded checkpoints must not replace the current product version"
 	)
 	_expect(screen.get_summary_text().contains("记者"), "summary shows resolved identity")
-	_expect(screen.get_summary_text().contains("占卜券：7"), "summary shows ticket count")
-	_expect(screen.get_summary_text().contains("2/4"), "summary shows pity progress")
-	_expect(screen.get_summary_text().contains("收藏：6"), "summary shows collection count")
+	_expect(screen.get_summary_text().contains("保存于 2026-11-08"), "summary shows saved-at")
+	_expect(screen.get_menu_texts()[0] == "继续", "loaded checkpoint lists 继续 first")
 	screen.show_checkpoint_status("corrupt", {}, "checksum mismatch")
 	_expect(not screen.is_continue_enabled(), "corrupt checkpoint disables continue")
 	_expect(

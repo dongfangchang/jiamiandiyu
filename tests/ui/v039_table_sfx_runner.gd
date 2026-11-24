@@ -53,7 +53,7 @@ func _test_start_ops_hint() -> void:
 	var screen = StartScreenScene.instantiate()
 	add_child(screen)
 	await get_tree().process_frame
-	screen.call("_open_system_menu")
+	screen.open_settings()
 	await get_tree().process_frame
 	var hint := screen.find_child("OpsHint", true, false) as Label
 	var mute := screen.find_child("MuteSfxToggle", true, false)
