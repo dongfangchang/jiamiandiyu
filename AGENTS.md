@@ -61,12 +61,14 @@
 
 历史关闭版所有权**不再在本文件展开**（见 `docs/VERSION_LOG.md`）。本文件只保留**当前版**与**上一版验收残留**。
 
-v0.86.0 当前所有权（R0，详见 `docs/versions/v0.86.0.md` §5）：
+v0.87.0 当前所有权（R1，详见 `docs/versions/v0.87.0.md` §2 表格）：
 
-- 轨道 A 安全网：主协调者，负责 `tools/run_tests.*`、`tests/golden/**`、`.gitignore`、`art/.gdignore` 和测试基线修复。
-- 轨道 B 界面切换：UI 单一负责人，负责 `src/app/app_controller.gd` 路由部分、`src/app/screen_router.gd`、`src/ui/**` 切换钩子和 `src/ui/table_sfx.gd`。
-- `docs/**`、`AGENTS.md`：产品经理 / 架构师。
-- 报告：`docs/reports/v0.86.0/<role>.md`。
+- 轨道 A 应用层清理：本地数据层。
+- 轨道 B 界面死代码：UI。
+- 轨道 C 挑战日记回退：UI（第二人），只改 `diary_ui_catalog.gd` 和挑战入口测试。
+- 轨道 D 资源与数据归档：主协调者。
+- `docs/**`、`AGENTS.md`、`project.godot`：产品经理 / 主协调者。
+- v0.86 验收保留：NAV 真窗口清单见 `docs/reports/v0.86.0/ui.md`。
 
 架构整治期 R0–R4 通用规则（见 `docs/decisions/ADR-0031-architecture-consolidation.md`、`docs/architecture/ROADMAP.md`）：
 

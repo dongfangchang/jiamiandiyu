@@ -2,12 +2,12 @@
 
 ## 指针
 
-- 当前版本：`v0.86.0`
+- 当前版本：`v0.87.0`
 - 阶段：执行中
-- 当前版本文档：`docs/versions/v0.86.0.md`
-- ROADMAP 阶段：**R0 安全网与止血 + 界面切换整治**（`docs/architecture/ROADMAP.md`）
+- 当前版本文档：`docs/versions/v0.87.0.md`
+- ROADMAP 阶段：**R1 删除死代码与旧载体 + 挑战可玩性（BUG-0038）**（`docs/architecture/ROADMAP.md`）
 - 更新日期：2026-11-24
-- 前一版本：`v0.85.0`（有条件关闭）；`v0.84.0`（有条件关闭）
+- 前一版本：`v0.86.0`（自动化完成；NAV 真窗口验收与两项行为确认保留）
 - 决策：`docs/decisions/ADR-0031-architecture-consolidation.md`
 - **活跃计划（可勾销）**：`docs/ACTIVE_PLAN.md`
 - **版本索引**：`docs/VERSION_INDEX.md`（里程碑 + 最近三版）
@@ -17,10 +17,9 @@
 
 0. `docs/ORIENTATION.md`（上手导读；新人先读）
 1. `AGENTS.md`
-2. `docs/versions/v0.86.0.md`
-3. `docs/architecture/ROADMAP.md` §0 与 R0 一节
+2. `docs/versions/v0.87.0.md`
+3. `docs/architecture/ROADMAP.md` §0 与 R1 一节
 4. `docs/architecture/TARGET_ARCHITECTURE.md` §3–§4（改代码前）
-5. 轨道 B（界面切换）还须读：`docs/architecture/UI_NAVIGATION_REVIEW.md`
 6. `docs/ACTIVE_PLAN.md`
 7. 查历史时优先 `VERSION_INDEX` / `VERSION_LOG`，勿通读全部 `versions/`
 
