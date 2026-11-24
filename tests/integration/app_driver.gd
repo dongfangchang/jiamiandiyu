@@ -113,23 +113,6 @@ func press_seal(target_node_id: String) -> bool:
 	return true
 
 
-## Challenge routes have no diary clues yet (see UI report v0.86.0), so their
-## nodes are entered through the diary's own command signal, which is what a
-## seal press emits.
-func enter_node(target_node_id: String, ritual: bool = false) -> bool:
-	if press_seal(target_node_id):
-		return true
-	var diary := screen()
-	if not diary.has_signal("route_command_requested"):
-		return false
-	diary.route_command_requested.emit(
-		RouteCommand.begin_ascension()
-		if ritual
-		else RouteCommand.select_node(StringName(target_node_id))
-	)
-	return true
-
-
 func available_node_id() -> String:
 	return String(app.get_route_snapshot().data.get("available_node_id", ""))
 
@@ -178,7 +161,7 @@ func fight_until_finished() -> bool:
 func clear_battle_node(short_name: String, prefix: String = NODE_PREFIX) -> void:
 	var target := prefix + short_name
 	expect(route() == &"map", "diary is open before %s" % short_name)
-	expect(enter_node(target), "seal for %s is pressable" % short_name)
+	expect(press_seal(target),"seal for %s is pressable" % short_name)
 	expect(await wait_route(&"battle"), "seal %s enters battle" % short_name)
 	expect(await fight_until_finished(), "battle %s finishes" % short_name)
 	expect(route() == &"reward", "victory at %s opens the reward (route=%s hp=%s)" % [
@@ -199,14 +182,14 @@ func clear_battle_node(short_name: String, prefix: String = NODE_PREFIX) -> void
 
 
 func clear_rest_node(short_name: String, rest_id: String, prefix: String = NODE_PREFIX) -> void:
-	expect(enter_node(prefix + short_name), "rest seal %s is pressable" % short_name)
+	expect(press_seal(prefix + short_name),"rest seal %s is pressable" % short_name)
 	expect(await wait_route(&"rest"), "rest seal opens the rest screen")
 	screen().select_rest(rest_id)
 	expect(await wait_route(&"map"), "rest choice returns to the diary")
 
 
 func complete_ritual(full_node_id: String, result_route: StringName) -> void:
-	expect(enter_node(full_node_id, true), "ritual seal is pressable")
+	expect(press_seal(full_node_id),"ritual seal is pressable")
 	expect(await wait_route(&"ritual"), "ritual seal opens the ritual")
 	var ritual_id := String(app.get_ritual_snapshot().data.get("ritual_id", ""))
 	expect(RITUAL_STEPS.has(ritual_id), "ritual %s has known answers" % ritual_id)

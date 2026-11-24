@@ -93,11 +93,25 @@ func _test_start_challenge_without_deck_loop() -> void:
 		_d.available_node_id() == CHALLENGE_PREFIX + "first_hunt",
 		"challenge uses the first-case route"
 	)
+	## BUG-0038: challenge nodes have no volume entry, so the diary shows
+	## fallback spreads and the first one carries a pressable seal.
+	var diary := _d.screen()
+	var route_nodes: Array = _d.app.get_route_snapshot().data.get("nodes", [])
+	_d.expect(
+		diary.get_page_count() == route_nodes.size() and route_nodes.size() > 0,
+		"challenge diary has one fallback spread per route node (%d)" % diary.get_page_count()
+	)
+	var first_clue: Dictionary = diary.get_clue(CHALLENGE_PREFIX + "first_hunt")
+	_d.expect(
+		int(first_clue.get("state", -1)) == 1,
+		"first challenge seal is available on the diary desk"
+	)
 
 
 func _test_challenge_run_and_result() -> void:
 	## The scripted player cannot clear the whole challenge, so this covers its
 	## first node and the hub/back wiring; result routing is checked by table.
+	## The node is entered by pressing its desk seal, as on the main path.
 	await _d.clear_battle_node("first_hunt", CHALLENGE_PREFIX)
 	_d.expect(_d.route() == &"map", "challenge reward returns to the challenge diary")
 	_d.expect(_d.app.get_back_target(&"map") == &"hub", "challenge diary closes to the hub")

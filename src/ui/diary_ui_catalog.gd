@@ -2,6 +2,8 @@ extends RefCounted
 
 ## UI-side diary volume → Spread list (FileAccess stays out of gameplay).
 ## v0.84 P0: one main clue → one spread (cross-page level).
+## BUG-0038: route nodes the volume does not map (challenge routes) get plain
+## fallback spreads titled by the node's own display name.
 
 const DIARY_PATH := "res://data/diaries/v0.55.0/tingen_volume_1.json"
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
@@ -13,6 +15,7 @@ const STATE_COMPLETED := 2
 
 const TITLE_MAX := 10
 const INK_MAX := 60
+const FALLBACK_TITLE_ZH := "无名之页"
 
 var _volume: Dictionary = {}
 var _pages: Array = []
@@ -60,7 +63,13 @@ func build_view(route_data: Dictionary) -> Dictionary:
 	var run_state: Dictionary = route_data.get("run_state", {})
 	var spread_list: Array = []
 	var prior_complete := true
-	for page_value in _pages:
+	var mapped := _volume_node_ids()
+	var use_volume := node_meta.is_empty()
+	for meta_id in node_meta.keys():
+		if mapped.has(meta_id):
+			use_volume = true
+			break
+	for page_value in (_pages if use_volume else []):
 		if not page_value is Dictionary:
 			continue
 		var page: Dictionary = page_value
@@ -170,20 +179,34 @@ func build_view(route_data: Dictionary) -> Dictionary:
 				attached = []
 			attached.append_array(pending_sides)
 			last["side_notes"] = attached
+	for node_value in route_data.get("nodes", []):
+		if not node_value is Dictionary:
+			continue
+		var fallback_id := String(node_value.get("id", ""))
+		if fallback_id.is_empty() or mapped.has(fallback_id):
+			continue
+		var fallback := _fallback_spread(
+			fallback_id, node_meta.get(fallback_id, {}), spread_list.size(),
+			completed, unlocked, prior_complete, annotations, overlays
+		)
+		spread_list.append(fallback)
+		if not bool(fallback.get("is_main_complete", false)):
+			prior_complete = false
 	var current_idx := 0
 	for spread in spread_list:
 		if not bool(spread.get("is_main_complete", false)):
 			current_idx = int(spread.get("page_index", 0))
 			break
 		current_idx = int(spread.get("page_index", 0))
+	var volume: Dictionary = _volume if use_volume else {}
 	return {
-		"volume_id": String(_volume.get("volume_id", "")),
+		"volume_id": String(volume.get("volume_id", "")),
 		"display_name_zh": String(
-			_volume.get("display_name_zh", route_data.get("display_name_zh", ""))
+			volume.get("display_name_zh", route_data.get("display_name_zh", ""))
 		),
 		"carrier_zh": String(_volume.get("carrier_zh", "罗塞尔日记")),
 		"pen_zh": String(_volume.get("pen_zh", "阿勒苏霍德之笔")),
-		"base_notes_zh": _volume.get("base_notes_zh", []),
+		"base_notes_zh": volume.get("base_notes_zh", []),
 		"spread_list": spread_list,
 		"pages": spread_list,
 		"current_spread_idx": current_idx,
@@ -193,6 +216,100 @@ func build_view(route_data: Dictionary) -> Dictionary:
 		"chapter_summary_zh": String(route_data.get("chapter_summary_zh", "")),
 		"can_begin_ascension": bool(route_data.get("can_begin_ascension", false)),
 	}
+
+
+## Same state/seal contract as a volume spread; body is the node's own beat text.
+func _fallback_spread(
+	node_id: String,
+	meta: Dictionary,
+	spread_index: int,
+	completed: Array,
+	unlocked: Array,
+	prior_complete: bool,
+	annotations: Dictionary,
+	overlays: Dictionary
+) -> Dictionary:
+	var state := STATE_LOCKED
+	if node_id in completed:
+		state = STATE_COMPLETED
+	elif prior_complete and node_id in unlocked:
+		state = STATE_AVAILABLE
+	var base_text_zh := String(meta.get("narrative_beat_zh", ""))
+	var text_zh := base_text_zh
+	var overwrite_text_zh := ""
+	var margin_note_zh := ""
+	var overlay_value = overlays.get(node_id, {})
+	if overlay_value is Dictionary and not overlay_value.is_empty():
+		overwrite_text_zh = String(overlay_value.get("text_zh", ""))
+		if not overwrite_text_zh.is_empty():
+			text_zh = overwrite_text_zh
+		margin_note_zh = String(overlay_value.get("margin_note_zh", ""))
+	var node_type := String(meta.get("type", ""))
+	var scene_id := String(meta.get("scene_id", ""))
+	var display_name := String(meta.get("display_name_zh", ""))
+	var title_zh := FALLBACK_TITLE_ZH
+	if not display_name.is_empty():
+		title_zh = _clip(display_name, TITLE_MAX)
+	var ink_zh := _clip(text_zh, INK_MAX)
+	var art_kind := node_type if node_type in ["rest", "ritual"] else "battle"
+	var left_art_path := SceneCatalog.diary_path_for(scene_id, art_kind)
+	var main_complete := state == STATE_COMPLETED
+	var clue := {
+		"id": node_id,
+		"clue_id": node_id,
+		"node_id": node_id,
+		"kind": "main",
+		"node_type": node_type,
+		"text_zh": text_zh,
+		"base_text_zh": base_text_zh,
+		"overwrite_text_zh": overwrite_text_zh,
+		"margin_note_zh": margin_note_zh,
+		"rewritten_by_pen": not overwrite_text_zh.is_empty(),
+		"state": state,
+		"state_name": _state_name(state),
+		"annotation_zh": String(annotations.get(node_id, "")),
+		"scene_id": scene_id,
+		"title_zh": title_zh,
+		"ink_zh": ink_zh,
+		"left_art_path": left_art_path,
+	}
+	return {
+		"page_index": spread_index,
+		"spread_index": spread_index,
+		"title_zh": title_zh,
+		"spread_label_zh": "",
+		"node_id": node_id,
+		"clue_id": node_id,
+		"scene_id": scene_id,
+		"left_art_path": left_art_path,
+		"ink_zh": ink_zh,
+		"node_type": node_type,
+		"state": state,
+		"left_clues": [],
+		"right_clues": [clue],
+		"clues": [clue],
+		"side_notes": [],
+		"is_main_complete": main_complete,
+		"completed": main_complete,
+		"investigable": prior_complete,
+		"is_locked": state == STATE_LOCKED,
+		"is_available": state == STATE_AVAILABLE,
+		"is_completed": main_complete,
+		"is_fallback": true,
+	}
+
+
+func _volume_node_ids() -> Dictionary:
+	var result := {}
+	for page_value in _pages:
+		if not page_value is Dictionary:
+			continue
+		for clue_value in page_value.get("clues", []):
+			if clue_value is Dictionary:
+				var clue_node_id := String(clue_value.get("node_id", ""))
+				if not clue_node_id.is_empty():
+					result[clue_node_id] = true
+	return result
 
 
 func _title_for(display_name: String, margin_note: String) -> String:
@@ -237,6 +354,7 @@ func _node_meta_map(route_data: Dictionary) -> Dictionary:
 				"type": String(node.get("type", "")),
 				"display_name_zh": String(node.get("display_name_zh", "")),
 				"scene_id": String(node.get("scene_id", "")),
+				"narrative_beat_zh": String(node.get("narrative_beat_zh", "")),
 			}
 	return result
 
