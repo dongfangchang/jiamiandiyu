@@ -7,7 +7,6 @@ const IdentityScreenScene := preload("res://scenes/ui/identity_screen.tscn")
 const RewardScreenScene := preload("res://scenes/ui/reward_screen.tscn")
 const GachaScreenScene := preload("res://scenes/ui/gacha_screen.tscn")
 const UpgradeScreenScene := preload("res://scenes/ui/upgrade_screen.tscn")
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const RouteSelectScene := preload("res://scenes/ui/route_select_screen.tscn")
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
@@ -43,11 +42,9 @@ func _ready() -> void:
 	await _capture_reward()
 	await _capture_gacha()
 	await _capture_upgrade()
-	await _capture_route_map()
 	await _capture_rest()
 	await _capture_ritual()
 	await _capture_route_result()
-	await _capture_challenge_route()
 	await _capture_challenge_hub()
 	await _capture_challenge()
 	await _capture_second_challenge()
@@ -236,22 +233,6 @@ func _capture_upgrade() -> void:
 	await get_tree().process_frame
 
 
-func _capture_route_map() -> void:
-	var screen = RouteScreenScene.instantiate()
-	add_child(screen)
-	screen.apply_snapshot(_route_snapshot({
-		"phase": "map",
-		"completed_node_ids": ["route.v050.node.first_hunt"],
-		"available_node_id": "route.v050.node.mirror_pursuit",
-		"nodes": _route_nodes("route.v050.node.mirror_pursuit"),
-	}))
-	await get_tree().process_frame
-	await RenderingServer.frame_post_draw
-	_save_capture("route_map_screen.png")
-	screen.queue_free()
-	await get_tree().process_frame
-
-
 func _capture_rest() -> void:
 	var screen = RestScreenScene.instantiate()
 	add_child(screen)
@@ -334,23 +315,6 @@ func _capture_route_result() -> void:
 	await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	_save_capture("route_result_screen.png")
-	screen.queue_free()
-	await get_tree().process_frame
-
-
-func _capture_challenge_route() -> void:
-	var screen = RouteScreenScene.instantiate()
-	add_child(screen)
-	screen.apply_snapshot(_route_snapshot({
-		"phase": "map",
-		"available_node_id": "route.v050.node.mirror_pursuit",
-		"completed_node_ids": ["route.v050.node.first_hunt"],
-		"nodes": _route_nodes("route.v050.node.mirror_pursuit"),
-	}))
-	screen.set_challenge_context("镜厅余响", "染墨页边")
-	await get_tree().process_frame
-	await RenderingServer.frame_post_draw
-	_save_capture("challenge_route_screen.png")
 	screen.queue_free()
 	await get_tree().process_frame
 

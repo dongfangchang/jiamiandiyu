@@ -5,10 +5,8 @@ extends Node
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
 const BattleScreenScript := preload("res://src/ui/battle_screen.gd")
-const RouteScreenScript := preload("res://src/ui/route_screen.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
-const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -28,35 +26,6 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_expect(host.get_node_or_null("SceneBackgroundHolder") != null, "canvas holder present")
 	_expect(host.find_child("SceneBackground", true, false) != null, "scene texture present")
-
-	var route = RouteScreenScript.new()
-	route.custom_minimum_size = Vector2(1600, 900)
-	route.size = Vector2(1600, 900)
-	add_child(route)
-	route.apply_snapshot(RouteSnapshotScript.new({
-		"display_name_zh": "第一卷·小丑：廷根值夜者",
-		"chapter_title_zh": "第一卷《小丑》：廷根",
-		"chapter_phase_zh": "密修会的闯入",
-		"chapter_summary_zh": "从莫雷蒂家的闯入开始。",
-		"phase": "map",
-		"current_node_id": "route.v028.first_stage.node.intruder",
-		"nodes": [{
-			"id": "route.v028.first_stage.node.intruder",
-			"display_name_zh": "密修会的闯入者",
-			"type": "normal",
-			"state": "available",
-			"investigation_goal_zh": "确认闯入者身份",
-			"narrative_beat_zh": "深夜潜入。",
-			"source_zh": "第一卷",
-		}],
-	}))
-	await get_tree().process_frame
-	_expect(route.get_node_or_null("SceneBackgroundHolder") != null, "route has canvas holder")
-	var header := route.find_child("RouteHeader", true, false) as PanelContainer
-	_expect(header != null, "route header exists")
-	if header != null:
-		var style := header.get_theme_stylebox("panel") as StyleBoxFlat
-		_expect(style != null and style.bg_color.a >= 0.85, "route header readable module")
 
 	var viewport := SubViewport.new()
 	viewport.size = Vector2i(1600, 900)

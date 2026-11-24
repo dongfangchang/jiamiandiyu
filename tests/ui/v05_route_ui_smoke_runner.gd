@@ -1,6 +1,5 @@
 extends Node
 
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const RestScreenScene := preload("res://scenes/ui/rest_screen.tscn")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RouteResultScreenScene := preload("res://scenes/ui/route_result_screen.tscn")
@@ -13,7 +12,6 @@ const SequenceStateScript := preload("res://src/core/sequence_state.gd")
 var _checks := 0
 var _failures: Array[String] = []
 var _captured_command_type: StringName = &""
-var _captured_node_id := ""
 var _captured_rest_id := ""
 var _captured_ritual_selections: Array[String] = []
 var _hub_requests := 0
@@ -22,7 +20,6 @@ var _hub_requests := 0
 func _ready() -> void:
 	await get_tree().process_frame
 	_test_assets()
-	await _test_route_screen()
 	await _test_rest_screen()
 	await _test_ritual_screen()
 	await _test_route_result()
@@ -48,74 +45,6 @@ func _test_assets() -> void:
 	]
 	for path in paths:
 		_expect(ResourceLoader.exists(path), "v0.5 UI art exists: %s" % path)
-
-
-func _test_route_screen() -> void:
-	var screen = RouteScreenScene.instantiate()
-	add_child(screen)
-	await get_tree().process_frame
-	screen.route_command_requested.connect(func(command: RouteCommand) -> void:
-		_captured_command_type = command.type
-		_captured_node_id = String(command.node_id)
-	)
-	_hub_requests = 0
-	screen.hub_requested.connect(func() -> void: _hub_requests += 1)
-	var snapshot = _route_snapshot({
-		"phase": "map",
-		"nodes": _route_nodes("route.v050.node.first_hunt"),
-		"current_node_id": "route.v050.node.first_hunt",
-		"chapter_title_zh": "廷根：雨夜异常调查",
-		"chapter_phase_zh": "从灵视到证据",
-		"chapter_summary_zh": "沿线索确认异常。",
-	})
-	screen.apply_snapshot(snapshot)
-	_expect(screen.get_node_count() == 5, "route screen renders five nodes")
-	_expect(screen.get_node_state(0) == "available", "first node is available")
-	_expect(screen.get_node_state(2) == "locked", "later rest node is locked")
-	_expect(screen.get_background_path().ends_with("ui-canvas-gothic-rain-night.png"), "route art background resolves")
-	_expect(screen.find_child("ChapterMapScroll", true, false) != null, "route keeps chapter map in a horizontal scroll container")
-	_expect(
-		screen.get_current_goal_text().contains("保留灵视")
-			or screen.get_current_goal_text().contains("调查优势"),
-		"route exposes the current node reward hint"
-	)
-	_expect(screen.is_node_button_enabled("route.v050.node.first_hunt"), "available node button enabled")
-	_expect(not screen.is_node_button_enabled("route.v050.node.mirror_pursuit"), "locked node button disabled")
-	screen.request_node("route.v050.node.first_hunt")
-	_expect(screen.is_pending(), "route node command enters pending")
-	_expect(_captured_command_type == RouteCommand.SELECT_NODE, "route UI emits select command")
-	_expect(_captured_node_id == "route.v050.node.first_hunt", "route UI emits stable node id")
-
-	screen.apply_command_result(RouteCommandResultScript.new(
-		false,
-		&"node_not_available",
-		[],
-		snapshot,
-		RitualSnapshotScript.new({"status": "inactive"}),
-		_sequence_state("locked")
-	))
-	_expect(not screen.is_pending(), "route rejection clears pending")
-	_expect(screen.get_status_text().contains("尚未解锁"), "route rejection reason is visible")
-
-	var ascension_snapshot = _route_snapshot({
-		"phase": "map",
-		"nodes": _route_nodes("route.v050.node.ascension"),
-		"completed_node_ids": [
-			"route.v050.node.first_hunt",
-			"route.v050.node.mirror_pursuit",
-			"route.v050.node.old_house_rest",
-			"route.v050.node.mirror_baron",
-		],
-		"can_begin_ascension": true,
-	})
-	_captured_command_type = &""
-	screen.apply_snapshot(ascension_snapshot)
-	screen.request_ascension()
-	_expect(_captured_command_type == RouteCommand.BEGIN_ASCENSION, "route UI emits begin ascension command")
-	_expect(screen.is_pending(), "ascension command enters pending")
-	screen.set_pending(false)
-	screen.queue_free()
-	await get_tree().process_frame
 
 
 func _test_rest_screen() -> void:

@@ -4,13 +4,11 @@ const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
 const ChallengeResultScreenScene := preload(
 	"res://scenes/ui/challenge_result_screen.tscn"
 )
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
 const StartScreenScene := preload("res://scenes/ui/start_screen.tscn")
 const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
 const ChallengeCommandResultScript := preload(
 	"res://src/core/challenge_command_result.gd"
 )
-const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -25,7 +23,6 @@ func _ready() -> void:
 	_test_assets()
 	await _test_challenge_screen()
 	await _test_challenge_result()
-	await _test_challenge_route_context()
 	await _test_start_entry()
 	_finish()
 
@@ -165,25 +162,6 @@ func _test_challenge_result() -> void:
 	_expect(screen.get_save_text().contains("备份"), "challenge failure shows backup recovery")
 	screen.set_save_state("failed")
 	_expect(screen.get_save_text().contains("失败"), "challenge save failure is visible")
-	screen.queue_free()
-	await get_tree().process_frame
-
-
-func _test_challenge_route_context() -> void:
-	var screen = RouteScreenScene.instantiate()
-	add_child(screen)
-	await get_tree().process_frame
-	screen.set_challenge_context("镜厅余响", "染墨页边")
-	_expect(
-		screen.get_challenge_context_text().contains("挑战"),
-		"route screen displays challenge context"
-	)
-	_expect(
-		screen.get_challenge_context_text().contains("染墨页边"),
-		"route screen displays selected modifier"
-	)
-	screen.clear_challenge_context()
-	_expect(screen.get_challenge_context_text().is_empty(), "challenge context can be cleared")
 	screen.queue_free()
 	await get_tree().process_frame
 
