@@ -1,7 +1,7 @@
 extends RefCounted
 
-## Shared card-face pieces for every screen that shows a card outside battle
-## (deck, gacha, upgrade). One resolution order, so a screen can no longer
+## Shared card-face pieces for every screen that shows a card (deck, gacha,
+## upgrade, battle hand). One resolution order, so a screen can no longer
 ## silently keep a stale art table:
 ##   v0.85 art window  ->  legacy composed plate  ->  card back
 ## plus the rarity x mechanic seal derived from the card's own data.
@@ -10,6 +10,25 @@ const CardArt := preload("res://src/ui/card_art_catalog.gd")
 
 const NAME_ART := "CardArt"
 const NAME_SEAL := "CardSeal"
+## art/README.md §0.1: the illustration window is 512 x 390.
+const ART_WINDOW_ASPECT := 512.0 / 390.0
+
+
+static func window_size(width: float) -> Vector2:
+	## A rect of the given width at the art window's own aspect, so the art is
+	## neither squashed nor cropped to a strip.
+	return Vector2(roundf(width), roundf(width / ART_WINDOW_ASPECT))
+
+
+static func make_window_face(definition_id: String, width: float, seal_size := Vector2(22, 22)) -> Control:
+	## Compact face for battle hand / cast: art window at its native aspect,
+	## fixed size (never stretched by a parent container), seal in the corner.
+	var size := window_size(width)
+	var face := make_face(definition_id, size, seal_size)
+	face.size = size
+	face.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	face.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	return face
 
 
 static func art_path(definition_id: String) -> String:

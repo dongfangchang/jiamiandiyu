@@ -3,7 +3,7 @@
 - 日期：2026-11-24
 - 严重度：S2（观感，主路径每场战斗都能看到）
 - 版本：v0.89.0 发现（v0.85 换插画以后变得明显）
-- 状态：待修复（v0.89 P1-1）
+- 状态：已修复（v0.89 P1-1，轨道 D；待用户真窗口观感确认）
 
 ## 症状
 
@@ -26,3 +26,19 @@
 
 - UI 测试：每张手牌的插画控件宽高比在 1.31 ± 0.05 之间；`stretch_mode` 不得是 `SCALE`。
 - 在 1600×900 和 1100×700 两种窗口下截图，并对照 ADR-0030 检查。
+
+## 修复（v0.89.0 轨道 D）
+
+- `src/ui/common/card_face.gd` 新增 `make_window_face(definition_id, width)`：生成紧凑卡面，尺寸固定为插画窗比例（512:390），不会被父容器拉伸，角上盖稀有度×机制蜡封。原有 `make_art / make_seal / make_face` 未改。
+- `src/ui/battle_screen.gd`：
+  - 手牌卡改为卡框结构：卡名（思源宋体）+ 费用 → 插画窗 142×108 → 两行规则短句 → 目标/仪式短签 → 选择按钮。卡尺寸 156×228。
+  - 删除 34 px 横条和统一 `modulate` 压色。只在快照 `hand[i].playable == false` 时整卡压暗，悬停提示写出 `blocked_reason` 对应文案。
+  - 手牌标题行与弃置祭坛合并为一行，卡牌区多出约 30 px 高度。HandPanel 仍为 292 px，其他区域位置不变（ADR-0030 / BUG-0036 预算不变）。
+  - 打出飞卡改用同一卡面（`CastCard`）。
+  - `get_card_art_path()` 委托 `CardFace.art_path()`，四屏取图顺序一致。
+- 详细记录：`docs/reports/v0.89.0/ui_battle_hand.md`。
+
+## 回归
+
+- `tests/ui/battle_hand_card_face_runner.tscn`（默认测试集）：1600×900 与 1100×700 各测窗口拉伸布局和原始布局。断言每张手牌和飞卡的插画显示比例为 1.31±0.05、`stretch_mode != STRETCH_SCALE`、插画高度 ≥ 90、没有压色、取图路径与共享卡面一致；只有不可打出的牌被压暗；手牌全部在 HandPanel 内；结束回合按钮和手牌在视口内，或可通过页面滚动到达。
+- 真窗口截图：`tests/ui/battle_hand_capture_runner.tscn -- --capture-size=WxH --capture-tag=before|after`。修复前后的对照图见报告。
