@@ -418,3 +418,34 @@ R1-04 删除日记 2D 旧载体后，以下 `assets/ui/diary/` 文件已没有�
 | `desk.page_frames.frontispiece.shadow` | `…/page_frames/frontispiece_frame_shadow.png` | `assets/game/desk_world/page_frames/frontispiece_frame_shadow.png` | 1260×1770 | 过 |
 | `desk.page_frames.epilogue` | `…/page_frames/epilogue_frame.png` | `assets/game/desk_world/page_frames/epilogue_frame.png` | 1260×1770 | 过 |
 | `desk.page_frames.epilogue.shadow` | `…/page_frames/epilogue_frame_shadow.png` | `assets/game/desk_world/page_frames/epilogue_frame_shadow.png` | 1260×1770 | 过 |
+
+## v0.89.0 日记画面升级 DQ + 索引卡（DQ-01…06 · DW-07b）
+
+规格：`docs/design/ART_BRIEF_DESK_WORLD.md` §5；体验底线 `EXPERIENCE_ARCHITECTURE.md` §5.1。  
+候选源：`art/assets/raster/desk_world/diary_quality/`、`…/index_card/`（保留；正式以 `assets/game/desk_world/` 为准）。  
+未迁入：`_work/`、`_overview/`、各目录 README。  
+审稿：UI-07-DQ / UI-07-07b 全过（2026-11-24），见 `docs/reports/v0.89.0/ui.md`。  
+迁入：主协调者 CO-DQ（2026-11-24）。注册表：`data/registry/assets.json` → section `desk_world`（41 ID）。未改 `project.godot`（并行 CO-AR05）。
+
+| 稳定 ID | 候选源 | 正式路径 | 尺寸 | 审稿 |
+|---|---|---|---|---|
+| `desk.dq.room_backplate` | `art/…/diary_quality/dq01/room_backplate.png` | `assets/game/desk_world/diary_quality/dq01/room_backplate.png` | 3840×2160 | 过 |
+| `desk.dq.desk_albedo` | `…/dq02/desk_albedo.png` | `assets/game/desk_world/diary_quality/dq02/desk_albedo.png` | 2048×2048 | 过 |
+| `desk.dq.desk_normal` | `…/dq02/desk_normal.png` | `assets/game/desk_world/diary_quality/dq02/desk_normal.png` | 2048×2048 | 过 |
+| `desk.dq.desk_roughness` | `…/dq02/desk_roughness.png` | `assets/game/desk_world/diary_quality/dq02/desk_roughness.png` | 2048×2048 | 过 |
+| `desk.dq.cover_albedo` | `…/dq03/cover_albedo.png` | `assets/game/desk_world/diary_quality/dq03/cover_albedo.png` | 2048×2048 | 过 |
+| `desk.dq.cover_normal` | `…/dq03/cover_normal.png` | `assets/game/desk_world/diary_quality/dq03/cover_normal.png` | 2048×2048 | 过 |
+| `desk.dq.fore_edge` | `…/dq03/fore_edge.png` | `assets/game/desk_world/diary_quality/dq03/fore_edge.png` | 1024×128 | 过 |
+| `desk.dq.page_header_ornament` | `…/dq04/page_header_ornament.png` | `assets/game/desk_world/diary_quality/dq04/page_header_ornament.png` | 900×140 | 过 |
+| `desk.dq.page_corner_tl` | `…/dq04/page_corner_tl.png` | `assets/game/desk_world/diary_quality/dq04/page_corner_tl.png` | 180×180 | 过 |
+| `desk.dq.page_corner_tr` | `…/dq04/page_corner_tr.png` | `assets/game/desk_world/diary_quality/dq04/page_corner_tr.png` | 180×180 | 过 |
+| `desk.dq.page_corner_bl` | `…/dq04/page_corner_bl.png` | `assets/game/desk_world/diary_quality/dq04/page_corner_bl.png` | 180×180 | 过 |
+| `desk.dq.page_corner_br` | `…/dq04/page_corner_br.png` | `assets/game/desk_world/diary_quality/dq04/page_corner_br.png` | 180×180 | 过 |
+| `desk.dq.ruled_lines` | `…/dq04/ruled_lines.png` | `assets/game/desk_world/diary_quality/dq04/ruled_lines.png` | 1024×1440 | 过 |
+| `desk.dq.margin_doodles.01`…`06` | `…/dq04/margin_doodles_0N.png` | `assets/game/desk_world/diary_quality/dq04/margin_doodles_0N.png` | 220×220 | 过 |
+| `desk.dq.ink_blots.01`…`04` | `…/dq04/ink_blots_0N.png` | `assets/game/desk_world/diary_quality/dq04/ink_blots_0N.png` | 320×320 | 过 |
+| `desk.dq.ribbon_bookmark` | `…/dq05/ribbon_bookmark.png` | `assets/game/desk_world/diary_quality/dq05/ribbon_bookmark.png` | 160×900 | 过 |
+| `desk.dq.ribbon_bookmark.shadow` | `…/dq05/ribbon_bookmark_shadow.png` | `assets/game/desk_world/diary_quality/dq05/ribbon_bookmark_shadow.png` | 160×900 | 过 |
+| `desk.dq.contact_shadow.*`（×14） | `…/dq06/contact_shadow_*.png` | `assets/game/desk_world/diary_quality/dq06/contact_shadow_*.png` | 与物件同尺寸 | 过 |
+| `desk.index_card` | `art/…/index_card/index_card.png` | `assets/game/desk_world/index_card/index_card.png` | 600×900 | 过 |
+| `desk.index_card.shadow` | `…/index_card_shadow.png` | `assets/game/desk_world/index_card/index_card_shadow.png` | 600×900 | 过 |

@@ -1,0 +1,12 @@
+AR-05 renderer compare
+method=forward_plus
+driver=metal
+capture_size=2920x1753
+platform=macOS
+fps_avg=17.4 fps_min=12.0 fps_max=33.0 samples=48
+fx_env_found=true
+fx_ssao_enabled=true
+fx_glow_enabled=true
+fx_tonemap=3
+baseline=res://.tools/ui-captures/ar05_renderer/forward_plus_baseline.png
+fx=res://.tools/ui-captures/ar05_renderer/forward_plus_fx.png

@@ -14,6 +14,7 @@ const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const CardArt := preload("res://src/ui/card_art_catalog.gd")
+const CardFace := preload("res://src/ui/common/card_face.gd")
 const EXIT_BEAT_SEC := 0.8
 
 const PHASE_NAMES := {
@@ -135,12 +136,19 @@ var _last_phase_key := ""
 
 ## Heading + always-on discard altar + cards; budgeted so 1600×900 needs no
 ## page scroll and SelectButton stays above the fold (BUG-0036).
-## Card width keeps ~7 cards inside the gold frame before horizontal scroll.
 ## Height budget: header+status+middle+hand+seps+margins = 900 − SAFE_BOTTOM_REVEAL
 ## of bare scene canvas under all chrome.
+## BUG-0041: hand cards use the shared card face; the art window keeps its
+## 512:390 aspect, so the card is sized from the art width, never the reverse.
 const HAND_PANEL_HEIGHT := 292
-const HAND_CARD_SIZE := Vector2(208, 196)
+const HAND_CARD_SIZE := Vector2(156, 228)
+const HAND_CARD_PAD := 6
+## Inner width: card minus padding minus the 1px panel border on each side.
+const HAND_ART_WIDTH := HAND_CARD_SIZE.x - HAND_CARD_PAD * 2 - 2
 const HAND_CARD_SEPARATION := 8
+const CAST_ART_WIDTH := 130.0
+## Unplayable cards (snapshot hand[i].playable == false) are dimmed as a whole.
+const UNPLAYABLE_DIM := Color(0.55, 0.55, 0.55, 1.0)
 const LANE_HEIGHT := 220
 const HOVER_LIFT := -12.0
 
@@ -299,9 +307,8 @@ func get_enemy_art_path(definition_id: StringName) -> String:
 
 
 func get_card_art_path(definition_id: StringName) -> String:
-	## v0.85 art window first — it is the illustration alone, so it reads far
-	## better than a whole card face shrunk into a 26px strip.
-	return CardArt.display_art(String(definition_id))
+	## Same resolution order as every other card face (CardFace.art_path).
+	return CardFace.art_path(String(definition_id))
 
 
 func get_card_effect_text(definition_id: StringName) -> String:
@@ -654,6 +661,7 @@ func _build_header() -> Control:
 	pressure_group.add_child(_pressure_label)
 	row.add_child(pressure_group)
 	_end_turn_button = UiTheme.button("结束回合", end_turn, false, 126, true)
+	_end_turn_button.name = "EndTurnButton"
 	row.add_child(_end_turn_button)
 	_exit_button = UiTheme.button("退出战斗", _request_exit, true, 112)
 	row.add_child(_exit_button)
@@ -835,15 +843,16 @@ func _build_hand_panel(panel: PanelContainer) -> void:
 	column.add_theme_constant_override("separation", 6)
 	panel.add_child(_pad(column, 10))
 
+	## Heading and altar share one row so the card row gets the height the
+	## art window needs (BUG-0041).
 	var heading := HBoxContainer.new()
+	heading.add_theme_constant_override("separation", 10)
 	column.add_child(heading)
-	heading.add_child(UiTheme.label("手牌", 18, UiTheme.C_TEXT))
-	var tip := UiTheme.clip_label(
-		"拖放打出 · 点选仍可用 · 弃置代价点选手牌 · 悬停放大",
-		12,
-		UiTheme.C_MUTED
-	)
-	tip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var heading_label := UiTheme.label("手牌", 18, UiTheme.C_TEXT)
+	heading_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	heading.add_child(heading_label)
+	var tip := UiTheme.label("拖放打出 · 点选仍可用 · 悬停放大", 12, UiTheme.C_MUTED)
+	tip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	heading.add_child(tip)
 
 	# Fixed-height altar slot so showing/hiding copy never shifts HandPanel rect.
@@ -857,7 +866,8 @@ func _build_hand_panel(panel: PanelContainer) -> void:
 	_discard_altar.custom_minimum_size = Vector2(0, 34)
 	# Always occupy height so show/hide never shifts HandPanel / HandScroll rects.
 	_discard_altar.visible = true
-	column.add_child(_discard_altar)
+	_discard_altar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(_discard_altar)
 	UiTheme.set_clip_text(_discard_altar_label, "祭坛待命 · 需弃置代价的牌会在此点亮")
 	_discard_altar_label.add_theme_color_override("font_color", UiTheme.C_MUTED)
 
@@ -1661,77 +1671,50 @@ func _build_hand_card(card: Dictionary) -> Control:
 	panel.clip_contents = true
 	panel.z_as_relative = false
 
+	## Card frame (art/README.md §0) scaled to the hand: name + cost, art
+	## window at 512:390 with the rarity x mechanic seal, short rules text,
+	## target / ritual chips, select button.
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 3)
-	panel.add_child(_pad(column, 8))
-
-	var art_path := get_card_art_path(definition_id)
-	if not art_path.is_empty() and ResourceLoader.exists(art_path):
-		var art := TextureRect.new()
-		art.name = "CardArt"
-		art.texture = load(art_path) as Texture2D
-		art.custom_minimum_size = Vector2(0, 34)
-		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		## The v0.85 window is a 512x390 illustration: crop it to fill the
-		## strip. A legacy full-card plate must stay letterboxed instead, or
-		## its own frame gets cut off.
-		art.stretch_mode = (
-			TextureRect.STRETCH_KEEP_ASPECT_COVERED
-			if CardArt.has_art_window(String(definition_id))
-			else TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		)
-		art.clip_contents = true
-		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		art.modulate = Color(0.94, 0.9, 0.78, 0.92)
-		column.add_child(art)
-	else:
-		var placeholder := UiTheme.panel(Color("#171711"), UiTheme.C_LINE)
-		placeholder.custom_minimum_size = Vector2(0, 26)
-		column.add_child(placeholder)
+	column.name = "HandCardBody"
+	column.add_theme_constant_override("separation", 2)
+	panel.add_child(_pad(column, HAND_CARD_PAD))
+	var playable := bool(card.get("playable", true))
+	if not playable:
+		column.modulate = UNPLAYABLE_DIM
 
 	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 6)
+	title_row.add_theme_constant_override("separation", 4)
 	column.add_child(title_row)
-	var name_label := UiTheme.clip_label(_card_name(definition_id), 17, UiTheme.C_TEXT)
+	var name_label := UiTheme.clip_label(_card_name(definition_id), 14, UiTheme.C_TEXT)
+	name_label.name = "CardName"
+	name_label.add_theme_font_override("font", UiTheme.diary_ink_font(true))
 	title_row.add_child(name_label)
-	var cost_badge := UiTheme.badge(
-		"%d 灵性" % int(card.get("cost_spirit", 0)),
-		UiTheme.C_GOLD,
-		UiTheme.C_GOLD
-	)
-	cost_badge.custom_minimum_size = Vector2(58, 0)
+	var cost := int(card.get("cost_spirit", 0))
+	var cost_badge := UiTheme.badge("%d" % cost, UiTheme.C_GOLD, UiTheme.C_GOLD)
+	cost_badge.name = "CardCost"
+	cost_badge.custom_minimum_size = Vector2(24, 0)
+	cost_badge.tooltip_text = "灵性费用 %d" % cost
 	title_row.add_child(cost_badge)
 
-	var target_type := String(card.get("target_type", "none"))
-	var category := String(card.get("category", detail.get("category", "")))
-	var category_zh := "非凡能力"
-	match category:
-		"identity":
-			category_zh = "人格"
-		"artifact":
-			category_zh = "封印物"
-		"ally":
-			category_zh = "值夜者支援"
-	column.add_child(UiTheme.clip_label(
-		"%s · %s" % [
-			category_zh,
-			"选择敌人" if target_type == "enemy" else "无需目标",
-		],
-		12,
-		UiTheme.C_MUTED
-	))
+	column.add_child(CardFace.make_window_face(String(definition_id), HAND_ART_WIDTH))
+
 	var effect_text := get_card_effect_text(definition_id)
-	var effect_box := UiTheme.fixed_text(
+	var effect_label := UiTheme.wrapped_label(
 		effect_text if not effect_text.is_empty() else "效果由规则层结算。",
 		12,
-		UiTheme.C_PAPER,
-		40
+		UiTheme.C_PAPER
 	)
-	effect_box.name = "CardEffectBox"
-	effect_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(effect_box)
+	effect_label.name = "CardEffectText"
+	effect_label.max_lines_visible = 2
+	effect_label.add_theme_constant_override("line_spacing", -3)
+	effect_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	effect_label.custom_minimum_size = Vector2(0, 34)
+	column.add_child(effect_label)
 
-	var chips: Array[String] = []
+	var target_type := String(card.get("target_type", "none"))
+	var chips: Array[String] = ["选择敌人" if target_type == "enemy" else "无需目标"]
+	if marked_discard:
+		chips.push_front("弃置代价")
 	if bool(card.get("exhaust", detail.get("exhaust", false))):
 		chips.append("单场一次")
 	var preview: Dictionary = card.get("preview", {}) if card.get("preview", {}) is Dictionary else {}
@@ -1750,9 +1733,11 @@ func _build_hand_card(card: Dictionary) -> Control:
 	if not synergy_names.is_empty():
 		chips.append("联动：" + "、".join(synergy_names))
 	var chip_label := UiTheme.clip_label(
-		" · ".join(chips) if not chips.is_empty() else String(detail.get("source_zh", "")),
+		" · ".join(chips),
 		11,
-		UiTheme.C_GOLD if not chips.is_empty() else UiTheme.C_MUTED
+		UiTheme.C_DANGER_TEXT if marked_discard else (
+			UiTheme.C_GOLD if chips.size() > 1 else UiTheme.C_MUTED
+		)
 	)
 	chip_label.name = "CardChips"
 	column.add_child(chip_label)
@@ -1769,7 +1754,21 @@ func _build_hand_card(card: Dictionary) -> Control:
 			)
 		)
 	var source := String(detail.get("source_zh", ""))
-	var hint_bits: Array[String] = [effect_text, "拖到敌人或战场打出；点选仍可用"]
+	var category_zh := "非凡能力"
+	match String(card.get("category", detail.get("category", ""))):
+		"identity":
+			category_zh = "人格"
+		"artifact":
+			category_zh = "封印物"
+		"ally":
+			category_zh = "值夜者支援"
+	var hint_bits: Array[String] = [
+		"%s · %s · %d 灵性" % [_card_name(definition_id), category_zh, cost],
+		effect_text,
+	]
+	if not playable:
+		hint_bits.append("暂不可打出：" + _reason_text(StringName(card.get("blocked_reason", ""))))
+	hint_bits.append("拖到敌人或战场打出；点选仍可用")
 	if marked_discard:
 		hint_bits.append("已标记为弃置代价")
 	if synergy_hint:
@@ -1777,12 +1776,7 @@ func _build_hand_card(card: Dictionary) -> Control:
 	if not source.is_empty():
 		hint_bits.append("出处：" + source)
 	panel.tooltip_text = "\n".join(hint_bits)
-	if marked_discard:
-		column.add_child(UiTheme.clip_label("弃置代价", 12, UiTheme.C_DANGER_TEXT))
 
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spacer)
 	var discard_pick_mode := (
 		not _selection_card_id.is_empty()
 		and _required_discard_for_card(_find_hand_card(_selection_card_id)) > 0
@@ -1804,7 +1798,8 @@ func _build_hand_card(card: Dictionary) -> Control:
 		not _pending
 	)
 	select_button.name = "SelectButton"
-	select_button.custom_minimum_size = Vector2(0, 32)
+	select_button.custom_minimum_size = Vector2(0, 24)
+	select_button.add_theme_font_size_override("font_size", 13)
 	select_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_child(select_button)
 	panel.gui_input.connect(_on_hand_card_input.bind(instance_id))
@@ -2798,14 +2793,11 @@ func _play_card_cast(definition_id: StringName, target_id: StringName) -> void:
 	)
 	var end_global := target.get_global_rect().get_center()
 	var end := end_global - _effects_layer.global_position
-	var card_visual := TextureRect.new()
-	card_visual.texture = load(get_card_art_path(definition_id)) as Texture2D
-	card_visual.custom_minimum_size = Vector2(130, 92)
-	card_visual.size = Vector2(130, 92)
+	## Same face as the hand card, at the art window's own aspect.
+	var card_visual := CardFace.make_window_face(String(definition_id), CAST_ART_WIDTH, Vector2(26, 26))
+	card_visual.name = "CastCard"
 	card_visual.position = start
-	card_visual.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	card_visual.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	card_visual.modulate = Color(1, 1, 1, 0.95)
+	card_visual.pivot_offset = card_visual.size * 0.5
 	_effects_layer.add_child(card_visual)
 	_visual_effect_count += 1
 	var tween := create_tween()
