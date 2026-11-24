@@ -13,8 +13,32 @@
     },
     "combat": {
       "type": "object",
-      "required": ["max_rounds", "enemy_pressure", "chain"],
+      "required": ["max_rounds", "enemy_pressure", "chain", "danger_threshold", "rules"],
       "properties": {
+        "enemy_pressure": {
+          "type": "object",
+          "required": ["start_round", "interval_rounds", "trigger_count", "bonus_per_trigger"],
+          "properties": {
+            "start_round": {"type": "integer", "minimum": 1},
+            "interval_rounds": {"type": "integer", "minimum": 1},
+            "trigger_count": {"type": "integer", "minimum": 1},
+            "bonus_per_trigger": {"type": "integer", "minimum": 1}
+          }
+        },
+        "danger_threshold": {"type": "integer", "minimum": 1},
+        "rules": {
+          "type": "object",
+          "required": ["ritual_max_stacks", "danger_intent_corruption_at", "foresight_reduction", "attention_bonus_at_hunter", "attention_bonus_at_max", "corruption_round_hp_loss", "threat_risk"],
+          "properties": {
+            "ritual_max_stacks": {"type": "integer", "minimum": 1},
+            "danger_intent_corruption_at": {"type": "integer", "minimum": 0},
+            "foresight_reduction": {"type": "integer", "minimum": 0},
+            "attention_bonus_at_hunter": {"type": "integer", "minimum": 0},
+            "attention_bonus_at_max": {"type": "integer", "minimum": 0},
+            "corruption_round_hp_loss": {"type": "integer", "minimum": 0},
+            "threat_risk": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+          }
+        },
         "chain": {
           "type": "object",
           "required": ["threshold", "damage", "draw", "spirit"],

@@ -655,6 +655,17 @@ class BattleTestBalance:
 		&"player.turn_draw_to_hand_size": 1,
 		&"player.max_hand_size": 8,
 		&"battle.enemy_pressure_start_round": 5,
+		&"battle.enemy_pressure": {"interval_rounds": 2, "trigger_count": 3, "bonus_per_trigger": 1},
+		&"battle.danger_threshold": 9,
+		&"battle.rules": {
+			"ritual_max_stacks": 3,
+			"danger_intent_corruption_at": 2,
+			"foresight_reduction": 1,
+			"attention_bonus_at_hunter": 1,
+			"attention_bonus_at_max": 2,
+			"corruption_round_hp_loss": 1,
+			"threat_risk": {"corruption": 2, "attention": 1},
+		},
 	}
 
 	func get_value(parameter_id: StringName) -> Variant:

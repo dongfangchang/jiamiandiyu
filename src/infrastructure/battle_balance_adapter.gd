@@ -14,6 +14,8 @@ const PARAMETER_PATHS: Dictionary = {
 	&"battle.enemy_pressure_start_round": ["combat", "enemy_pressure", "start_round"],
 	&"battle.chain": ["combat", "chain"],
 	&"battle.danger_threshold": ["combat", "danger_threshold"],
+	&"battle.enemy_pressure": ["combat", "enemy_pressure"],
+	&"battle.rules": ["combat", "rules"],
 	&"risk.corruption_thresholds": ["player", "corruption"],
 	&"risk.attention_thresholds": ["player", "attention"],
 	&"progression.sequence_9_to_8_requirements": ["upgrades", "sequence_advance"],

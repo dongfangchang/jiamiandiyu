@@ -410,6 +410,20 @@ class FakeBalance:
 				return 7
 			&"battle.chain":
 				return chain.duplicate(true)
+			&"battle.enemy_pressure":
+				return {"interval_rounds": 2, "trigger_count": 3, "bonus_per_trigger": 1}
+			&"battle.danger_threshold":
+				return 9
+			&"battle.rules":
+				return {
+					"ritual_max_stacks": 3,
+					"danger_intent_corruption_at": 2,
+					"foresight_reduction": 1,
+					"attention_bonus_at_hunter": 1,
+					"attention_bonus_at_max": 2,
+					"corruption_round_hp_loss": 1,
+					"threat_risk": {"corruption": 2, "attention": 1},
+				}
 		return null
 
 
