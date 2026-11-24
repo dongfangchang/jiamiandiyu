@@ -14,6 +14,7 @@
   tests/ui/diary_readability_capture_runner.{gd,tscn}  新增截图 runner（名字含 capture，不进默认集）
 依赖：无跨角色交付物。未改 project.godot / 渲染器 / 规则 / 存档；黄金回放不变。
 验证：tools/run_tests.sh pass=93 fail=0 skipped=11 guard_block=0（基线 92/0/10，多出的是新 runner）；
+      合并 origin/main 后复跑：pass=94 fail=0 skipped=12 guard_block=0（main 尚未改动这三个日记文件或 project.godot）。
       H-02 diary_prepared_turn_runner 通过；diary_turn_capture_runner 目视翻页预加载正常。
 ```
 
