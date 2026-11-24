@@ -12,37 +12,11 @@ const ChallengeContentAdapterScript := preload("res://src/infrastructure/challen
 const DeckContentAdapterScript := preload("res://src/infrastructure/deck_content_adapter.gd")
 const SaveMigrationsScript := preload("res://src/infrastructure/save_migrations.gd")
 const PlayerPreferencesServiceScript := preload("res://src/infrastructure/player_preferences_service.gd")
-const GameSessionScript := preload("res://src/app/game_session.gd")
-const CampaignSessionScript := preload("res://src/app/campaign_session.gd")
 const RouteSessionScript := preload("res://src/app/route_session.gd")
 const ChallengeSessionScript := preload("res://src/app/challenge_session.gd")
 const DeckEngineScript := preload("res://src/gameplay/deck_engine.gd")
 const DeckCommandScript := preload("res://src/core/deck_command.gd")
 
-const DEFAULT_CARDS_PATH := "res://data/cards/v0.3.0/cards.json"
-const DEFAULT_CARDS_SCHEMA_PATH := "res://data/schema/v0.3.0/cards.schema.json"
-const DEFAULT_ENEMIES_PATH := "res://data/enemies/v0.3.0/enemies.json"
-const DEFAULT_ENEMIES_SCHEMA_PATH := "res://data/schema/v0.3.0/enemies.schema.json"
-const DEFAULT_ENCOUNTERS_PATH := "res://data/encounters/v0.3.0/encounters.json"
-const DEFAULT_ENCOUNTERS_SCHEMA_PATH := "res://data/schema/v0.3.0/encounters.schema.json"
-const DEFAULT_BALANCE_PATH := "res://data/balance/v0.3.0/balance.json"
-const DEFAULT_BALANCE_SCHEMA_PATH := "res://data/schema/v0.3.0/balance.schema.json"
-const DEFAULT_V04_BALANCE_PATH := "res://data/balance/v0.4.0/balance.json"
-const DEFAULT_V04_BALANCE_SCHEMA_PATH := "res://data/schema/v0.4.0/balance.schema.json"
-const DEFAULT_PROGRESSION_PATH := "res://data/cards/v0.4.0/progression.json"
-const DEFAULT_PROGRESSION_SCHEMA_PATH := "res://data/schema/v0.4.0/progression.schema.json"
-const DEFAULT_V05_ENEMIES_PATH := "res://data/enemies/v0.5.0/enemies.json"
-const DEFAULT_V05_ENEMIES_SCHEMA_PATH := "res://data/schema/v0.5.0/enemies.schema.json"
-const DEFAULT_V05_ENCOUNTERS_PATH := "res://data/encounters/v0.5.0/encounters.json"
-const DEFAULT_V05_ENCOUNTERS_SCHEMA_PATH := "res://data/schema/v0.5.0/encounters.schema.json"
-const DEFAULT_V05_ROUTES_PATH := "res://data/routes/v0.5.0/routes.json"
-const DEFAULT_V05_ROUTES_SCHEMA_PATH := "res://data/schema/v0.5.0/routes.schema.json"
-const DEFAULT_V05_RITUALS_PATH := "res://data/rituals/v0.5.0/rituals.json"
-const DEFAULT_V05_RITUALS_SCHEMA_PATH := "res://data/schema/v0.5.0/rituals.schema.json"
-const DEFAULT_V05_BALANCE_PATH := "res://data/balance/v0.5.0/balance.json"
-const DEFAULT_V05_BALANCE_SCHEMA_PATH := "res://data/schema/v0.5.0/balance.schema.json"
-const DEFAULT_CHALLENGE_PATH := "res://data/challenges/v0.6.0/challenges.json"
-const DEFAULT_CHALLENGE_SCHEMA_PATH := "res://data/schema/v0.6.0/challenges.schema.json"
 const DEFAULT_V07_CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
 const DEFAULT_V07_CARDS_SCHEMA_PATH := "res://data/schema/v0.7.0/cards.schema.json"
 const DEFAULT_V07_ENEMIES_PATH := "res://data/enemies/v0.7.0/enemies.json"
@@ -62,524 +36,21 @@ const DEFAULT_V07_CHALLENGE_SCHEMA_PATH := "res://data/schema/v0.7.0/challenges.
 const DEFAULT_DECK_PATH := "res://data/decks/v0.7.0/decks.json"
 const DEFAULT_DECK_SCHEMA_PATH := "res://data/schema/v0.7.0/decks.schema.json"
 
+# Load order defines which stage a failure reports first.
+const V07_DOCUMENTS := [
+	["cards", DEFAULT_V07_CARDS_PATH, DEFAULT_V07_CARDS_SCHEMA_PATH],
+	["enemies", DEFAULT_V07_ENEMIES_PATH, DEFAULT_V07_ENEMIES_SCHEMA_PATH],
+	["encounters", DEFAULT_V07_ENCOUNTERS_PATH, DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH],
+	["routes", DEFAULT_V07_ROUTES_PATH, DEFAULT_V07_ROUTES_SCHEMA_PATH],
+	["rituals", DEFAULT_V07_RITUALS_PATH, DEFAULT_V07_RITUALS_SCHEMA_PATH],
+	["balance", DEFAULT_V07_BALANCE_PATH, DEFAULT_V07_BALANCE_SCHEMA_PATH],
+	["progression", DEFAULT_V07_PROGRESSION_PATH, DEFAULT_V07_PROGRESSION_SCHEMA_PATH],
+	["decks", DEFAULT_DECK_PATH, DEFAULT_DECK_SCHEMA_PATH],
+]
+
 
 static func create_services(run_seed: int) -> AppServices:
 	return AppServices.new(SeededRandomService.new(run_seed))
-
-
-static func load_battle_ports(
-	run_seed: int,
-	content_path: String,
-	content_schema_path: String,
-	balance_path: String,
-	balance_schema_path: String,
-	random_stream_name: StringName = &"battle.shuffle"
-) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var content_loaded := loader.load_document(content_path, content_schema_path)
-	if not content_loaded.ok:
-		return content_loaded
-	var cards: Variant = content_loaded.data.get("cards")
-	if not cards is Array:
-		return InfrastructureResultScript.failure(
-			&"content_cards_missing",
-			"Validated content document must contain a cards array.",
-			{"source": content_path}
-		)
-
-	var balance_loaded := loader.load_document(balance_path, balance_schema_path)
-	if not balance_loaded.ok:
-		return balance_loaded
-
-	var services := create_services(run_seed)
-	return InfrastructureResultScript.success({
-		"services": services,
-		"content": BattleContentAdapterScript.new(
-			cards,
-			content_loaded.data.get("synergies", [])
-		),
-		"balance": BattleBalanceAdapterScript.new(balance_loaded.data),
-		"random": services.create_battle_random(random_stream_name),
-	})
-
-
-static func load_campaign_ports(run_seed: int, paths: Dictionary = {}) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var cards_result := loader.load_document(
-		String(paths.get("cards", DEFAULT_CARDS_PATH)),
-		String(paths.get("cards_schema", DEFAULT_CARDS_SCHEMA_PATH))
-	)
-	if not cards_result.ok:
-		return _with_stage(cards_result, &"cards")
-	var enemies_result := loader.load_document(
-		String(paths.get("enemies", DEFAULT_ENEMIES_PATH)),
-		String(paths.get("enemies_schema", DEFAULT_ENEMIES_SCHEMA_PATH))
-	)
-	if not enemies_result.ok:
-		return _with_stage(enemies_result, &"enemies")
-	var encounters_result := loader.load_document(
-		String(paths.get("encounters", DEFAULT_ENCOUNTERS_PATH)),
-		String(paths.get("encounters_schema", DEFAULT_ENCOUNTERS_SCHEMA_PATH))
-	)
-	if not encounters_result.ok:
-		return _with_stage(encounters_result, &"encounters")
-	var balance_result := loader.load_document(
-		String(paths.get("balance", DEFAULT_BALANCE_PATH)),
-		String(paths.get("balance_schema", DEFAULT_BALANCE_SCHEMA_PATH))
-	)
-	if not balance_result.ok:
-		return _with_stage(balance_result, &"balance")
-
-	var catalog := CampaignContentCatalogScript.new()
-	var catalog_result := catalog.load_from_documents(
-		cards_result.data,
-		enemies_result.data,
-		encounters_result.data
-	)
-	if not catalog_result.ok:
-		return _with_stage(catalog_result, &"catalog")
-	var balance_version := String(balance_result.data.get("content_version", ""))
-	if balance_version != catalog.content_version:
-		return InfrastructureResultScript.failure(
-			&"balance_content_version_mismatch",
-			"Global balance and campaign content must use the same content_version.",
-			{
-				"stage": "balance",
-				"balance_version": balance_version,
-				"content_version": catalog.content_version,
-			}
-		)
-
-	var services := create_services(run_seed)
-	var save_directory := String(paths.get("save_directory", AtomicSaveService.DEFAULT_DIRECTORY))
-	services.saves = AtomicSaveService.new(save_directory)
-	services.catalog = catalog
-	return InfrastructureResultScript.success({
-		"services": services,
-		"catalog": catalog,
-		"content": BattleContentAdapterScript.new(
-			cards_result.data.get("cards", []),
-			cards_result.data.get("synergies", [])
-		),
-		"balance": BattleBalanceAdapterScript.new(balance_result.data),
-		"random": services.create_battle_random(&"battle.shuffle"),
-	})
-
-
-static func start_new_game(
-	run_seed: int,
-	encounter_id: StringName = &"",
-	paths: Dictionary = {},
-	checkpoint_slot: String = "checkpoint"
-) -> InfrastructureResult:
-	var ports_result := load_campaign_ports(run_seed, paths)
-	if not ports_result.ok:
-		return ports_result
-	var catalog: RefCounted = ports_result.data.catalog
-	var selected_id := encounter_id
-	if selected_id.is_empty():
-		selected_id = StringName(catalog.default_encounter_id())
-	if selected_id.is_empty():
-		return InfrastructureResultScript.failure(
-			&"default_encounter_missing",
-			"Campaign content does not define a default encounter."
-		)
-	var session := GameSessionScript.new(
-		ports_result.data.services,
-		catalog,
-		ports_result.data.content,
-		ports_result.data.balance,
-		ports_result.data.random,
-		run_seed,
-		selected_id,
-		checkpoint_slot
-	)
-	if not session.is_ready():
-		var snapshot_data: Dictionary = session.get_snapshot().to_dictionary()
-		return InfrastructureResultScript.failure(
-			&"battle_initialization_failed",
-			"Formal content could not initialize the first battle.",
-			{
-				"encounter_id": String(selected_id),
-				"reason_code": String(snapshot_data.get("outcome_reason", "")),
-				"snapshot": snapshot_data,
-			}
-		)
-	return InfrastructureResultScript.success(session, {"encounter_id": String(selected_id)})
-
-
-static func start_campaign(
-	run_seed: int,
-	encounter_id: StringName = &"",
-	paths: Dictionary = {},
-	checkpoint_slot: String = "checkpoint",
-	resume_from_checkpoint: bool = false
-) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var cards_result := loader.load_document(
-		String(paths.get("cards", DEFAULT_CARDS_PATH)),
-		String(paths.get("cards_schema", DEFAULT_CARDS_SCHEMA_PATH))
-	)
-	if not cards_result.ok:
-		return _with_stage(cards_result, &"cards")
-	var enemies_result := loader.load_document(
-		String(paths.get("enemies", DEFAULT_ENEMIES_PATH)),
-		String(paths.get("enemies_schema", DEFAULT_ENEMIES_SCHEMA_PATH))
-	)
-	if not enemies_result.ok:
-		return _with_stage(enemies_result, &"enemies")
-	var encounters_result := loader.load_document(
-		String(paths.get("encounters", DEFAULT_ENCOUNTERS_PATH)),
-		String(paths.get("encounters_schema", DEFAULT_ENCOUNTERS_SCHEMA_PATH))
-	)
-	if not encounters_result.ok:
-		return _with_stage(encounters_result, &"encounters")
-	var balance_result := loader.load_document(
-		String(paths.get("balance", DEFAULT_V04_BALANCE_PATH)),
-		String(paths.get("balance_schema", DEFAULT_V04_BALANCE_SCHEMA_PATH))
-	)
-	if not balance_result.ok:
-		return _with_stage(balance_result, &"balance")
-	var progression_result := loader.load_document(
-		String(paths.get("progression", DEFAULT_PROGRESSION_PATH)),
-		String(paths.get("progression_schema", DEFAULT_PROGRESSION_SCHEMA_PATH))
-	)
-	if not progression_result.ok:
-		return _with_stage(progression_result, &"progression")
-
-	var catalog := CampaignContentCatalogScript.new()
-	var catalog_result := catalog.load_from_documents(
-		cards_result.data,
-		enemies_result.data,
-		encounters_result.data
-	)
-	if not catalog_result.ok:
-		return _with_stage(catalog_result, &"catalog")
-	var progression_version := String(
-		progression_result.data.get("content_version", "")
-	)
-	var balance_version := String(balance_result.data.get("content_version", ""))
-	if progression_version != balance_version:
-		return InfrastructureResultScript.failure(
-			&"progression_content_version_mismatch",
-			"Progression content and global balance must share content_version.",
-			{
-				"progression_version": progression_version,
-				"balance_version": balance_version,
-			}
-		)
-	var base_cards_version := String(
-		progression_result.data.get("base_cards_version", "")
-	)
-	if base_cards_version != catalog.content_version:
-		return InfrastructureResultScript.failure(
-			&"progression_base_cards_version_mismatch",
-			"Progression content must reference the loaded base card version.",
-			{
-				"base_cards_version": base_cards_version,
-				"catalog_version": catalog.content_version,
-			}
-		)
-
-	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", []),
-		cards_result.data.get("synergies", [])
-	)
-	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
-		balance_result.data
-	)
-	var progression_content: ProgressionContentPort = (
-		ProgressionContentAdapterScript.new(
-			progression_result.data,
-			battle_content
-		)
-	)
-
-	var save_directory := String(
-		paths.get("save_directory", AtomicSaveService.DEFAULT_DIRECTORY)
-	)
-	var save_service := SaveMigrationsScript.create_v04_service(save_directory)
-	var selected_seed := run_seed
-	var selected_encounter := encounter_id
-	var progression_state: Dictionary = {}
-
-	if resume_from_checkpoint:
-		var loaded := save_service.load_slot(checkpoint_slot)
-		if not loaded.ok:
-			return InfrastructureResultScript.failure(
-				&"campaign_checkpoint_unavailable",
-				"Campaign checkpoint could not be loaded.",
-				{
-					"cause": String(loaded.code),
-					"cause_message": loaded.message,
-					"cause_details": loaded.details,
-				}
-			)
-		var envelope: Dictionary = loaded.data
-		selected_seed = int(envelope.get("rng_seed", run_seed))
-		var run_data: Dictionary = envelope.get("run", {})
-		var saved_encounter := String(run_data.get("encounter_id", ""))
-		if not saved_encounter.is_empty():
-			selected_encounter = StringName(saved_encounter)
-		var saved_progression: Variant = envelope.get("progression", {})
-		if saved_progression is Dictionary:
-			progression_state = saved_progression.duplicate(true)
-		if bool(progression_state.get("migrated_from_v1", false)):
-			progression_state = {}
-
-	if selected_encounter.is_empty():
-		selected_encounter = StringName(catalog.default_encounter_id())
-	if selected_encounter.is_empty() or not catalog.has_encounter(selected_encounter):
-		return InfrastructureResultScript.failure(
-			&"campaign_encounter_invalid",
-			"Campaign encounter is missing or unknown.",
-			{"encounter_id": String(selected_encounter)}
-		)
-
-	var services := create_services(selected_seed)
-	services.saves = save_service
-	services.catalog = catalog
-	var progression_engine := ProgressionEngine.new(
-		progression_content,
-		global_balance,
-		services.create_battle_random(&"gacha.draw")
-	)
-	var initialized := progression_engine.initialize(progression_state)
-	if not initialized.accepted:
-		return InfrastructureResultScript.failure(
-			&"progression_initialization_failed",
-			"Persistent progression could not be initialized.",
-			{
-				"reason_code": String(initialized.reason_code),
-				"snapshot": initialized.snapshot.to_dictionary(),
-			}
-		)
-
-	var campaign := CampaignSessionScript.new(
-		services,
-		catalog,
-		battle_content,
-		global_balance,
-		progression_content,
-		progression_engine,
-		selected_seed,
-		selected_encounter,
-		checkpoint_slot
-	)
-	return InfrastructureResultScript.success(
-		campaign,
-		{
-			"encounter_id": String(selected_encounter),
-			"resumed": resume_from_checkpoint,
-		}
-	)
-
-
-static func inspect_checkpoint(
-	save_slot: String = "checkpoint",
-	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
-) -> InfrastructureResult:
-	var service := SaveMigrationsScript.create_v04_service(save_directory)
-	var slot_info := service.inspect_slot(save_slot)
-	if not slot_info.ok:
-		return slot_info
-	if not bool(slot_info.data.get("has_save", false)):
-		return InfrastructureResultScript.success({
-			"status": "none",
-			"checkpoint": null,
-			"backup_available": bool(slot_info.data.get("has_backup", false)),
-		})
-	var loaded := service.load_slot(save_slot)
-	if not loaded.ok:
-		return InfrastructureResultScript.success({
-			"status": "corrupt",
-			"checkpoint": null,
-			"error_code": String(loaded.code),
-			"message": loaded.message,
-			"backup_available": bool(loaded.details.get("backup_available", false)),
-		})
-	return InfrastructureResultScript.success({
-		"status": "loaded",
-		"checkpoint": _checkpoint_summary(loaded.data),
-		"backup_available": bool(slot_info.data.get("has_backup", false)),
-	})
-
-
-static func start_route(
-	run_seed: int,
-	paths: Dictionary = {},
-	checkpoint_slot: String = "checkpoint",
-	resume_from_checkpoint: bool = false
-) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var cards_result := loader.load_document(
-		String(paths.get("cards", DEFAULT_CARDS_PATH)),
-		String(paths.get("cards_schema", DEFAULT_CARDS_SCHEMA_PATH))
-	)
-	if not cards_result.ok:
-		return _with_stage(cards_result, &"cards")
-	var enemies_result := loader.load_document(
-		String(paths.get("enemies", DEFAULT_V05_ENEMIES_PATH)),
-		String(paths.get("enemies_schema", DEFAULT_V05_ENEMIES_SCHEMA_PATH))
-	)
-	if not enemies_result.ok:
-		return _with_stage(enemies_result, &"enemies")
-	var encounters_result := loader.load_document(
-		String(paths.get("encounters", DEFAULT_V05_ENCOUNTERS_PATH)),
-		String(paths.get("encounters_schema", DEFAULT_V05_ENCOUNTERS_SCHEMA_PATH))
-	)
-	if not encounters_result.ok:
-		return _with_stage(encounters_result, &"encounters")
-	var routes_result := loader.load_document(
-		String(paths.get("routes", DEFAULT_V05_ROUTES_PATH)),
-		String(paths.get("routes_schema", DEFAULT_V05_ROUTES_SCHEMA_PATH))
-	)
-	if not routes_result.ok:
-		return _with_stage(routes_result, &"routes")
-	var rituals_result := loader.load_document(
-		String(paths.get("rituals", DEFAULT_V05_RITUALS_PATH)),
-		String(paths.get("rituals_schema", DEFAULT_V05_RITUALS_SCHEMA_PATH))
-	)
-	if not rituals_result.ok:
-		return _with_stage(rituals_result, &"rituals")
-	var balance_result := loader.load_document(
-		String(paths.get("balance", DEFAULT_V05_BALANCE_PATH)),
-		String(paths.get("balance_schema", DEFAULT_V05_BALANCE_SCHEMA_PATH))
-	)
-	if not balance_result.ok:
-		return _with_stage(balance_result, &"balance")
-	var progression_result := loader.load_document(
-		String(paths.get("progression", DEFAULT_PROGRESSION_PATH)),
-		String(paths.get("progression_schema", DEFAULT_PROGRESSION_SCHEMA_PATH))
-	)
-	if not progression_result.ok:
-		return _with_stage(progression_result, &"progression")
-
-	var catalog := CampaignContentCatalogScript.new()
-	var catalog_result := catalog.load_from_documents(
-		cards_result.data,
-		enemies_result.data,
-		encounters_result.data
-	)
-	if not catalog_result.ok:
-		return _with_stage(catalog_result, &"catalog")
-	var route_content := RouteContentAdapterScript.new(
-		routes_result.data,
-		rituals_result.data,
-		catalog
-	)
-	if not route_content.is_valid():
-		return InfrastructureResultScript.failure(
-			&"route_content_invalid",
-			"Route and ritual content references are invalid.",
-			{"errors": route_content.validation_errors()}
-		)
-	if String(routes_result.data.get("content_version", "")) != String(
-		rituals_result.data.get("content_version", "")
-	):
-		return InfrastructureResultScript.failure(
-			&"route_ritual_version_mismatch",
-			"Routes and rituals must share content_version."
-		)
-	var progression_base_cards := String(
-		progression_result.data.get("base_cards_version", "")
-	)
-	if progression_base_cards != catalog.cards_content_version:
-		return InfrastructureResultScript.failure(
-			&"progression_base_cards_version_mismatch",
-			"Progression content must reference the loaded base card version.",
-			{
-				"base_cards_version": progression_base_cards,
-				"catalog_cards_version": catalog.cards_content_version,
-			}
-		)
-	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", []),
-		cards_result.data.get("synergies", [])
-	)
-	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
-		balance_result.data
-	)
-	var progression_content: ProgressionContentPort = (
-		ProgressionContentAdapterScript.new(
-			progression_result.data,
-			battle_content
-		)
-	)
-	var save_directory := String(
-		paths.get("save_directory", AtomicSaveService.DEFAULT_DIRECTORY)
-	)
-	var save_service := SaveMigrationsScript.create_v06_service(save_directory)
-	var selected_seed := run_seed
-	var progression_state: Dictionary = {}
-	var route_state: Dictionary = {}
-	if resume_from_checkpoint:
-		var loaded := save_service.load_slot(checkpoint_slot)
-		if not loaded.ok:
-			return InfrastructureResultScript.failure(
-				&"route_checkpoint_unavailable",
-				"Route checkpoint could not be loaded.",
-				{
-					"cause": String(loaded.code),
-					"cause_message": loaded.message,
-					"cause_details": loaded.details,
-				}
-			)
-		var envelope: Dictionary = loaded.data
-		selected_seed = int(envelope.get("rng_seed", run_seed))
-		var saved_progression: Variant = envelope.get("progression", {})
-		if saved_progression is Dictionary:
-			progression_state = saved_progression.duplicate(true)
-		var saved_route: Variant = envelope.get("route", {})
-		if (
-			bool(paths.get("restore_route_state", true))
-			and saved_route is Dictionary
-			and bool(saved_route.get("initialized", false))
-		):
-			var stored_state: Variant = saved_route.get("state", {})
-			if stored_state is Dictionary:
-				route_state = stored_state.duplicate(true)
-
-	var services := create_services(selected_seed)
-	services.saves = save_service
-	services.catalog = catalog
-	var progression_engine := ProgressionEngine.new(
-		progression_content,
-		global_balance,
-		services.create_battle_random(&"gacha.draw")
-	)
-	var initialized_progression := progression_engine.initialize(progression_state)
-	if not initialized_progression.accepted:
-		return InfrastructureResultScript.failure(
-			&"progression_initialization_failed",
-			"Persistent progression could not be initialized.",
-			{
-				"reason_code": String(initialized_progression.reason_code),
-				"snapshot": initialized_progression.snapshot.to_dictionary(),
-			}
-		)
-	var session := RouteSessionScript.new(
-		services,
-		catalog,
-		battle_content,
-		global_balance,
-		progression_content,
-		progression_engine,
-		route_content,
-		selected_seed,
-		checkpoint_slot
-	)
-	var initialized_route := session.initialize(route_state)
-	if not initialized_route.ok:
-		return initialized_route
-	return InfrastructureResultScript.success(
-		session,
-		{
-			"resumed": resume_from_checkpoint,
-			"route_id": String(route_content.get_default_route_id()),
-			"content_version": "v0.6.0",
-		}
-	)
 
 
 static func get_route_previews_v07(
@@ -644,61 +115,16 @@ static func start_route_v07(
 	checkpoint_slot: String = "checkpoint",
 	resume_from_checkpoint: bool = false
 ) -> InfrastructureResult:
-	var loader := JsonDocumentLoaderScript.new()
-	var cards_result := loader.load_document(
-		String(paths.get("cards", DEFAULT_V07_CARDS_PATH)),
-		String(paths.get("cards_schema", DEFAULT_V07_CARDS_SCHEMA_PATH))
-	)
-	if not cards_result.ok:
-		return _with_stage(cards_result, &"cards")
-	var enemies_result := loader.load_document(
-		String(paths.get("enemies", DEFAULT_V07_ENEMIES_PATH)),
-		String(paths.get("enemies_schema", DEFAULT_V07_ENEMIES_SCHEMA_PATH))
-	)
-	if not enemies_result.ok:
-		return _with_stage(enemies_result, &"enemies")
-	var encounters_result := loader.load_document(
-		String(paths.get("encounters", DEFAULT_V07_ENCOUNTERS_PATH)),
-		String(paths.get("encounters_schema", DEFAULT_V07_ENCOUNTERS_SCHEMA_PATH))
-	)
-	if not encounters_result.ok:
-		return _with_stage(encounters_result, &"encounters")
-	var routes_result := loader.load_document(
-		String(paths.get("routes", DEFAULT_V07_ROUTES_PATH)),
-		String(paths.get("routes_schema", DEFAULT_V07_ROUTES_SCHEMA_PATH))
-	)
-	if not routes_result.ok:
-		return _with_stage(routes_result, &"routes")
-	var rituals_result := loader.load_document(
-		String(paths.get("rituals", DEFAULT_V07_RITUALS_PATH)),
-		String(paths.get("rituals_schema", DEFAULT_V07_RITUALS_SCHEMA_PATH))
-	)
-	if not rituals_result.ok:
-		return _with_stage(rituals_result, &"rituals")
-	var balance_result := loader.load_document(
-		String(paths.get("balance", DEFAULT_V07_BALANCE_PATH)),
-		String(paths.get("balance_schema", DEFAULT_V07_BALANCE_SCHEMA_PATH))
-	)
-	if not balance_result.ok:
-		return _with_stage(balance_result, &"balance")
-	var progression_result := loader.load_document(
-		String(paths.get("progression", DEFAULT_V07_PROGRESSION_PATH)),
-		String(paths.get("progression_schema", DEFAULT_V07_PROGRESSION_SCHEMA_PATH))
-	)
-	if not progression_result.ok:
-		return _with_stage(progression_result, &"progression")
-	var deck_result := loader.load_document(
-		String(paths.get("decks", DEFAULT_DECK_PATH)),
-		String(paths.get("decks_schema", DEFAULT_DECK_SCHEMA_PATH))
-	)
-	if not deck_result.ok:
-		return _with_stage(deck_result, &"decks")
+	var loaded_documents := _load_v07_documents(paths)
+	if not loaded_documents.ok:
+		return loaded_documents
+	var documents: Dictionary = loaded_documents.data
 
 	var catalog := CampaignContentCatalogScript.new()
 	var catalog_result := catalog.load_from_documents(
-		cards_result.data,
-		enemies_result.data,
-		encounters_result.data
+		documents.cards,
+		documents.enemies,
+		documents.encounters
 	)
 	if not catalog_result.ok:
 		return _with_stage(catalog_result, &"catalog")
@@ -709,8 +135,8 @@ static func start_route_v07(
 		)
 
 	var route_content := RouteContentAdapterScript.new(
-		routes_result.data,
-		rituals_result.data,
+		documents.routes,
+		documents.rituals,
 		catalog
 	)
 	if not route_content.is_valid():
@@ -720,15 +146,15 @@ static func start_route_v07(
 			{"errors": route_content.validation_errors()}
 		)
 	var battle_content: BattleContentPort = BattleContentAdapterScript.new(
-		cards_result.data.get("cards", []),
-		cards_result.data.get("synergies", [])
+		documents.cards.get("cards", []),
+		documents.cards.get("synergies", [])
 	)
 	var global_balance: BattleBalancePort = BattleBalanceAdapterScript.new(
-		balance_result.data
+		documents.balance
 	)
 	var progression_content: ProgressionContentPort = (
 		ProgressionContentAdapterScript.new(
-			progression_result.data,
+			documents.progression,
 			battle_content
 		)
 	)
@@ -741,13 +167,13 @@ static func start_route_v07(
 				"cards": catalog.cards_content_version,
 			}
 		)
-	if deck_result.data.get("content_version", "") != "v0.7.0":
+	if documents.decks.get("content_version", "") != "v0.7.0":
 		return InfrastructureResultScript.failure(
 			&"deck_content_version_mismatch",
 			"Deck content must use v0.7.0."
 		)
 	var deck_content := DeckContentAdapterScript.new(
-		deck_result.data,
+		documents.decks,
 		battle_content
 	)
 	if not deck_content.is_valid():
@@ -915,182 +341,6 @@ static func start_route_v07(
 	)
 
 
-static func start_challenge(
-	run_seed: int,
-	paths: Dictionary = {},
-	checkpoint_slot: String = "checkpoint",
-	resume_from_checkpoint: bool = false,
-	start_fresh_challenge: bool = false
-) -> InfrastructureResult:
-	var base_result := start_route(
-		run_seed,
-		paths,
-		checkpoint_slot,
-		true
-	)
-	if not base_result.ok and not resume_from_checkpoint:
-		base_result = start_route(
-			run_seed,
-			paths,
-			checkpoint_slot,
-			false
-		)
-	if not base_result.ok:
-		return _with_stage(base_result, &"challenge_base_route")
-	var base_session: RouteSession = base_result.data
-	var loader := JsonDocumentLoaderScript.new()
-	var challenge_result := loader.load_document(
-		String(paths.get("challenges", DEFAULT_CHALLENGE_PATH)),
-		String(
-			paths.get(
-				"challenges_schema",
-				DEFAULT_CHALLENGE_SCHEMA_PATH
-			)
-		)
-	)
-	if not challenge_result.ok:
-		return _with_stage(challenge_result, &"challenges")
-	var challenge_content := ChallengeContentAdapterScript.new(
-		challenge_result.data,
-		base_session.catalog,
-		base_session.route_content,
-		base_session.progression_content
-	)
-	if not challenge_content.is_valid():
-		return InfrastructureResultScript.failure(
-			&"challenge_content_invalid",
-			"Challenge content failed reference validation.",
-			{"errors": challenge_content.validation_errors()}
-		)
-	var selected_challenge_id := StringName(
-		paths.get(
-			"challenge_id",
-			String(challenge_content.get_default_challenge_id())
-		)
-	)
-	if not challenge_content.has_challenge(selected_challenge_id):
-		return InfrastructureResultScript.failure(
-			&"challenge_not_found",
-			"Requested challenge does not exist.",
-			{"challenge_id": String(selected_challenge_id)}
-		)
-
-	var challenge_state: Dictionary = {}
-	var reward_applied := false
-	var saved_sequence_state: Dictionary = {}
-	var save_service := SaveMigrationsScript.create_v06_service(
-		String(
-			paths.get(
-				"save_directory",
-				AtomicSaveService.DEFAULT_DIRECTORY
-			)
-		)
-	)
-	var saved := save_service.load_slot(checkpoint_slot)
-	if resume_from_checkpoint:
-		if not saved.ok:
-			return InfrastructureResultScript.failure(
-				&"challenge_checkpoint_unavailable",
-				"Challenge checkpoint could not be loaded.",
-				{
-					"cause": String(saved.code),
-					"cause_message": saved.message,
-					"cause_details": saved.details,
-				}
-			)
-	elif not saved.ok:
-		saved = InfrastructureResultScript.success({})
-	if not start_fresh_challenge and saved.ok and saved.data is Dictionary:
-		var envelope: Dictionary = saved.data
-		var saved_challenge: Variant = envelope.get("challenge", {})
-		if saved_challenge is Dictionary:
-			var state_value: Variant = saved_challenge.get("state", {})
-			if state_value is Dictionary:
-				challenge_state = state_value.duplicate(true)
-			reward_applied = bool(
-				saved_challenge.get("reward_applied", false)
-			)
-			var sequence_value: Variant = saved_challenge.get(
-				"sequence_state",
-				{}
-			)
-			if sequence_value is Dictionary:
-				saved_sequence_state = sequence_value.duplicate(true)
-
-	var sequence_data := (
-		saved_sequence_state
-		if not saved_sequence_state.is_empty()
-		else base_session.get_sequence_state().to_dictionary()
-	)
-	var explicit_sequence: Variant = paths.get("sequence_state", {})
-	if explicit_sequence is Dictionary and not explicit_sequence.is_empty():
-		sequence_data = explicit_sequence.duplicate(true)
-	var session := ChallengeSessionScript.new(
-		base_session.services,
-		base_session.catalog,
-		base_session.base_content,
-		base_session.balance,
-		base_session.progression_content,
-		base_session.progression,
-		base_session.route_content,
-		challenge_content,
-		selected_challenge_id,
-		sequence_data,
-		int(base_session.root_seed),
-		checkpoint_slot
-	)
-	var initialized := session.initialize(
-		challenge_state,
-		reward_applied
-	)
-	if not initialized.ok:
-		return initialized
-	return InfrastructureResultScript.success(
-		session,
-		{
-			"resumed": resume_from_checkpoint,
-			"challenge_id": String(selected_challenge_id),
-			"content_version": "v0.6.0",
-			"unlocked": bool(
-				session.get_challenge_snapshot().data.get(
-					"unlocked",
-					false
-				)
-			),
-		}
-	)
-
-
-static func inspect_route_checkpoint(
-	save_slot: String = "checkpoint",
-	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
-) -> InfrastructureResult:
-	var service := SaveMigrationsScript.create_v06_service(save_directory)
-	var slot_info := service.inspect_slot(save_slot)
-	if not slot_info.ok:
-		return slot_info
-	if not bool(slot_info.data.get("has_save", false)):
-		return InfrastructureResultScript.success({
-			"status": "none",
-			"checkpoint": null,
-			"backup_available": bool(slot_info.data.get("has_backup", false)),
-		})
-	var loaded := service.load_slot(save_slot)
-	if not loaded.ok:
-		return InfrastructureResultScript.success({
-			"status": "corrupt",
-			"checkpoint": null,
-			"error_code": String(loaded.code),
-			"message": loaded.message,
-			"backup_available": bool(loaded.details.get("backup_available", false)),
-		})
-	return InfrastructureResultScript.success({
-		"status": "loaded",
-		"checkpoint": _checkpoint_summary(loaded.data),
-		"backup_available": bool(slot_info.data.get("has_backup", false)),
-	})
-
-
 static func inspect_route_checkpoint_v07(
 	save_slot: String = "checkpoint",
 	save_directory: String = AtomicSaveService.DEFAULT_DIRECTORY
@@ -1130,31 +380,16 @@ static func start_challenge_v07(
 ) -> InfrastructureResult:
 	var base_paths: Dictionary = paths.duplicate(true)
 	base_paths["restore_route_state"] = false
-	var base_result := start_route_v07(
-		run_seed,
-		base_paths,
-		checkpoint_slot,
-		true
-	)
+	var base_result := start_route_v07(run_seed, base_paths, checkpoint_slot, true)
 	if not base_result.ok and not resume_from_checkpoint:
-		base_result = start_route_v07(
-			run_seed,
-			base_paths,
-			checkpoint_slot,
-			false
-		)
+		base_result = start_route_v07(run_seed, base_paths, checkpoint_slot, false)
 	if not base_result.ok:
 		return _with_stage(base_result, &"challenge_base_route")
 	var base_session: RouteSession = base_result.data
 	var loader := JsonDocumentLoaderScript.new()
 	var challenge_result := loader.load_document(
 		String(paths.get("challenges", DEFAULT_V07_CHALLENGE_PATH)),
-		String(
-			paths.get(
-				"challenges_schema",
-				DEFAULT_V07_CHALLENGE_SCHEMA_PATH
-			)
-		)
+		String(paths.get("challenges_schema", DEFAULT_V07_CHALLENGE_SCHEMA_PATH))
 	)
 	if not challenge_result.ok:
 		return _with_stage(challenge_result, &"challenges")
@@ -1270,10 +505,6 @@ static func start_challenge_v07(
 			),
 		}
 	)
-
-
-static func checkpoint_summary(envelope: Dictionary) -> Dictionary:
-	return _checkpoint_summary(envelope)
 
 
 static func _build_test_progression_state(deck_content) -> Dictionary:
@@ -1434,6 +665,21 @@ static func _checkpoint_summary(envelope: Dictionary) -> Dictionary:
 		"completed_challenge_ids": completed_challenges.duplicate(),
 		"last_battle": last_battle.duplicate(true),
 	}
+
+
+static func _load_v07_documents(paths: Dictionary) -> InfrastructureResult:
+	var loader := JsonDocumentLoaderScript.new()
+	var documents := {}
+	for spec in V07_DOCUMENTS:
+		var key: String = spec[0]
+		var loaded := loader.load_document(
+			String(paths.get(key, spec[1])),
+			String(paths.get(key + "_schema", spec[2]))
+		)
+		if not loaded.ok:
+			return _with_stage(loaded, StringName(key))
+		documents[key] = loaded.data
+	return InfrastructureResultScript.success(documents)
 
 
 static func _with_stage(result: InfrastructureResult, stage: StringName) -> InfrastructureResult:

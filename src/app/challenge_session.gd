@@ -348,17 +348,13 @@ func begin_challenge_battle(preferred_node_id: StringName = &"") -> Infrastructu
 				"Confirm an eight-card deck before entering a challenge."
 			)
 	_battle_session = GameSessionScript.new(
-		services,
 		catalog,
 		base_content,
 		balance,
 		services.create_battle_random(&"challenge.battle.shuffle"),
 		root_seed,
 		encounter_id,
-		checkpoint_slot,
 		progression,
-		content_version,
-		false,
 		route_player_state,
 		true,
 		_challenge_engine,

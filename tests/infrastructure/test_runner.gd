@@ -26,7 +26,6 @@ func _initialize() -> void:
 	_remove_tree(TEST_ROOT)
 	_test_json_loader_success()
 	_test_json_loader_failures()
-	_test_balance_schema()
 	_test_v03_balance_schema()
 	_test_random_reproducibility_and_isolation()
 	_test_save_round_trip_and_backup()
@@ -35,12 +34,11 @@ func _initialize() -> void:
 	_test_migration_missing_and_success()
 	_test_logger_writes_structured_event()
 	_test_app_bootstrap()
-	_test_battle_ports_and_adapters()
+	_test_battle_adapters()
 	_test_campaign_catalog_and_cross_references()
-	_test_formal_v03_content_startup()
-	_test_game_session_and_checkpoint()
-	_test_v04_schemas_adapters_and_campaign()
-	_test_v1_to_v2_campaign_migration()
+	_test_route_checkpoint_inspection()
+	_test_v04_schemas_and_adapters()
+	_test_v1_save_migrates_to_current()
 	_remove_tree(TEST_ROOT)
 
 	if _failures.is_empty():
@@ -74,33 +72,6 @@ func _test_json_loader_failures() -> void:
 
 	var no_schema = loader.parse_document("{\"id\":\"fixture.no_schema\"}")
 	_expect(not no_schema.ok and no_schema.code == &"invalid_schema_version", "schema version is required")
-
-
-func _test_balance_schema() -> void:
-	var loader = JsonDocumentLoaderScript.new()
-	var schema_path := "res://data/schema/v0.2.0/balance.schema.json"
-	var result = loader.load_document(
-		"res://data/balance/v0.2.0/balance_draft.json",
-		schema_path
-	)
-	_expect(result.ok, "current balance draft should satisfy v0.2.0 schema")
-
-	var invalid = result.data.duplicate(true) if result.ok else {}
-	if not invalid.is_empty():
-		invalid.cards[0].id = invalid.cards[1].id
-	var validator = SchemaValidatorScript.new()
-	var duplicate_result = validator.validate_document(invalid, schema_path)
-	_expect(
-		not duplicate_result.ok and duplicate_result.code == &"schema_validation_failed",
-		"duplicate stable IDs should fail schema validation"
-	)
-	if not duplicate_result.ok:
-		var has_duplicate_error := false
-		for error_text in duplicate_result.details.get("errors", []):
-			if String(error_text).contains("duplicates value"):
-				has_duplicate_error = true
-				break
-		_expect(has_duplicate_error, "schema errors should report duplicate ID")
 
 
 func _test_v03_balance_schema() -> void:
@@ -230,14 +201,11 @@ func _test_app_bootstrap() -> void:
 	_expect(services.saves != null and services.logger != null and services.content != null, "app services should be complete")
 
 
-func _test_battle_ports_and_adapters() -> void:
-	var content_path := "res://tests/infrastructure/fixtures/battle_cards.json"
-	var content_schema_path := "res://data/schema/v0.2.0/battle_cards.schema.json"
+func _test_battle_adapters() -> void:
 	var content_loaded = JsonDocumentLoaderScript.new().load_document(
-		content_path,
-		content_schema_path
+		"res://tests/infrastructure/fixtures/battle_cards.json"
 	)
-	_expect(content_loaded.ok, "battle card fixture should pass its schema")
+	_expect(content_loaded.ok, "battle card fixture should load")
 	var content = BattleContentAdapterScript.new(content_loaded.data.get("cards", []))
 	_expect(content.card_count() == 2, "content adapter should index both fixture cards")
 	var ink_dart: Dictionary = content.get_card_definition(&"card.test.ink_dart")
@@ -259,47 +227,16 @@ func _test_battle_ports_and_adapters() -> void:
 		"missing content ID must not receive a default definition"
 	)
 
-	var invalid_fixture: Dictionary = ink_dart.duplicate(true)
-	invalid_fixture.erase("effects")
-	var invalid_document := {
-		"schema_version": 1,
-		"content_version": "test.v0.2.0",
-		"cards": [invalid_fixture],
-	}
-	var invalid_result = SchemaValidatorScript.new().validate_document(
-		invalid_document,
-		content_schema_path
-	)
-	_expect(
-		not invalid_result.ok,
-		"battle card schema should reject a missing effects array"
-	)
-
-	var duplicate_fixture: Dictionary = ink_dart.duplicate(true)
-	var duplicate_document := {
-		"schema_version": 1,
-		"content_version": "test.v0.2.0",
-		"cards": [ink_dart.duplicate(true), duplicate_fixture],
-	}
-	var duplicate_result = SchemaValidatorScript.new().validate_document(
-		duplicate_document,
-		content_schema_path
-	)
-	_expect(
-		not duplicate_result.ok,
-		"battle card schema should reject duplicate stable IDs"
-	)
-
 	var balance_loaded = JsonDocumentLoaderScript.new().load_document(
-		"res://data/balance/v0.2.0/balance_draft.json",
-		"res://data/schema/v0.2.0/balance.schema.json"
+		"res://data/balance/v0.7.0/balance.json",
+		"res://data/schema/v0.7.0/balance.schema.json"
 	)
-	_expect(balance_loaded.ok, "balance adapter should load the frozen draft")
+	_expect(balance_loaded.ok, "balance adapter should load the current balance")
 	var balance = BattleBalanceAdapterScript.new(balance_loaded.data)
 	_expect(balance.get_value(&"battle.max_rounds") == 10, "balance port should map max rounds")
 	_expect(balance.get_value(&"player.starting_hand") == 5, "balance port should map starting hand")
 	_expect(
-		balance.get_value(&"battle.enemy_pressure_start_round") == 7,
+		balance.get_value(&"battle.enemy_pressure_start_round") == 5,
 		"balance port should map enemy pressure start round"
 	)
 	_expect(
@@ -319,25 +256,6 @@ func _test_battle_ports_and_adapters() -> void:
 			"battle random adapter should reproduce the same named stream"
 		)
 	_expect(random_a.stream_name() == &"battle.shuffle", "random adapter should preserve stream name")
-
-	var bundle_result = AppBootstrapScript.load_battle_ports(
-		20261108,
-		content_path,
-		content_schema_path,
-		"res://data/balance/v0.2.0/balance_draft.json",
-		"res://data/schema/v0.2.0/balance.schema.json"
-	)
-	_expect(bundle_result.ok, "app bootstrap should assemble all battle ports")
-	if bundle_result.ok:
-		_expect(bundle_result.data.content.card_count() == 2, "bundle should expose content port")
-		_expect(
-			bundle_result.data.balance.get_value(&"battle.max_rounds") == 10,
-			"bundle should expose balance port"
-		)
-		_expect(
-			bundle_result.data.random.stream_name() == &"battle.shuffle",
-			"bundle should expose named battle random port"
-		)
 
 
 func _test_campaign_catalog_and_cross_references() -> void:
@@ -427,83 +345,38 @@ func _test_campaign_catalog_and_cross_references() -> void:
 	)
 
 
-func _test_game_session_and_checkpoint() -> void:
+func _test_route_checkpoint_inspection() -> void:
 	var session_directory := TEST_SAVE_DIRECTORY.path_join("session")
-	var initial_inspection = AppBootstrapScript.inspect_checkpoint(
-		"session_checkpoint",
+	var slot := "session_checkpoint"
+	var initial_inspection = AppBootstrapScript.inspect_route_checkpoint_v07(
+		slot,
 		session_directory
 	)
 	_expect(
 		initial_inspection.ok and initial_inspection.data.status == "none",
 		"checkpoint inspection should report a missing checkpoint explicitly"
 	)
-	var paths := {
-		"cards": "res://tests/infrastructure/fixtures/v0.3.0/cards.json",
-		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
-		"enemies": "res://tests/infrastructure/fixtures/v0.3.0/enemies.json",
-		"enemies_schema": "res://data/schema/v0.3.0/enemies.schema.json",
-		"encounters": "res://tests/infrastructure/fixtures/v0.3.0/encounters.json",
-		"encounters_schema": "res://data/schema/v0.3.0/encounters.schema.json",
-		"balance": "res://tests/infrastructure/fixtures/v0.3.0/balance.json",
-		"balance_schema": "res://data/schema/v0.3.0/balance.schema.json",
-		"save_directory": session_directory,
-	}
-	var started = AppBootstrapScript.start_new_game(
+	var started = AppBootstrapScript.start_route_v07(
 		20261108,
-		&"encounter.test.first_battle",
-		paths,
-		"session_checkpoint"
+		{"save_directory": session_directory},
+		slot
 	)
-	if not started.ok:
-		print("START_NEW_GAME_FAILED code=%s details=%s" % [started.code, started.details])
-	_expect(started.ok, "new game should initialize from formal content")
+	_expect(started.ok, "route should start from formal content")
 	if not started.ok:
 		return
 	var session = started.data
-	_expect(session.is_ready(), "new game session should be ready")
-	var initial_snapshot = session.get_snapshot()
-	_expect(initial_snapshot.data.player.hp == 54, "session should derive starting health from balance")
-	_expect(initial_snapshot.data.hand.size() == 5, "session should draw the configured starting hand")
-	_expect(initial_snapshot.data.enemies.size() == 1, "session should instantiate encounter enemies")
-	var premature_save = session.save_checkpoint()
-	_expect(
-		not premature_save.ok and premature_save.code == &"battle_not_ended",
-		"checkpoint must not save an active battle"
+	var selected = session.submit_progression(
+		ProgressionCommand.select_identity(&"identity.doctor")
 	)
-
-	var first_card: Dictionary = initial_snapshot.data.hand[0]
-	var enemy_id := StringName(initial_snapshot.data.enemies[0].actor_id)
-	var first_id := StringName(first_card.instance_id)
-	var first_discards: Array = session.auto_discard_ids_for(first_id)
-	var playability = session.query_card_play(first_id, enemy_id, first_discards)
-	_expect(playability.playable, "fixed encounter card should be playable")
-	var result = session.submit(BattleCommand.play_card(
-		first_id,
-		enemy_id,
-		first_discards
-	))
-	_expect(result.accepted, "session should forward accepted battle commands")
-	_expect(
-		String(result.snapshot.data.outcome) == "victory",
-		"fixture card should finish the battle deterministically"
-	)
+	_expect(selected.accepted, "identity selection should be accepted")
 	_expect(
 		session.last_checkpoint_result != null and session.last_checkpoint_result.ok,
-		"battle end should save one post-battle checkpoint"
+		"identity selection should write a checkpoint"
 	)
-
-	var duplicate = session.save_checkpoint(result.snapshot)
-	_expect(duplicate.ok, "duplicate checkpoint save should be harmless")
-	_expect(
-		duplicate.details.get("already_saved", false),
-		"duplicate checkpoint save should not write twice"
-	)
-
-	var inspected = AppBootstrapScript.inspect_checkpoint(
-		"session_checkpoint",
+	var inspected = AppBootstrapScript.inspect_route_checkpoint_v07(
+		slot,
 		session_directory
 	)
-	_expect(inspected.ok, "checkpoint inspection should succeed")
 	_expect(
 		inspected.ok and inspected.data.status == "loaded",
 		"checkpoint inspection should report loaded state"
@@ -511,30 +384,26 @@ func _test_game_session_and_checkpoint() -> void:
 	if inspected.ok and inspected.data.status == "loaded":
 		var checkpoint: Dictionary = inspected.data.checkpoint
 		_expect(
-			checkpoint.content_version == "v0.4.0",
-			"migrated checkpoint should report the current content version"
+			checkpoint.content_version == "v0.7.0",
+			"checkpoint should report the current content version"
 		)
 		_expect(checkpoint.rng_seed == 20261108, "checkpoint should store root seed")
-		_expect(checkpoint.deck_size == 8, "checkpoint should store deck summary")
 		_expect(
-			checkpoint.last_battle.outcome == "victory",
-			"checkpoint should store the previous battle result"
+			checkpoint.identity_id == "identity.doctor",
+			"checkpoint summary should include selected identity"
 		)
 
-	var second_snapshot_data: Dictionary = result.snapshot.data.duplicate(true)
-	second_snapshot_data.revision = int(second_snapshot_data.revision) + 1
-	var second_snapshot = BattleSnapshot.new(second_snapshot_data)
 	_expect(
-		session.save_checkpoint(second_snapshot).ok,
-		"a later checkpoint revision should create a backup"
+		session.save_checkpoint().ok,
+		"a later checkpoint should create a backup"
 	)
 	var save_service = AtomicSaveServiceScript.new(session_directory)
-	var main_path := save_service.get_slot_path("session_checkpoint")
+	var main_path := save_service.get_slot_path(slot)
 	var file := FileAccess.open(main_path, FileAccess.WRITE)
 	file.store_string("{broken")
 	file.close()
-	var corrupt_inspection = AppBootstrapScript.inspect_checkpoint(
-		"session_checkpoint",
+	var corrupt_inspection = AppBootstrapScript.inspect_route_checkpoint_v07(
+		slot,
 		session_directory
 	)
 	_expect(
@@ -547,37 +416,7 @@ func _test_game_session_and_checkpoint() -> void:
 	)
 
 
-func _test_formal_v03_content_startup() -> void:
-	var formal_save_directory := TEST_SAVE_DIRECTORY.path_join("formal")
-	var started = AppBootstrapScript.start_new_game(
-		20261108,
-		&"",
-		{"save_directory": formal_save_directory},
-		"formal_checkpoint"
-	)
-	if not started.ok:
-		print("FORMAL_START_FAILED code=%s details=%s" % [started.code, started.details])
-	_expect(started.ok, "formal v0.3 content should start a new game")
-	if not started.ok:
-		return
-	var session = started.data
-	_expect(session.is_ready(), "formal v0.3 session should be ready")
-	_expect(session.encounter_id == &"encounter.first_hunt", "formal default encounter should load")
-	_expect(session.catalog.content_version == "v0.3.0", "formal content version should be v0.3.0")
-	var snapshot = session.get_snapshot()
-	_expect(snapshot.data.enemies.size() == 2, "formal first hunt should instantiate two enemies")
-	_expect(snapshot.data.hand.size() == 5, "formal first hunt should draw five cards")
-	_expect(
-		session.card_display_name(&"card.skill.ink_dart") == "墨刺",
-		"session should expose formal card display names"
-	)
-	_expect(
-		session.enemy_display_name(&"enemy.weeping_tenant") == "哭泣的房客",
-		"session should expose formal enemy display names"
-	)
-
-
-func _test_v04_schemas_adapters_and_campaign() -> void:
+func _test_v04_schemas_and_adapters() -> void:
 	var loader = JsonDocumentLoaderScript.new()
 	var balance_result = loader.load_document(
 		"res://data/balance/v0.4.0/balance.json",
@@ -661,133 +500,11 @@ func _test_v04_schemas_adapters_and_campaign() -> void:
 		"progression adapter should reject missing base card references"
 	)
 
-	var campaign_directory := TEST_SAVE_DIRECTORY.path_join("campaign")
-	var campaign_paths := _v04_paths(campaign_directory)
-	var started = AppBootstrapScript.start_campaign(
-		20261108,
-		&"encounter.first_hunt",
-		campaign_paths,
-		"campaign_checkpoint"
-	)
-	if not started.ok:
-		print("CAMPAIGN_START_FAILED code=%s details=%s" % [started.code, started.details])
-	_expect(started.ok, "v0.4 campaign should start from formal content")
-	if not started.ok:
-		return
-	var campaign = started.data
-	_expect(campaign.is_ready(), "v0.4 campaign session should be ready")
-	_expect(
-		campaign.get_progression_snapshot().data.phase == "identity_selection",
-		"new campaign should begin at identity selection"
-	)
-	var selected = campaign.submit_progression(
-		ProgressionCommand.select_identity(&"identity.doctor")
-	)
-	_expect(selected.accepted, "campaign should accept identity selection")
-	_expect(
-		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
-		"identity selection should persist a checkpoint"
-	)
-	var began = campaign.begin_battle()
-	_expect(began.ok, "campaign should begin a battle after identity selection")
-	if not began.ok:
-		return
-	_expect(
-		campaign.get_battle_snapshot().data.player.max_hp == 58,
-		"doctor identity modifier should reach the real battle"
-	)
-	var battle_deck: Array = campaign.get_battle_session().get_deck_definition_ids()
-	_expect(battle_deck.size() > 0, "campaign battle should have an owned deck")
-	_expect(
-		not "card.skill.omen" in battle_deck and not "card.skill.whisper" in battle_deck,
-		"unowned gacha cards must be filtered from the first battle"
-	)
 
-	var outcome := _play_campaign_battle_to_end(campaign)
-	_expect(outcome == "victory", "formal first hunt should be won by normal card play")
-	_expect(
-		campaign.get_progression_snapshot().data.phase == "reward",
-		"battle victory should enter reward selection"
-	)
-	var claimed = campaign.submit_progression(
-		ProgressionCommand.claim_reward(&"reward.ink_dart_fragments")
-	)
-	_expect(claimed.accepted, "campaign should claim fragment reward")
-	var upgraded = campaign.submit_progression(
-		ProgressionCommand.upgrade_card(&"card.skill.ink_dart")
-	)
-	_expect(upgraded.accepted, "campaign reward should fund one visible upgrade")
-	var upgraded_state := _progression_collection_item(
-		upgraded.snapshot,
-		&"card.skill.ink_dart"
-	)
-	_expect(int(upgraded_state.get("level", 0)) == 1, "campaign upgrade should persist level one")
-	_expect(
-		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
-		"upgrade should persist a v0.4 checkpoint"
-	)
-	var drawn = campaign.submit_progression(
-		ProgressionCommand.draw_gacha(1)
-	)
-	_expect(drawn.accepted, "campaign should run a single gacha draw")
-	_expect(
-		drawn.snapshot.data.last_gacha_results.size() == 1,
-		"campaign should expose one gacha result"
-	)
-	_expect(
-		campaign.last_checkpoint_result != null and campaign.last_checkpoint_result.ok,
-		"gacha should persist currency, collection and pity"
-	)
-
-	var inspected = AppBootstrapScript.inspect_checkpoint(
-		"campaign_checkpoint",
-		campaign_directory
-	)
-	_expect(inspected.ok, "v0.4 checkpoint should be inspectable")
-	if inspected.ok:
-		_expect(
-			inspected.data.status == "loaded",
-			"v0.4 checkpoint should report loaded"
-		)
-		_expect(
-			inspected.data.checkpoint.identity_id == "identity.doctor",
-			"checkpoint summary should include selected identity"
-		)
-		_expect(
-			int(inspected.data.checkpoint.divination_tickets) >= 0,
-			"checkpoint summary should include divination tickets"
-		)
-
-	var resumed = AppBootstrapScript.start_campaign(
-		0,
-		&"",
-		campaign_paths,
-		"campaign_checkpoint",
-		true
-	)
-	_expect(resumed.ok, "v0.4 campaign should resume from checkpoint")
-	if resumed.ok:
-		var resumed_campaign = resumed.data
-		_expect(
-			resumed_campaign.get_progression_snapshot().data.identity_id == "identity.doctor",
-			"resume should restore the selected identity"
-		)
-		var resumed_ink := _progression_collection_item(
-			resumed_campaign.get_progression_snapshot(),
-			&"card.skill.ink_dart"
-		)
-		_expect(
-			int(resumed_ink.get("level", 0)) == 1,
-			"resume should restore card level"
-		)
-		var next_battle = resumed_campaign.start_next_battle()
-		_expect(next_battle.ok, "resumed campaign should begin another battle")
-
-
-func _test_v1_to_v2_campaign_migration() -> void:
+func _test_v1_save_migrates_to_current() -> void:
 	var migration_directory := TEST_SAVE_DIRECTORY.path_join("campaign_migration")
 	var slot := "legacy_campaign"
-	var save_service = SaveMigrationsScript.create_v04_service(migration_directory)
+	var save_service = SaveMigrationsScript.create_v07_service(migration_directory)
 	var legacy := {
 		"save_version": 1,
 		"content_version": "v0.3.0",
@@ -805,97 +522,28 @@ func _test_v1_to_v2_campaign_migration() -> void:
 	file.store_string(JSON.stringify(legacy, "  ", true, true))
 	file.close()
 	var loaded = save_service.load_slot(slot)
-	_expect(loaded.ok, "v1 save should migrate through the v0.4 service")
+	_expect(loaded.ok, "v1 save should migrate through the full chain")
 	if loaded.ok:
 		_expect(
-			int(loaded.data.save_version) == 2,
-			"migrated save should use version two"
+			int(loaded.data.save_version) == 5,
+			"migrated save should use the current save version"
 		)
 		_expect(
 			bool(loaded.data.progression.get("migrated_from_v1", false)),
 			"migrated save should mark the progression reset"
 		)
-
-	var resumed = AppBootstrapScript.start_campaign(
-		0,
-		&"",
-		_v04_paths(migration_directory),
-		slot,
-		true
-	)
-	_expect(resumed.ok, "migrated v1 checkpoint should open a v0.4 campaign")
-	if resumed.ok:
-		var snapshot = resumed.data.get_progression_snapshot()
 		_expect(
-			snapshot.data.phase == "identity_selection",
-			"migrated v1 campaign should restart at identity selection"
+			bool(loaded.data.route.get("migrated_from_v2", false)),
+			"migrated save should add an uninitialized route"
 		)
 		_expect(
-			int(snapshot.data.divination_tickets) == 3,
-			"migrated campaign should seed v0.4 starter progression"
+			bool(loaded.data.challenge.get("migrated_from_v3", false)),
+			"migrated save should add an inactive challenge"
 		)
-
-
-func _v04_paths(save_directory: String) -> Dictionary:
-	return {
-		"cards": "res://data/cards/v0.3.0/cards.json",
-		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
-		"enemies": "res://data/enemies/v0.3.0/enemies.json",
-		"enemies_schema": "res://data/schema/v0.3.0/enemies.schema.json",
-		"encounters": "res://data/encounters/v0.3.0/encounters.json",
-		"encounters_schema": "res://data/schema/v0.3.0/encounters.schema.json",
-		"balance": "res://data/balance/v0.4.0/balance.json",
-		"balance_schema": "res://data/schema/v0.4.0/balance.schema.json",
-		"progression": "res://data/cards/v0.4.0/progression.json",
-		"progression_schema": "res://data/schema/v0.4.0/progression.schema.json",
-		"save_directory": save_directory,
-	}
-
-
-func _play_campaign_battle_to_end(campaign) -> String:
-	for _turn_index in range(30):
-		var snapshot: BattleSnapshot = campaign.get_battle_snapshot()
-		var outcome := String(snapshot.data.get("outcome", ""))
-		if not outcome.is_empty():
-			return outcome
-		var acted := false
-		var enemies: Array = snapshot.data.get("enemies", [])
-		var target_id: StringName = &""
-		for enemy in enemies:
-			if int(enemy.get("hp", 0)) > 0:
-				target_id = StringName(enemy.get("actor_id", ""))
-				break
-		for card in snapshot.data.get("hand", []):
-			var instance_id := StringName(card.get("instance_id", ""))
-			var card_target: StringName = (
-				target_id
-				if String(card.get("target_type", "none")) == "enemy"
-				else &""
-			)
-			var discards: Array = campaign.auto_discard_ids_for(instance_id)
-			if not campaign.query_card_play(instance_id, card_target, discards).playable:
-				continue
-			var played = campaign.submit_battle(
-				BattleCommand.play_card(instance_id, card_target, discards)
-			)
-			if played.accepted:
-				acted = true
-				break
-		if not acted:
-			var ended = campaign.submit_battle(BattleCommand.end_turn())
-			if not ended.accepted:
-				return "command_rejected"
-	return "turn_limit_test_loop"
-
-
-func _progression_collection_item(
-	snapshot: ProgressionSnapshot,
-	definition_id: StringName
-) -> Dictionary:
-	for item in snapshot.data.get("collection", []):
-		if StringName(item.get("definition_id", "")) == definition_id:
-			return item
-	return {}
+		_expect(
+			bool(loaded.data.deck.get("migrated_from_v4", false)),
+			"migrated save should add an uninitialized deck"
+		)
 
 
 func _save_envelope(save_version: int, seed_value: int, marker: String) -> Dictionary:

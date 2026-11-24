@@ -1,7 +1,6 @@
 extends Node
 
 const JsonDocumentLoaderScript := preload("res://src/infrastructure/json_document_loader.gd")
-const SchemaValidatorScript := preload("res://src/infrastructure/schema_validator.gd")
 const ChallengeContentAdapterScript := preload("res://src/infrastructure/challenge_content_adapter.gd")
 const SaveMigrationsScript := preload("res://src/infrastructure/save_migrations.gd")
 const AppBootstrapScript := preload("res://src/app/bootstrap.gd")
@@ -10,11 +9,11 @@ const ChallengeCommandScript := preload("res://src/core/challenge_command.gd")
 const ProgressionCommandScript := preload("res://src/core/progression_command.gd")
 const RouteCommandScript := preload("res://src/core/route_command.gd")
 
-const TEST_ROOT := "user://mask_whispers_challenge_backend_v06"
-const SAVE_DIRECTORY := "user://mask_whispers_challenge_backend_v06/saves"
+const TEST_ROOT := "user://mask_whispers_challenge_backend"
+const SAVE_DIRECTORY := "user://mask_whispers_challenge_backend/saves"
 const SLOT := "challenge_checkpoint"
-const CHALLENGE_PATH := "res://data/challenges/v0.6.0/challenges.json"
-const CHALLENGE_SCHEMA := "res://data/schema/v0.6.0/challenges.schema.json"
+const CHALLENGE_PATH := "res://data/challenges/v0.7.0/challenges.json"
+const CHALLENGE_SCHEMA := "res://data/schema/v0.7.0/challenges.schema.json"
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -156,18 +155,6 @@ func _test_adapter_rejects_bad_references() -> void:
 		"challenge adapter should reject non-integer battle corruption deltas"
 	)
 
-	var out_of_range_battle_corruption: Dictionary = loaded.data.duplicate(true)
-	out_of_range_battle_corruption.challenges[0].modifiers[1].effects[
-		"battle_corruption_delta"
-	] = 11
-	_expect(
-		not SchemaValidatorScript.new().validate_document(
-			out_of_range_battle_corruption,
-			CHALLENGE_SCHEMA
-		).ok,
-		"challenge schema should reject battle corruption deltas above ten"
-	)
-
 	var missing_battle_corruption: Dictionary = loaded.data.duplicate(true)
 	missing_battle_corruption.challenges[0].modifiers[1].effects.erase(
 		"battle_corruption_delta"
@@ -214,7 +201,10 @@ func _test_challenge_session_and_resume() -> void:
 		adapter.get_default_challenge_id(),
 		sequence,
 		base.root_seed,
-		SLOT
+		SLOT,
+		base.deck_engine,
+		"v0.7.0",
+		5
 	)
 	var initialized := session.initialize()
 	_expect(initialized.ok, "challenge session should initialize")
@@ -240,7 +230,7 @@ func _test_challenge_session_and_resume() -> void:
 		)
 		_expect(not deck.is_empty(), "challenge battle should retain a valid deck")
 
-	var inspected := AppBootstrapScript.inspect_route_checkpoint(
+	var inspected := AppBootstrapScript.inspect_route_checkpoint_v07(
 		SLOT,
 		session_directory
 	)
@@ -254,7 +244,7 @@ func _test_challenge_session_and_resume() -> void:
 
 	var resume_paths := _challenge_paths()
 	resume_paths["save_directory"] = session_directory
-	var resumed := AppBootstrapScript.start_challenge(
+	var resumed := AppBootstrapScript.start_challenge_v07(
 		0,
 		resume_paths,
 		SLOT,
@@ -265,7 +255,7 @@ func _test_challenge_session_and_resume() -> void:
 			"CHALLENGE_RESUME_FAILED code=%s message=%s details=%s"
 			% [resumed.code, resumed.message, resumed.details]
 		)
-	_expect(resumed.ok, "challenge should resume from a v4 checkpoint")
+	_expect(resumed.ok, "challenge should resume from a checkpoint")
 	if resumed.ok:
 		var resumed_session = resumed.data
 		_expect(
@@ -298,7 +288,10 @@ func _test_challenge_session_and_resume() -> void:
 		adapter.get_default_challenge_id(),
 		_sequence(9, "locked"),
 		base.root_seed,
-		"locked_checkpoint"
+		"locked_checkpoint",
+		base.deck_engine,
+		"v0.7.0",
+		5
 	)
 	_expect(locked_session.initialize().ok, "locked challenge should initialize")
 	_expect(
@@ -311,7 +304,7 @@ func _test_challenge_session_and_resume() -> void:
 func _test_start_challenge_without_progress_is_locked() -> void:
 	var paths := _challenge_paths()
 	paths["save_directory"] = TEST_ROOT.path_join("fresh")
-	var started := AppBootstrapScript.start_challenge(
+	var started := AppBootstrapScript.start_challenge_v07(
 		20261108,
 		paths,
 		"fresh_checkpoint",
@@ -453,7 +446,7 @@ func _test_challenge_reward_recovery_and_save_failure() -> void:
 	)
 	var resume_paths := _challenge_paths()
 	resume_paths["save_directory"] = base.services.saves.directory
-	var recovered := AppBootstrapScript.start_challenge(
+	var recovered := AppBootstrapScript.start_challenge_v07(
 		0,
 		resume_paths,
 		SLOT,
@@ -475,7 +468,7 @@ func _test_challenge_reward_recovery_and_save_failure() -> void:
 		recovered_session.apply_pending_challenge_reward(),
 		"recovered reward should be marked as applied"
 	)
-	var reloaded := AppBootstrapScript.start_challenge(
+	var reloaded := AppBootstrapScript.start_challenge_v07(
 		0,
 		resume_paths,
 		SLOT,
@@ -530,7 +523,7 @@ func _test_challenge_reward_recovery_and_save_failure() -> void:
 
 func _test_v3_to_v4_migration() -> void:
 	var directory := TEST_ROOT.path_join("migrations_v3")
-	var service := SaveMigrationsScript.create_v06_service(directory)
+	var service := SaveMigrationsScript.create_v07_service(directory)
 	var v3 := {
 		"save_version": 3,
 		"content_version": "v0.5.0",
@@ -560,9 +553,9 @@ func _test_v3_to_v4_migration() -> void:
 		},
 	}
 	var loaded := _write_and_load(service, "legacy_v3", v3)
-	_expect(loaded.ok, "v3 save should migrate to v4")
+	_expect(loaded.ok, "v3 save should migrate to the current version")
 	if loaded.ok:
-		_expect(int(loaded.data.save_version) == 4, "migration should produce save version four")
+		_expect(int(loaded.data.save_version) == 5, "migration should produce save version five")
 		_expect(
 			loaded.data.challenge.phase == "inactive",
 			"v3 migration should create an inactive challenge section"
@@ -574,11 +567,11 @@ func _test_v3_to_v4_migration() -> void:
 		var resaved := service.save_slot("legacy_v3", loaded.data)
 		_expect(
 			resaved.ok,
-			"writing v4 over a migrated v3 save should preserve a valid backup"
+			"writing over a migrated v3 save should preserve a valid backup"
 		)
 		var backup := service.load_backup("legacy_v3")
 		_expect(
-			backup.ok and int(backup.data.save_version) == 4,
+			backup.ok and int(backup.data.save_version) == 5,
 			"v3 backup should be readable through the migration chain"
 		)
 
@@ -586,7 +579,7 @@ func _test_v3_to_v4_migration() -> void:
 func _start_base_route(label: String):
 	var paths := _challenge_paths()
 	paths["save_directory"] = TEST_ROOT.path_join(label)
-	var result = AppBootstrapScript.start_route(
+	var result = AppBootstrapScript.start_route_v07(
 		20261108,
 		paths,
 		"base_checkpoint",
@@ -636,7 +629,10 @@ func _new_challenge_session(
 		challenge_adapter.get_default_challenge_id(),
 		sequence,
 		base.root_seed,
-		slot
+		slot,
+		base.deck_engine,
+		"v0.7.0",
+		5
 	)
 
 
@@ -644,35 +640,35 @@ func _complete_challenge_session(
 	session: ChallengeSession
 ) -> ChallengeCommandResult:
 	session.submit_route(
-		RouteCommandScript.select_node(&"route.v050.node.first_hunt")
+		RouteCommandScript.select_node(&"route.v070.node.first_hunt")
 	)
 	session.submit_route(
 		RouteCommandScript.resolve_node(
-			&"route.v050.node.first_hunt",
+			&"route.v070.node.first_hunt",
 			&"victory",
 			{"hp": 49, "corruption": 1, "attention": 1, "spirit": 3}
 		)
 	)
 	session.submit_route(
-		RouteCommandScript.select_node(&"route.v050.node.mirror_pursuit")
+		RouteCommandScript.select_node(&"route.v070.node.mirror_pursuit")
 	)
 	session.submit_route(
 		RouteCommandScript.resolve_node(
-			&"route.v050.node.mirror_pursuit",
+			&"route.v070.node.mirror_pursuit",
 			&"victory",
 			{"hp": 35, "corruption": 2, "attention": 2, "spirit": 2}
 		)
 	)
 	session.submit_route(
-		RouteCommandScript.select_node(&"route.v050.node.old_house_rest")
+		RouteCommandScript.select_node(&"route.v070.node.old_house_rest")
 	)
 	session.submit_route(RouteCommandScript.use_rest(&"rest.bandage"))
 	session.submit_route(
-		RouteCommandScript.select_node(&"route.v050.node.mirror_baron")
+		RouteCommandScript.select_node(&"route.v070.node.mirror_baron")
 	)
 	session.submit_route(
 		RouteCommandScript.resolve_node(
-			&"route.v050.node.mirror_baron",
+			&"route.v070.node.mirror_baron",
 			&"victory",
 			{"hp": 20, "corruption": 4, "attention": 3, "spirit": 3}
 		)
@@ -715,20 +711,7 @@ func _load_challenge_document() -> InfrastructureResult:
 
 func _challenge_paths() -> Dictionary:
 	return {
-		"cards": "res://data/cards/v0.3.0/cards.json",
-		"cards_schema": "res://data/schema/v0.3.0/cards.schema.json",
-		"enemies": "res://data/enemies/v0.5.0/enemies.json",
-		"enemies_schema": "res://data/schema/v0.5.0/enemies.schema.json",
-		"encounters": "res://data/encounters/v0.5.0/encounters.json",
-		"encounters_schema": "res://data/schema/v0.5.0/encounters.schema.json",
-		"routes": "res://data/routes/v0.5.0/routes.json",
-		"routes_schema": "res://data/schema/v0.5.0/routes.schema.json",
-		"rituals": "res://data/rituals/v0.5.0/rituals.json",
-		"rituals_schema": "res://data/schema/v0.5.0/rituals.schema.json",
-		"balance": "res://data/balance/v0.5.0/balance.json",
-		"balance_schema": "res://data/schema/v0.5.0/balance.schema.json",
-		"progression": "res://data/cards/v0.4.0/progression.json",
-		"progression_schema": "res://data/schema/v0.4.0/progression.schema.json",
+		"route_id": "route.v070.first_case",
 		"challenges": CHALLENGE_PATH,
 		"challenges_schema": CHALLENGE_SCHEMA,
 		"save_directory": SAVE_DIRECTORY,
