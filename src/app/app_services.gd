@@ -2,6 +2,7 @@ class_name AppServices
 extends RefCounted
 
 const BattleRandomAdapterScript := preload("res://src/infrastructure/battle_random_adapter.gd")
+const SeededRandomAdapterScript := preload("res://src/infrastructure/seeded_random_adapter.gd")
 
 var random: SeededRandomService
 var saves: AtomicSaveService
@@ -21,3 +22,7 @@ func create_battle_random(
 	stream_name_value: StringName = &"battle.shuffle"
 ) -> BattleRandomPort:
 	return BattleRandomAdapterScript.new(random.get_stream(stream_name_value))
+
+
+func create_random(stream_name_value: StringName) -> RandomPort:
+	return SeededRandomAdapterScript.new(random.get_stream(stream_name_value))
