@@ -28,6 +28,15 @@ const PROPS := {
 	"inkwell": "inkwell.png",
 	"quill_pen": "quill-pen.png",
 	"open_journal": "open-journal.png",
+	## Title screen: the main menu reuses the same desk, with the journal shut
+	## instead of open. See art/assets/raster/v0.85.0/title/PROMPTS.md.
+	"title_journal_closed": "title-journal-closed.png",
+	"title_journal_new": "title-journal-new.png",
+	"title_dossier_stack": "title-dossier-stack.png",
+	"title_pocket_watch": "title-pocket-watch.png",
+	"title_candle_snuffer": "title-candle-snuffer.png",
+	"title_note_slip": "title-note-slip.png",
+	"title_desk_wide": "title-desk-wide.png",
 }
 
 ## Diary leaf state -> which token lights up. Mirrors 样板.jpg's rail.

@@ -14,6 +14,7 @@ const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+const CardArt := preload("res://src/ui/card_art_catalog.gd")
 
 const PHASE_NAMES := {
 	"round_start": "回合开始",
@@ -73,40 +74,6 @@ const TRAIT_NAMES := {
 const THREAT_NAMES := {
 	"corruption": "每次攻击污染+2",
 	"attention": "每次攻击被注视+1",
-}
-const CARD_ART_BY_DEFINITION := {
-	&"card.skill.ink_dart": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-ink-dart.png",
-	&"card.skill.paper_guard": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-paper-guard.png",
-	&"card.skill.calm_breath": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-calm-breath.png",
-	&"card.skill.focus": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-focus.png",
-	&"card.skill.insight": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-insight.png",
-	&"card.skill.omen": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-omen.png",
-	&"card.skill.whisper": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-whisper.png",
-	&"card.skill.second_look": "res://assets/game/v0.24.0/v0.3.0/cards/card-skill-second-look.png",
-	&"card.skill.dream_question": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_dream_question.png",
-	&"card.skill.mirror_ward": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_mirror_ward.png",
-	&"card.skill.severed_string": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_severed_string.png",
-	&"card.skill.last_rites": "res://assets/game/v0.24.0/v0.13.0/cards/card_skill_last_rites.png",
-	&"card.skill.veil_step": "res://assets/game/v0.41.0/cards/card_skill_veil_step.png",
-	&"card.skill.severed_fate": "res://assets/game/v0.41.0/cards/card_skill_severed_fate.png",
-	&"card.skill.paper_swarm": "res://assets/game/v0.41.0/cards/card_skill_paper_swarm.png",
-	&"card.skill.mirror_shard": "res://assets/game/v0.41.0/cards/card_skill_mirror_shard.png",
-	&"card.skill.last_witness": "res://assets/game/v0.41.0/cards/card_skill_last_witness.png",
-	&"card.skill.false_death": "res://assets/game/v0.41.0/cards/card_skill_false_death.png",
-	&"card.skill.sealed_answer": "res://assets/game/v0.41.0/cards/card_skill_sealed_answer.png",
-	&"card.skill.hollow_bell": "res://assets/game/v0.41.0/cards/card_skill_hollow_bell.png",
-	&"card.skill.ink_scarlet": "res://assets/game/v0.42.0/cards/card_skill_ink_scarlet.png",
-	&"card.skill.echo_reading": "res://assets/game/v0.42.0/cards/card_skill_echo_reading.png",
-	&"card.skill.midnight_ledger": "res://assets/game/v0.42.0/cards/card_skill_midnight_ledger.png",
-	&"card.skill.borrowed_breath": "res://assets/game/v0.42.0/cards/card_skill_borrowed_breath.png",
-	&"card.skill.glass_thesis": "res://assets/game/v0.42.0/cards/card_skill_glass_thesis.png",
-	&"card.skill.hungry_symbol": "res://assets/game/v0.42.0/cards/card_skill_hungry_symbol.png",
-	&"card.skill.candle_archive": "res://assets/game/v0.42.0/cards/card_skill_candle_archive.png",
-	&"card.skill.omen_chorus": "res://assets/game/v0.42.0/cards/card_skill_omen_chorus.png",
-	&"card.skill.closed_eye": "res://assets/game/v0.42.0/cards/card_skill_closed_eye.png",
-	&"card.skill.black_thread": "res://assets/game/v0.42.0/cards/card_skill_black_thread.png",
-	&"card.skill.eclipse": "res://assets/game/v0.42.0/cards/card_skill_eclipse.png",
-	&"card.skill.red_corridor": "res://assets/game/v0.42.0/cards/card_skill_red_corridor.png",
 }
 const STATUS_ICON_BASE := "res://assets/game/v0.24.0/v0.3.0/status/"
 
@@ -338,8 +305,12 @@ func get_enemy_art_path(definition_id: StringName) -> String:
 
 
 func get_card_art_path(definition_id: StringName) -> String:
-	var direct := String(CARD_ART_BY_DEFINITION.get(definition_id, ""))
-	return direct if not direct.is_empty() else ProgressionCatalog.card_art(String(definition_id))
+	## v0.85 art window first — it is the illustration alone, so it reads far
+	## better than a whole card face shrunk into a 26px strip.
+	var window := CardArt.art_window(String(definition_id))
+	if not window.is_empty():
+		return window
+	return ProgressionCatalog.card_art(String(definition_id))
 
 
 func get_card_effect_text(definition_id: StringName) -> String:
@@ -1711,9 +1682,17 @@ func _build_hand_card(card: Dictionary) -> Control:
 		var art := TextureRect.new()
 		art.name = "CardArt"
 		art.texture = load(art_path) as Texture2D
-		art.custom_minimum_size = Vector2(0, 26)
+		art.custom_minimum_size = Vector2(0, 34)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		## The v0.85 window is a 512x390 illustration: crop it to fill the
+		## strip. A legacy full-card plate must stay letterboxed instead, or
+		## its own frame gets cut off.
+		art.stretch_mode = (
+			TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			if CardArt.has_art_window(String(definition_id))
+			else TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		)
+		art.clip_contents = true
 		art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		art.modulate = Color(0.94, 0.9, 0.78, 0.92)
 		column.add_child(art)

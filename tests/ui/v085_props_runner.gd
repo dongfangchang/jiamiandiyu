@@ -104,6 +104,17 @@ func _ready() -> void:
 		_expect(screen.find_child("Rune%d" % i, true, false) != null, "rune %d button" % i)
 	_expect(screen.find_child("WaxSealHit", true, false) != null, "wax hit present")
 
+	## Repo-wide .import UID uniqueness. Copying art together with its .import
+	## file clones the uid, and Godot then resolves several images to ONE
+	## resource — the art looks delivered but the wrong picture renders. It is
+	## only a warning at import time, so it is easy to ship. Caught in the wild
+	## on the 8 diary chapter plates (all sharing uid://5f63hu8jq632).
+	var seen: Dictionary = {}
+	var dupes: Array[String] = []
+	for root in ["res://assets", "res://art"]:
+		_scan_uids(root, seen, dupes)
+	_expect(dupes.is_empty(), "no duplicate import UIDs (%s)" % str(dupes.slice(0, 4)))
+
 	if _failures.is_empty():
 		print("V085_PROPS_OK checks=%d" % _checks)
 		get_tree().quit(0)
@@ -112,6 +123,35 @@ func _ready() -> void:
 		printerr("V085_PROPS_FAIL: %s" % failure)
 	print("V085_PROPS_FAIL checks=%d failures=%s" % [_checks, str(_failures)])
 	get_tree().quit(1)
+
+
+func _scan_uids(path: String, seen: Dictionary, dupes: Array[String]) -> void:
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while entry != "":
+		var full := "%s/%s" % [path, entry]
+		if dir.current_is_dir():
+			if not entry.begins_with("."):
+				_scan_uids(full, seen, dupes)
+		elif entry.ends_with(".import"):
+			var file := FileAccess.open(full, FileAccess.READ)
+			if file != null:
+				while not file.eof_reached():
+					var line := file.get_line()
+					if line.begins_with("uid="):
+						var uid := line.split("\"")[1] if line.count("\"") >= 2 else ""
+						if not uid.is_empty():
+							if seen.has(uid):
+								dupes.append("%s == %s" % [
+									full.get_file(), String(seen[uid]).get_file()])
+							else:
+								seen[uid] = full
+						break
+		entry = dir.get_next()
+	dir.list_dir_end()
 
 
 func _expect(cond: bool, label: String) -> void:

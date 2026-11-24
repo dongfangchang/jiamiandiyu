@@ -10,6 +10,7 @@ signal test_game_requested
 signal quit_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
+const TitleDeskStage := preload("res://src/ui/title_desk_stage.gd")
 const TITLE_BACKGROUND := "res://assets/game/v0.54.0/scenes/ui-canvas-gothic-rain-night.png"
 
 var _continue_button: Button
@@ -20,6 +21,8 @@ var _version_label: Label
 var _challenge_button: Button
 var _challenge_hint: Label
 var _settings_button: Button
+var _desk: Control
+var _quit_button: Button
 var _restore_backup_button: Button
 var _test_game_button: Button
 var _preferences_status: Label
@@ -43,6 +46,11 @@ var _challenge_available := false
 
 func _ready() -> void:
 	theme = UiTheme.build_theme()
+	## A Control defaults to MOUSE_FILTER_STOP, and this one is full-rect, so
+	## it consumed clicks before they reached the desk hotspots underneath it
+	## in pick order. PASS keeps it transparent to input while children still
+	## receive theirs.
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	_build()
 	show_checkpoint_status("none")
 
@@ -140,6 +148,10 @@ func get_version_text() -> String:
 
 func set_busy(busy: bool) -> void:
 	_busy = busy
+	## Coming back to the title after an open beat: restore the desk, or the
+	## screen would stay faded to black from the transition.
+	if not busy and is_instance_valid(_desk) and _desk.has_method("reset_open"):
+		_desk.reset_open()
 	if is_instance_valid(_continue_button):
 		_continue_button.disabled = _busy or _checkpoint_status != "loaded"
 	if is_instance_valid(_new_game_button):
@@ -148,6 +160,7 @@ func set_busy(busy: bool) -> void:
 		_challenge_button.disabled = _busy or not _challenge_available
 	if is_instance_valid(_test_game_button):
 		_test_game_button.disabled = _busy
+	_sync_desk()
 
 
 func is_continue_enabled() -> bool:
@@ -158,6 +171,7 @@ func set_challenge_available(available: bool, reason: String = "") -> void:
 	_challenge_available = available
 	if is_instance_valid(_challenge_button):
 		_challenge_button.disabled = _busy or not available
+	_sync_desk()
 	if is_instance_valid(_challenge_hint):
 		_challenge_hint.text = (
 			"可重复挑战已解锁。"
@@ -215,6 +229,8 @@ func _build() -> void:
 	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(bottom_spacer)
 
+	_install_desk(panel)
+
 	var footer := HBoxContainer.new()
 	column.add_child(footer)
 	footer.add_child(UiTheme.label(
@@ -233,6 +249,125 @@ func _build() -> void:
 		UiTheme.C_GOLD
 	)
 	footer.add_child(_version_label)
+
+
+func _install_desk(panel: Control) -> void:
+	## Same desk as the diary, journal shut. The buttons themselves are kept —
+	## labels included, because integration probes find them by text — and are
+	## re-hosted as invisible hotspots over the prop art.
+	var desk = TitleDeskStage.new()
+	desk.name = "TitleDeskStage"
+	if not desk.has_art():
+		## Art not ingested yet: leave the classic panel exactly as it was.
+		return
+	_desk = desk
+	add_child(desk)
+	## The desk REPLACES the rain-street plate; hide that rather than paint the
+	## desk underneath it (it was being covered by the backdrop + dim layers).
+	for bg_name in ["SceneBackgroundHolder", "SceneDim", "SceneFallback"]:
+		var bg := get_node_or_null(NodePath(bg_name))
+		if bg is CanvasItem:
+			(bg as CanvasItem).visible = false
+	## GUI picking walks children in REVERSE tree order, so the LAST child is
+	## on top for input. At index 0 the desk sat behind the full-rect chrome
+	## Control (MOUSE_FILTER_STOP), which swallowed every click on a prop.
+	## Last place puts the hotspots on top; the desk is PASS and its backdrop
+	## IGNORE, so the panel text underneath still works where it shows.
+	move_child(desk, get_child_count() - 1)
+
+	var bound := 0
+	for pair in [
+		["continue", _continue_button],
+		["new_game", _new_game_button],
+		["challenge", _challenge_button],
+		["settings", _settings_button],
+		["quit", _quit_button],
+	]:
+		var button: Button = pair[1]
+		if button != null and desk.bind(String(pair[0]), button):
+			bound += 1
+	if bound == 0:
+		## Nothing could be re-hosted; keep the panel rather than show an
+		## undecorated desk with no way in.
+		remove_child(desk)
+		desk.queue_free()
+		_desk = null
+		return
+
+	## The panel still carries the title, save summary and the secondary
+	## actions, but it must not sit on top of the journal. Strip the plate and
+	## pin it to the left margin, which the painted desk leaves empty.
+	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	panel.custom_minimum_size = Vector2(400, 0)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	var holder := panel.get_parent()
+	if holder is BoxContainer:
+		(holder as BoxContainer).alignment = BoxContainer.ALIGNMENT_BEGIN
+	## Drop clear of the candle and its caption in the upper-left of the plate.
+	var safe := holder.get_parent() if holder != null else null
+	if safe is MarginContainer:
+		(safe as MarginContainer).add_theme_constant_override("margin_top", 300)
+	## The text column's layout containers span the FULL width even though the
+	## text only occupies the left side, and they default to MOUSE_FILTER_STOP.
+	## That swallowed clicks on the props to their right (new game / challenge
+	## / quit all died on an invisible MarginContainer). Make the chrome
+	## containers transparent to the mouse; the real controls inside keep
+	## their own filter and still work.
+	_pass_through_layout(safe)
+	_fade_panel_chrome()
+	_sync_desk()
+
+
+func _pass_through_layout(root: Node) -> void:
+	## Containers and plain labels must not intercept clicks; buttons, inputs
+	## and anything interactive keep whatever filter they already have.
+	if root == null:
+		return
+	var stack: Array[Node] = [root]
+	while not stack.is_empty():
+		var node: Node = stack.pop_back()
+		for child in node.get_children():
+			stack.append(child)
+		if node is BaseButton or node is Range or node is LineEdit or node is TextEdit:
+			continue
+		if node is Container or node is Label or node is RichTextLabel or node is Panel:
+			(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _fade_panel_chrome() -> void:
+	## Keep every control reachable, but let the desk be the picture: the
+	## primary actions now live on the objects, so their old row is redundant
+	## chrome sitting over the art.
+	for button in [_continue_button, _new_game_button, _challenge_button, _settings_button]:
+		if button == null:
+			continue
+		var row: Node = button.get_parent()
+		if row is Control and row != self:
+			## Rows are emptied by the re-parenting in bind(); collapse any
+			## that are now blank so they stop reserving vertical space.
+			var still_used := false
+			for child in (row as Control).get_children():
+				if child is Control and (child as Control).visible:
+					still_used = true
+					break
+			if not still_used:
+				(row as Control).visible = false
+
+
+func _sync_desk() -> void:
+	## Props mirror their button's enabled state (a dim prop must not invite a
+	## click that does nothing).
+	if not is_instance_valid(_desk) or not _desk.has_method("refresh"):
+		return
+	for pair in [
+		["continue", _continue_button],
+		["new_game", _new_game_button],
+		["challenge", _challenge_button],
+		["settings", _settings_button],
+		["quit", _quit_button],
+	]:
+		if pair[1] != null:
+			_desk.refresh(String(pair[0]), pair[1])
 
 
 func _build_panel_content() -> VBoxContainer:
@@ -266,6 +401,7 @@ func _build_panel_content() -> VBoxContainer:
 	_continue_button = UiTheme.button("继续上次战斗", _on_continue, false, 180, true)
 	_new_game_button = UiTheme.button("开始新游戏", _on_new_game, true, 180, true)
 	var quit_button := UiTheme.button("退出", _on_quit, true, 92)
+	_quit_button = quit_button
 	actions.add_child(_continue_button)
 	actions.add_child(_new_game_button)
 	actions.add_child(quit_button)
@@ -337,14 +473,26 @@ func _on_continue() -> void:
 	if _busy or _checkpoint_status != "loaded":
 		return
 	set_busy(true)
-	continue_requested.emit()
+	_emit_after_open("continue", func() -> void: continue_requested.emit())
 
 
 func _on_challenge() -> void:
 	if _busy or not _challenge_available:
 		return
 	set_busy(true)
-	challenge_requested.emit()
+	_emit_after_open("challenge", func() -> void: challenge_requested.emit())
+
+
+func _emit_after_open(key: String, action: Callable) -> void:
+	## Play the desk's open beat, then hand over. Without a desk (art missing)
+	## or if the animation refuses, fire straight away so the menu never hangs.
+	if not is_instance_valid(_desk) or not _desk.has_method("play_open"):
+		action.call()
+		return
+	if not bool(_desk.play_open(key)):
+		action.call()
+		return
+	_desk.open_finished.connect(action, CONNECT_ONE_SHOT)
 
 
 func _on_quit() -> void:

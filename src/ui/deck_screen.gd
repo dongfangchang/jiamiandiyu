@@ -5,6 +5,7 @@ signal back_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const DeckCatalog := preload("res://src/ui/deck_ui_catalog.gd")
+const CardArt := preload("res://src/ui/card_art_catalog.gd")
 const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const DeckCommandResultScript := preload("res://src/core/deck_command_result.gd")
@@ -611,7 +612,10 @@ func _build_card_tile(card: Dictionary) -> Control:
 	cost_badge.custom_minimum_size = Vector2(28, 22)
 	cost_badge.tooltip_text = "灵性费用 %d" % cost
 	thumb_column.add_child(cost_badge)
-	var art_path := DeckCatalog.card_art(definition_id)
+	## v0.85 illustration first, legacy composed plate otherwise.
+	var art_path := CardArt.art_window(definition_id)
+	if art_path.is_empty():
+		art_path = DeckCatalog.card_art(definition_id)
 	if not art_path.is_empty() and ResourceLoader.exists(art_path):
 		var art := TextureRect.new()
 		art.name = "CardThumb"
@@ -621,6 +625,21 @@ func _build_card_tile(card: Dictionary) -> Control:
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		art.modulate = Color(1, 1, 1, 1) if owned else Color(0.45, 0.45, 0.42, 1)
 		thumb_column.add_child(art)
+	## Rarity x mechanic seal, derived from the card's own data (see
+	## card_art_catalog). Nothing to maintain per card.
+	var seal_path := CardArt.seal(definition_id, true)
+	if not seal_path.is_empty():
+		var seal := TextureRect.new()
+		seal.name = "CardSeal"
+		seal.texture = load(seal_path) as Texture2D
+		seal.custom_minimum_size = Vector2(26, 26)
+		seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		seal.tooltip_text = "%s · %s" % [
+			CardArt.rarity_of(definition_id), CardArt.mechanic_of(definition_id)
+		]
+		seal.modulate = Color(1, 1, 1, 1) if owned else Color(0.5, 0.5, 0.48, 1)
+		thumb_column.add_child(seal)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.add_theme_constant_override("separation", 2)

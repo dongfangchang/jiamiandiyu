@@ -1,5 +1,7 @@
 extends Node
 
+const CardArt := preload("res://src/ui/card_art_catalog.gd")
+
 ## v0.42: gap cards wired; all 40 skill cards resolve off card-back.
 
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
@@ -38,11 +40,12 @@ func _ready() -> void:
 		var battle_path := battle.get_card_art_path(StringName(definition_id))
 		_expect(progression_path == expected, "%s progression path" % definition_id)
 		_expect(deck_path == expected, "%s deck path" % definition_id)
-		_expect(battle_path == expected, "%s battle path" % definition_id)
+		var window := CardArt.art_window(definition_id)
 		_expect(
-			progression_path == deck_path and deck_path == battle_path,
-			"%s three surfaces share path" % definition_id
+			battle_path == (window if not window.is_empty() else expected),
+			"%s battle prefers v0.85 art window" % definition_id
 		)
+		_expect(progression_path == deck_path, "%s progression and deck share plate" % definition_id)
 	var cards: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string("res://data/cards/v0.7.0/cards.json")
 	)

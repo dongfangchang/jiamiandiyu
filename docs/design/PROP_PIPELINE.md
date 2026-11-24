@@ -87,6 +87,61 @@ src/ui/diary_desk_stage.gd 等            ← 有图用图，无图保留程序�
 
 ---
 
+## 3.5 卡牌插画：第二条管线（约定优于配置）
+
+卡牌走**独立管线**，连清单都不用改 —— **目录名就是卡牌 ID**。
+
+```
+art/assets/raster/<ver>/cards/<card.id>/art.png   ← 512×390 无字插画
+        │   art/tools/ingest_cards.gd
+        ▼
+assets/game/<ver>/cards/<card.id>/art.png
+        │   src/ui/card_art_catalog.gd
+        ▼
+battle_screen / deck_screen …
+```
+
+### 加一张新卡（2 步，零代码改动）
+
+1. `data/cards/**` 加卡牌定义（含 `rarity`）—— 玩法/数据所有者负责
+2. 建目录 `art/assets/raster/<ver>/cards/<card.id>/`，放入 `art.png`
+3. 跑 `"$GODOT" --headless --path . --script art/tools/ingest_cards.gd`
+
+**蜡封不用画**：`card_art_catalog.gd` 从卡牌自身的 `rarity` ×
+（由 `effects`/`mechanic_tags` 推导的）机制标签，到 4×6 蜡封矩阵里取图。
+矩阵已全齐，任何新组合都已覆盖。
+
+**已实测**：临时加一张 `rarity=rare`、带 `damage` 效果的新卡 +
+一个插画目录，未改任何代码 → 自动得到插画、判定为 `rare`/`attack`、
+取到 `seal-rare-attack-128.png`，且 `v085_card_art_runner` 的检查数
+从 170 自动增长到 174 覆盖了它。
+
+### 机制推导顺序（为什么是这个顺序）
+
+「这张卡是干什么用的」优先于「它附带什么效果」：
+
+```
+仪式标签/prepare_ritual → ritual
+占卜类标签/reveal_*     → divination   （占卜道具即使 draw 也算占卜）
+damage/damage_all       → attack
+block                   → defense
+heal/spirit/draw        → support      （带 risk 副作用的治疗仍是 support）
+risk/lose_hp/discard    → curse
+其余                     → support
+```
+
+**唯一定义源仍是 `data/cards/**`**，推导结果不落盘、不二次存储，
+规则一改蜡封自动跟随。
+
+### 迁移工具的守门行为
+
+`ingest_cards.gd` 不是无脑复制：
+- **插画无对应卡牌** → 直接失败（避免把死 ID 烘进 `assets/game`）
+- **卡牌无插画** → 报 `gaps` 但不失败（允许分批交付）
+- **尺寸非 512×390** → 报警告（卡框会缩放，但对不齐像素）
+
+---
+
 ## 4. 加一个新章节 / 新插画
 
 章节插画走的是**另一条**（已有）路径，不经过本管线：
@@ -160,6 +215,12 @@ src/ui/diary_desk_stage.gd 等            ← 有图用图，无图保留程序�
   **章节插画**属 `assets/game/**`，由主协调者迁移，不要混用。
 - 工具是幂等的：重跑会覆盖输出，不会累积。
 - 源图保留在 `art/`，**不要删**——调参数需要重新抠图。
+- **不要连 `.import` 一起复制图片**。`.import` 里带 `uid=`，复制后多张图共用
+  同一个 UID，Godot 会把它们解析成**同一个资源** —— 画面上看起来「交付了」，
+  实际渲染出来的是另一张图。导入时只是 WARNING，极易漏过。
+  **正确做法**：只复制 `.png`，让 Godot 自己生成 `.import`。
+  已中招时：删掉这批 `.import` 再跑一次 `--import` 即可重建唯一 UID。
+  `v085_props_runner` 已内置全仓 UID 唯一性检查（实测可抓到植入的重复）。
 - **深色道具要调低容差**。默认 0.18 适合浅色主体；墨水瓶（深铜）在 0.18 下
   只剩 17.8% 不透明（瓶身被当背景吃掉），降到 0.05 后恢复到 48.4%。
   现清单中 inkwell=0.05 / candle=0.07 / quill=0.09 / bookmark=0.10。

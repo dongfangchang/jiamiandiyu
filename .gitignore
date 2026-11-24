@@ -14,3 +14,8 @@ build/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Generated simulation output (regenerate via tools/simulation/*_runner)
+tools/simulation/out/
+# Raster source art is not imported by Godot (art/assets/raster/.gdignore)
+art/assets/raster/**/*.import
