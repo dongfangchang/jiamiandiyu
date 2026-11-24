@@ -26,6 +26,14 @@ const EXIT_BEAT_CLUE := "clue"
 const EXIT_BEAT_CLOSE := "close"
 
 const C_GOLD := Color(0.96, 0.78, 0.38, 1.0)
+## Chrome text floors (EXPERIENCE §5.1, 1600x900 logical px): the volume
+## title is a title, everything else a caption-or-better, all in the serif.
+const CHROME_TITLE_PX := 28
+const CHROME_SMALL_PX := 18
+const CHROME_CLOSE_PX := 20
+const CHROME_NOTE_PX := 20
+const C_CHROME_TEXT := Color(0.96, 0.90, 0.78, 1.0)
+const C_CHROME_SOFT := Color(0.92, 0.78, 0.52, 1.0)
 
 var _catalog := DiaryCatalog.new()
 var _route_data: Dictionary = {}
@@ -39,7 +47,6 @@ var _pending_auto_flip := false
 var _pending_flip_finish := false
 
 var _title_label: Label
-var _leaf_label: Label
 var _carrier_label: Label
 var _status_label: Label
 var _pen_flash: Label
@@ -245,24 +252,27 @@ func _build_postprocess() -> void:
 	add_child(post_fx)
 
 
+static func _chrome_plate(root: Control, plate_name: String, preset: int, edge: float) -> void:
+	## Soft dark band behind the chrome text so it holds contrast over lit wood;
+	## the desk book stays the visual centre.
+	var plate := Panel.new()
+	plate.name = plate_name
+	plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.set_anchors_and_offsets_preset(preset)
+	if edge > 0.0:
+		plate.offset_bottom = edge
+	else:
+		plate.offset_top = edge
+	plate.add_theme_stylebox_override("panel", UiTheme.style_box(Color(0.05, 0.03, 0.02, 0.38), Color(0, 0, 0, 0), 0, 0))
+	root.add_child(plate)
+
+
 func _build_top_chrome(root: Control) -> void:
-	## Faint header plate — the desk book stays the visual centre.
-	var header_plate := Panel.new()
-	header_plate.name = "HeaderParchment"
-	header_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header_plate.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	header_plate.offset_bottom = 48
-	header_plate.modulate.a = 0.08
-	var plate := StyleBoxFlat.new()
-	plate.bg_color = Color(0.10, 0.06, 0.03, 0.32)
-	plate.border_color = Color(0.62, 0.45, 0.22, 0.28)
-	plate.border_width_bottom = 1
-	header_plate.add_theme_stylebox_override("panel", plate)
-	root.add_child(header_plate)
+	_chrome_plate(root, "HeaderParchment", Control.PRESET_TOP_WIDE, 72)
 	var top := MarginContainer.new()
 	top.name = "DiaryHeader"
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_bottom = 56
+	top.offset_bottom = 80
 	top.add_theme_constant_override("margin_left", 48)
 	top.add_theme_constant_override("margin_top", 8)
 	top.add_theme_constant_override("margin_right", 48)
@@ -270,34 +280,18 @@ func _build_top_chrome(root: Control) -> void:
 	var titles := VBoxContainer.new()
 	titles.add_theme_constant_override("separation", 1)
 	top.add_child(titles)
-	_carrier_label = UiTheme.label("罗塞尔日记", 12, Color(0.92, 0.74, 0.42, 0.92))
-	_carrier_label.modulate.a = 0.8
+	_carrier_label = _serif(UiTheme.label("罗塞尔日记", CHROME_SMALL_PX, C_CHROME_SOFT))
 	titles.add_child(_carrier_label)
-	_title_label = UiTheme.clip_label("第一卷", 20, Color(0.96, 0.90, 0.78, 0.95))
-	_title_label.modulate.a = 0.95
+	_title_label = _serif(UiTheme.clip_label("第一卷", CHROME_TITLE_PX, C_CHROME_TEXT), true)
 	titles.add_child(_title_label)
-	_leaf_label = UiTheme.clip_label("", 12, Color(0.78, 0.66, 0.46, 0.85))
-	_leaf_label.modulate.a = 0.75
-	titles.add_child(_leaf_label)
 
 
 func _build_bottom_chrome(root: Control) -> void:
 	## BRIEF §5A.6: page turns are desk swipes; the footer only whispers status.
-	var footer_plate := Panel.new()
-	footer_plate.name = "FooterParchment"
-	footer_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	footer_plate.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	footer_plate.offset_top = -40
-	footer_plate.modulate.a = 0.06
-	var foot := StyleBoxFlat.new()
-	foot.bg_color = Color(0.08, 0.05, 0.02, 0.22)
-	foot.border_color = Color(0.62, 0.45, 0.22, 0.16)
-	foot.border_width_top = 1
-	footer_plate.add_theme_stylebox_override("panel", foot)
-	root.add_child(footer_plate)
+	_chrome_plate(root, "FooterParchment", Control.PRESET_BOTTOM_WIDE, -52)
 	var bottom := MarginContainer.new()
 	bottom.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	bottom.offset_top = -48
+	bottom.offset_top = -60
 	bottom.add_theme_constant_override("margin_left", 40)
 	bottom.add_theme_constant_override("margin_right", 100)
 	bottom.add_theme_constant_override("margin_bottom", 8)
@@ -305,7 +299,7 @@ func _build_bottom_chrome(root: Control) -> void:
 	var mid := VBoxContainer.new()
 	mid.add_theme_constant_override("separation", 2)
 	bottom.add_child(mid)
-	_status_label = UiTheme.clip_label("横滑翻页 · 点蜡封启事", 14, Color(0.96, 0.90, 0.78, 1.0))
+	_status_label = _serif(UiTheme.clip_label("横滑翻页 · 点蜡封启事", CHROME_SMALL_PX, C_CHROME_TEXT))
 	mid.add_child(_status_label)
 	var flash_wrap := PanelContainer.new()
 	flash_wrap.name = "PenFlashBanner"
@@ -316,10 +310,25 @@ func _build_bottom_chrome(root: Control) -> void:
 		UiTheme.style_box(Color(0.32, 0.10, 0.06, 0.55), Color(0.82, 0.58, 0.22, 0.55), 1, 2)
 	)
 	mid.add_child(flash_wrap)
-	_pen_flash = UiTheme.clip_label("", 14, Color(0.92, 0.78, 0.48, 1.0))
+	_pen_flash = _serif(UiTheme.clip_label("", CHROME_SMALL_PX, C_CHROME_SOFT))
 	_pen_flash.name = "PenFlash"
 	_pen_flash.visible = false
 	flash_wrap.add_child(_pen_flash)
+
+
+static func _serif(target: Label, is_title := false) -> Label:
+	target.add_theme_font_override("font", UiTheme.diary_ink_font(is_title))
+	return target
+
+
+func get_chrome_font_sizes() -> Dictionary:
+	## Read-only probe for the §5.1 chrome floors.
+	var nodes := {"title": _title_label, "carrier": _carrier_label, "hint": _status_label,
+		"close": _hub_button, "note": _annotation_body}
+	var out := {}
+	for key in nodes:
+		out[key] = (nodes[key] as Control).get_theme_font_size("font_size")
+	return out
 
 
 func _build_close_bookmark(root: Control) -> void:
@@ -329,17 +338,18 @@ func _build_close_bookmark(root: Control) -> void:
 	_hub_button.name = "CloseBookmark"
 	_hub_button.text = "合上"
 	_hub_button.focus_mode = Control.FOCUS_ALL
-	_hub_button.custom_minimum_size = Vector2(48, 88)
+	_hub_button.custom_minimum_size = Vector2(56, 100)
 	_hub_button.anchor_left = 1.0
 	_hub_button.anchor_right = 1.0
 	_hub_button.anchor_top = 0.18
 	_hub_button.anchor_bottom = 0.18
-	_hub_button.offset_left = -52.0
+	_hub_button.offset_left = -60.0
 	_hub_button.offset_right = -4.0
 	_hub_button.offset_top = 0.0
-	_hub_button.offset_bottom = 88.0
-	_hub_button.add_theme_font_size_override("font_size", 15)
-	_hub_button.add_theme_color_override("font_color", Color(0.96, 0.88, 0.70, 0.95))
+	_hub_button.offset_bottom = 100.0
+	_hub_button.add_theme_font_override("font", UiTheme.diary_ink_font(true))
+	_hub_button.add_theme_font_size_override("font_size", CHROME_CLOSE_PX)
+	_hub_button.add_theme_color_override("font_color", C_CHROME_TEXT)
 	_hub_button.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.80, 1.0))
 	_hub_button.add_theme_color_override("font_disabled_color", Color(0.45, 0.38, 0.30, 0.55))
 	_hub_button.add_theme_stylebox_override(
@@ -387,10 +397,10 @@ func _build_annotation_float(host: Control) -> void:
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_theme_constant_override("separation", 8)
 	pad.add_child(col)
-	var head := UiTheme.label("【0-08】页边批注", 14, C_GOLD)
+	var head := _serif(UiTheme.label("【0-08】页边批注", CHROME_SMALL_PX, C_GOLD))
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(head)
-	_annotation_body = UiTheme.wrapped_label("", 14, Color(0.92, 0.82, 0.62, 1.0))
+	_annotation_body = _serif(UiTheme.wrapped_label("", CHROME_NOTE_PX, C_CHROME_TEXT))
 	_annotation_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(_annotation_body)
 
@@ -400,10 +410,6 @@ func _pulse_desk_chrome() -> void:
 		_status_label.modulate.a = 0.75
 		var tw := create_tween()
 		tw.tween_property(_status_label, "modulate:a", 1.0, 1.2)
-	if is_instance_valid(_title_label):
-		_title_label.modulate.a = 0.62
-		var tw2 := create_tween()
-		tw2.tween_property(_title_label, "modulate:a", 0.95, 1.4)
 
 
 func _reload_spreads(keep_idx: bool) -> void:
@@ -433,8 +439,6 @@ func _refresh_chrome() -> void:
 		_title_label,
 		String(_diary_view.get("display_name_zh", "罗塞尔日记"))
 	)
-	## Desk folio already shows the leaf on the page; header stays a quiet volume line.
-	UiTheme.set_clip_text(_leaf_label, "")
 	var available_count := 0
 	var wipe_cost := -1
 	var rewritten_locked := 0

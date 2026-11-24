@@ -17,8 +17,36 @@ const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const Ui := preload("res://src/ui/mask_ui_theme.gd")
 const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
 
-const PAGE_VP_SIZE := Vector2i(512, 720)
-const SEAL_SIZE := Vector2(82, 82)
+## Page layout is authored in a 512x720 base space and rendered at
+## PAGE_SCALE x that (EXPERIENCE §5.1: page viewport >= 1024x1440). Every
+## page-space position, size and font goes through px() so the leaf scales
+## as one piece.
+const PAGE_SCALE := 2.0
+const PAGE_BASE_SIZE := Vector2i(512, 720)
+const PAGE_VP_SIZE := Vector2i(Vector2(PAGE_BASE_SIZE) * PAGE_SCALE)
+const SEAL_SIZE := Vector2(82, 82) * PAGE_SCALE
+## Base-space font sizes. On screen (1600x900 equivalent) these land at
+## body >= 20, title >= 28, captions >= 15; see the desk stage metrics.
+const TITLE_FONT_BASE := 36
+const BODY_FONT_BASE := 28
+const CAPTION_FONT_BASE := 20
+const SEAL_FONT_BASE := 32
+const RUNE_GLYPH_BASE := 20
+const STICKER_FONT_BASE := 20
+## The photographed sheet is near-white and blows out under the key light,
+## so it is modulated down to parchment. SHEET_MEAN is the sheet's measured
+## mean colour over the right leaf's text column; PAPER_TONE is what the
+## text actually sits on, and the contrast floors are measured against it.
+const SHEET_MEAN := Color(0.859, 0.763, 0.599)
+const PAPER_MODULATE := Color(0.76, 0.70, 0.60)
+const PAPER_TONE := SHEET_MEAN * PAPER_MODULATE
+const INK_BODY := Color(0.13, 0.07, 0.04)
+const INK_TITLE := Color(0.15, 0.08, 0.04)
+const INK_REWRITTEN := Color(0.24, 0.11, 0.0)
+const INK_CAPTION := Color(0.26, 0.16, 0.07)
+## Leaf-state ink modulates; locked ink reads faded but stays above 4.5:1.
+const INK_FADE_COMPLETED := Color(1, 1, 1, 0.94)
+const INK_FADE_LOCKED := Color(0.9, 0.85, 0.82, 0.9)
 
 var left_vp: SubViewport
 var right_vp: SubViewport
@@ -40,9 +68,49 @@ var shown_art_path := ""
 ## Art path the pair is waiting on (threaded load still in flight).
 var pending_art_path := ""
 
+var caption_labels: Array[Label] = []
+
 var _grain: Texture2D
 var _seal_textures: Dictionary = {}
 var _redraw_frames := 0
+
+
+static func px(base: float) -> int:
+	return roundi(base * PAGE_SCALE)
+
+
+static func contrast_ratio(fg: Color, bg: Color) -> float:
+	## WCAG relative-luminance contrast; fg alpha is composited over bg first.
+	var c := bg.lerp(Color(fg.r, fg.g, fg.b), fg.a)
+	var lf := _rel_luminance(c)
+	var lb := _rel_luminance(bg)
+	return (maxf(lf, lb) + 0.05) / (minf(lf, lb) + 0.05)
+
+
+static func _rel_luminance(c: Color) -> float:
+	var l := c.srgb_to_linear()
+	return 0.2126 * l.r + 0.7152 * l.g + 0.0722 * l.b
+
+
+func font_sizes() -> Dictionary:
+	## Page-pixel font sizes of the readable text on the right leaf.
+	return {
+		"title": title_label.get_theme_font_size("font_size"),
+		"body": ink_label.get_theme_font_size("font_size"),
+		"caption": caption_labels.map(
+			func(l: Label) -> int: return l.get_theme_font_size("font_size")
+		).min(),
+	}
+
+
+func text_colors() -> Dictionary:
+	## Effective colours of the readable text (label colour x modulate).
+	var caption: Color = caption_labels[0].get_theme_color("font_color") if not caption_labels.is_empty() else INK_CAPTION
+	return {
+		"title": title_label.get_theme_color("font_color"),
+		"body": ink_label.get_theme_color("font_color") * ink_label.modulate,
+		"caption": caption,
+	}
 
 
 func setup(grain: Texture2D, seal_textures: Dictionary) -> void:
@@ -118,11 +186,10 @@ func fill(new_spread: Dictionary) -> void:
 		var idx := int(spread.get("spread_index", spread.get("page_index", 0))) + 1
 		folio_label.text = "其 %d 叶" % idx
 	ink_label.text = String(spread.get("ink_zh", clue.get("ink_zh", clue.get("text_zh", ""))))
-	## 0-08 rewrite reads as warm gold on the page; Roselle stays brown ink.
-	if bool(clue.get("rewritten_by_pen", false)):
-		ink_label.add_theme_color_override("font_color", Color(0.62, 0.42, 0.12))
-	else:
-		ink_label.add_theme_color_override("font_color", Color(0.16, 0.09, 0.05))
+	## 0-08 rewrite reads as warm amber on the page; Roselle stays brown ink.
+	ink_label.add_theme_color_override(
+		"font_color", INK_REWRITTEN if bool(clue.get("rewritten_by_pen", false)) else INK_BODY
+	)
 	var st := state()
 	match st:
 		DiaryCatalog.STATE_AVAILABLE:
@@ -132,12 +199,12 @@ func fill(new_spread: Dictionary) -> void:
 		DiaryCatalog.STATE_COMPLETED:
 			wax_button.text = "阅"
 			wax_button.modulate = Color(0.75, 0.7, 0.55)
-			ink_label.modulate = Color(1, 1, 1, 0.92)
+			ink_label.modulate = INK_FADE_COMPLETED
 		_:
 			wax_button.text = "封"
 			wax_button.modulate = Color(0.45, 0.4, 0.38)
-			## Locked leaf: ink reads drowned / sealed.
-			ink_label.modulate = Color(0.55, 0.5, 0.48, 0.7)
+			## Locked leaf: ink reads drowned / sealed, yet stays legible.
+			ink_label.modulate = INK_FADE_LOCKED
 	wax_art.texture = _seal_textures.get(st) as Texture2D
 	wax_art.visible = wax_art.texture != null and not spread.is_empty()
 	wax_button.visible = not wax_art.visible and not spread.is_empty()
@@ -260,9 +327,7 @@ func _page_parchment(node_name: String, mirror: bool) -> TextureRect:
 	## to the leaf and let the painted edge land on the page border.
 	tr.stretch_mode = TextureRect.STRETCH_SCALE
 	tr.flip_h = mirror
-	## The photographed sheet is near-white; under the key light it blew out.
-	## Modulate it back to parchment so ink keeps its contrast.
-	tr.modulate = Color(0.62, 0.57, 0.49)
+	tr.modulate = PAPER_MODULATE
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return tr
 
@@ -298,10 +363,10 @@ func _build_left() -> void:
 	var art_frame := MarginContainer.new()
 	art_frame.name = "SceneArtFrame"
 	art_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	art_frame.add_theme_constant_override("margin_left", 40)
-	art_frame.add_theme_constant_override("margin_right", 52)
-	art_frame.add_theme_constant_override("margin_top", 58)
-	art_frame.add_theme_constant_override("margin_bottom", 72)
+	art_frame.add_theme_constant_override("margin_left", px(40))
+	art_frame.add_theme_constant_override("margin_right", px(52))
+	art_frame.add_theme_constant_override("margin_top", px(58))
+	art_frame.add_theme_constant_override("margin_bottom", px(72))
 	art_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	left_root.add_child(art_frame)
 	var art_plate := Control.new()
@@ -336,28 +401,28 @@ func _build_right() -> void:
 	_paper(right_root, "RightPageParchment", "RightPageGrain", false)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 44)
-	margin.add_theme_constant_override("margin_right", 30)
-	margin.add_theme_constant_override("margin_top", 44)
-	margin.add_theme_constant_override("margin_bottom", 40)
+	margin.add_theme_constant_override("margin_left", px(44))
+	margin.add_theme_constant_override("margin_right", px(30))
+	margin.add_theme_constant_override("margin_top", px(44))
+	margin.add_theme_constant_override("margin_bottom", px(40))
 	right_root.add_child(margin)
 	## Reference splits the leaf: written column on the left, a rail of state
 	## marks down the right margin.
 	var row := HBoxContainer.new()
 	row.name = "RightPageRow"
-	row.add_theme_constant_override("separation", 14)
+	row.add_theme_constant_override("separation", px(14))
 	margin.add_child(row)
 	var col := VBoxContainer.new()
 	col.name = "RightPageColumn"
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.add_theme_constant_override("separation", 14)
+	col.add_theme_constant_override("separation", px(12))
 	row.add_child(col)
 
 	title_label = Label.new()
 	title_label.name = "TitleLabel"
 	title_label.add_theme_font_override("font", Ui.diary_ink_font(true))
-	title_label.add_theme_font_size_override("font_size", 32)
-	title_label.add_theme_color_override("font_color", Color(0.18, 0.1, 0.05))
+	title_label.add_theme_font_size_override("font_size", px(TITLE_FONT_BASE))
+	title_label.add_theme_color_override("font_color", INK_TITLE)
 	title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	title_label.clip_text = true
 	title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -365,22 +430,23 @@ func _build_right() -> void:
 	col.add_child(title_label)
 	folio_label = Label.new()
 	folio_label.name = "FolioLabel"
-	folio_label.add_theme_font_size_override("font_size", 18)
-	folio_label.add_theme_color_override("font_color", Color(0.42, 0.28, 0.14, 0.75))
+	folio_label.add_theme_font_size_override("font_size", px(CAPTION_FONT_BASE))
+	folio_label.add_theme_color_override("font_color", INK_CAPTION)
 	folio_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(folio_label)
+	caption_labels.append(folio_label)
 
 	ink_label = Label.new()
 	ink_label.name = "InkLabel"
 	ink_label.add_theme_font_override("font", Ui.diary_ink_font())
-	ink_label.add_theme_font_size_override("font_size", 24)
-	ink_label.add_theme_color_override("font_color", Color(0.16, 0.09, 0.05))
+	ink_label.add_theme_font_size_override("font_size", px(BODY_FONT_BASE))
+	ink_label.add_theme_color_override("font_color", INK_BODY)
 	ink_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ink_label.clip_text = true
-	ink_label.max_lines_visible = 10
+	ink_label.max_lines_visible = 8
 	ink_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	## Slight letter spacing so ≤60 字 doesn't feel like a dense system dump.
-	ink_label.add_theme_constant_override("line_spacing", 6)
+	ink_label.add_theme_constant_override("line_spacing", px(6))
 	col.add_child(ink_label)
 
 	_build_wax(col)
@@ -397,34 +463,28 @@ func _build_wax(col: Container) -> void:
 	wax_button.focus_mode = Control.FOCUS_NONE
 	var seal_style := StyleBoxFlat.new()
 	seal_style.bg_color = Color(0.45, 0.13, 0.135)
-	seal_style.corner_radius_top_left = 54
-	seal_style.corner_radius_top_right = 54
-	seal_style.corner_radius_bottom_left = 54
-	seal_style.corner_radius_bottom_right = 54
-	seal_style.border_width_left = 2
-	seal_style.border_width_top = 2
-	seal_style.border_width_right = 2
-	seal_style.border_width_bottom = 2
+	seal_style.set_corner_radius_all(px(54))
+	seal_style.set_border_width_all(px(2))
 	seal_style.border_color = Color(0.35, 0.08, 0.06, 0.9)
 	wax_button.add_theme_stylebox_override("normal", seal_style)
 	seal_style.shadow_color = Color(0.12, 0.05, 0.04, 0.36)
-	seal_style.shadow_offset = Vector2(2, 4)
-	seal_style.shadow_size = 4
+	seal_style.shadow_offset = Vector2(px(2), px(4))
+	seal_style.shadow_size = px(4)
 	var seal_hover := seal_style.duplicate() as StyleBoxFlat
 	seal_hover.bg_color = Color(0.56, 0.16, 0.16)
 	wax_button.add_theme_stylebox_override("hover", seal_hover)
 	wax_button.add_theme_stylebox_override("pressed", seal_style)
 	wax_button.add_theme_color_override("font_color", Color(0.96, 0.86, 0.55))
-	wax_button.add_theme_font_size_override("font_size", 32)
+	wax_button.add_theme_font_size_override("font_size", px(SEAL_FONT_BASE))
 	wax_button.pressed.connect(func() -> void: wax_pressed.emit())
 	## Soft drop shadow under the seal so it reads as wax on paper.
 	var seal_host := Control.new()
 	seal_host.name = "WaxSealHost"
-	seal_host.custom_minimum_size = SEAL_SIZE + Vector2(8, 8)
+	seal_host.custom_minimum_size = SEAL_SIZE + Vector2(px(8), px(8))
 	seal_host.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	seal_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(seal_host)
-	wax_button.position = Vector2(4, 4)
+	wax_button.position = Vector2(px(4), px(4))
 	wax_button.size = SEAL_SIZE
 	seal_host.add_child(wax_button)
 	wax_art = TextureRect.new()
@@ -442,7 +502,7 @@ func _build_runes(row: Container) -> void:
 	rune_strip = VBoxContainer.new()
 	rune_strip.name = "RuneStrip"
 	rune_strip.alignment = BoxContainer.ALIGNMENT_BEGIN
-	rune_strip.add_theme_constant_override("separation", 14)
+	rune_strip.add_theme_constant_override("separation", px(10))
 	rune_strip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	rune_buttons.clear()
 	rune_art.clear()
@@ -451,16 +511,16 @@ func _build_runes(row: Container) -> void:
 	for i in range(4):
 		var cell := VBoxContainer.new()
 		cell.name = "RuneCell%d" % i
-		cell.add_theme_constant_override("separation", 1)
+		cell.add_theme_constant_override("separation", px(1))
 		var rune := Button.new()
 		rune.name = "Rune%d" % i
 		rune.text = rune_glyphs[i]
-		rune.custom_minimum_size = Vector2(46, 46)
+		rune.custom_minimum_size = Vector2(px(46), px(46))
 		rune.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		rune.focus_mode = Control.FOCUS_NONE
 		rune.flat = false
 		rune.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		rune.add_theme_font_size_override("font_size", 20)
+		rune.add_theme_font_size_override("font_size", px(RUNE_GLYPH_BASE))
 		## Real medallion art when ingested; the glyph/StyleBox stays as the
 		## fallback so a missing prop degrades instead of blanking the rail.
 		var token := PropCatalog.token_for_state(i)
@@ -480,14 +540,8 @@ func _build_runes(row: Container) -> void:
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(0.32, 0.26, 0.2, 0.55)
 		## Round medallions, not squares — matches the stamped-seal language.
-		style.corner_radius_top_left = 23
-		style.corner_radius_top_right = 23
-		style.corner_radius_bottom_left = 23
-		style.corner_radius_bottom_right = 23
-		style.border_width_left = 2
-		style.border_width_top = 2
-		style.border_width_right = 2
-		style.border_width_bottom = 2
+		style.set_corner_radius_all(px(23))
+		style.set_border_width_all(px(2))
 		style.border_color = Color(0.45, 0.35, 0.22, 0.55)
 		rune.add_theme_stylebox_override("normal", style)
 		rune.add_theme_stylebox_override("hover", style)
@@ -499,9 +553,11 @@ func _build_runes(row: Container) -> void:
 		caption.text = rune_names[i]
 		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		caption.add_theme_font_size_override("font_size", 16)
-		caption.add_theme_color_override("font_color", Color(0.3, 0.2, 0.1, 0.85))
+		caption.add_theme_font_override("font", Ui.diary_ink_font())
+		caption.add_theme_font_size_override("font_size", px(CAPTION_FONT_BASE))
+		caption.add_theme_color_override("font_color", INK_CAPTION)
 		cell.add_child(caption)
+		caption_labels.append(caption)
 		rune_buttons.append(rune)
 		rune_strip.add_child(cell)
 	row.add_child(rune_strip)
@@ -514,21 +570,15 @@ func _build_side_sticker(col: Container) -> void:
 	side_sticker.visible = false
 	side_sticker.focus_mode = Control.FOCUS_NONE
 	side_sticker.text = "旁"
-	side_sticker.custom_minimum_size = Vector2(36, 28)
+	side_sticker.custom_minimum_size = Vector2(px(36), px(28))
 	side_sticker.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	side_sticker.add_theme_font_size_override("font_size", 12)
+	side_sticker.add_theme_font_size_override("font_size", px(STICKER_FONT_BASE))
 	side_sticker.add_theme_color_override("font_color", Color(0.35, 0.22, 0.1))
 	var sticker_style := StyleBoxFlat.new()
 	sticker_style.bg_color = Color(0.82, 0.72, 0.48, 0.92)
 	sticker_style.border_color = Color(0.55, 0.38, 0.16, 0.8)
-	sticker_style.border_width_left = 1
-	sticker_style.border_width_top = 1
-	sticker_style.border_width_right = 1
-	sticker_style.border_width_bottom = 1
-	sticker_style.corner_radius_top_left = 2
-	sticker_style.corner_radius_top_right = 2
-	sticker_style.corner_radius_bottom_left = 2
-	sticker_style.corner_radius_bottom_right = 2
+	sticker_style.set_border_width_all(px(1))
+	sticker_style.set_corner_radius_all(px(2))
 	side_sticker.add_theme_stylebox_override("normal", sticker_style)
 	side_sticker.pressed.connect(func() -> void: side_sticker_pressed.emit())
 	col.add_child(side_sticker)

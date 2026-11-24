@@ -15,6 +15,7 @@ const TableSfx := preload("res://src/ui/table_sfx.gd")
 const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
 const PagePair := preload("res://src/ui/diary_page_pair.gd")
 const ArtLoader := preload("res://src/ui/diary_art_loader.gd")
+const ReadingMetrics := preload("res://src/ui/diary_reading_metrics.gd")
 const GRAIN_PATH := "res://assets/ui/diary/parchment_grain.png"
 const WOOD_PATH := "res://assets/ui/diary/desk_wood.png"
 const SEAL_PATHS := {
@@ -23,9 +24,18 @@ const SEAL_PATHS := {
 	DiaryCatalog.STATE_LOCKED: "res://assets/ui/diary/wax_seal_locked.png",
 }
 
-## Desk camera pitch. Prop sprites reuse it so a cutout always faces the
-## camera squarely instead of being foreshortened; change it in one place.
-const CAMERA_PITCH_DEG := -47.5
+## Reading camera (EXPERIENCE §5.1): steep and long-lens so the right leaf's
+## text is within READING_ANGLE_MAX_DEG of face-on everywhere, framing the
+## book at ~63% of the frame width (same framing as the old 1.78 m / 38° shot).
+const CAMERA_PITCH_DEG := -75.0
+const CAMERA_FOV := 23.0
+const CAMERA_DISTANCE := 3.0
+const CAMERA_TARGET := Vector3(0.0, 0.085, 0.02)
+const READING_ANGLE_MAX_DEG := 25.0
+## Upright prop cutouts lean back this far so the steep camera still sees them.
+const PROP_LEAN_DEG := 45.0
+## Below this many window pixels per logical px the 3D pass is supersampled.
+const LOW_DPI_SCALE := 1.5
 
 const CLICK_SLOP_PX := 10.0
 const FLIP_THRESHOLD := 0.5
@@ -53,7 +63,7 @@ var _block_backward := false
 var _ink_seep: ColorRect
 var _bounce_tween: Tween
 
-var _stage: SubViewportContainer
+var _stage: TextureRect
 var _world_vp: SubViewport
 var _desk_world: Node3D
 var _book_root: Node3D
@@ -122,6 +132,14 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_ENTER_TREE:
 		for pair in _pairs:
 			pair.request_redraw()
+		## Window / host resizes change the stretch scale without resizing
+		## this Control; follow them so the world stays at physical pixels.
+		if not get_viewport().size_changed.is_connected(_sync_world_vp_size):
+			get_viewport().size_changed.connect(_sync_world_vp_size)
+		call_deferred("_sync_world_vp_size")
+	elif what == NOTIFICATION_EXIT_TREE:
+		if get_viewport().size_changed.is_connected(_sync_world_vp_size):
+			get_viewport().size_changed.disconnect(_sync_world_vp_size)
 
 
 func _process(delta: float) -> void:
@@ -132,6 +150,8 @@ func _process(delta: float) -> void:
 		set_process(_has_pending_art())
 		return
 	_flame_t += delta
+	## Cheap; also catches ancestor scale changes no signal reports.
+	_sync_world_vp_size()
 	for pair in _pairs:
 		pair.tick_redraw()
 	_sync_wax_hit_rect()
@@ -231,16 +251,53 @@ func get_desk_mesh() -> MeshInstance3D:
 	return _desk_mesh
 
 
+func get_readability_metrics() -> Dictionary:
+	## EXPERIENCE §5.1 probe: on-screen text size in 1600x900-equivalent px,
+	## reading angle, framing, contrast, and the viewport sizes.
+	var probe := ReadingMetrics.new(
+		_cam, _right_page_mesh, _book_root, _page_uv_to_world,
+		Vector2(_world_vp.size), size
+	)
+	var out := probe.measure(_cur_pair())
+	out["world_viewport"] = get_world_viewport_size()
+	out["expected_world_viewport"] = expected_world_viewport_size()
+	return out
+
+
+func physical_scale() -> Vector2:
+	## Control units -> pixels of the window this stage is drawn into. Includes
+	## the project's canvas_items stretch (logical 1600x900 -> window pixels,
+	## which on macOS HiDPI are already backing pixels) and any parent scale.
+	if not is_inside_tree():
+		return Vector2.ONE
+	var xf := get_viewport().get_final_transform() * get_global_transform_with_canvas()
+	return xf.get_scale().abs()
+
+
+func expected_world_viewport_size() -> Vector2i:
+	var px := size * physical_scale()
+	return Vector2i(maxi(2, roundi(px.x)), maxi(2, roundi(px.y)))
+
+
+func get_world_viewport_size() -> Vector2i:
+	return _world_vp.size if is_instance_valid(_world_vp) else Vector2i.ZERO
+
+
 func _sync_world_vp_size() -> void:
-	## DeskStage uses stretch=true; SubViewport size follows the container — do not set manually.
-	if not is_instance_valid(_world_vp) or not is_instance_valid(_stage):
+	## EXPERIENCE §5.1: DeskWorld renders at physical pixels, never at the
+	## logical size and then upscaled. The TextureRect shows it 1:1.
+	if not is_instance_valid(_world_vp):
 		return
-	if _stage.stretch:
-		return
-	var w := maxi(2, int(size.x))
-	var h := maxi(2, int(size.y))
-	if w != _world_vp.size.x or h != _world_vp.size.y:
-		_world_vp.size = Vector2i(w, h)
+	var want := expected_world_viewport_size()
+	if want != _world_vp.size:
+		_world_vp.size = want
+	## The compatibility renderer builds no mip chain for a ViewportTexture, so
+	## a 1024-wide leaf drawn ~400 px wide aliases. On low-density windows,
+	## render 3D at 2x and let the bilinear resolve box-filter it.
+	var ss := 2.0 if physical_scale().x < LOW_DPI_SCALE else 1.0
+	if not is_equal_approx(_world_vp.scaling_3d_scale, ss):
+		_world_vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+		_world_vp.scaling_3d_scale = ss
 
 
 func book_is_fullbleed() -> bool:
@@ -259,14 +316,9 @@ func force_render_for_capture() -> void:
 
 
 func _build_stage() -> void:
-	_stage = SubViewportContainer.new()
-	_stage.name = "DeskStage"
-	_stage.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	_stage.stretch = true
-	## Ignore so parent DeskStage receives swipe; seal uses screen-space hit.
-	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_stage)
-
+	## The world viewport is sized in physical pixels (see _sync_world_vp_size)
+	## and shown by a plain TextureRect: a stretching SubViewportContainer would
+	## force it back to the logical size.
 	_world_vp = SubViewport.new()
 	_world_vp.name = "DeskWorldViewport"
 	_world_vp.size = Vector2i(1600, 900)
@@ -287,10 +339,18 @@ func _build_stage() -> void:
 	env.ambient_light_energy = 0.64
 	_world_vp.world_3d = World3D.new()
 	_world_vp.world_3d.environment = env
-	_stage.add_child(_world_vp)
-	## Match stage pixels when the shell resizes (sharper desk render).
+	add_child(_world_vp)
+	_stage = TextureRect.new()
+	_stage.name = "DeskStage"
+	_stage.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_stage.texture = _world_vp.get_texture()
+	_stage.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_stage.stretch_mode = TextureRect.STRETCH_SCALE
+	_stage.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	## Ignore so this Control receives the swipe; seal uses a screen-space hit.
+	_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_stage)
 	resized.connect(_sync_world_vp_size)
-	_stage.resized.connect(_sync_world_vp_size)
 	call_deferred("_sync_world_vp_size")
 
 	_desk_world = Node3D.new()
@@ -315,9 +375,10 @@ func _build_stage() -> void:
 	## Reference framing: the open book is the subject and nearly fills the
 	## frame; only a sliver of desk, the candle and the quill stay in shot.
 	## Narrower fov + closer dolly keeps perspective calm at this distance.
-	cam.fov = 38.0
-	cam.position = Vector3(0.0, 1.61, 0.93)
-	cam.rotation_degrees = Vector3(-59.0, 0.0, 0.0)
+	cam.fov = CAMERA_FOV
+	var pitch := deg_to_rad(-CAMERA_PITCH_DEG)
+	cam.position = CAMERA_TARGET + Vector3(0.0, sin(pitch), cos(pitch)) * CAMERA_DISTANCE
+	cam.rotation_degrees = Vector3(CAMERA_PITCH_DEG, 0.0, 0.0)
 	_desk_world.add_child(cam)
 	cam.current = true
 	_cam = cam
@@ -712,11 +773,10 @@ func _prop_sprite(
 	sprite.alpha_scissor_threshold = 0.5
 	sprite.shaded = true
 	sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	## Stand UPRIGHT (no pitch): tilting the quad back by the camera pitch threw
-	## the painted foot ~32% of its height off the contact point, so props
-	## floated. A vertical quad under a pitched camera reads as standing on the
-	## desk, which is what the painted art already depicts.
-	sprite.rotation_degrees = Vector3(0.0, yaw_deg, 0.0)
+	## The pivot is the painted foot (offset above), so leaning the quad back
+	## keeps it on the desk. Upright it collapsed to a sliver under the steep
+	## reading camera; PROP_LEAN_DEG gives it back most of its height.
+	sprite.rotation_degrees = Vector3(-PROP_LEAN_DEG, yaw_deg, 0.0)
 	## Nudge the foot just above the desk surface so the quad never z-fights it.
 	sprite.position = ground + Vector3(0.0, 0.004, 0.0)
 	return sprite
@@ -803,6 +863,11 @@ func _page_material(mirror_u: bool, back: bool) -> StandardMaterial3D:
 		## Seen from behind after a half-turn, u runs spine->edge reversed.
 		mat.uv1_scale = Vector3(-1.0, 1.0, 1.0)
 		mat.uv1_offset = Vector3(1.0, 0.0, 0.0)
+	## Pages are minified onto the desk; ask for trilinear + anisotropic. A
+	## ViewportTexture has no mip chain in Godot 4.7 (no SubViewport option), so
+	## this measures as plain bilinear today; the anti-aliasing comes from the
+	## supersampled 3D pass instead (see _sync_world_vp_size).
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return mat
 
 
@@ -1005,7 +1070,8 @@ func _build_rune_detail() -> void:
 	_rune_detail.add_theme_stylebox_override("panel", style)
 	_rune_detail_label = Label.new()
 	_rune_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_rune_detail_label.add_theme_font_size_override("font_size", 13)
+	_rune_detail_label.add_theme_font_override("font", Ui.diary_ink_font())
+	_rune_detail_label.add_theme_font_size_override("font_size", 18)
 	_rune_detail_label.add_theme_color_override("font_color", Color(0.92, 0.84, 0.68))
 	_rune_detail.add_child(_rune_detail_label)
 	_rune_detail.gui_input.connect(func(event: InputEvent) -> void:
@@ -1345,8 +1411,8 @@ func _sync_wax_hit_rect() -> void:
 	for pt in corners:
 		min_p = min_p.min(pt)
 		max_p = max_p.max(pt)
-	## unproject gives DeskWorld viewport pixels; stretch=true maps them 1:1
-	## onto this Control, so normalise by the viewport size.
+	## unproject gives DeskWorld (physical) pixels; the stage TextureRect spans
+	## this Control, so normalise by the viewport size.
 	var vp := Vector2(_world_vp.size)
 	if vp.x <= 1.0 or vp.y <= 1.0:
 		return
