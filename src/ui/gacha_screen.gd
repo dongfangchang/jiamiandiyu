@@ -6,6 +6,7 @@ signal back_requested
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
 const TableSfx := preload("res://src/ui/table_sfx.gd")
+const CardFace := preload("res://src/ui/common/card_face.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
 
@@ -418,11 +419,8 @@ func _build_result_card(result: Dictionary, flip_index: int = 0) -> Control:
 	back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	flip_area.add_child(back)
-	var front := TextureRect.new()
-	front.texture = load(ProgressionCatalog.card_art(definition_id))
+	var front := CardFace.make_face(definition_id, Vector2.ZERO, Vector2(40, 40))
 	front.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	front.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	front.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	front.visible = false
 	flip_area.add_child(front)
 	column.add_child(UiTheme.center_label(

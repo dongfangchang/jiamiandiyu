@@ -13,6 +13,8 @@ const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const Ui := preload("res://src/ui/mask_ui_theme.gd")
 const TableSfx := preload("res://src/ui/table_sfx.gd")
 const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
+const PagePair := preload("res://src/ui/diary_page_pair.gd")
+const ArtLoader := preload("res://src/ui/diary_art_loader.gd")
 const GRAIN_PATH := "res://assets/ui/diary/parchment_grain.png"
 const WOOD_PATH := "res://assets/ui/diary/desk_wood.png"
 const SEAL_PATHS := {
@@ -20,7 +22,6 @@ const SEAL_PATHS := {
 	DiaryCatalog.STATE_COMPLETED: "res://assets/ui/diary/wax_seal_completed.png",
 	DiaryCatalog.STATE_LOCKED: "res://assets/ui/diary/wax_seal_locked.png",
 }
-const SEAL_SIZE := Vector2(82, 82)
 
 ## Desk camera pitch. Prop sprites reuse it so a cutout always faces the
 ## camera squarely instead of being foreshortened; change it in one place.
@@ -28,12 +29,16 @@ const CAMERA_PITCH_DEG := -47.5
 
 const CLICK_SLOP_PX := 10.0
 const FLIP_THRESHOLD := 0.5
-## A committed turn always carries the leaf nearly all the way over, whether the
-## player dragged it to threshold or a nav / settlement turned it for them.
-const COMMIT_FLIP_PEAK := 0.95
+## Turn fraction: 0 = flat on its own side, 0.5 = upright (content commit),
+## 1 = landed on the opposite side. A full-width drag holds the leaf upright.
+const DRAG_TURN_SCALE := 0.5
+const COMMIT_TURN := 0.5
 const PROG_FLIP_DURATION := 0.56
 const PROG_FLIP_RISE_FRAC := 0.45
-const PAGE_VP_SIZE := Vector2i(512, 720)
+## A landed leaf rides this high so it clears the arched page it covers until
+## the rest binding takes over.
+const LAND_LIFT := 0.03
+const PAGE_VP_SIZE := PagePair.PAGE_VP_SIZE
 
 const INPUT_IDLE := 0
 const INPUT_ARM := 1
@@ -56,20 +61,28 @@ var _right_page_mesh: MeshInstance3D
 var _left_page_mesh: MeshInstance3D
 var _right_hinge: Node3D
 var _left_hinge: Node3D
-var _left_vp: SubViewport
-var _right_vp: SubViewport
-var _left_art: TextureRect
-var _title_label: Label
-var _ink_label: Label
-var _wax_button: Button
-var _wax_art: TextureRect
+## Back faces of the turning leaves and the pages revealed beneath them.
+var _right_back_mesh: MeshInstance3D
+var _left_back_mesh: MeshInstance3D
+var _right_under_mesh: MeshInstance3D
+var _left_under_mesh: MeshInstance3D
 var _seal_textures: Dictionary = {}
-var _rune_strip: Container
-var _rune_buttons: Array[Button] = []
-var _rune_art: Array[Node] = []
+## Ring of prepared spreads: indices into _pairs for each role.
+var _pairs: Array[PagePair] = []
+var _cur := 0
+var _prev := 1
+var _next := 2
+var _art := ArtLoader.new()
+## Which pair/side each page surface currently shows (probe surface).
+var _bindings: Dictionary = {}
+## Turn in progress: +1 forward (right leaf), -1 backward (left leaf), 0 flat.
+var _turn_dir := 0
+var _turn_from_key := -1
+var _settle_from := 0.0
+var _settle_to := 0.0
+var _headless := false
 var _rune_detail: PanelContainer
 var _rune_detail_label: Label
-var _side_sticker: Button
 var _settlement_bloom: ColorRect
 var _desk_mesh: MeshInstance3D
 var _grain: Texture2D
@@ -77,7 +90,6 @@ var _wax_hit: Button
 var _candle_flame_light: OmniLight3D
 var _candle_flame_mesh: MeshInstance3D
 var _flame_t := 0.0
-var _wax_pulse_active := false
 ## A committing turn is in the air (drag commit or play_flip); it always ends
 ## with flip_visual_finished. A bounce is tracked apart precisely because it
 ## commits nothing and must not make callers wait for that signal.
@@ -98,13 +110,30 @@ func _ready() -> void:
 	_build_rune_detail()
 	_build_vignette()
 	_build_settlement_bloom()
-	set_process(DisplayServer.get_name() != "headless")
+	_headless = DisplayServer.get_name() == "headless"
+	set_process(not _headless)
+
+
+func _notification(what: int) -> void:
+	## The router caches the diary off-tree with its viewports frozen and
+	## restores their modes after re-adding it; re-render the static
+	## neighbour pages on the following frames so a turn never shows a stale
+	## or empty render target.
+	if what == NOTIFICATION_ENTER_TREE:
+		for pair in _pairs:
+			pair.request_redraw()
 
 
 func _process(delta: float) -> void:
 	## Candle light is deliberately STATIC (flicker read as noise and forced a
 	## shadow re-render every frame). Only the seal breathes, to stay findable.
+	_poll_pending_art()
+	if _headless:
+		set_process(_has_pending_art())
+		return
 	_flame_t += delta
+	for pair in _pairs:
+		pair.tick_redraw()
 	_sync_wax_hit_rect()
 	_update_wax_feedback()
 
@@ -114,12 +143,80 @@ static func _load_texture(path: String) -> Texture2D:
 
 
 func apply_spread(spread: Dictionary) -> void:
+	## Current leaf. When it is the prepared neighbour (the usual case after a
+	## turn), the ring just rotates: no page rebuild, no texture load.
+	var key := _key_of(spread)
+	if key != _cur_pair().spread_key():
+		if key >= 0 and _pairs[_next].spread_key() == key:
+			_rotate(1)
+		elif key >= 0 and _pairs[_prev].spread_key() == key:
+			_rotate(-1)
+		elif _flip_animating and _turn_dir != 0:
+			## Unprepared turn (no neighbours supplied): land on the pair the
+			## leaf is already showing, so the visual still matches.
+			_rotate(_turn_dir)
 	_spread = spread.duplicate(true)
-	## During a commit curl, keep the hinge pose so content can swap mid-turn.
+	_fill_pair(_cur_pair(), spread, true)
+	## During a commit curl, keep the hinge pose; the rest binding follows on landing.
 	if not _flip_animating:
 		_reset_flip_visual()
-	_fill_pages()
 	_refresh_wax_hit()
+
+
+func apply_spread_list(spread_list: Array, index: int) -> void:
+	## Convenience for the chapter screen: current leaf plus both neighbours.
+	var at := func(i: int) -> Dictionary:
+		return spread_list[i] if i >= 0 and i < spread_list.size() and spread_list[i] is Dictionary else {}
+	apply_spread(at.call(index))
+	set_neighbours(at.call(index - 1), at.call(index + 1))
+
+
+func set_neighbours(prev_spread: Dictionary, next_spread: Dictionary) -> void:
+	## Prepare the leaves either side of the current one: their art is
+	## requested on a loader thread and their page viewports render ahead, so
+	## the next turn shows real content on the leaf's back and underneath.
+	_fill_pair(_pairs[_prev], prev_spread, false)
+	_fill_pair(_pairs[_next], next_spread, false)
+	var keep: Array = []
+	for pair in _pairs:
+		keep.append(pair.art_path())
+	_art.keep_only(keep)
+
+
+func is_ring_ready() -> bool:
+	return not _has_pending_art()
+
+
+func get_art_load_stats() -> Dictionary:
+	return {
+		"blocking_loads": _art.blocking_loads,
+		"threaded_requests": _art.threaded_requests,
+	}
+
+
+func get_ring_state() -> Dictionary:
+	## Read-only probe surface: which prepared pair holds which leaf.
+	return {
+		"prev_key": _pairs[_prev].spread_key(),
+		"current_key": _pairs[_cur].spread_key(),
+		"next_key": _pairs[_next].spread_key(),
+		"prev_id": _pairs[_prev].get_instance_id(),
+		"current_id": _pairs[_cur].get_instance_id(),
+		"next_id": _pairs[_next].get_instance_id(),
+		"pair_ids": _pairs.map(func(p: PagePair) -> int: return p.get_instance_id()),
+	}
+
+
+func get_page_bindings() -> Dictionary:
+	## "<pair instance id>:<left|right>" per page surface, plus under visibility.
+	var out := _bindings.duplicate()
+	out["right_under_visible"] = is_instance_valid(_right_under_mesh) and _right_under_mesh.visible
+	out["left_under_visible"] = is_instance_valid(_left_under_mesh) and _left_under_mesh.visible
+	return out
+
+
+func pair_side_id(pair_id: int, side: String) -> String:
+	return "%d:%s" % [pair_id, side]
 
 
 func get_desk_world() -> Node3D:
@@ -155,10 +252,9 @@ func force_render_for_capture() -> void:
 	## Headless normally freezes DeskWorld present; capture runners re-enable briefly.
 	if is_instance_valid(_world_vp):
 		_world_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	if is_instance_valid(_left_vp):
-		_left_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	if is_instance_valid(_right_vp):
-		_right_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	for pair in _pairs:
+		pair.set_update_mode(SubViewport.UPDATE_ALWAYS if pair == _cur_pair() else SubViewport.UPDATE_ONCE)
+		pair.request_redraw()
 	_sync_world_vp_size()
 
 
@@ -381,11 +477,19 @@ func _build_desk_tools_mesh() -> void:
 
 
 func _build_pages_and_book() -> void:
-	_left_vp = _make_page_viewport("LeftPageViewport")
-	_right_vp = _make_page_viewport("RightPageViewport")
-	_desk_world.add_child(_left_vp)
-	_desk_world.add_child(_right_vp)
-	_build_page_roots()
+	## Three prepared spreads; the current pair is kept first in tree order so
+	## find_child() probes land on the leaf the player is looking at.
+	for i in range(3):
+		var pair: PagePair = PagePair.new()
+		pair.name = "PageSlot%d" % i
+		pair.setup(_grain, _seal_textures)
+		pair.wax_pressed.connect(_on_pair_wax_pressed.bind(pair))
+		pair.rune_pressed.connect(_on_pair_rune_pressed.bind(pair))
+		pair.side_sticker_pressed.connect(_on_pair_side_sticker_pressed.bind(pair))
+		_desk_world.add_child(pair)
+		_desk_world.move_child(pair, i)
+		_pairs.append(pair)
+	_apply_update_modes()
 
 	_book_root = Node3D.new()
 	_book_root.name = "BookRoot"
@@ -485,6 +589,15 @@ func _build_pages_and_book() -> void:
 	_right_page_mesh = _make_page_mesh("RightPageMesh", false)
 	_left_hinge.add_child(_left_page_mesh)
 	_right_hinge.add_child(_right_page_mesh)
+	## Each turning leaf is two-sided: the back shows the neighbour's facing
+	## page, so the leaf lands already carrying the new content.
+	_left_back_mesh = _make_page_mesh("LeftPageBackMesh", true)
+	_right_back_mesh = _make_page_mesh("RightPageBackMesh", false)
+	_left_hinge.add_child(_left_back_mesh)
+	_right_hinge.add_child(_right_back_mesh)
+	## Pages revealed under a lifting leaf; a hair below its rest pose.
+	_left_under_mesh = _make_under_mesh("LeftUnderPageMesh", true)
+	_right_under_mesh = _make_under_mesh("RightUnderPageMesh", false)
 
 	_bind_page_textures()
 
@@ -634,303 +747,6 @@ static func _turned_mesh(label: String, profile: Array[Vector2], material: Mater
 	return part
 
 
-func _page_parchment(node_name: String, mirror: bool) -> TextureRect:
-	## Photographed sheet as the leaf surface. Mirrored on the left page so the
-	## spread does not read as the same stamp printed twice. Null when the art
-	## is absent, and the caller falls back to the procedural grain tile.
-	var sheet := PropCatalog.texture("parchment_sheet")
-	if sheet == null:
-		return null
-	var tr := TextureRect.new()
-	tr.name = node_name
-	tr.texture = sheet
-	tr.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	## The sheet has deckled edges; COVERED would crop them off, so stretch it
-	## to the leaf and let the painted edge land on the page border.
-	tr.stretch_mode = TextureRect.STRETCH_SCALE
-	tr.flip_h = mirror
-	## The photographed sheet is near-white; under the key light it blew out.
-	## Modulate it back to parchment so ink keeps its contrast.
-	tr.modulate = Color(0.62, 0.57, 0.49)
-	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return tr
-
-
-func _make_page_viewport(node_name: String) -> SubViewport:
-	var vp := SubViewport.new()
-	vp.name = node_name
-	vp.size = PAGE_VP_SIZE
-	vp.transparent_bg = true
-	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	vp.disable_3d = true
-	return vp
-
-
-func _build_page_roots() -> void:
-	var left_root := Control.new()
-	left_root.name = "LeftPageRoot"
-	left_root.size = Vector2(PAGE_VP_SIZE)
-	_left_vp.add_child(left_root)
-	var left_bg := ColorRect.new()
-	left_bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	left_bg.color = Color(0.74, 0.67, 0.52)
-	left_root.add_child(left_bg)
-	var left_sheet := _page_parchment("LeftPageParchment", true)
-	if left_sheet != null:
-		left_root.add_child(left_sheet)
-	elif _grain != null:
-		var left_grain := TextureRect.new()
-		left_grain.name = "LeftPageGrain"
-		left_grain.texture = _grain
-		left_grain.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-		left_grain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		left_grain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		left_grain.modulate = Color(0.76, 0.75, 0.73)
-		left_grain.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		left_root.add_child(left_grain)
-	## Reference: the illustration is washed straight onto the leaf and fades
-	## into the paper. No dark plate, no gold border — those read as a sticker.
-	var art_frame := MarginContainer.new()
-	art_frame.name = "SceneArtFrame"
-	art_frame.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	art_frame.add_theme_constant_override("margin_left", 40)
-	art_frame.add_theme_constant_override("margin_right", 52)
-	art_frame.add_theme_constant_override("margin_top", 58)
-	art_frame.add_theme_constant_override("margin_bottom", 72)
-	art_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	left_root.add_child(art_frame)
-	var art_plate := Control.new()
-	art_plate.name = "SceneArtPlate"
-	art_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_frame.add_child(art_plate)
-	_left_art = TextureRect.new()
-	_left_art.name = "SceneArt"
-	_left_art.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	_left_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_left_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_left_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_plate.add_child(_left_art)
-	var feather := Shader.new()
-	feather.code = """shader_type canvas_item;
-	void fragment() {
-		vec2 edge = min(UV, 1.0 - UV);
-		COLOR.a *= smoothstep(0.0, 0.028, min(edge.x, edge.y));
-	}"""
-	var feather_mat := ShaderMaterial.new()
-	feather_mat.shader = feather
-	_left_art.material = feather_mat
-
-	var right_root := Control.new()
-	right_root.name = "RightPageRoot"
-	right_root.size = Vector2(PAGE_VP_SIZE)
-	right_root.theme = Ui.build_theme()
-	_right_vp.add_child(right_root)
-	var right_bg := ColorRect.new()
-	right_bg.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	right_bg.color = Color(0.74, 0.67, 0.52)
-	right_root.add_child(right_bg)
-	var right_sheet := _page_parchment("RightPageParchment", false)
-	if right_sheet != null:
-		right_root.add_child(right_sheet)
-	elif _grain != null:
-		var grain := TextureRect.new()
-		grain.texture = _grain
-		grain.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-		grain.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		grain.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		grain.modulate = Color(0.76, 0.75, 0.73)
-		grain.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		right_root.add_child(grain)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 44)
-	margin.add_theme_constant_override("margin_right", 30)
-	margin.add_theme_constant_override("margin_top", 44)
-	margin.add_theme_constant_override("margin_bottom", 40)
-	right_root.add_child(margin)
-	## Reference splits the leaf: written column on the left, a rail of state
-	## marks down the right margin.
-	var row := HBoxContainer.new()
-	row.name = "RightPageRow"
-	row.add_theme_constant_override("separation", 14)
-	margin.add_child(row)
-	var col := VBoxContainer.new()
-	col.name = "RightPageColumn"
-	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.add_theme_constant_override("separation", 14)
-	row.add_child(col)
-
-	_title_label = Label.new()
-	_title_label.name = "TitleLabel"
-	_title_label.add_theme_font_override("font", Ui.diary_ink_font(true))
-	_title_label.add_theme_font_size_override("font_size", 32)
-	_title_label.add_theme_color_override("font_color", Color(0.18, 0.1, 0.05))
-	_title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_title_label.clip_text = true
-	_title_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	col.add_child(_title_label)
-	var folio := Label.new()
-	folio.name = "FolioLabel"
-	folio.add_theme_font_size_override("font_size", 18)
-	folio.add_theme_color_override("font_color", Color(0.42, 0.28, 0.14, 0.75))
-	folio.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	col.add_child(folio)
-
-	_ink_label = Label.new()
-	_ink_label.name = "InkLabel"
-	_ink_label.add_theme_font_override("font", Ui.diary_ink_font())
-	_ink_label.add_theme_font_size_override("font_size", 24)
-	_ink_label.add_theme_color_override("font_color", Color(0.16, 0.09, 0.05))
-	_ink_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_ink_label.clip_text = true
-	_ink_label.max_lines_visible = 10
-	_ink_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	## Slight letter spacing so ≤60 字 doesn't feel like a dense system dump.
-	_ink_label.add_theme_constant_override("line_spacing", 6)
-	col.add_child(_ink_label)
-
-	_wax_button = Button.new()
-	_wax_button.name = "WaxSealButton"
-	_wax_button.text = "启"
-	_wax_button.custom_minimum_size = SEAL_SIZE
-	_wax_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_wax_button.focus_mode = Control.FOCUS_NONE
-	var seal_style := StyleBoxFlat.new()
-	seal_style.bg_color = Color(0.45, 0.13, 0.135)
-	seal_style.corner_radius_top_left = 54
-	seal_style.corner_radius_top_right = 54
-	seal_style.corner_radius_bottom_left = 54
-	seal_style.corner_radius_bottom_right = 54
-	seal_style.border_width_left = 2
-	seal_style.border_width_top = 2
-	seal_style.border_width_right = 2
-	seal_style.border_width_bottom = 2
-	seal_style.border_color = Color(0.35, 0.08, 0.06, 0.9)
-	_wax_button.add_theme_stylebox_override("normal", seal_style)
-	seal_style.shadow_color = Color(0.12, 0.05, 0.04, 0.36)
-	seal_style.shadow_offset = Vector2(2, 4)
-	seal_style.shadow_size = 4
-	var seal_hover := seal_style.duplicate() as StyleBoxFlat
-	seal_hover.bg_color = Color(0.56, 0.16, 0.16)
-	_wax_button.add_theme_stylebox_override("hover", seal_hover)
-	_wax_button.add_theme_stylebox_override("pressed", seal_style)
-	_wax_button.add_theme_color_override("font_color", Color(0.96, 0.86, 0.55))
-	_wax_button.add_theme_font_size_override("font_size", 32)
-	_wax_button.pressed.connect(_on_wax_pressed)
-	## Soft drop shadow under the seal so it reads as wax on paper.
-	var seal_host := Control.new()
-	seal_host.name = "WaxSealHost"
-	seal_host.custom_minimum_size = SEAL_SIZE + Vector2(8, 8)
-	seal_host.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	seal_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(seal_host)
-	_wax_button.position = Vector2(4, 4)
-	_wax_button.size = SEAL_SIZE
-	seal_host.add_child(_wax_button)
-	_wax_art = TextureRect.new()
-	_wax_art.name = "WaxSealArt"
-	_wax_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_wax_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_wax_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_wax_art.position = _wax_button.position
-	_wax_art.size = SEAL_SIZE
-	_wax_art.hide()
-	seal_host.add_child(_wax_art)
-
-	_rune_strip = VBoxContainer.new()
-	_rune_strip.name = "RuneStrip"
-	_rune_strip.alignment = BoxContainer.ALIGNMENT_BEGIN
-	_rune_strip.add_theme_constant_override("separation", 14)
-	_rune_strip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	_rune_buttons.clear()
-	_rune_art.clear()
-	var rune_glyphs: PackedStringArray = ["✶", "✦", "〄", "◎"]
-	var rune_names := PropCatalog.TOKEN_LABELS
-	for i in range(4):
-		var cell := VBoxContainer.new()
-		cell.name = "RuneCell%d" % i
-		cell.add_theme_constant_override("separation", 1)
-		var rune := Button.new()
-		rune.name = "Rune%d" % i
-		rune.text = rune_glyphs[i]
-		rune.custom_minimum_size = Vector2(46, 46)
-		rune.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		rune.focus_mode = Control.FOCUS_NONE
-		rune.flat = false
-		rune.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		rune.add_theme_font_size_override("font_size", 20)
-		## Real medallion art when ingested; the glyph/StyleBox stays as the
-		## fallback so a missing prop degrades instead of blanking the rail.
-		var token := PropCatalog.token_for_state(i)
-		if token != null:
-			rune.text = ""
-			var art := TextureRect.new()
-			art.name = "RuneArt%d" % i
-			art.texture = token
-			art.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-			art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			rune.add_child(art)
-			_rune_art.append(art)
-		else:
-			_rune_art.append(null)
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(0.32, 0.26, 0.2, 0.55)
-		## Round medallions, not squares — matches the stamped-seal language.
-		style.corner_radius_top_left = 23
-		style.corner_radius_top_right = 23
-		style.corner_radius_bottom_left = 23
-		style.corner_radius_bottom_right = 23
-		style.border_width_left = 2
-		style.border_width_top = 2
-		style.border_width_right = 2
-		style.border_width_bottom = 2
-		style.border_color = Color(0.45, 0.35, 0.22, 0.55)
-		rune.add_theme_stylebox_override("normal", style)
-		rune.add_theme_stylebox_override("hover", style)
-		rune.add_theme_stylebox_override("pressed", style)
-		rune.pressed.connect(_on_rune_pressed.bind(i))
-		cell.add_child(rune)
-		var caption := Label.new()
-		caption.name = "RuneCaption%d" % i
-		caption.text = rune_names[i]
-		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		caption.add_theme_font_size_override("font_size", 16)
-		caption.add_theme_color_override("font_color", Color(0.3, 0.2, 0.1, 0.85))
-		cell.add_child(caption)
-		_rune_buttons.append(rune)
-		_rune_strip.add_child(cell)
-	row.add_child(_rune_strip)
-	## Side-branch sticker (kind!=main); hidden until spread carries side_notes.
-	_side_sticker = Button.new()
-	_side_sticker.name = "SideBranchSticker"
-	_side_sticker.visible = false
-	_side_sticker.focus_mode = Control.FOCUS_NONE
-	_side_sticker.text = "旁"
-	_side_sticker.custom_minimum_size = Vector2(36, 28)
-	_side_sticker.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_side_sticker.add_theme_font_size_override("font_size", 12)
-	_side_sticker.add_theme_color_override("font_color", Color(0.35, 0.22, 0.1))
-	var sticker_style := StyleBoxFlat.new()
-	sticker_style.bg_color = Color(0.82, 0.72, 0.48, 0.92)
-	sticker_style.border_color = Color(0.55, 0.38, 0.16, 0.8)
-	sticker_style.border_width_left = 1
-	sticker_style.border_width_top = 1
-	sticker_style.border_width_right = 1
-	sticker_style.border_width_bottom = 1
-	sticker_style.corner_radius_top_left = 2
-	sticker_style.corner_radius_top_right = 2
-	sticker_style.corner_radius_bottom_left = 2
-	sticker_style.corner_radius_bottom_right = 2
-	_side_sticker.add_theme_stylebox_override("normal", sticker_style)
-	_side_sticker.pressed.connect(_on_side_sticker_pressed)
-	col.add_child(_side_sticker)
-
-
 func _make_page_mesh(node_name: String, is_left: bool) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	mi.name = node_name
@@ -961,154 +777,185 @@ static func _page_height(t: float) -> float:
 	return 0.22 * t * exp(-6.5 * t) + 0.005 * sin(PI * t)
 
 
-func _bind_page_textures() -> void:
-	var left_mat := StandardMaterial3D.new()
-	left_mat.albedo_texture = _left_vp.get_texture()
-	left_mat.roughness = 0.88
-	left_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	left_mat.emission_enabled = true
-	left_mat.emission = Color(0.35, 0.28, 0.18)
+func _make_under_mesh(node_name: String, is_left: bool) -> MeshInstance3D:
+	var mount := Node3D.new()
+	mount.name = node_name + "Mount"
+	mount.position = Vector3(-0.002 if is_left else 0.002, 0.007, 0.0)
+	_book_root.add_child(mount)
+	var mi := _make_page_mesh(node_name, is_left)
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.visible = false
+	mount.add_child(mi)
+	return mi
+
+
+func _page_material(mirror_u: bool, back: bool) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.roughness = 0.88
+	## Front faces only on the leaf proper; its twin draws the back faces.
+	mat.cull_mode = BaseMaterial3D.CULL_FRONT if back else BaseMaterial3D.CULL_BACK
+	mat.emission_enabled = true
+	mat.emission = Color(0.35, 0.28, 0.18)
 	## Trimmed now that shadows land on the leaves — just enough lift to keep
 	## ink readable when the right page falls into the candle's shadow side.
-	left_mat.emission_energy_multiplier = 0.0
-	_left_page_mesh.material_override = left_mat
-	var right_mat := StandardMaterial3D.new()
-	right_mat.albedo_texture = _right_vp.get_texture()
-	right_mat.roughness = 0.88
-	right_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	right_mat.emission_enabled = true
-	right_mat.emission = Color(0.4, 0.32, 0.2)
-	right_mat.emission_energy_multiplier = 0.0
-	_right_page_mesh.material_override = right_mat
+	mat.emission_energy_multiplier = 0.0
+	if mirror_u:
+		## Seen from behind after a half-turn, u runs spine->edge reversed.
+		mat.uv1_scale = Vector3(-1.0, 1.0, 1.0)
+		mat.uv1_offset = Vector3(1.0, 0.0, 0.0)
+	return mat
 
 
-func _fill_pages() -> void:
-	var clue := _primary_clue()
-	var art_path := String(_spread.get("left_art_path", clue.get("left_art_path", "")))
-	var art := _load_texture(art_path) if not art_path.is_empty() else null
-	if art == null:
-		_left_art.texture = _grain
-		_left_art.modulate = Color(0.95, 0.9, 0.82, 1.0)
-	else:
-		_left_art.texture = art
-		## Lighting carries the leaf now; a boost here just blows the wash out.
-		_left_art.modulate = Color.WHITE
-	_left_art.stretch_mode = (
-		TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		if art != null and art_path.get_base_dir() == SceneCatalog.DIARY_ART_DIR
-		else TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	)
-	_title_label.text = String(_spread.get("title_zh", clue.get("title_zh", "")))
-	var folio := _right_vp.find_child("FolioLabel", true, false) as Label
-	if folio != null:
-		var idx := int(_spread.get("spread_index", _spread.get("page_index", 0))) + 1
-		folio.text = "其 %d 叶" % idx
-	_ink_label.text = String(_spread.get("ink_zh", clue.get("ink_zh", clue.get("text_zh", ""))))
-	## 0-08 rewrite reads as warm gold on the page; Roselle stays brown ink.
-	if bool(clue.get("rewritten_by_pen", false)):
-		_ink_label.add_theme_color_override("font_color", Color(0.62, 0.42, 0.12))
-	else:
-		_ink_label.add_theme_color_override("font_color", Color(0.16, 0.09, 0.05))
-	var state := int(_spread.get("state", clue.get("state", DiaryCatalog.STATE_LOCKED)))
-	_wax_pulse_active = state == DiaryCatalog.STATE_AVAILABLE
-	match state:
-		DiaryCatalog.STATE_AVAILABLE:
-			_wax_button.text = "启"
-			_wax_button.modulate = Color(1, 1, 1, 1)
-			_ink_label.modulate = Color(1, 1, 1, 1)
-		DiaryCatalog.STATE_COMPLETED:
-			_wax_button.text = "阅"
-			_wax_button.modulate = Color(0.75, 0.7, 0.55)
-			_ink_label.modulate = Color(1, 1, 1, 0.92)
-		_:
-			_wax_button.text = "封"
-			_wax_button.modulate = Color(0.45, 0.4, 0.38)
-			## Locked leaf: ink reads drowned / sealed.
-			_ink_label.modulate = Color(0.55, 0.5, 0.48, 0.7)
-	_wax_art.texture = _seal_textures.get(state) as Texture2D
-	_wax_art.visible = _wax_art.texture != null
-	_wax_button.visible = not _wax_art.visible
-	_update_wax_feedback()
-	_refresh_runes(state)
-	_refresh_side_sticker()
+func _bind_page_textures() -> void:
+	_left_page_mesh.material_override = _page_material(false, false)
+	_right_page_mesh.material_override = _page_material(false, false)
+	_left_back_mesh.material_override = _page_material(true, true)
+	_right_back_mesh.material_override = _page_material(true, true)
+	_left_under_mesh.material_override = _page_material(false, false)
+	_right_under_mesh.material_override = _page_material(false, false)
+	## A turning leaf must shadow whichever face points at the light.
+	for leaf in [_left_page_mesh, _right_page_mesh]:
+		leaf.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
+	for back in [_left_back_mesh, _right_back_mesh]:
+		back.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_bind_rest()
 
 
-func _refresh_runes(state: int) -> void:
-	if not is_instance_valid(_rune_strip):
+func _bind(mesh: MeshInstance3D, role: String, pair: PagePair, side: String) -> void:
+	var mat := mesh.material_override as StandardMaterial3D
+	var vp: SubViewport = pair.left_vp if side == "left" else pair.right_vp
+	mat.albedo_texture = vp.get_texture()
+	_bindings[role] = pair_side_id(pair.get_instance_id(), side)
+
+
+func _bind_rest() -> void:
+	## Flat spread: both leaves show the current pair, nothing beneath.
+	var cur := _cur_pair()
+	_bind(_left_page_mesh, "left", cur, "left")
+	_bind(_right_page_mesh, "right", cur, "right")
+	_bind(_left_back_mesh, "left_back", cur, "left")
+	_bind(_right_back_mesh, "right_back", cur, "right")
+	_right_under_mesh.visible = false
+	_left_under_mesh.visible = false
+	_turn_dir = 0
+
+
+func _bind_turn(dir: int) -> void:
+	## Forward: right leaf front = current right, back = next left, beneath =
+	## next right. Backward mirrors it with the previous pair.
+	if dir == 0:
+		_bind_rest()
 		return
-	## Four marks: 0=本叶状态, 1=可启, 2=已阅, 3=墨封 — lit by clue state (P1).
-	var lit := [
-		state == DiaryCatalog.STATE_AVAILABLE or state == DiaryCatalog.STATE_COMPLETED,
-		state == DiaryCatalog.STATE_AVAILABLE,
-		state == DiaryCatalog.STATE_COMPLETED,
-		state == DiaryCatalog.STATE_LOCKED,
-	]
-	var base := Color(0.28, 0.22, 0.18, 0.5)
-	match state:
-		DiaryCatalog.STATE_AVAILABLE:
-			base = Color(0.42, 0.31, 0.18, 0.95)
-		DiaryCatalog.STATE_COMPLETED:
-			base = Color(0.32, 0.55, 0.3, 0.9)
-	for i in range(_rune_buttons.size()):
-		var rune := _rune_buttons[i]
-		if not is_instance_valid(rune):
+	var cur := _cur_pair()
+	_bind(_left_page_mesh, "left", cur, "left")
+	_bind(_right_page_mesh, "right", cur, "right")
+	if dir > 0:
+		var nxt: PagePair = _pairs[_next]
+		_bind(_right_back_mesh, "right_back", nxt, "left")
+		_bind(_right_under_mesh, "right_under", nxt, "right")
+		## A blocked turn only bounces: do not let the lifted leaf reveal it.
+		_right_under_mesh.visible = not _block_forward
+		_left_under_mesh.visible = false
+	else:
+		var prv: PagePair = _pairs[_prev]
+		_bind(_left_back_mesh, "left_back", prv, "right")
+		_bind(_left_under_mesh, "left_under", prv, "left")
+		_left_under_mesh.visible = not _block_backward
+		_right_under_mesh.visible = false
+	_turn_dir = dir
+	_turn_from_key = cur.spread_key()
+
+
+func _cur_pair() -> PagePair:
+	return _pairs[_cur]
+
+
+static func _key_of(spread: Dictionary) -> int:
+	if spread.is_empty():
+		return -1
+	return int(spread.get("spread_index", spread.get("page_index", -1)))
+
+
+func _rotate(dir: int) -> void:
+	## Swap roles only. The pair that wraps around holds a stale leaf, so it is
+	## blanked until set_neighbours() prepares it.
+	var wrapped: int
+	if dir > 0:
+		wrapped = _prev
+		_prev = _cur
+		_cur = _next
+		_next = wrapped
+	else:
+		wrapped = _next
+		_next = _cur
+		_cur = _prev
+		_prev = wrapped
+	_fill_pair(_pairs[wrapped], {}, false)
+	_apply_update_modes()
+
+
+func _apply_update_modes() -> void:
+	## Current pair draws every frame (the seal breathes); neighbours keep the
+	## frame they rendered once after their last fill.
+	for i in range(_pairs.size()):
+		var pair: PagePair = _pairs[i]
+		if i == _cur:
+			pair.set_update_mode(SubViewport.UPDATE_ALWAYS)
+		elif pair.left_vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
+			pair.set_update_mode(SubViewport.UPDATE_DISABLED)
+	if is_instance_valid(_desk_world):
+		_desk_world.move_child(_cur_pair(), 0)
+
+
+func _fill_pair(pair: PagePair, spread: Dictionary, block: bool) -> void:
+	pair.fill(spread)
+	var path: String = pair.art_path()
+	if path == pair.shown_art_path and pair.pending_art_path.is_empty():
+		return
+	if path.is_empty():
+		pair.pending_art_path = ""
+		pair.set_art("", null)
+		return
+	var tex := _art.take(path, block)
+	if tex != null or block:
+		pair.pending_art_path = ""
+		pair.set_art(path, tex)
+		return
+	## Not decoded yet: paper placeholder now, real art when the thread lands.
+	pair.pending_art_path = path
+	if not pair.shown_art_path.is_empty():
+		pair.set_art("", null)
+	set_process(true)
+
+
+func _has_pending_art() -> bool:
+	for pair in _pairs:
+		if not String(pair.pending_art_path).is_empty():
+			return true
+	return false
+
+
+func _poll_pending_art() -> void:
+	for pair in _pairs:
+		var path: String = pair.pending_art_path
+		if path.is_empty() or not _art.ready(path):
 			continue
-		var style := rune.get_theme_stylebox("normal") as StyleBoxFlat
-		if style == null:
-			style = StyleBoxFlat.new()
-			rune.add_theme_stylebox_override("normal", style)
-			rune.add_theme_stylebox_override("hover", style)
-			rune.add_theme_stylebox_override("pressed", style)
-		var is_lit: bool = lit[i] if i < lit.size() else false
-		## With medallion art present the plate must step back, or the painted
-		## token sits on a coloured disc. Lit/unlit then reads on the art.
-		var has_art: bool = i < _rune_art.size() and is_instance_valid(_rune_art[i])
-		if is_lit:
-			style.bg_color = Color(0, 0, 0, 0) if has_art else base
-			style.border_color = (
-				Color(0, 0, 0, 0)
-				if has_art
-				else Color(base.r + 0.15, base.g + 0.1, base.b + 0.05, 0.9)
-			)
-			rune.modulate = Color(1, 1, 1, 1)
-		else:
-			style.bg_color = Color(0, 0, 0, 0) if has_art else Color(0.28, 0.22, 0.18, 0.4)
-			style.border_color = (
-				Color(0, 0, 0, 0) if has_art else Color(0.4, 0.32, 0.22, 0.35)
-			)
-			## Unlit tokens read as dimmed metal rather than vanishing.
-			rune.modulate = Color(0.62, 0.6, 0.58, 0.5) if has_art else Color(1, 1, 1, 0.55)
-		rune.tooltip_text = _rune_hint(i, state)
+		pair.pending_art_path = ""
+		pair.set_art(path, _art.take(path, false))
 
 
-func _rune_hint(index: int, state: int) -> String:
-	var state_zh := "墨封"
-	match state:
-		DiaryCatalog.STATE_AVAILABLE:
-			state_zh = "可启"
-		DiaryCatalog.STATE_COMPLETED:
-			state_zh = "已阅"
-	var marks: PackedStringArray = ["本叶", "启印", "阅印", "封印"]
-	var mark: String = marks[index] if index >= 0 and index < marks.size() else "符"
-	return "%s · %s" % [mark, state_zh]
+func _on_pair_wax_pressed(pair: Node) -> void:
+	if pair == _cur_pair():
+		_on_wax_pressed()
 
 
-func _refresh_side_sticker() -> void:
-	if not is_instance_valid(_side_sticker):
+func _on_pair_rune_pressed(index: int, pair: Node) -> void:
+	if pair != _cur_pair():
 		return
-	var notes: Array = _spread.get("side_notes", [])
-	if notes.is_empty():
-		_side_sticker.visible = false
-		return
-	_side_sticker.visible = true
-	_side_sticker.tooltip_text = "旁支 %d" % notes.size()
-
-
-func _on_rune_pressed(index: int) -> void:
 	var clue := _primary_clue()
-	var state := int(_spread.get("state", clue.get("state", DiaryCatalog.STATE_LOCKED)))
+	var state: int = pair.state()
 	var title := String(_spread.get("title_zh", clue.get("title_zh", "未署名页")))
-	var body := _rune_hint(index, state)
+	var body: String = pair.rune_hint(index, state)
 	var ann := String(clue.get("annotation_zh", ""))
 	if state == DiaryCatalog.STATE_COMPLETED and not ann.is_empty():
 		body = "%s\n%s" % [body, ann.substr(0, 36)]
@@ -1119,7 +966,9 @@ func _on_rune_pressed(index: int) -> void:
 	_show_rune_detail("%s\n%s" % [title, body])
 
 
-func _on_side_sticker_pressed() -> void:
+func _on_pair_side_sticker_pressed(pair: Node) -> void:
+	if pair != _cur_pair():
+		return
 	var notes: Array = _spread.get("side_notes", [])
 	if notes.is_empty():
 		return
@@ -1297,32 +1146,48 @@ func _gui_input(event: InputEvent) -> void:
 		if _input_mode == INPUT_FLIP:
 			## Drag left (negative x) opens next page; right goes previous.
 			_flip_progress = clampf((-delta.x) / maxf(180.0, size.x * 0.22), -1.0, 1.0)
-			_apply_flip_visual(_flip_progress)
+			_apply_flip_visual(_flip_progress * DRAG_TURN_SCALE)
 			accept_event()
 
 
 func _apply_flip_visual(progress: float) -> void:
+	## progress: turn fraction, signed by direction (see COMMIT_TURN).
 	var p := clampf(progress, -1.0, 1.0)
+	var dir := 0 if is_zero_approx(p) else (1 if p > 0.0 else -1)
+	if dir != _turn_dir:
+		_bind_turn(dir)
+	var s := absf(p)
+	var angle := 180.0 * s
+	var lift := 0.05 * sin(PI * s) + LAND_LIFT * smoothstep(COMMIT_TURN, 1.0, s)
+	## Paper relaxes flat as it falls onto the far side.
+	var flat := 1.0 - 0.97 * smoothstep(0.55, 1.0, s)
 	## The binding runs along Z. Both leaves lift toward +Y.
 	if is_instance_valid(_right_hinge):
-		var right_turn := maxf(0.0, p) * 95.0
-		var right_lift := maxf(0.0, p) * 0.05
-		_right_hinge.rotation_degrees = Vector3(0.0, 0.0, right_turn)
-		_right_hinge.position = Vector3(0.002, 0.01 + right_lift, 0.0)
+		var on := dir > 0
+		_right_hinge.rotation_degrees = Vector3(0.0, 0.0, angle if on else 0.0)
+		_right_hinge.position = Vector3(0.002, 0.01 + (lift if on else 0.0), 0.0)
+		_set_leaf_flat(_right_page_mesh, _right_back_mesh, flat if on else 1.0)
 	if is_instance_valid(_left_hinge):
-		var left_turn := maxf(0.0, -p) * -95.0
-		var left_lift := maxf(0.0, -p) * 0.05
-		_left_hinge.rotation_degrees = Vector3(0.0, 0.0, left_turn)
-		_left_hinge.position = Vector3(-0.002, 0.01 + left_lift, 0.0)
-	_shade_turning_leaf(p)
+		var on := dir < 0
+		_left_hinge.rotation_degrees = Vector3(0.0, 0.0, -angle if on else 0.0)
+		_left_hinge.position = Vector3(-0.002, 0.01 + (lift if on else 0.0), 0.0)
+		_set_leaf_flat(_left_page_mesh, _left_back_mesh, flat if on else 1.0)
+	_shade_turning_leaf(s, dir)
 
 
-func _shade_turning_leaf(p: float) -> void:
-	## Shadow softens the content swap at the top of the arc.
-	var dip := smoothstep(0.45, 0.95, absf(p))
-	var shade: float = 1.0 - 0.82 * dip
-	_set_leaf_shade(_right_page_mesh, shade if p > 0.0 else 1.0)
-	_set_leaf_shade(_left_page_mesh, shade if p < 0.0 else 1.0)
+func _set_leaf_flat(front: MeshInstance3D, back: MeshInstance3D, flat: float) -> void:
+	for mesh in [front, back]:
+		if is_instance_valid(mesh):
+			mesh.scale = Vector3(1.0, 1.0, flat)
+
+
+func _shade_turning_leaf(s: float, dir: int) -> void:
+	## A leaf edge-on to the key light reads darker; nothing to hide any more.
+	var shade: float = 1.0 - 0.3 * sin(PI * s)
+	_set_leaf_shade(_right_page_mesh, shade if dir > 0 else 1.0)
+	_set_leaf_shade(_right_back_mesh, shade if dir > 0 else 1.0)
+	_set_leaf_shade(_left_page_mesh, shade if dir < 0 else 1.0)
+	_set_leaf_shade(_left_back_mesh, shade if dir < 0 else 1.0)
 
 
 func _set_leaf_shade(mesh: MeshInstance3D, shade: float) -> void:
@@ -1336,14 +1201,8 @@ func _set_leaf_shade(mesh: MeshInstance3D, shade: float) -> void:
 
 func _reset_flip_visual() -> void:
 	_flip_progress = 0.0
-	_set_leaf_shade(_right_page_mesh, 1.0)
-	_set_leaf_shade(_left_page_mesh, 1.0)
-	if is_instance_valid(_right_hinge):
-		_right_hinge.rotation_degrees = Vector3.ZERO
-		_right_hinge.position = Vector3(0.002, 0.01, 0.0)
-	if is_instance_valid(_left_hinge):
-		_left_hinge.rotation_degrees = Vector3.ZERO
-		_left_hinge.position = Vector3(-0.002, 0.01, 0.0)
+	_apply_flip_visual(0.0)
+	_bind_rest()
 
 
 func is_flip_animating() -> bool:
@@ -1352,29 +1211,43 @@ func is_flip_animating() -> bool:
 
 func play_flip(delta: int, total_duration: float = PROG_FLIP_DURATION) -> bool:
 	## Programmatic turn (nav bookmarks / settlement auto-flip / index chain).
-	## Without this these entries swapped the spread with no hinge motion, i.e.
-	## exactly the 2D flash the desk carrier exists to remove. Mirrors the drag
-	## commit: curl up, swap content at the peak, then settle flat.
+	## Same hinge motion as a drag commit, from a flat leaf.
 	if _flip_animating or delta == 0:
 		return false
-	var over: float = COMMIT_FLIP_PEAK if delta > 0 else -COMMIT_FLIP_PEAK
 	var dur := maxf(0.2, total_duration)
-	var rise := dur * PROG_FLIP_RISE_FRAC
-	_flip_animating = true
 	_input_mode = INPUT_IDLE
 	_flip_progress = 0.0
+	_commit_turn(delta, 0.0, dur * PROG_FLIP_RISE_FRAC, dur * (1.0 - PROG_FLIP_RISE_FRAC))
+	return true
+
+
+func _commit_turn(delta: int, from_turn: float, rise: float, settle: float) -> void:
+	## Leaf rises to upright, the chapter commits (apply_spread rotates the
+	## ring to the prepared neighbour), then it falls onto the far side and
+	## the rest binding takes over with identical content: no swap to see.
+	var dir := 1 if delta > 0 else -1
+	var peak := COMMIT_TURN * dir
+	_flip_animating = true
 	_hide_rune_detail()
 	## Seal must not take a click while the leaf is mid-air.
 	_set_wax_hit_enabled(false)
 	TableSfx.play(self, TableSfx.KIND_FLIP)
+	if _turn_dir != dir:
+		_bind_turn(dir)
+	_turn_from_key = _cur_pair().spread_key()
 	var tw := create_tween()
-	tw.tween_method(_apply_flip_visual, 0.0, over, rise).set_trans(
+	tw.tween_method(_apply_flip_visual, from_turn, peak, maxf(0.04, rise)).set_trans(
 		Tween.TRANS_SINE
 	).set_ease(Tween.EASE_OUT)
 	tw.tween_callback(func() -> void:
 		flip_committed.emit(delta)
+		## A refused commit (gate said no) leaves the current leaf in place:
+		## fall back flat instead of landing on content that did not change.
+		var landed: bool = _cur_pair().spread_key() != _turn_from_key
+		_settle_from = peak
+		_settle_to = float(dir) if landed else 0.0
 	)
-	tw.tween_method(_apply_flip_visual, over, 0.0, dur - rise).set_trans(
+	tw.tween_method(_settle_turn, 0.0, 1.0, settle).set_trans(
 		Tween.TRANS_SINE
 	).set_ease(Tween.EASE_IN)
 	tw.tween_callback(func() -> void:
@@ -1383,7 +1256,10 @@ func play_flip(delta: int, total_duration: float = PROG_FLIP_DURATION) -> bool:
 		_set_wax_hit_enabled(true)
 		flip_visual_finished.emit()
 	)
-	return true
+
+
+func _settle_turn(u: float) -> void:
+	_apply_flip_visual(lerpf(_settle_from, _settle_to, u))
 
 
 func set_flip_target_locked(locked: bool) -> void:
@@ -1444,11 +1320,11 @@ func _sync_wax_hit_rect() -> void:
 	## Keep the screen-space hit glued to where the seal actually renders.
 	if not is_instance_valid(_wax_hit) or not is_instance_valid(_cam):
 		return
-	if not is_instance_valid(_wax_button) or not is_instance_valid(_right_page_mesh):
+	if _pairs.is_empty() or not is_instance_valid(_right_page_mesh):
 		return
 	if _flip_animating or _bounce_animating:
 		return
-	var seal_rect := _wax_button.get_global_rect()
+	var seal_rect: Rect2 = _cur_pair().wax_button.get_global_rect()
 	if seal_rect.size.x <= 1.0 or seal_rect.size.y <= 1.0:
 		return
 	var vp_size := Vector2(PAGE_VP_SIZE)
@@ -1493,7 +1369,7 @@ func _refresh_wax_hit() -> void:
 		return
 	var clue := _primary_clue()
 	var title := String(_spread.get("title_zh", clue.get("title_zh", "")))
-	var state_name := String(clue.get("state_name", _wax_button.text))
+	var state_name := String(clue.get("state_name", _cur_pair().wax_button.text))
 	_wax_hit.accessibility_name = "%s · %s" % [title, state_name]
 	_wax_hit.tooltip_text = _wax_hit.accessibility_name
 	## Spread content swaps at the peak of a turn; keep the seal cold until the
@@ -1502,21 +1378,24 @@ func _refresh_wax_hit() -> void:
 
 
 func _update_wax_feedback() -> void:
-	if not is_instance_valid(_wax_hit) or not is_instance_valid(_wax_art):
+	if not is_instance_valid(_wax_hit) or _pairs.is_empty():
 		return
+	var wax_art: TextureRect = _cur_pair().wax_art
+	var wax_button: Button = _cur_pair().wax_button
+	var pulse: bool = _cur_pair().state() == DiaryCatalog.STATE_AVAILABLE and not _spread.is_empty()
 	var emphasized := not _wax_hit.disabled and (
 		_wax_hit.is_hovered() or _wax_hit.has_focus()
 	)
 	var brightness := 1.0
-	if _wax_pulse_active:
+	if pulse:
 		brightness = 0.96 + 0.04 * sin(_flame_t * 3.2)
 	if emphasized:
 		brightness *= 1.13
 	if _wax_hit.button_pressed:
 		brightness *= 0.91
-	_wax_art.modulate = Color(brightness, brightness, brightness)
-	if _wax_pulse_active:
-		_wax_button.modulate = _wax_art.modulate
+	wax_art.modulate = Color(brightness, brightness, brightness)
+	if pulse:
+		wax_button.modulate = wax_art.modulate
 
 
 func _on_wax_pressed() -> void:
@@ -1550,30 +1429,11 @@ func _on_release(pos: Vector2) -> void:
 		var delta := 1 if _flip_progress > 0.0 else -1
 		var blocked := (delta > 0 and _block_forward) or (delta < 0 and _block_backward)
 		if absf(_flip_progress) >= FLIP_THRESHOLD and not blocked:
-			## Peak curl → parent swaps spread while still turned → ease flat onto new leaf.
-			var peak := _flip_progress
-			## Threshold can be as low as 0.5; carry it the rest of the way over
-			## so a committed turn always looks like the leaf went past vertical.
-			var over: float = signf(peak) * maxf(absf(peak) * 1.1, COMMIT_FLIP_PEAK)
-			_flip_animating = true
-			_hide_rune_detail()
-			TableSfx.play(self, TableSfx.KIND_FLIP)
-			var tw := create_tween()
-			tw.tween_method(_apply_flip_visual, peak, over, 0.18).set_trans(
-				Tween.TRANS_SINE
-			).set_ease(Tween.EASE_OUT)
-			tw.tween_callback(func() -> void:
-				flip_committed.emit(delta)
-			)
-			tw.tween_method(_apply_flip_visual, over, 0.0, 0.26).set_trans(
-				Tween.TRANS_SINE
-			).set_ease(Tween.EASE_IN)
-			tw.tween_callback(func() -> void:
-				_flip_animating = false
-				_reset_flip_visual()
-				_set_wax_hit_enabled(true)
-				flip_visual_finished.emit()
-			)
+			## Carry the leaf from where the hand left it up to upright (commit)
+			## and on over onto the far side.
+			var from_turn := _flip_progress * DRAG_TURN_SCALE
+			var rise := 0.18 * (COMMIT_TURN - absf(from_turn)) / (COMMIT_TURN * 0.5)
+			_commit_turn(delta, from_turn, rise, 0.30)
 			return
 		var reason := ""
 		if blocked and absf(_flip_progress) >= FLIP_THRESHOLD:
@@ -1592,7 +1452,7 @@ func _on_release(pos: Vector2) -> void:
 func _play_bounce(reason: String = "") -> void:
 	if _bounce_tween != null and is_instance_valid(_bounce_tween):
 		_bounce_tween.kill()
-	var from := _flip_progress
+	var from := _flip_progress * DRAG_TURN_SCALE
 	_bounce_animating = true
 	_bounce_tween = create_tween()
 	_bounce_tween.tween_method(_apply_flip_visual, from, 0.0, 0.2)
