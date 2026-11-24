@@ -4,6 +4,22 @@
 
 ## 进行中 / 待办
 
+> **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
+> 当前版本 v0.88（R2 + 热修）由**主会话**并行执行，标注 `owner: 主会话` 的条目**不要重复开工**，也不要改它们的文件。
+
+### CO-R2 · v0.88 R2 各轨道合并与黄金回放统一更新
+- status: doing
+- owner: 主会话——**勿重复**
+
+### CO-X1 · 迁入书桌世界 X1 批资产
+- status: blocked
+- 来源: ART_BRIEF_DESK_WORLD
+- 改哪些: `assets/game/desk_world/**`、`art/ASSET_MANIFEST.md`
+- 完成标准: DW-01…07 经 UI 审稿"过"之后迁入；登记来源和授权
+- 怎么验: Godot 导入无报错；run_tests 全绿
+- 阻塞: ART-DW-X1 交付，且 UI-07 审稿通过
+
+
 ### CO-01 · 卡面/蜡封正式迁入抽查
 - status: todo
 - 来源: ACTIVE_PLAN G-01/G-02 仍待
