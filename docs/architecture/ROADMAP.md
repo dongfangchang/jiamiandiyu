@@ -47,7 +47,7 @@
 | R0-07 | 数据层 | `challenge_session.gd:12-13` 的默认版本对齐到当前（AR-22 的一部分） | 默认值与 route_session 一致 |
 | R0-08 | 美术 + 主协调者 | 新建 `art/.gdignore`，删除 `art/**` 下的 `.import`；`tools/simulation/out/` 加入 `.gitignore` 并取消跟踪（AR-54/55） | Godot 不再导入 `art/`；`git status` 干净 |
 | R0-09 | 主协调者 | 在 run_tests 中加入 TARGET §4 的守卫 1 和守卫 3；守卫 2 先只报告不阻断 | 守卫在脚本中可见 |
-| R0-10 | 产品经理 | 修正文档冲突（AR-24、AR-57）：根目录表述 ✅、章程删除"不做 3D 场景" ✅、章程加入提交与推送政策 ✅、README 当前基线 ⬜ | 文档一致 |
+| R0-10 | 产品经理 | 修正文档冲突（AR-24、AR-57）：根目录表述 ✅、章程删除"不做 3D 场景" ✅、章程加入提交与推送政策 ✅、README 当前基线 ✅ | 文档一致 |
 | R0-11 | UI | v0.85 余项：日记八开真窗口逐页审稿与校色 | UI 报告中有结论 |
 | NAV-01…09 | UI（单一负责人，授权修改 app_controller 中与路由相关的部分） | 界面切换整治，见 `UI_NAVIGATION_REVIEW.md` §3；R0-06 并入 NAV-08 | 见 v0.86.0 §4 验收 |
 
