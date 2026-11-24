@@ -4,6 +4,18 @@
 
 ## 进行中 / 待办
 
+### UI-P0-3-fix · 轮询发现（2026-11-24，架构师）：工作区当前状态未达合入门
+- status: todo
+- 优先级: P0（在 UI-P0-3 标 done 前必须清零）
+- 来源: 主会话轮询，对工作区跑 `tools/run_tests.sh` → pass=92 fail=1 guard_block=1
+- 问题:
+  1. **守卫阻断**：`src/ui/desk_world_catalog.gd:4` 的注释里写了 `res://assets/game/...`，命中"UI 资源路径字面量"守卫。注释里也不要写这个前缀（可改成"assets 路径"）。
+  2. **测试失败**：`tests/ui/v085_diary_art_runner` 中"desk uses wood or paper fallback"和"dedicated wood replaces desk grain"两项。换成 DQ-02 PBR 桌面后，旧断言已不成立。按"替换即删除"规则改写为断言新的桌面材质（注册表 ID `desk.dq.desk_albedo` / normal / roughness），而不是保留旧路径。
+  3. **渲染器**：`project.godot` 已在工作区改为 `forward_plus`（ADR-0035）。它是跨角色文件：请在 UI-P0-3 的同一提交里带上，并在报告中附 Forward+ 下的两种分辨率截图，以及 HiDPI 下的帧率（ADR-0035 实测全开 FX 约 17 fps，偏低：SSAO / 辉光参数要按帧率预算调，目标 ≥30 fps）。
+  4. **协调**：主会话的 P0-2 可读性轨道同时在改 `diary_desk_stage.gd` / `diary_page_pair.gd`（页面视口 1024×1440、物理像素渲染）。P0-3 合入前须先 `git pull`，并在主会话合入 P0-2 之后再提交，避免互相覆盖。
+- 完成标准: run_tests 全绿、守卫不阻断；Forward+ 截图和帧率写进报告
+
+
 ### UI-07-DQ · 日记站画面升级 DQ-01…06 审稿
 - status: done
 - 来源: ART-DQ 交付；ART_BRIEF_DESK_WORLD §5；ADR-0034 D3/D4；用户 2026-11-24
@@ -70,14 +82,19 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: todo
+- status: done
+- owner: ui-designer 智能体（2026-11-24；未覆盖主会话 P0-1/P0-2/P1-1/X0-rev）
 - 优先级: P0
 - 来源: 用户反馈"画风太简陋"；ADR-0034 D4
-- 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_page_pair.gd`、`tests/ui/**`
-- 做法: 接入 DQ-01 背景板、DQ-02 桌面 PBR、DQ-03 书皮和书口、DQ-04 右页装饰、DQ-05 丝带书签（上面写"合上"，取代红色平面块）、DQ-06 接触阴影；按渲染器结论调整光照和后期（色调映射、辉光、暗角）；右页版式：页眉饰、极淡横线、题名、正文、页角饰，蜡封带文字。
-- 完成标准: 用户认可前后对比截图。
-- 阻塞: 无（AR-05 / UI-07-DQ / CO-DQ / Forward+ 均已齐）
-- 注意: `diary_desk_stage.gd` 可能与主会话 UI-P0-2 同文件——先读再改，避免覆盖可读性改动
+- 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_desk_quality.gd`、`src/ui/desk_world_catalog.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（仅合上书签）、`tests/ui/diary_quality_wiring_runner.*`
+- 做法: 接入 DQ-01…06；Forward+ ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
+- 完成标准: 实现与探针绿；用户真窗认可截图（待签字）
+- 阻塞: 无
+- 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
+- 证据:
+  - `docs/reports/v0.89.0/ui.md` UI-P0-3 节
+  - `diary_quality_wiring_runner` 30/30；v083 / prepared_turn / challenge_fallback OK
+  - 截图 `docs/reports/v0.89.0/ui_p0_3_diary_1600x900.png`（Metal Forward+）
 
 ### UI-X0-rev · 按 ADR-0034 修订站位设计稿
 - status: doing
