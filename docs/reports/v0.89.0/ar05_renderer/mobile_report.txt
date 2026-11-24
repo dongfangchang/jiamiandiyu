@@ -1,0 +1,12 @@
+AR-05 renderer compare
+method=mobile
+driver=metal
+capture_size=2920x1753
+platform=macOS
+fps_avg=32.2 fps_min=32.0 fps_max=40.0 samples=48
+fx_env_found=true
+fx_ssao_enabled=true
+fx_glow_enabled=true
+fx_tonemap=3
+baseline=res://.tools/ui-captures/ar05_renderer/mobile_baseline.png
+fx=res://.tools/ui-captures/ar05_renderer/mobile_fx.png

@@ -8,8 +8,10 @@
 
 | 批 | 状态 | 说明 |
 |---|---|---|
-| X1（DW-01…07） | 候选齐；**UI-07 复审全过** | 本目录 |
-| X2（DW-11…18） | 候选齐 2026-11-24；待 UI-07 审稿 | 本目录 |
+| X1（DW-01…07） | 候选齐；**UI-07 复审全过**；已迁 `assets/game`（CO-X1） | 本目录 |
+| X2（DW-11…18） | 候选齐；**UI-07-X2 全过**；已迁（CO-X2） | 本目录 |
+| **DQ（DQ-01…06）** | **候选齐 2026-11-24**；待 UI 审稿 | `diary_quality/` |
+| **DW-07b 索引卡** | **候选齐**；待 UI 审稿 | `index_card/` |
 | X3（DW-21…23） | **未开**（等章节清单） | 见 art/tasks.md |
 
 ## X1 清单
@@ -41,6 +43,15 @@
 
 总览：`_overview/desk_world_x2_overview_2048.png`
 
+## DQ / 07b 清单（v0.89 P0）
+
+| ID | 目录 | 关键文件 |
+|---|---|---|
+| DQ-01…06 | `diary_quality/dq0N/` | 见 `diary_quality/README.md` |
+| DW-07b | `index_card/` | `index_card.png` + shadow @600×900 |
+
+总览：`_overview/diary_quality_dq_overview_2048.png`
+
 ## 通用规则（已落实）
 
 - 正俯视、RGBA 透明底（平铺/遮罩例外）、插画无字
@@ -50,5 +61,6 @@
 
 ## 审稿
 
-请 **ui-designer · UI-07** 审 **X2（DW-11…18）**；退回按 DW-ID 写清单。  
-**勿**在本批自行迁 `assets/game`（等 UI-07 过后再请 coordinator）。
+- X1/X2：已过审并迁入。
+- **请 ui-designer 审 DQ-01…06 + DW-07b**（接进日记站后截 1600×900 / 2920×1753 对比）。  
+**勿**自行迁 `assets/game`（等审过请 coordinator）。

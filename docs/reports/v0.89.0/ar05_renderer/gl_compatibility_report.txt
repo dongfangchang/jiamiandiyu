@@ -1,0 +1,12 @@
+AR-05 renderer compare
+method=gl_compatibility
+driver=opengl3
+capture_size=2920x1753
+platform=macOS
+fps_avg=20.2 fps_min=3.0 fps_max=21.0 samples=48
+fx_env_found=true
+fx_ssao_enabled=true
+fx_glow_enabled=true
+fx_tonemap=3
+baseline=res://.tools/ui-captures/ar05_renderer/gl_compatibility_baseline.png
+fx=res://.tools/ui-captures/ar05_renderer/gl_compatibility_fx.png
