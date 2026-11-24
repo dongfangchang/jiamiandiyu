@@ -3,6 +3,7 @@ extends Node
 const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
 
 const DeskStage := preload("res://src/ui/diary_desk_stage.gd")
+const DeskCatalog := preload("res://src/ui/desk_world_catalog.gd")
 const DiaryCatalog := preload("res://src/ui/diary_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const AssetRegistry := preload("res://src/ui/asset_registry.gd")
@@ -30,8 +31,13 @@ func _ready() -> void:
 	if not ResourceLoader.exists(DeskStage.SEAL_PATHS[DiaryCatalog.STATE_AVAILABLE]):
 		_expect(not wax_art.visible and fallback_button.visible, "missing seal preserves fallback")
 	var desk_mat := desk.get_desk_mesh().material_override as StandardMaterial3D
-	var wood_path := DeskStage.WOOD_PATH if ResourceLoader.exists(DeskStage.WOOD_PATH) else DeskStage.GRAIN_PATH
-	_expect(desk_mat.albedo_texture.resource_path == wood_path, "desk uses wood or paper fallback")
+	_expect(DeskCatalog.has("desk.dq.desk_albedo"), "DQ-02 albedo registered")
+	_expect(DeskCatalog.has("desk.dq.desk_normal"), "DQ-02 normal registered")
+	_expect(DeskCatalog.has("desk.dq.desk_roughness"), "DQ-02 roughness registered")
+	var dq_albedo := DeskCatalog.texture("desk.dq.desk_albedo")
+	var dq_normal := DeskCatalog.texture("desk.dq.desk_normal")
+	var dq_rough := DeskCatalog.texture("desk.dq.desk_roughness")
+	_expect(dq_albedo != null and desk_mat.albedo_texture == dq_albedo, "desk uses DQ-02 albedo")
 	desk.free()
 
 	# Stand-in textures exist only in the process resource cache where assets
@@ -39,7 +45,6 @@ func _ready() -> void:
 	var seals := {}
 	for state in DeskStage.SEAL_PATHS:
 		seals[state] = _texture_at(DeskStage.SEAL_PATHS[state], Vector2i(512, 512))
-	var wood := _texture_at(DeskStage.WOOD_PATH, Vector2i(2048, 2048))
 	var scene_id := "scene.battle.moretti_home"
 	var scene_path := SceneCatalog.path_for(scene_id)
 	var portrait_path := AssetRegistry.lookup("diary_pages", scene_id)
@@ -48,7 +53,14 @@ func _ready() -> void:
 	host.add_child(desk)
 	desk.seal_activated.connect(func(_clue: Dictionary): _activations += 1)
 	desk_mat = desk.get_desk_mesh().material_override as StandardMaterial3D
-	_expect(desk_mat.albedo_texture == wood, "dedicated wood replaces desk grain")
+	_expect(
+		desk_mat.normal_enabled and dq_normal != null and desk_mat.normal_texture == dq_normal,
+		"desk uses DQ-02 normal"
+	)
+	_expect(
+		dq_rough != null and desk_mat.roughness_texture == dq_rough,
+		"desk uses DQ-02 roughness"
+	)
 	_expect(SceneCatalog.has_diary_art(scene_id), "portrait is recognized")
 	_expect(SceneCatalog.diary_path_for(scene_id) == portrait_path, "left leaf selects portrait")
 	_expect(SceneCatalog.path_for(scene_id) == scene_path, "full-screen scene retains landscape")

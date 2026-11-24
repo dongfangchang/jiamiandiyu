@@ -4,6 +4,15 @@
 
 ## Log
 
+- 2026-11-24 · AR-05：三渲染器真窗口对比（M4 · 2920×1753）→ ADR-0035 采纳桌面默认 Forward+。证据 `docs/decisions/ADR-0035-desk-world-renderer.md`、`docs/reports/v0.89.0/architect.md`、`docs/reports/v0.89.0/ar05_renderer/`。未改 `src/ui/**` / `project.godot`。
+
+### Retro · 2026-11-24 · AR-05 渲染器评估
+1. 目标是否达成？是。证据：ADR-0035 + 三法 baseline/fx 缩略图与 FPS 表；tasks AR-05 done。
+2. 哪一步最耗时或最易错？3D 截图禁止 headless；Environment.ssao_enabled 在 Compatibility 上可写但不跑——必须以后端能力表 + 肉眼为准，不能信属性回读。
+3. 可沉淀为 Skill 的步骤？渲染器对比清单：① CLI `--rendering-method` 不改 project ② 同镜头同分辨率 ③ baseline+FX 双拍 ④ 记 driver/FPS ⑤ 缩略图入库、全图可复跑 ⑥ 决策写迁移代价与谁落地配置。
+4. 该进 Tool Registry 的命令？`tools/architecture/ar05_run_compare.sh`（评估复跑）。
+5. 下次同一类任务第一条读？本 Retro + ADR-0035 + `tools/architecture/ar05_renderer_compare_runner.gd`。
+
 - 2026-11-24 · AR-01/AR-02：R1 §4.1 遗留写入 ROADMAP 可勾选归口（含新 R2-13）；R2 边界+单一负责人+黄金回放约束写入 ROADMAP。证据 `docs/architecture/ROADMAP.md`、`docs/reports/v0.88.0/architect.md`。AR-03 仍 blocked（等 X1）。
 
 ### Retro · 2026-11-24 · AR-01/AR-02 文档债

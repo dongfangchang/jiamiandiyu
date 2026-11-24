@@ -13,6 +13,7 @@ const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const DiaryCatalog := preload("res://src/ui/diary_ui_catalog.gd")
 const DiaryDeskStage := preload("res://src/ui/diary_desk_stage.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
+const DeskCatalog := preload("res://src/ui/desk_world_catalog.gd")
 const RouteCommand := preload("res://src/core/route_command.gd")
 const TableSfx := preload("res://src/ui/table_sfx.gd")
 
@@ -332,41 +333,77 @@ func get_chrome_font_sizes() -> Dictionary:
 
 
 func _build_close_bookmark(root: Control) -> void:
-	## BRIEF DeskChrome: return is a desk-edge ribbon bookmark, kept far right
-	## (x≥1536@1600) so it never overlaps WaxSealHit (~0.54–0.76).
+	## DQ-05 ribbon + 思源「合上」; far right so it never overlaps WaxSealHit.
 	_hub_button = Button.new()
 	_hub_button.name = "CloseBookmark"
 	_hub_button.text = "合上"
 	_hub_button.focus_mode = Control.FOCUS_ALL
-	_hub_button.custom_minimum_size = Vector2(56, 100)
 	_hub_button.anchor_left = 1.0
 	_hub_button.anchor_right = 1.0
-	_hub_button.anchor_top = 0.18
-	_hub_button.anchor_bottom = 0.18
-	_hub_button.offset_left = -60.0
-	_hub_button.offset_right = -4.0
-	_hub_button.offset_top = 0.0
-	_hub_button.offset_bottom = 100.0
-	_hub_button.add_theme_font_override("font", UiTheme.diary_ink_font(true))
-	_hub_button.add_theme_font_size_override("font_size", CHROME_CLOSE_PX)
-	_hub_button.add_theme_color_override("font_color", C_CHROME_TEXT)
-	_hub_button.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.80, 1.0))
-	_hub_button.add_theme_color_override("font_disabled_color", Color(0.45, 0.38, 0.30, 0.55))
-	_hub_button.add_theme_stylebox_override(
-		"normal",
-		UiTheme.style_box(Color(0.55, 0.12, 0.1, 0.88), Color(0.82, 0.58, 0.22, 0.7), 1, 2)
-	)
-	_hub_button.add_theme_stylebox_override(
-		"hover",
-		UiTheme.style_box(Color(0.68, 0.16, 0.12, 0.95), Color(0.95, 0.75, 0.35, 0.85), 1, 2)
-	)
-	_hub_button.add_theme_stylebox_override(
-		"pressed",
-		UiTheme.style_box(Color(0.22, 0.14, 0.06, 0.78), C_GOLD, 1, 3)
-	)
-	_hub_button.add_theme_stylebox_override("disabled", UiTheme.style_box(
-		Color(0.08, 0.06, 0.04, 0.35), Color(0.35, 0.28, 0.18, 0.4), 1, 2
-	))
+	_hub_button.anchor_top = 0.12
+	_hub_button.anchor_bottom = 0.12
+	var ribbon := DeskCatalog.texture("desk.dq.ribbon_bookmark")
+	var ribbon_shadow := DeskCatalog.texture("desk.dq.ribbon_bookmark.shadow")
+	if ribbon != null:
+		_hub_button.custom_minimum_size = Vector2(56, 200)
+		_hub_button.offset_left = -64.0
+		_hub_button.offset_right = -8.0
+		_hub_button.offset_top = 0.0
+		_hub_button.offset_bottom = 200.0
+		var empty := StyleBoxEmpty.new()
+		for state_name in ["normal", "hover", "pressed", "disabled", "focus"]:
+			_hub_button.add_theme_stylebox_override(state_name, empty)
+		if ribbon_shadow != null:
+			var shadow := TextureRect.new()
+			shadow.name = "CloseBookmarkShadow"
+			shadow.texture = ribbon_shadow
+			shadow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			shadow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			shadow.stretch_mode = TextureRect.STRETCH_SCALE
+			shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			shadow.modulate = Color(1, 1, 1, 0.75)
+			shadow.position = Vector2(3, 4)
+			_hub_button.add_child(shadow)
+		var art := TextureRect.new()
+		art.name = "CloseBookmarkRibbon"
+		art.texture = ribbon
+		art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_SCALE
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hub_button.add_child(art)
+		_hub_button.add_theme_font_override("font", UiTheme.diary_ink_font(true))
+		_hub_button.add_theme_font_size_override("font_size", CHROME_CLOSE_PX)
+		_hub_button.add_theme_color_override("font_color", Color(0.98, 0.92, 0.78, 0.96))
+		_hub_button.add_theme_color_override("font_hover_color", Color(1.0, 0.97, 0.88, 1.0))
+		_hub_button.add_theme_color_override("font_pressed_color", Color(0.92, 0.82, 0.62, 1.0))
+		_hub_button.add_theme_color_override("font_disabled_color", Color(0.55, 0.45, 0.35, 0.55))
+	else:
+		_hub_button.custom_minimum_size = Vector2(56, 100)
+		_hub_button.offset_left = -60.0
+		_hub_button.offset_right = -4.0
+		_hub_button.offset_top = 0.0
+		_hub_button.offset_bottom = 100.0
+		_hub_button.add_theme_font_override("font", UiTheme.diary_ink_font(true))
+		_hub_button.add_theme_font_size_override("font_size", CHROME_CLOSE_PX)
+		_hub_button.add_theme_color_override("font_color", C_CHROME_TEXT)
+		_hub_button.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.80, 1.0))
+		_hub_button.add_theme_color_override("font_disabled_color", Color(0.45, 0.38, 0.30, 0.55))
+		_hub_button.add_theme_stylebox_override(
+			"normal",
+			UiTheme.style_box(Color(0.55, 0.12, 0.1, 0.88), Color(0.82, 0.58, 0.22, 0.7), 1, 2)
+		)
+		_hub_button.add_theme_stylebox_override(
+			"hover",
+			UiTheme.style_box(Color(0.68, 0.16, 0.12, 0.95), Color(0.95, 0.75, 0.35, 0.85), 1, 2)
+		)
+		_hub_button.add_theme_stylebox_override(
+			"pressed",
+			UiTheme.style_box(Color(0.22, 0.14, 0.06, 0.78), C_GOLD, 1, 3)
+		)
+		_hub_button.add_theme_stylebox_override("disabled", UiTheme.style_box(
+			Color(0.08, 0.06, 0.04, 0.35), Color(0.35, 0.28, 0.18, 0.4), 1, 2
+		))
 	_hub_button.pressed.connect(_on_hub)
 	root.add_child(_hub_button)
 

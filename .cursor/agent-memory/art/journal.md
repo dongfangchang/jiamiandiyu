@@ -33,3 +33,10 @@
 3. 可沉淀为 Skill 的步骤？Desk-world 批：BRIEF → 正俯视炭底生成 → 禁字约束 + 失败重出 → flood_dark / chroma → fit → shadow → 双态 alpha 对账 → 2048 总览 → UI-07。更新 draft `desk-world-prop-batch`（墨迹程序化 + 页框 chroma）。
 4. 该进 Tool Registry 的命令？仍用本机 art_venv + Pillow；正式脚本化后再登记（勿写绝对盘符）。
 5. 下次同一类任务，第一条该读？`ART_BRIEF_DESK_WORLD` §0/§2 + `DESK_WORLD_STATIONS` §5 + 本批 README；程序化优先做 DW-14/15。
+
+### Retro · 2026-11-24 · ART-DQ（DQ-01…06）+ ART-DW-07b
+1. 目标是否达成？证据：`diary_quality/dq01…06` + `index_card/` 齐；尺寸对 BRIEF §5；总览与示意对比；报告 `docs/reports/v0.89.0/art.md`。未迁 assets/game；未碰主会话 UI。
+2. 哪一步最耗时或最易错？书口/丝带生成易夹带印刷字或墨渍 → 程序化书口 + 清洁丝带重出；索引卡线数要对账到恰好 6 行。
+3. 可沉淀为 Skill 的步骤？日记站材质批：BRIEF §5 → 生成远景/材质 → 接缝/PBR 派生 → 装饰程序化 → contact shadow 从物件 alpha → 示意对比。可并入 draft `desk-world-prop-batch` 的「材质/正视板」分支（暂不晋升）。
+4. 该进 Tool Registry 的命令？`.tools/art_venv` + Pillow 批处理；ComfyUI 本机未就绪，仍用 Cursor GenerateImage。
+5. 下次同一类任务，第一条该读？`ART_BRIEF_DESK_WORLD` §5 + EXPERIENCE §5.1；先定「能程序化的」（书口/涂鸦/接触阴影）再生成。

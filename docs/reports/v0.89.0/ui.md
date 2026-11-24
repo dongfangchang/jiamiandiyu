@@ -1,5 +1,51 @@
 # UI 报告 · v0.89.0
 
+## UI-P0-3-fix · 合入门清零（2026-11-24）
+
+```text
+版本：v0.89.0
+角色：UI 设计
+任务：UI-P0-3-fix（守卫注释 / v085 DQ-02 断言 / Forward+ 帧率预算 / 双分辨率证据）
+状态：完成（测门绿；等主会话 UI-P0-2 合入后再 commit/push，避免覆盖同文件）
+修改文件：
+  src/ui/desk_world_catalog.gd（注释去掉 res://assets/game 前缀字面量）
+  src/ui/diary_desk_quality.gd（SSAO/辉光按 ≥30fps HiDPI 下调）
+  src/ui/diary_desk_stage.gd（关烛光 Omni 影；WorldVP 关 MSAA/TAA；未动 PAGE_VP/镜头）
+  tests/ui/v085_diary_art_runner.gd（旧木纹断言 → DQ-02 registry 材质）
+  tests/ui/v089_diary_quality_capture_runner.gd|.tscn（双分辨率截图 + HiDPI fps）
+  project.godot（forward_plus + mobile 预留；SSAO very-low + half_size）
+  docs/reports/v0.89.0/ui.md / ui_p0_3_fix_diary_*.png
+依赖：UI-P0-3 实现；ADR-0035；主会话 UI-P0-2 尚未合入（PAGE_VP 仍 512×720）
+验证：
+  tools/run_tests.sh → pass=94 fail=0 skipped=12 guard_block=0
+  v085_diary_art_runner OK checks=24
+  diary_quality_wiring_runner 30/30；v083 OK checks=21
+  Forward+ Metal 截图：
+    docs/reports/v0.89.0/ui_p0_3_fix_diary_1600x900.png
+    docs/reports/v0.89.0/ui_p0_3_fix_diary_2920x1753.png
+  HiDPI fps@2920×1753（暖机后 60 帧）：avg=37.4 min=29.0 max=41.0（目标 ≥30 达标）
+困难与候选方案：
+  A) 关 SSAO 换帧率 → 否（接线要求保持 enabled）
+  B) 降 SSAO/辉光 + half_size + 关烛光 Omni 影 → 采纳
+最终解决：守卫清零；v085 断言 DQ-02；帧率预算参数写入 diary_desk_quality + project.godot
+风险 / 协调：
+  - **仍等主会话 UI-P0-2**：同改 diary_desk_stage / diary_page_pair；本条未 push
+  - PAGE_VP 可读性仍待 P0-2；本条未回滚/抬升 PAGE_VP
+跨角色请求：主会话合入 P0-2 后请通知；本条再 rebase/commit/push（含 project.godot Forward+）
+下一步入口：等待 P0-2 → 合入本修复 → 用户真窗签字画面
+```
+
+### 帧率调参摘要（相对 UI-P0-3 初值）
+
+| 项 | 调整 |
+|---|---|
+| SSAO | radius 0.35 / intensity 0.48 / detail 0.05；project quality=0 + half_size |
+| Glow | intensity 0.10；关掉 1/2/6/7 级 mip |
+| 阴影 | 烛光 Omni `shadow_enabled=false`（保留方向光 + DQ-06 接触影） |
+| WorldVP | MSAA/TAA/SSAA 关闭 |
+
+---
+
 ## UI-P0-3 · 日记站画面升级（2026-11-24）
 
 ```text

@@ -51,6 +51,11 @@
 
 **纪律**：无匹配任务条目不得改生产文件；开工标 `doing`，收工标 `done`/`cancelled` 并写证据。
 
+### 4 分钟轮询
+
+主会话可臂装 loop：每 4 分钟扫各角色 `tasks.md`，对**架构师下发且可执行**的条目委派对应角色（协议 `_meta/TASK_POLL.md`，扫描器 `_meta/scan_architect_tasks.py`）。  
+PID：`_meta/task_poll.pid`。停止：说「停止轮询」。
+
 ## 技能框架（自学循环）
 
 | 组件 | 路径 |

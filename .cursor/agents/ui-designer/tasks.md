@@ -7,6 +7,7 @@
 ### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
 - status: todo
 - 来源: 2026-11-24 轮询。ADR-0035（Forward+）和 ADR-0036 复核（Mobile + 调优）冲突，由用户裁决。
+- 阻塞: UI-P0-3-reject（先修遮挡再调色）
 - 做法:
   1. **在用户裁决前，不要提交 `project.godot` 的 rendering_method 改动。**
   2. 先做与渲染器无关的调优（色调映射、环境光、烛光主光、页面材质 `specular_mode = SPECULAR_DISABLED`）。参数见 `tests/ui/renderer_eval_look.gd` 和 ADR-0036。
@@ -14,7 +15,8 @@
   4. 任何渲染器下，正文对比度都必须 ≥ 4.5（ADR-0036 实测 Mobile 为 4.04，需要加深墨色或提亮纸色）。
 
 ### UI-P0-3-reject · 画面升级退回：背景板遮住书页，正文和题名不可见
-- status: todo
+- status: doing
+- owner: ui-designer 智能体（2026-11-24 轮询派工）
 - 优先级: P0（最高）
 - 证据: 主会话真窗口截图 `docs/reports/v0.89.0/ui_p0_3_fix_diary_1600x900.png`（由你自己的 `v089_diary_quality_capture_runner` 生成）和 `.tools/ui-captures/v084_desk_idle.png`。
   - 右页**题名和正文完全不见**，只剩蜡封。
@@ -49,7 +51,7 @@
 - 完成标准: run_tests 全绿（包括 diary_readability_runner）；然后再标 UI-P0-3 done
 - 证据:
   - WIP→rebase：`4d510ce` on top of `b340186`；冲突手改三文件（保留 PAGE_SCALE/px/新镜头/INK_FADE_LOCKED；叠 DQ/丝带/FX）
-  - DQ-01：`RoomBack` 后仰 −62° 贴书桌远沿（直立墙在 −75° 下出画）
+  - DQ-01：`RoomBack` 后仰 −62° 贴书桌远沿（直立墙在 −75° 下出画）——**随后被主会话退回见 UI-P0-3-reject**
   - `tools/run_tests.sh` → **pass=95 fail=0 skipped=13 guard_block=0**；含 `diary_readability_runner` + `diary_quality_wiring_runner`
   - 截图刷新 `docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png`；报告 UI-P0-3-sync 节
 
@@ -140,7 +142,7 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: todo
+- status: blocked
 - **退回（2026-11-24 轮询）**: 见 UI-P0-3-reject。本地提交 4d510ce / 26c7b16 **未推送，也不得推送**，修好后再提交
 - owner: ui-designer 智能体（2026-11-24；未覆盖主会话 P0-1/P0-2/P1-1/X0-rev）
 - 优先级: P0
@@ -148,7 +150,7 @@
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_desk_quality.gd`、`src/ui/desk_world_catalog.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（仅合上书签）、`tests/ui/diary_quality_wiring_runner.*`
 - 做法: 接入 DQ-01…06；Forward+ ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
 - 完成标准: 实现与探针绿；用户真窗认可截图（待签字）
-- 阻塞: 无
+- 阻塞: UI-P0-3-reject
 - 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
 - 证据:
   - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync 节

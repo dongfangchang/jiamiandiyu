@@ -7,20 +7,38 @@
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
 ### ART-DQ · 日记站画面升级批（DQ-01…06）
-- status: todo
+- status: done
 - 优先级: P0（高于 ART-DW-X3、ART-02…05）
 - 来源: 用户反馈"画风太简陋"；`docs/design/ART_BRIEF_DESK_WORLD.md` §5
 - 改哪些: `art/assets/raster/desk_world/diary_quality/<DQ-id>/`（每项一个目录加 README）
 - 完成标准: 书房背景板（正视，3840×2160）；桌面 PBR 三张图（2048 无缝）；书皮和书口；右页装饰套；丝带书签；接触阴影。规格与 §5 一致。
 - 怎么验: 拼一张"现状截图 vs 资产示意"对比图，放进 `docs/reports/v0.89.0/art.md`；交给 UI 审稿
 - 阻塞: 无
+- 证据:
+  - DQ-01 `diary_quality/dq01/room_backplate.png` @3840×2160
+  - DQ-02 `dq02/desk_{albedo,normal,roughness}.png` @2048
+  - DQ-03 `dq03/cover_{albedo,normal}.png` + `fore_edge.png` @1024×128
+  - DQ-04 `dq04/` 页眉/四角×4/横线/涂鸦×6/墨渍×4
+  - DQ-05 `dq05/ribbon_bookmark.png` @160×900 (+shadow)
+  - DQ-06 `dq06/contact_shadow_*.png` ×14
+  - 总览 `_overview/diary_quality_dq_overview_2048.png`
+  - 示意对比 `docs/reports/v0.89.0/art_dq_before_after_schematic.png`
+  - 报告 `docs/reports/v0.89.0/art.md`
+- 跨角色请求: 请 **ui-designer** 审 DQ；真窗口对比后请 **coordinator** 迁入；勿美术自迁
+- 备注: 2026-11-24 首轮交付；未迁 assets/game；未碰 owner:主会话 UI
 
 ### ART-DW-07b · 索引卡（桌面总览的文字入口底纸）
-- status: todo
+- status: done
 - 来源: ADR-0034 D1
 - 改哪些: `art/assets/raster/desk_world/index_card/`
 - 完成标准: 600×900 正俯视索引卡，留 6 行空白书写行，无字，透明底；与 DW-07 同族
 - 阻塞: 无
+- 证据:
+  - `index_card/index_card.png` + `index_card_shadow.png` @600×900
+  - README：`index_card/README.md`
+  - 报告：`docs/reports/v0.89.0/art.md`
+- 跨角色请求: 请 UI 与 DQ 一并审稿；迁入同 coordinator
+- 备注: 2026-11-24 与 ART-DQ 并行完成
 
 
 > **2026-11-24 架构师下发**：框架已冻结为 `docs/architecture/EXPERIENCE_ARCHITECTURE.md`（ADR-0032，书桌世界）。任何 UI / 美术工作开工前必读；做不进"某物件的某站位"的需求一律退回设计。  
@@ -45,6 +63,15 @@
   - 报告: `docs/reports/v0.88.0/art.md`
 - 跨角色请求: 请 **ui-designer** 做 **UI-07** 审稿（按 DW-ID）；`DESK_WORLD_STATIONS.md` 若已出请标需改比例的 ID
 - 备注: 2026-11-24 完成；站位稿未出，按 BRIEF 表尺寸；未迁 `assets/game`
+
+### UI→art 请求区 · UI-07-DQ / UI-07-07b（2026-11-24）— **全过，无强制退回**
+> 来自 ui-designer；详 `docs/reports/v0.89.0/ui.md`。请 coordinator **CO-DQ** 迁入。
+
+| ID | 结论 | 原因 / 要做什么 |
+|---|---|---|
+| DQ-01…06 | **过** | 尺寸/透明/无字/BRIEF §5 语义齐 |
+| DW-07b | **过** | 600×900；6 行空白线；无字；四角 α=0 |
+| （可选微修） | 非阻塞 | `page_corner_tr` ↔ `page_corner_bl` 文件名建议互换；`fore_edge` 纸层横纹可再加强 |
 
 ### UI→art 请求区 · UI-07 退回（2026-11-24）— **已清零（复审全过）**
 > 来自 ui-designer UI-07；比例锚见 `docs/design/DESK_WORLD_STATIONS.md` §5。

@@ -16,6 +16,7 @@ alwaysApply: true
 - 冲突升级给 **product-manager**；集成/迁资源给 **coordinator**。
 - 收工走 `agent-skill-loop`；推送时把 `.cursor/**` 学习内容（含各角色 `tasks.md`）一并入库。
 - **先立任务后执行**：各角色待办在 `.cursor/agents/<role>/tasks.md`。
+- 可选 **4 分钟轮询**：按 `_meta/TASK_POLL.md` 扫描并委派架构师下发的可执行条目；停止口令「停止轮询」。
 
 ## 用户可点名
 

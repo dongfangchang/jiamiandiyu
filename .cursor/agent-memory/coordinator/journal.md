@@ -17,3 +17,15 @@
   3. 易错：`ink_mask` 无 shadow 是规格，不是缺件。
   4. Draft：否。
   5. 命令：同上。
+- 2026-11-24 · CO-DQ Retro：
+  1. 达成：DQ-01…06 + DW-07b → 41 PNG；`desk_world` 41 ID；tests pass=93。
+  2. 可复用：PNG-only 镜像 cp + 注册表 section 手写/脚本 merge。
+  3. 易错：并行 CO-AR05 时 `--import` 会删掉 `project.godot` `[rendering]`；迁入前后 sha256，变则还原。
+  4. Draft：否（记 journal 即可）。
+  5. 命令：`Godot --headless --path . --import`；`tools/run_tests.sh`。
+- 2026-11-24 · CO-AR05 Retro：
+  1. 达成：桌面 `forward_plus`、mobile=`mobile`；ORIENTATION 同步；`run_tests` 92/0。
+  2. 易错：沙箱禁写 Godot userdata → 存档类 runner 假红。
+  3. 可复用：ADR 合入只动配置+导读句，不抢 UI/DQ。
+  4. Draft：否。
+  5. 命令：`tools/run_tests.sh`（需能写 `user://`）。

@@ -16,6 +16,7 @@ const DiaryCatalog := preload("res://src/ui/diary_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
 const Ui := preload("res://src/ui/mask_ui_theme.gd")
 const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
+const DeskCatalog := preload("res://src/ui/desk_world_catalog.gd")
 
 ## Page layout is authored in a 512x720 base space and rendered at
 ## PAGE_SCALE x that (EXPERIENCE §5.1: page viewport >= 1024x1440). Every
@@ -56,10 +57,13 @@ var folio_label: Label
 var ink_label: Label
 var wax_button: Button
 var wax_art: TextureRect
+var wax_caption: Label
 var rune_strip: Container
 var rune_buttons: Array[Button] = []
 var rune_art: Array[Node] = []
 var side_sticker: Button
+var _margin_doodle: TextureRect
+var _ink_blot: TextureRect
 
 ## The spread this pair currently shows ({} = blank leaf).
 var spread: Dictionary = {}
@@ -191,25 +195,31 @@ func fill(new_spread: Dictionary) -> void:
 		"font_color", INK_REWRITTEN if bool(clue.get("rewritten_by_pen", false)) else INK_BODY
 	)
 	var st := state()
+	var wax_glyph := "封"
 	match st:
 		DiaryCatalog.STATE_AVAILABLE:
-			wax_button.text = "启"
+			wax_glyph = "启"
 			wax_button.modulate = Color(1, 1, 1, 1)
 			ink_label.modulate = Color(1, 1, 1, 1)
 		DiaryCatalog.STATE_COMPLETED:
-			wax_button.text = "阅"
+			wax_glyph = "阅"
 			wax_button.modulate = Color(0.75, 0.7, 0.55)
 			ink_label.modulate = INK_FADE_COMPLETED
 		_:
-			wax_button.text = "封"
+			wax_glyph = "封"
 			wax_button.modulate = Color(0.45, 0.4, 0.38)
 			## Locked leaf: ink reads drowned / sealed, yet stays legible.
 			ink_label.modulate = INK_FADE_LOCKED
+	wax_button.text = wax_glyph
+	if is_instance_valid(wax_caption):
+		wax_caption.text = wax_glyph
+		wax_caption.visible = not spread.is_empty()
 	wax_art.texture = _seal_textures.get(st) as Texture2D
 	wax_art.visible = wax_art.texture != null and not spread.is_empty()
 	wax_button.visible = not wax_art.visible and not spread.is_empty()
 	_refresh_runes(st)
 	_refresh_side_sticker()
+	_refresh_margin_marks()
 	request_redraw()
 
 
@@ -399,7 +409,9 @@ func _build_right() -> void:
 	right_root.theme = Ui.build_theme()
 	right_vp.add_child(right_root)
 	_paper(right_root, "RightPageParchment", "RightPageGrain", false)
+	_decorate_right_page(right_root)
 	var margin := MarginContainer.new()
+	margin.name = "RightPageMargin"
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.add_theme_constant_override("margin_left", px(44))
 	margin.add_theme_constant_override("margin_right", px(30))
@@ -496,6 +508,139 @@ func _build_wax(col: Container) -> void:
 	wax_art.size = SEAL_SIZE
 	wax_art.hide()
 	seal_host.add_child(wax_art)
+	## Caption stays readable on painted seals (ADR-0034：蜡封带文字).
+	wax_caption = Label.new()
+	wax_caption.name = "WaxSealCaption"
+	wax_caption.text = "启"
+	wax_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wax_caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	wax_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wax_caption.add_theme_font_override("font", Ui.diary_ink_font(true))
+	wax_caption.add_theme_font_size_override("font_size", px(SEAL_FONT_BASE))
+	wax_caption.add_theme_color_override("font_color", Color(0.96, 0.86, 0.55))
+	wax_caption.position = wax_button.position
+	wax_caption.size = SEAL_SIZE
+	wax_caption.hide()
+	seal_host.add_child(wax_caption)
+
+
+func _decorate_right_page(root: Control) -> void:
+	## DQ-04: ruled lines, header, corners (tr/bl swapped per UI-07-DQ), doodle + blot.
+	## Offsets go through px() so they track PAGE_SCALE with the readability leaf.
+	var lines := DeskCatalog.texture("desk.dq.ruled_lines")
+	if lines != null:
+		var ruled := TextureRect.new()
+		ruled.name = "RuledLines"
+		ruled.texture = lines
+		ruled.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		ruled.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ruled.stretch_mode = TextureRect.STRETCH_SCALE
+		ruled.modulate = Color(1, 1, 1, 0.42)
+		ruled.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(ruled)
+	var header_tex := DeskCatalog.texture("desk.dq.page_header_ornament")
+	if header_tex != null:
+		var header := TextureRect.new()
+		header.name = "PageHeaderOrnament"
+		header.texture = header_tex
+		header.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		header.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		header.anchor_left = 0.12
+		header.anchor_right = 0.88
+		header.anchor_top = 0.015
+		header.anchor_bottom = 0.015
+		header.offset_top = 0.0
+		header.offset_bottom = float(px(36))
+		header.modulate = Color(1, 1, 1, 0.78)
+		root.add_child(header)
+	## File names tr/bl disagree with canvas centroids (UI-07-DQ); map by visual corner.
+	_place_corner(root, "PageCornerTL", "desk.dq.page_corner_tl", 0.0, 0.0, 0.0, 0.0)
+	_place_corner(root, "PageCornerTR", "desk.dq.page_corner_bl", 1.0, 0.0, 1.0, 0.0)
+	_place_corner(root, "PageCornerBL", "desk.dq.page_corner_tr", 0.0, 1.0, 0.0, 1.0)
+	_place_corner(root, "PageCornerBR", "desk.dq.page_corner_br", 1.0, 1.0, 1.0, 1.0)
+	_margin_doodle = _place_deco(
+		root, "MarginDoodle", Vector2(0.78, 0.22), Vector2(px(72), px(72))
+	)
+	_ink_blot = _place_deco(root, "InkBlot", Vector2(0.08, 0.72), Vector2(px(64), px(64)))
+
+
+func _place_corner(
+	root: Control,
+	node_name: String,
+	asset_id: String,
+	al: float,
+	at: float,
+	ar: float,
+	ab: float
+) -> void:
+	var tex := DeskCatalog.texture(asset_id)
+	if tex == null:
+		return
+	var tr := TextureRect.new()
+	tr.name = node_name
+	tr.texture = tex
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.anchor_left = al
+	tr.anchor_top = at
+	tr.anchor_right = ar
+	tr.anchor_bottom = ab
+	var s := float(px(56))
+	var pad := float(px(4))
+	if al < 0.5:
+		tr.offset_left = pad
+		tr.offset_right = pad + s
+	else:
+		tr.offset_left = -pad - s
+		tr.offset_right = -pad
+	if at < 0.5:
+		tr.offset_top = pad
+		tr.offset_bottom = pad + s
+	else:
+		tr.offset_top = -pad - s
+		tr.offset_bottom = -pad
+	tr.modulate = Color(1, 1, 1, 0.7)
+	root.add_child(tr)
+
+
+func _place_deco(root: Control, node_name: String, anchor: Vector2, size: Vector2) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.name = node_name
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tr.anchor_left = anchor.x
+	tr.anchor_right = anchor.x
+	tr.anchor_top = anchor.y
+	tr.anchor_bottom = anchor.y
+	tr.offset_left = 0.0
+	tr.offset_top = 0.0
+	tr.offset_right = size.x
+	tr.offset_bottom = size.y
+	tr.modulate = Color(1, 1, 1, 0.55)
+	tr.visible = false
+	root.add_child(tr)
+	return tr
+
+
+func _refresh_margin_marks() -> void:
+	if spread.is_empty():
+		if is_instance_valid(_margin_doodle):
+			_margin_doodle.visible = false
+		if is_instance_valid(_ink_blot):
+			_ink_blot.visible = false
+		return
+	var idx := absi(spread_key())
+	if is_instance_valid(_margin_doodle):
+		var doodle_id := "desk.dq.margin_doodles.%02d" % ((idx % 6) + 1)
+		_margin_doodle.texture = DeskCatalog.texture(doodle_id)
+		_margin_doodle.visible = _margin_doodle.texture != null
+	if is_instance_valid(_ink_blot):
+		var blot_id := "desk.dq.ink_blots.%02d" % ((idx % 4) + 1)
+		_ink_blot.texture = DeskCatalog.texture(blot_id)
+		_ink_blot.visible = _ink_blot.texture != null
 
 
 func _build_runes(row: Container) -> void:

@@ -132,7 +132,7 @@ GODOT="${GODOT:-$(find .tools/godot-4.7.2 -maxdepth 5 -type f -perm -u+x \
 ```
 
 **平台事实（2026-11-23 实测）**：当前开发机为 macOS 26.5.1 / Apple M4 / arm64，
-渲染走 `OpenGL API 4.1 Metal`（`project.godot` 为 `gl_compatibility`）。
+渲染默认 `forward_plus`（桌面；Metal / Vulkan）；`rendering_method.mobile=mobile` 作性能档预留（ADR-0035）。
 `AGENTS.md` §1 仍写死 `G:\guimizhizhu`（Windows 时期遗留），与此不符；
 **以本节与实际检出路径为准**，该条须产品经理裁决后修订（`AGENTS.md` 仅产品经理可改）。
 

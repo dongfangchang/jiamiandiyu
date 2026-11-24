@@ -6,11 +6,23 @@
 
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
+### CO-AR05 · 落地 ADR-0035 渲染器默认（Forward+）
+- status: done
+- 来源: ADR-0035；architect AR-05 跨角色请求
+- 改哪些: `project.godot`（`renderer/rendering_method`）；必要时 mobile 档说明
+- 完成标准: 桌面默认 `forward_plus`；报告写清与旧 `gl_compatibility` 差异；run_tests 仍绿
+- 阻塞: 无
+- 怎么验: 读 project.godot + run_tests
+- 证据: `project.godot` → `forward_plus` / mobile=`mobile`；`docs/ORIENTATION.md` 同步；`docs/reports/v0.89.0/coordinator.md`；`run_tests: pass=92 fail=0 skipped=10 guard_block=0`
+
 ### CO-DQ · 迁入日记画面升级资产，并更新资源注册表
-- status: blocked
-- 改哪些: `assets/game/desk_world/diary_quality/**`、`data/registry/assets.json`、`art/ASSET_MANIFEST.md`
-- 完成标准: 经 UI 审稿通过后迁入；注册表登记 ID；守卫不报错
-- 阻塞: ART-DQ 交付并审稿通过
+- status: done
+- 来源: UI-07-DQ / UI-07-07b **全过**（2026-11-24）；`docs/reports/v0.89.0/ui.md`
+- 改哪些: `assets/game/desk_world/diary_quality/**`、`assets/game/desk_world/index_card/**`、`data/registry/assets.json`、`art/ASSET_MANIFEST.md`
+- 完成标准: 迁入 DQ-01…06 + DW-07b；注册表登记 ID；守卫不报错；不删 art 候选
+- 阻塞: 无
+- 证据: 41 PNG → `assets/game/desk_world/{diary_quality,index_card}/`（art 候选保留）；`assets.json` section `desk_world` 41 ID；`art/ASSET_MANIFEST.md` v0.89 DQ 段；`docs/reports/v0.89.0/coordinator.md`
+- 验证: Godot import 41/41 `.import`；`run_tests: pass=93 fail=0 skipped=11 guard_block=0`；未改写 `project.godot`（import 曾抹 `[rendering]`，已还原 AR05 `forward_plus`/`mobile`）
 
 ### CO-05 · 资源注册表负责人（v0.88 起）
 - status: doing

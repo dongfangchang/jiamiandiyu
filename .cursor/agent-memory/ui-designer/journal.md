@@ -9,6 +9,45 @@
 - 2026-11-24 · UI-07 done：DW-01 open / DW-06 轮廓退回；其余 DW 过；请求区写入 art/tasks。
 - 2026-11-24 · UI-X0-fix：AR-04 两条件清零——新游戏 TITLE→DOSSIER；墨/羽 (0.52,0.48)/(0.66,0.55)；未复审 UI-07（art fix 仍 doing）。
 - 2026-11-24 · UI-07-X2 done：DW-11…18 全过；请 CO-X2 迁入；无 ART-DW-X2-fix；未动 UI-H / UI-X1 码。
+- 2026-11-24 · UI-07-DQ / UI-07-07b done：DQ-01…06 + DW-07b 全过；请 CO-DQ 迁 diary_quality+index_card；未动 P0/P1 实现、未自迁 assets/game。
+- 2026-11-24 · UI-P0-3 done：DQ 接入 + Forward+ FX + 丝带「合上」；抽出 diary_desk_quality；未动主会话 P0-1/P0-2/P1-1 文件。
+- 2026-11-24 · UI-P0-3-fix done：守卫注释清零；v085→DQ-02；FX 预算 HiDPI≈37fps；测门 94/0/guard0；**等 P0-2 再 push**。
+
+### Retro · 2026-11-24 · UI-P0-3-fix 合入门
+1. 目标是否达成？证据（命令/路径/截图）？  
+   是。`run_tests` pass=94 fail=0 guard_block=0；截图 `ui_p0_3_fix_diary_{1600x900,2920x1753}.png`；HiDPI fps avg=37.4。未 push（等 P0-2）。
+2. 哪一步最耗时或最易错？  
+   帧率：仅降 Environment 不够，还需 half_size SSAO + 关烛光 Omni 影；采样须暖机否则 min=1 拖垮均值。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   合入门三件套：grep 守卫字面量（含注释）→ 替换即删除旧断言 → 非 headless 双分辨率 + 暖机 fps。
+4. 该进 Tool Registry 的命令是什么？  
+   `v089_diary_quality_capture_runner.tscn`（capture 排除默认门）。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   `godot-probe-gate` + 本 Retro + ADR-0035 帧率软门槛。
+
+### Retro · 2026-11-24 · UI-P0-3 日记站 DQ / Forward+
+1. 目标是否达成？证据（命令/路径/截图）？  
+   实现与探针是。`diary_quality_wiring_runner` 30/30；v083/prepared_turn/challenge_fallback OK；截图 `docs/reports/v0.89.0/ui_p0_3_diary_1600x900.png`。用户真窗签字仍待。
+2. 哪一步最耗时或最易错？  
+   与主会话同文件冲突规避；headless capture 在 dummy 下拿不到纹理，须非 headless Forward+ 窗。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   registry desk_world 目录 → 抽出 *\_quality 助手 → 舞台只留调用点 → chrome 丝带文字控件 → wiring runner 断言 Environment/节点名。
+4. 该进 Tool Registry 的命令是什么？  
+   `diary_quality_wiring_runner.tscn` + 非 headless `v084_diary_desk_capture_runner`（已有 capture 排除默认门）。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   ADR-0035 接口约定 + 本报告 UI-P0-3 接入表 + `godot-probe-gate`。
+
+### Retro · 2026-11-24 · UI-07-DQ / UI-07-07b 日记画面升级审稿
+1. 目标是否达成？证据（命令/路径/截图）？  
+   是。`docs/reports/v0.89.0/ui.md`；art-venv Pillow 尺寸/α/接缝/阴影对齐；总览与关键 PNG 目视。
+2. 哪一步最耗时或最易错？  
+   DQ-04 四角文件名与画布质心不一致；索引卡「线数」自动化易被纸纹抬高，须目视确认 6 行。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   复用 X1/X2：BRIEF 批表 → 尺寸 → RGBA 角透明 → 特规（无缝/同尺寸阴影/中段留白/无字）→ 总览色温 → 报告 + CO 请求；非阻塞备注与强制退回分开写。
+4. 该进 Tool Registry 的命令是什么？  
+   仍用 `.tools/art-venv/bin/python` 一次性脚本；暂不晋升。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   `ART_BRIEF_DESK_WORLD` §5 + 上版 `ui.md` UI-07 表格式。
 
 ### Retro · 2026-11-24 · UI-07-X2 书桌世界 X2 审稿
 1. 目标是否达成？证据（命令/路径/截图）？  

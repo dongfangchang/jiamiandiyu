@@ -16,6 +16,7 @@ const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
 const PagePair := preload("res://src/ui/diary_page_pair.gd")
 const ArtLoader := preload("res://src/ui/diary_art_loader.gd")
 const ReadingMetrics := preload("res://src/ui/diary_reading_metrics.gd")
+const DeskQuality := preload("res://src/ui/diary_desk_quality.gd")
 const GRAIN_PATH := "res://assets/ui/diary/parchment_grain.png"
 const WOOD_PATH := "res://assets/ui/diary/desk_wood.png"
 const SEAL_PATHS := {
@@ -324,19 +325,18 @@ func _build_stage() -> void:
 	_world_vp.size = Vector2i(1600, 900)
 	_world_vp.transparent_bg = false
 	_world_vp.handle_input_locally = false
+	_world_vp.msaa_3d = Viewport.MSAA_DISABLED
+	_world_vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
+	_world_vp.use_taa = false
 	## Headless/dummy: keep node graph for probes; avoid continuous 3D present.
 	if DisplayServer.get_name() == "headless":
 		_world_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	else:
 		_world_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_world_vp.own_world_3d = true
-	## Warm night ambient — avoids pure black void between desk props.
+	## Warm night ambient + Forward+ FX (ADR-0035); DQ backplate sits in front of void.
 	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.04, 0.025, 0.02)
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.76, 0.80, 0.86)
-	env.ambient_light_energy = 0.64
+	DeskQuality.apply_forward_plus_environment(env)
 	_world_vp.world_3d = World3D.new()
 	_world_vp.world_3d.environment = env
 	add_child(_world_vp)
@@ -383,16 +383,20 @@ func _build_stage() -> void:
 	cam.current = true
 	_cam = cam
 
+	## Steep reading camera (−75°) no longer sees an upright far wall; lean the
+	## DQ-01 plate toward the lens so it fills the far rim of the desk frame.
 	var room := MeshInstance3D.new()
 	room.name = "RoomBack"
 	var room_mesh := BoxMesh.new()
-	room_mesh.size = Vector3(4.5, 2.6, 0.08)
+	room_mesh.size = Vector3(3.8, 2.2, 0.04)
 	room.mesh = room_mesh
 	var room_mat := StandardMaterial3D.new()
 	room_mat.albedo_color = Color(0.06, 0.04, 0.03)
 	room.material_override = room_mat
-	room.position = Vector3(0.0, 0.9, -0.85)
+	room.position = Vector3(0.0, 0.52, -0.78)
+	room.rotation_degrees = Vector3(-62.0, 0.0, 0.0)
 	_desk_world.add_child(room)
+	DeskQuality.apply_room_backplate(room)
 	## Side walls keep the desk from reading as a floating slab in black void.
 	for side in [-1, 1]:
 		var wall := MeshInstance3D.new()
@@ -421,6 +425,7 @@ func _build_stage() -> void:
 	key.shadow_normal_bias = 1.4
 	key.shadow_opacity = 0.9
 	_desk_world.add_child(key)
+	DeskQuality.soften_key_light(key)
 
 	var fill := OmniLight3D.new()
 	fill.name = "FillLight"
@@ -456,6 +461,7 @@ func _build_stage() -> void:
 	_desk_mesh.material_override = desk_mat
 	_desk_mesh.position = Vector3(0.0, -0.04, 0.05)
 	_desk_world.add_child(_desk_mesh)
+	DeskQuality.apply_desk_pbr(_desk_mesh)
 	var desk_lip := MeshInstance3D.new()
 	desk_lip.name = "DeskFrontLip"
 	var lip_mesh := BoxMesh.new()
@@ -495,6 +501,7 @@ func _build_stage() -> void:
 	if ink_sprite == null or quill_sprite == null:
 		_build_desk_tools_mesh()
 	_build_pages_and_book()
+	DeskQuality.add_diary_contact_shadows(_desk_world, _book_root)
 
 
 func _build_desk_tools_mesh() -> void:
@@ -583,6 +590,8 @@ func _build_pages_and_book() -> void:
 	cover.material_override = cover_mat
 	cover.position = Vector3(0.0, -0.081, 0.0)
 	_book_root.add_child(cover)
+	DeskQuality.apply_cover_leather(cover)
+	DeskQuality.add_fore_edge_slabs(_book_root)
 
 	## No fake contact plate here: KeyLight / candle now cast the real one.
 	## Reference reads as a THICK volume: many leaves, each slightly inset and a
@@ -615,17 +624,16 @@ func _build_pages_and_book() -> void:
 			)
 			_book_root.add_child(stack)
 
-	## Ribbon marker falling out of the gutter over the fore-edge.
+	## DQ-05 ribbon (visual); interactive「合上」is the chapter-screen CloseBookmark.
 	var ribbon_art := _prop_sprite(
 		"bookmark", "BookmarkProp", Vector3(-0.03, -0.088, 0.40), 0.46
 	)
 	if ribbon_art != null:
-		## Lies flat along the desk rather than standing up like the props.
 		ribbon_art.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 		_book_root.add_child(ribbon_art)
 	var ribbon := MeshInstance3D.new()
 	ribbon.name = "BookmarkRibbon"
-	ribbon.visible = ribbon_art == null
+	ribbon.visible = false
 	var ribbon_mesh := BoxMesh.new()
 	ribbon_mesh.size = Vector3(0.05, 0.004, 0.30)
 	ribbon.mesh = ribbon_mesh
@@ -636,6 +644,7 @@ func _build_pages_and_book() -> void:
 	ribbon.position = Vector3(-0.03, -0.088, 0.56)
 	ribbon.rotation_degrees = Vector3(0.0, 4.0, 0.0)
 	_book_root.add_child(ribbon)
+	DeskQuality.replace_bookmark_ribbon(_book_root, ribbon)
 
 	## Hinges sit on the spine so yaw turns the leaf like a real page, not a center spin.
 	_left_hinge = Node3D.new()
@@ -675,10 +684,8 @@ func _build_candle() -> void:
 		_candle_flame_light.light_color = Color(1.0, 0.78, 0.54)
 		_candle_flame_light.light_energy = 0.26
 		_candle_flame_light.omni_range = 3.2
-		_candle_flame_light.shadow_enabled = true
-		_candle_flame_light.shadow_bias = 0.04
-		_candle_flame_light.shadow_normal_bias = 1.2
-		_candle_flame_light.shadow_opacity = 0.7
+		## Omni shadows are expensive under Forward+ HiDPI; DQ-06 contact shadow covers the cue.
+		_candle_flame_light.shadow_enabled = false
 		_desk_world.add_child(_candle_flame_light)
 		## Probe compatibility: V083 looks for a node named CandleMesh.
 		var marker := Node3D.new()
