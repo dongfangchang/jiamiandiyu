@@ -331,7 +331,7 @@ PNG → TextureRect(STRETCH_KEEP_ASPECT_COVERED)
 10. 出图目视（**必须带显示，headless 会黑**）：
     ```bash
     "$GODOT" --path . res://tests/ui/v084_diary_desk_capture_runner.tscn
-    "$GODOT" --path . res://tests/ui/v084_diary_desk_flipstrip_runner.tscn
+    "$GODOT" --path . res://tests/ui/v084_diary_desk_flipstrip_capture_runner.tscn
     ```
 11. **八张逐张过目**：确认无边框晕带、无过曝、主体未被裁、出血自然。
 12. UI 在真实界面审稿后，才可判「通过 / 退回 / 仅 UI 适配」——

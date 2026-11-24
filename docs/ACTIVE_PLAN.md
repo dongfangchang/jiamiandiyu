@@ -79,12 +79,12 @@
 
 | 条目 | 负责 | 状态 |
 |---|---|---|
-| R0-01 统一测试入口 `tools/run_tests.sh` | 主协调者 | ✅ 已落地（.ps1 版待补） |
-| R0-02 基线失败清单 | 主协调者 | 🔶 见 `docs/reports/v0.86.0/coordinator.md` |
-| R0-03 删除钉版本号的测试断言 | 主协调者 | ⬜ |
-| R0-04 黄金回放 | 玩法 + 主协调者 | ⬜ |
+| R0-01 统一测试入口 `tools/run_tests.sh` / `.ps1` | 主协调者 | ✅（.ps1 待 Windows 实测） |
+| R0-02 基线失败清单 | 主协调者 | ✅ |
+| R0-03 删除钉版本号的测试断言 | 主协调者 | ✅ |
+| R0-04 黄金回放 | 玩法 + 主协调者 | ✅ `tests/golden/` |
 | R0-05 战斗卡图（AR-01） | UI | ✅ 2026-11-24 |
-| R0-08 `art/.gdignore`，取消跟踪 simulation/out | 主协调者 | ⬜ |
+| R0-08 `art/.gdignore`，取消跟踪 simulation/out | 主协调者 | ✅ |
 | R0-09 守卫 | 主协调者 | ✅ 已在 run_tests 中 |
 | R0-11 日记八开真窗口审稿 | UI | ⬜ |
 | NAV-01…09 界面切换整治 | UI | ⬜ 见 `docs/architecture/UI_NAVIGATION_REVIEW.md` |

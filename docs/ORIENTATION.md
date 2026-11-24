@@ -38,7 +38,7 @@
 4. **长期方向与下一阶段**：[`docs/architecture/ROADMAP.md`](architecture/ROADMAP.md)
    - v0.85 关版后进入**架构整治期 R0–R4**（v0.86–v0.91）：先建安全网（统一测试 + 黄金回放），再删死代码、统一事实源、拆分大文件，然后回到内容生产（P1–P3 → 1.0）。
    - 问题清单：[`architecture/REVIEW_2026-11-24.md`](architecture/REVIEW_2026-11-24.md)（用 `AR-xx` 引用）；终点形态：[`architecture/TARGET_ARCHITECTURE.md`](architecture/TARGET_ARCHITECTURE.md)。
-   - 已知坑（R0 之前不要被误导）：`v077_live_copy` / `v081` / `v082` 测试钉死旧版本号，必然失败；战斗卡图会被 `battle_screen.gd` 的旧映射覆盖（AR-01）；`diary_chapter_screen.gd` 约一半是隐藏的旧载体死代码（AR-42）。
+   - 已知坑（R0 之前不要被误导）：钉死版本号的测试已在 v0.86 删除（R0-03），战斗卡图覆盖问题已修复（AR-01）；跑测试用 `tools/run_tests.sh`；黄金回放 `tests/golden/` 是纯重构的判定标准；`diary_chapter_screen.gd` 约一半是隐藏的旧载体死代码（AR-42）。
 
 ---
 
