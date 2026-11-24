@@ -1,5 +1,7 @@
 # Local toolchain
 .tools/
+# Agent worktrees
+.claude/worktrees/
 
 # Godot generated data
 .godot/

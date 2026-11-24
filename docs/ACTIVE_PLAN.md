@@ -87,7 +87,8 @@
 | R0-08 `art/.gdignore`，取消跟踪 simulation/out | 主协调者 | ✅ |
 | R0-09 守卫 | 主协调者 | ✅ 已在 run_tests 中 |
 | R0-11 日记八开真窗口审稿 | UI | ⬜ |
-| NAV-01…09 界面切换整治 | UI | ⬜ 见 `docs/architecture/UI_NAVIGATION_REVIEW.md` |
+| NAV-01…09 界面切换整治 | UI | ✅ 自动化完成；⬜ 用户真窗口验收（清单见 `docs/reports/v0.86.0/ui.md`） |
+| BUG-0038 挑战路线无日记线索 | UI | ⬜ 排入 v0.87（通用回退开页） |
 
 ---
 
