@@ -18,6 +18,8 @@ func _ready() -> void:
 	_test_insufficient_tickets()
 	_test_upgrade_and_battle_effect()
 	_test_upgrade_failures()
+	_test_snapshot_upgrade_fields()
+	_test_missing_potion_content_rejected()
 	_test_owned_deck_filter()
 	_test_persistent_state_round_trip()
 	_test_invalid_content_rejected()
@@ -444,6 +446,81 @@ func _test_upgrade_failures() -> void:
 	)
 
 
+func _card_view(engine: ProgressionEngine, definition_id: String) -> Dictionary:
+	for card in engine.get_snapshot().data.get("collection", []):
+		if String(card.get("definition_id", "")) == definition_id:
+			return card
+	return {}
+
+
+## Snapshot can_upgrade/upgrade_cost must agree with what UPGRADE_CARD accepts.
+func _test_snapshot_upgrade_fields() -> void:
+	var pair := _make_engine(63)
+	var engine: ProgressionEngine = pair[0]
+	_check(
+		not bool(_card_view(engine, "card.skill.ink_dart").get("can_upgrade", true)),
+		"can_upgrade is false outside the hub"
+	)
+	engine.submit(ProgressionCommand.select_identity(&"identity.doctor"))
+	var poor := _card_view(engine, "card.skill.ink_dart")
+	_check(
+		not bool(poor.get("can_upgrade", true)) and int(poor.get("upgrade_cost", 0)) == 10,
+		"owned card without fragments reports cost but cannot upgrade"
+	)
+	_check(
+		int(_card_view(engine, "card.skill.second_look").get("upgrade_cost", -1)) == 0,
+		"card without upgrade path reports zero upgrade_cost"
+	)
+	engine.submit(ProgressionCommand.resolve_battle(&"victory"))
+	engine.submit(ProgressionCommand.claim_reward(&"reward.ink_dart_fragments"))
+	var ready := _card_view(engine, "card.skill.ink_dart")
+	_check(
+		bool(ready.get("can_upgrade", false)) and int(ready.get("upgrade_cost", 0)) == 10,
+		"card with enough fragments reports can_upgrade"
+	)
+	var result := engine.submit(ProgressionCommand.upgrade_card(&"card.skill.ink_dart"))
+	_check(result.accepted, "can_upgrade=true card is accepted by UPGRADE_CARD")
+	var after := _card_view(engine, "card.skill.ink_dart")
+	_check(
+		not bool(after.get("can_upgrade", true)) and int(after.get("upgrade_cost", 0)) == 20,
+		"upgrade_cost follows the next level after an upgrade"
+	)
+
+
+## Missing potion or digestion content is an initialization error, not a silent default.
+func _test_missing_potion_content_rejected() -> void:
+	var no_rules := _content()
+	no_rules.digestion_rules = {}
+	var rules_engine := ProgressionEngineScript.new(
+		no_rules, ProgressionTestBalance.new({}), ProgressionTestRandom.new(1)
+	)
+	var rules_result = rules_engine.initialize()
+	_check(
+		not rules_result.accepted and rules_result.reason_code == &"digestion_rules_missing",
+		"missing digestion rules reject initialization"
+	)
+	var no_potions := _content()
+	no_potions.potion_definitions = []
+	var potion_engine := ProgressionEngineScript.new(
+		no_potions, ProgressionTestBalance.new({}), ProgressionTestRandom.new(1)
+	)
+	var potion_result = potion_engine.initialize()
+	_check(
+		not potion_result.accepted and potion_result.reason_code == &"potion_definitions_missing",
+		"missing potion definitions reject initialization"
+	)
+	var bad_potion := _content()
+	bad_potion.digestion_rules["potion_id"] = "potion.missing"
+	var bad_engine := ProgressionEngineScript.new(
+		bad_potion, ProgressionTestBalance.new({}), ProgressionTestRandom.new(1)
+	)
+	var bad_result = bad_engine.initialize()
+	_check(
+		not bad_result.accepted and bad_result.reason_code == &"digestion_potion_unknown",
+		"digestion rules must reference a defined potion"
+	)
+
+
 func _test_owned_deck_filter() -> void:
 	var pair := _make_engine(71)
 	var engine: ProgressionEngine = pair[0]
@@ -606,6 +683,8 @@ class ProgressionTestContent:
 	var gacha_pool: Array = []
 	var reward_options: Array = []
 	var upgrade_definitions: Dictionary = {}
+	var potion_definitions: Array = []
+	var digestion_rules: Dictionary = {}
 	var base_card_ids: Dictionary = {}
 
 	func _init(document: Dictionary) -> void:
@@ -614,8 +693,26 @@ class ProgressionTestContent:
 		gacha_pool = document.get("gacha_pool", []).duplicate(true)
 		reward_options = document.get("reward_options", []).duplicate(true)
 		upgrade_definitions = document.get("upgrade_definitions", {}).duplicate(true)
+		# The v0.4 document predates potions; the engine now requires them explicitly.
+		var current := _load_document("res://data/cards/v0.7.0/progression.json")
+		potion_definitions = current.get("potion_definitions", []).duplicate(true)
+		digestion_rules = current.get("digestion_rules", {}).duplicate(true)
 		for definition_id in _load_cards():
 			base_card_ids[String(definition_id)] = true
+
+	func get_potion_definitions() -> Array:
+		return potion_definitions.duplicate(true)
+
+	func get_digestion_rules() -> Dictionary:
+		return digestion_rules.duplicate(true)
+
+	func _load_document(path: String) -> Dictionary:
+		var file := FileAccess.open(path, FileAccess.READ)
+		if file == null:
+			return {}
+		var parsed: Variant = JSON.parse_string(file.get_as_text())
+		file.close()
+		return parsed if parsed is Dictionary else {}
 
 	func get_identity_options() -> Array:
 		return identities.duplicate(true)

@@ -201,7 +201,7 @@ func _build_card_row(card: Dictionary) -> Control:
 	var cost := int(card.get("next_upgrade_cost", 0))
 	var owned := copies > 0
 	var panel := UiTheme.panel(UiTheme.C_MODULE, UiTheme.C_LINE)
-	var ready_to_upgrade := owned and level < max_level and fragments >= cost and cost > 0
+	var ready_to_upgrade := bool(card.get("can_upgrade", false))
 	panel.add_theme_stylebox_override(
 		"panel",
 		UiTheme.style_box(
@@ -295,13 +295,7 @@ func _build_card_row(card: Dictionary) -> Control:
 		true,
 		112
 	)
-	var base_disabled := (
-		_busy
-		or not owned
-		or level >= max_level
-		or cost <= 0
-		or fragments < cost
-	)
+	var base_disabled := _busy or not ready_to_upgrade
 	upgrade_button.disabled = base_disabled
 	action.add_child(upgrade_button)
 	_buttons_by_card[definition_id] = upgrade_button

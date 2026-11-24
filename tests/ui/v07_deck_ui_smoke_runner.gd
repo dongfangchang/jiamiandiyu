@@ -363,6 +363,8 @@ func _progression_snapshot() -> ProgressionSnapshot:
 			"fragments": 6,
 			"max_level": 3,
 			"next_upgrade_cost": 6,
+			"can_upgrade": true,
+			"upgrade_cost": 6,
 		})
 	return ProgressionSnapshotScript.new({
 		"phase": "hub",

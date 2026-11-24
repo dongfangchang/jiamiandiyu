@@ -8,6 +8,7 @@ const ProgressionContentAdapterScript := preload("res://src/infrastructure/progr
 const BattleContentAdapterScript := preload("res://src/infrastructure/battle_content_adapter.gd")
 const BattleBalanceAdapterScript := preload("res://src/infrastructure/battle_balance_adapter.gd")
 const BattleRandomAdapterScript := preload("res://src/infrastructure/battle_random_adapter.gd")
+const SeededRandomAdapterScript := preload("res://src/infrastructure/seeded_random_adapter.gd")
 const SeededRandomServiceScript := preload("res://src/infrastructure/seeded_random_service.gd")
 
 const CARDS_PATH := "res://data/cards/v0.7.0/cards.json"
@@ -269,7 +270,7 @@ func _test_new_card_upgrade_reaches_battle_content() -> void:
 	var progression := ProgressionEngineScript.new(
 		progression_content,
 		BattleBalanceAdapterScript.new(balance_document),
-		BattleRandomAdapterScript.new(
+		SeededRandomAdapterScript.new(
 			random_service.get_stream(&"gacha.draw")
 		)
 	)

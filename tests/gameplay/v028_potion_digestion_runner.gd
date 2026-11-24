@@ -176,8 +176,7 @@ func _test_sequence_locked_gacha() -> void:
 	if not last_results.is_empty():
 		var definition_id := StringName(last_results[0].get("definition_id", ""))
 		var definition: Dictionary = session.catalog.get_card(definition_id)
-		var band := String(definition.get("sequence_band", ""))
-		_expect(not band.contains("序列8") and not band.contains("→8"), "sequence 9 gacha must not offer sequence 8 cards")
+		_expect(SequenceTier.required_for(definition) == 9, "sequence 9 gacha must not offer sequence 8 cards")
 
 
 func _finish() -> void:
