@@ -4,23 +4,32 @@
 
 ## 进行中 / 待办
 
+### AR-07 · 可读性测试补"遮挡"维度（P0-3 退回暴露的测试缺口）
+- status: todo
+- 优先级: P0
+- 来源: 2026-11-24 轮询。`diary_readability_runner` 全绿，但真窗口里正文被背景板遮住，测试只检查相机常量。
+- 做法: 在 `diary_readability_runner`（headless 可跑）中，对左右页面网格的采样点（四角、题名、正文、蜡封）从相机做 `PhysicsRayQueryParameters3D` 射线检测，或按几何做"镜头 → 采样点"线段与站内其他可见网格包围盒的相交检测。命中页面以外的物体即判失败。必须在**装上质量层（DeskQuality）之后**的完整舞台上检测。
+- 完成标准: 用 4d510ce 的背景板摆放能让测试失败，修好后通过
+
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
 ### AR-05 · 渲染器评估（gl_compatibility 对比 Forward+ / Mobile）→ ADR-0035
-- status: doing
-- 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
+- status: done
 - 优先级: P0（阻塞 UI-P0-3 的光照和后期）
 - 来源: ADR-0034 D4
-- 做法: 在临时分支或工作树中切换 `rendering/renderer/rendering_method`，用日记站同一镜头截图，比较阴影、SSAO、辉光、色调映射、帧率（macOS M4，2920×1753），并检查导出影响（Windows 和 macOS）。不合入 main，结论写成 ADR-0035。
+- 做法: CLI `--rendering-method` 切换三法；日记站同镜头 2920×1753 截图 + FPS；结论 ADR-0035。不合入 project.godot（交协调者落地）。
+- 改哪些: `docs/decisions/ADR-0035-desk-world-renderer.md`、`docs/reports/v0.89.0/architect.md`、`docs/reports/v0.89.0/ar05_renderer/**`、`tools/architecture/ar05_*`
 - 完成标准: ADR-0035 给出选择、理由和迁移代价；附截图对比
-- 阻塞: 无
+- 证据: 选择 **Forward+**（桌面默认）；Mobile=性能档；Compatibility=应急。ADR=`docs/decisions/ADR-0035-desk-world-renderer.md`；报告=`docs/reports/v0.89.0/architect.md`；缩略图=`docs/reports/v0.89.0/ar05_renderer/*_thumb.png`；全分辨率可复跑 `tools/architecture/ar05_run_compare.sh` → `.tools/ui-captures/ar05_renderer/`。FPS@M4/2920×1753：compat 20.2 / mobile 32.2 / forward+ 17.4。未改 `src/ui/**`。
 
 ### AR-06 · 评审 UI-X0-rev（ADR-0034 修订）
-- status: blocked
+- status: todo
+- 证据: UI-X0-rev 已交付（c954512），请评审
 - 阻塞: UI-X0-rev
 
 ### AR-03b · 新守卫：遮罩和非文字按钮
-- status: blocked
+- status: todo
+- 证据: UI-P0-1 已合入；track A 已加阻断守卫（TitleOpenCover，标题文件中的 add_background / SceneBackgroundHolder）；剩余：标题站和总览站"非文字 BaseButton"的断言，可复用 title_station_runner
 - 做法: run_tests 守卫：主路径禁止 `TitleOpenCover` / `*Cover` 遮罩；标题站和总览站除文字条目外不得有 `BaseButton`（用 UI 测试断言更可靠，与 UI 协作）
 - 阻塞: UI-P0-1 合并
 

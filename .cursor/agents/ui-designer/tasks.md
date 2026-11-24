@@ -4,8 +4,49 @@
 
 ## 进行中 / 待办
 
-### UI-P0-3-fix · 轮询发现（2026-11-24，架构师）：工作区当前状态未达合入门
+### UI-P0-3-reject · 画面升级退回：背景板遮住书页，正文和题名不可见
 - status: todo
+- 优先级: P0（最高）
+- 证据: 主会话真窗口截图 `docs/reports/v0.89.0/ui_p0_3_fix_diary_1600x900.png`（由你自己的 `v089_diary_quality_capture_runner` 生成）和 `.tools/ui-captures/v084_desk_idle.png`。
+  - 右页**题名和正文完全不见**，只剩蜡封。
+  - 左页插画上半部分被切掉。
+  - 书看起来被压扁成贴地视角。
+  - 上半屏是一堵竖立的书房墙。
+- 根因: `diary_desk_stage.gd` 把 room 背景板改为 `position (0, 0.52, -0.78)`、`rotation_degrees (-62, 0, 0)`，让它在 −75° 的阅读镜头下显示为"竖墙"。这块平面插进了镜头和书之间，**遮挡了书页的上半部分**。`diary_readability_runner` 只按相机常量计算字号，不检查遮挡，所以测试全绿而画面是坏的。
+- 违反: EXPERIENCE §5.1（正文必须可读）；ADR-0034 D3。另外 `diary_desk_quality.gd:157/160` 用 `visible = false` 隐藏旧的程序书签和 `BookmarkProp`，违反 D2"替换即删除"，应直接删掉旧节点和构建代码。
+- 做法（建议）: 背景板不能放在镜头与书之间的视锥里。可选方案：
+  - (a) 放到桌面远端之外、并低于书页平面的位置，只露出画面上缘的一条；
+  - (b) 不用 3D 平面，改为 SubViewport 背后的 2D 远景层，按镜头视差轻微偏移；
+  - (c) 本站不显示背景板，书房背景留给 title / desk 总览这类远景站位。
+  
+  任选其一，但**书页上任何一点都不能被遮挡**。
+- 完成标准:
+  1. 两种分辨率的截图中，右页题名、正文、蜡封和左页整幅插画都完整可见，与 P0-2 截图 `.tools/ui-captures/v089_readability/after/diary_1600x900_idle.png` 的书页取景一致（书宽 55–65%）；
+  2. 删除旧书签节点（不是隐藏）；
+  3. 完成 AR-07 的遮挡守卫测试并通过。
+- 提交: 在本地 main 上修复后 amend 或追加提交，测试全绿后再推送。主会话在你修好之前**不会推送**本地 main。
+
+### UI-P0-3-sync · ⚠ 合入前必须先同步 origin/main（2026-11-24 轮询）
+- status: done
+- owner: ui-designer 智能体（2026-11-24 轮询派工）
+- 优先级: P0，阻塞 UI-P0-3 提交
+- 说明: origin/main 已合入 P0-2 可读性（b340186），它改了你正在工作区改的三个文件：
+  - `diary_desk_stage.gd`：`_stage` 改为 TextureRect，世界视口按物理像素渲染，新镜头常量（俯角 −75°、3.0 m、fov 23°），物件后仰 45°
+  - `diary_page_pair.gd`：`PAGE_SCALE = 2.0`，所有坐标经 `px()`，纸色调亮，墨色常量改动
+  - `diary_chapter_screen.gd`：外框改用宋体，删除空的叶号行
+  
+  P0-1 标题站也已合入（`start_screen.gd` 重写）。逐项改动清单见 `docs/reports/v0.89.0/ui_readability.md`。
+- 做法: 先提交你的工作区改动（可以是 WIP 提交），再 `git pull --rebase origin main` 解决冲突。**保留 P0-2 的可读性底线**（`diary_readability_runner` 必须全绿）。光照、材质、丝带书签叠加在新镜头之上；新镜头下后墙已不在画面内，DQ-01 背景板的摆放要按新镜头重新评估。
+- 完成标准: run_tests 全绿（包括 diary_readability_runner）；然后再标 UI-P0-3 done
+- 证据:
+  - WIP→rebase：`4d510ce` on top of `b340186`；冲突手改三文件（保留 PAGE_SCALE/px/新镜头/INK_FADE_LOCKED；叠 DQ/丝带/FX）
+  - DQ-01：`RoomBack` 后仰 −62° 贴书桌远沿（直立墙在 −75° 下出画）
+  - `tools/run_tests.sh` → **pass=95 fail=0 skipped=13 guard_block=0**；含 `diary_readability_runner` + `diary_quality_wiring_runner`
+  - 截图刷新 `docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png`；报告 UI-P0-3-sync 节
+
+### UI-P0-3-fix · 轮询发现（2026-11-24，架构师）：工作区当前状态未达合入门
+- status: done
+- owner: ui-designer 智能体（2026-11-24 轮询派工）
 - 优先级: P0（在 UI-P0-3 标 done 前必须清零）
 - 来源: 主会话轮询，对工作区跑 `tools/run_tests.sh` → pass=92 fail=1 guard_block=1
 - 问题:
@@ -14,6 +55,12 @@
   3. **渲染器**：`project.godot` 已在工作区改为 `forward_plus`（ADR-0035）。它是跨角色文件：请在 UI-P0-3 的同一提交里带上，并在报告中附 Forward+ 下的两种分辨率截图，以及 HiDPI 下的帧率（ADR-0035 实测全开 FX 约 17 fps，偏低：SSAO / 辉光参数要按帧率预算调，目标 ≥30 fps）。
   4. **协调**：主会话的 P0-2 可读性轨道同时在改 `diary_desk_stage.gd` / `diary_page_pair.gd`（页面视口 1024×1440、物理像素渲染）。P0-3 合入前须先 `git pull`，并在主会话合入 P0-2 之后再提交，避免互相覆盖。
 - 完成标准: run_tests 全绿、守卫不阻断；Forward+ 截图和帧率写进报告
+- 证据:
+  - `tools/run_tests.sh` → **pass=94 fail=0 skipped=12 guard_block=0**
+  - 截图 `docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png`
+  - HiDPI fps avg=**37.4** (min 29 / max 41) @ 2920×1753 Forward+ Metal
+  - 报告 `docs/reports/v0.89.0/ui.md` UI-P0-3-fix 节
+  - **未 commit/push**：`git fetch` 后 origin/main 仍无 P0-2；`PAGE_VP_SIZE` 仍 512×720 → **等待主会话 UI-P0-2 合入**后再提交，避免覆盖
 
 
 ### UI-07-DQ · 日记站画面升级 DQ-01…06 审稿
@@ -51,7 +98,8 @@
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
 ### UI-P0-1 · 标题站：删除旧面板，改为文字菜单（取代被否决的 H-03 方案）
-- status: doing
+- status: done
+- 证据: origin/main b340186（df07b21）；`start_screen.gd` 从 973 行减到 430 行，旧面板、隐形热区和 TitleOpenCover 全部删除；title_station_runner 163 项检查；主会话看过截图 `.tools/ui-captures/v089_title_focus_continue_1600x900.png`：只有纸条上的文字菜单，物件不可点；待用户真窗口确认
 - 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
 - 优先级: P0（最先做）
 - 来源: 用户反馈；ADR-0034 D1/D2；v0.89 P0-1
@@ -66,7 +114,8 @@
 - 阻塞: 无
 
 ### UI-P0-2 · 日记可读性底线
-- status: doing
+- status: done
+- 证据: origin/main（045bd70）；diary_readability_runner 41 项检查；正文 22.6px、题名 29.1px、注脚 16.2px，对比度 5.47 / 5.31 / 4.06，阅读夹角 24.2°；截图在 `.tools/ui-captures/v089_readability/`；mipmap 在兼容渲染器下无效，改用超采样（切换到 Forward+ 后复测）
 - 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
 - 优先级: P0
 - 来源: 用户反馈"字都看不清"；ADR-0034 D3；EXPERIENCE §5.1
@@ -82,7 +131,8 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: done
+- status: todo
+- **退回（2026-11-24 轮询）**: 见 UI-P0-3-reject。本地提交 4d510ce / 26c7b16 **未推送，也不得推送**，修好后再提交
 - owner: ui-designer 智能体（2026-11-24；未覆盖主会话 P0-1/P0-2/P1-1/X0-rev）
 - 优先级: P0
 - 来源: 用户反馈"画风太简陋"；ADR-0034 D4
@@ -92,12 +142,14 @@
 - 阻塞: 无
 - 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
 - 证据:
-  - `docs/reports/v0.89.0/ui.md` UI-P0-3 节
-  - `diary_quality_wiring_runner` 30/30；v083 / prepared_turn / challenge_fallback OK
-  - 截图 `docs/reports/v0.89.0/ui_p0_3_diary_1600x900.png`（Metal Forward+）
+  - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync 节
+  - `diary_quality_wiring_runner` PASS；与 P0-2 叠合后 `run_tests` **pass=95 fail=0 guard_block=0**（含 diary_readability）
+  - 截图 `ui_p0_3_diary_*.png` + 合入后刷新 `ui_p0_3_fix_diary_*.png`
+  - 合入提交：`4d510ce`（rebase onto b340186）
 
 ### UI-X0-rev · 按 ADR-0034 修订站位设计稿
-- status: doing
+- status: done
+- 证据: c954512 DESK_WORLD_STATIONS 修订（文字控件、索引卡、交互状态表）；待 AR-06 评审
 - 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）；与 UI-P0-1 同一轨道
 - 优先级: P0（X1 实现前完成）
 - 改哪些: `docs/design/DESK_WORLD_STATIONS.md` §3.1、§3.3 及交互状态表
