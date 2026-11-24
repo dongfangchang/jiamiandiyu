@@ -4,10 +4,19 @@
 
 ## 进行中 / 待办
 
+### UI-P1-1 · BUG-0041 战斗手牌插画被挤压
+- status: doing
+- owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
+- 来源: 用户 2026-11-24；`docs/bugs/BUG-0041-battle-hand-card-art-squashed.md`
+- 改哪些: `src/ui/battle_screen.gd`（手牌和飞卡）、`src/ui/common/card_face.gd`、`tests/ui/**`
+- 完成标准: 见 BUG 文档的回归测试
+
+
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
 ### UI-P0-1 · 标题站：删除旧面板，改为文字菜单（取代被否决的 H-03 方案）
-- status: todo
+- status: doing
+- 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
 - 优先级: P0（最先做）
 - 来源: 用户反馈；ADR-0034 D1/D2；v0.89 P0-1
 - 改哪些: `src/ui/start_screen.gd`、`src/ui/title_desk_stage.gd`、`scenes/ui/start_screen.tscn`、`tests/ui/**`
@@ -21,7 +30,8 @@
 - 阻塞: 无
 
 ### UI-P0-2 · 日记可读性底线
-- status: todo
+- status: doing
+- 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）
 - 优先级: P0
 - 来源: 用户反馈"字都看不清"；ADR-0034 D3；EXPERIENCE §5.1
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（外框文字）、`tests/ui/**`
@@ -45,7 +55,8 @@
 - 阻塞: 架构师 AR-05（渲染器结论）；美术 ART-DQ；主协调者 CO-DQ 迁入
 
 ### UI-X0-rev · 按 ADR-0034 修订站位设计稿
-- status: todo
+- status: doing
+- 证据/说明: - owner: 主会话（2026-11-24 起执行，**角色智能体勿重复开工、勿改相关文件**；完成后主会话标 done）；与 UI-P0-1 同一轨道
 - 优先级: P0（X1 实现前完成）
 - 改哪些: `docs/design/DESK_WORLD_STATIONS.md` §3.1、§3.3 及交互状态表
 - 做法: 标题站改为纸条上的文字菜单；总览站把"悬停物件出题签"改为桌角索引卡的文字条目，条目悬停时联动提亮物件；明确所有站位"物件不可点"。

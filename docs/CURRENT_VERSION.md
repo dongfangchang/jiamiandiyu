@@ -7,7 +7,7 @@
 - 当前版本文档：`docs/versions/v0.89.0.md`
 - ROADMAP 阶段：**X1 书桌世界 I ＋ 用户反馈 P0**（文字控件 / 删除旧界面 / 日记可读性与画面；ADR-0034）
 - 更新日期：2026-11-24
-- 前一版本：`v0.88.0`（验证中；H-03 被否决，由 X1-03 取代）
+- 前一版本：`v0.88.0`（有条件关闭；H-03 由 X1-03 / P0-1 取代）
 - 决策：`docs/decisions/ADR-0031-architecture-consolidation.md`
 - **活跃计划（可勾销）**：`docs/ACTIVE_PLAN.md`
 - **版本索引**：`docs/VERSION_INDEX.md`（里程碑 + 最近三版）
