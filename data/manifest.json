@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "content_revision": 1,
+  "description": "The only definition of the content set the game loads. Bump content_revision on any semantic content change. Paths move here (and only here) when directories are flattened.",
+  "documents": {
+    "cards": {"path": "res://data/cards/v0.7.0/cards.json", "schema": "res://data/schema/v0.7.0/cards.schema.json"},
+    "progression": {"path": "res://data/cards/v0.7.0/progression.json", "schema": "res://data/schema/v0.7.0/progression.schema.json"},
+    "enemies": {"path": "res://data/enemies/v0.7.0/enemies.json", "schema": "res://data/schema/v0.7.0/enemies.schema.json"},
+    "encounters": {"path": "res://data/encounters/v0.7.0/encounters.json", "schema": "res://data/schema/v0.7.0/encounters.schema.json"},
+    "balance": {"path": "res://data/balance/v0.7.0/balance.json", "schema": "res://data/schema/v0.7.0/balance.schema.json"},
+    "routes": {"path": "res://data/routes/v0.7.0/routes.json", "schema": "res://data/schema/v0.7.0/routes.schema.json"},
+    "rituals": {"path": "res://data/rituals/v0.7.0/rituals.json", "schema": "res://data/schema/v0.7.0/rituals.schema.json"},
+    "challenges": {"path": "res://data/challenges/v0.7.0/challenges.json", "schema": "res://data/schema/v0.7.0/challenges.schema.json"},
+    "decks": {"path": "res://data/decks/v0.7.0/decks.json", "schema": "res://data/schema/v0.7.0/decks.schema.json"},
+    "diary": {"path": "res://data/diaries/v0.55.0/tingen_volume_1.json", "schema": "res://data/schema/v0.7.0/diary.schema.json"}
+  }
+}
