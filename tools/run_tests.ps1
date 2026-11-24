@@ -56,8 +56,8 @@ foreach ($t in $targets) {
 }
 
 $guardFail = $false
-function Guard($mode, $label, $paths, $pattern) {
-    $hits = Get-ChildItem -Path $paths -Recurse -Filter "*.gd" -ErrorAction SilentlyContinue |
+function Guard($mode, $label, $paths, $pattern, $exclude = @()) {
+    $hits = Get-ChildItem -Path $paths -Recurse -Filter "*.gd" -Exclude $exclude -ErrorAction SilentlyContinue |
         Select-String -Pattern $pattern
     if ($hits) {
         Write-Host "GUARD[$mode] ${label}:"
@@ -67,7 +67,9 @@ function Guard($mode, $label, $paths, $pattern) {
 }
 Guard "block" "gameplay/core must stay pure" @("src/gameplay", "src/core") 'FileAccess|randi\(|randf\(|RandomNumberGenerator|^extends (Node|Control)'
 Guard "block" "tests must not pin project version" @("tests") 'config/version='
-Guard "report" "ui reads files directly (blocking from R2-09)" @("src/ui") 'FileAccess'
+# asset_registry.gd is the one sanctioned reader (data/registry/assets.json).
+Guard "block" "ui reads files directly (R2-09)" @("src/ui") 'FileAccess' @("asset_registry.gd")
+Guard "block" "ui asset path literals (R2-10; use data/registry/assets.json)" @("src/ui") 'res://assets/game/'
 
 Write-Host ""
 Write-Host "run_tests: pass=$pass fail=$fail skipped=$skipped guard_block=$guardFail"

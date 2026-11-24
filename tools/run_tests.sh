@@ -98,10 +98,11 @@ guard block "gameplay/core must stay pure" \
 	grep -rnE 'FileAccess|randi\(|randf\(|RandomNumberGenerator|^extends (Node|Control)' src/gameplay src/core --include='*.gd'
 guard block "tests must not pin project version" \
 	grep -rn 'config/version=' tests --include='*.gd'
-guard report "ui reads files directly (blocking from R2-09)" \
-	grep -rn 'FileAccess' src/ui --include='*.gd'
-guard report "ui asset path literals (blocking from R2-10)" \
-	grep -rlc 'res://assets/game/' src/ui --include='*.gd'
+# asset_registry.gd is the one sanctioned reader (data/registry/assets.json).
+guard block "ui reads files directly (R2-09)" \
+	grep -rn --include='*.gd' --exclude='asset_registry.gd' 'FileAccess' src/ui
+guard block "ui asset path literals (R2-10; use data/registry/assets.json)" \
+	grep -rn --include='*.gd' 'res://assets/game/' src/ui
 guard report "files over size budget" \
 	sh -c "find src -name '*.gd' -exec wc -l {} + | awk '\$2!=\"total\" && ((\$2 ~ /src\\/ui\\// && \$1>800) || (\$2 !~ /src\\/ui\\// && \$1>500))'"
 
