@@ -4,7 +4,7 @@ const ChallengeScreenScene := preload("res://scenes/ui/challenge_screen.tscn")
 const ChallengeSnapshotScript := preload("res://src/core/challenge_snapshot.gd")
 const DeckScreenScene := preload("res://scenes/ui/deck_screen.tscn")
 const DeckSnapshotScript := preload("res://src/core/deck_snapshot.gd")
-const RouteScreenScene := preload("res://scenes/ui/route_screen.tscn")
+const DiaryScreenScene := preload("res://scenes/ui/diary_chapter_screen.tscn")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 const RitualScreenScene := preload("res://scenes/ui/ritual_screen.tscn")
 const RitualSnapshotScript := preload("res://src/core/ritual_snapshot.gd")
@@ -118,7 +118,8 @@ func _test_upgrade_back_while_pending() -> void:
 
 
 func _test_route_hub_while_pending() -> void:
-	var screen = RouteScreenScene.instantiate()
+	## The route map is the diary since v0.55; its close bookmark is the hub exit.
+	var screen = DiaryScreenScene.instantiate()
 	add_child(screen)
 	screen.apply_snapshot(RouteSnapshotScript.new(_route_snapshot()))
 	var hubs := [0]
@@ -126,13 +127,17 @@ func _test_route_hub_while_pending() -> void:
 		hubs[0] += 1
 	)
 	screen.set_pending(true)
-	var button: Button = screen.get("_hub_button")
+	var button: Button = null
+	for candidate in screen.find_children("*", "Button", true, false):
+		if (candidate as Button).text == "合上":
+			button = candidate
+			break
 	_expect(
 		button != null and not button.disabled,
-		"route hub must stay enabled while node selection is pending"
+		"diary close must stay enabled while node selection is pending"
 	)
-	screen.call("_on_hub")
-	_expect(hubs[0] == 1, "pending route must emit one hub intent")
+	screen.request_close()
+	_expect(hubs[0] == 1, "pending diary must emit one hub intent")
 	screen.queue_free()
 	await get_tree().process_frame
 

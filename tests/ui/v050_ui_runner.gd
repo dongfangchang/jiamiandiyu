@@ -3,10 +3,8 @@ extends Node
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
 const SceneCatalog := preload("res://src/ui/scene_ui_catalog.gd")
-const RouteScreenScript := preload("res://src/ui/route_screen.gd")
 const ChallengeScreenScript := preload("res://src/ui/challenge_screen.gd")
 const BattleScreenScript := preload("res://src/ui/battle_screen.gd")
-const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -30,44 +28,6 @@ func _ready() -> void:
 	if bg != null and holder != null:
 		_expect(holder.clip_contents, "background holder clips to canvas")
 
-	var route = RouteScreenScript.new()
-	route.custom_minimum_size = Vector2(1600, 900)
-	add_child(route)
-	await get_tree().process_frame
-	var summary := route.find_child("ChapterSummaryBox", true, false)
-	_expect(summary is Label, "chapter summary is expanding label")
-	_expect(not (summary is ScrollContainer), "chapter summary is not a scroll box")
-	var goal := route.find_child("CurrentGoalBox", true, false)
-	_expect(goal is Label, "current goal is expanding label")
-	route.apply_snapshot(RouteSnapshotScript.new({
-		"display_name_zh": "第一卷·小丑：廷根值夜者",
-		"chapter_title_zh": "第一卷《小丑》：廷根",
-		"chapter_phase_zh": "密修会的闯入",
-		"chapter_summary_zh": "从莫雷蒂家的闯入开始，沿着廷根值夜者的夏天推进调查。",
-		"phase": "map",
-		"current_node_id": "route.v028.first_stage.node.intruder",
-		"nodes": [
-			{
-				"id": "route.v028.first_stage.node.intruder",
-				"display_name_zh": "密修会的闯入者",
-				"type": "normal",
-				"state": "available",
-				"investigation_goal_zh": "确认闯入者身份并保住家人",
-				"narrative_beat_zh": "深夜，密修会成员潜入莫雷蒂家。",
-				"source_zh": "第一卷 6月30日",
-			}
-		],
-	}))
-	await get_tree().process_frame
-	_expect(
-		is_instance_valid(summary) and (summary as Label).visible
-			and not String((summary as Label).text).is_empty(),
-		"chapter summary visible with text"
-	)
-	var story := route.find_child("NodeStoryBox", true, false)
-	_expect(story is Label, "node story is expanding label")
-	_expect(not (story is ScrollContainer), "node story is not a scroll box")
-
 	var challenge = ChallengeScreenScript.new()
 	add_child(challenge)
 	await get_tree().process_frame
@@ -84,7 +44,6 @@ func _ready() -> void:
 		"battle background covers canvas"
 	)
 
-	route.queue_free()
 	challenge.queue_free()
 	battle.queue_free()
 	host.queue_free()

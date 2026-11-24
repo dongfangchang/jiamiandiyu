@@ -8,7 +8,6 @@ const BattleSnapshotScript := preload("res://src/core/battle_snapshot.gd")
 const BattlePlayabilityScript := preload("res://src/core/battle_playability.gd")
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const RouteCatalog := preload("res://src/ui/route_ui_catalog.gd")
-const RouteScreenScript := preload("res://src/ui/route_screen.gd")
 
 var _checks := 0
 var _failures: Array[String] = []
@@ -103,14 +102,6 @@ func _ready() -> void:
 			hand_panel.get_global_rect().end.y < 900.0,
 			"hand does not cover viewport bottom edge"
 		)
-
-	var route = RouteScreenScript.new()
-	route.custom_minimum_size = Vector2(1600, 900)
-	route.size = Vector2(1600, 900)
-	add_child(route)
-	await get_tree().process_frame
-	var route_holder := route.get_node_or_null("SceneBackgroundHolder")
-	_expect(route_holder != null, "route has canvas background holder")
 
 	if _failures.is_empty():
 		print("V053_CANVAS_FLOOR_OK checks=%d" % _checks)
