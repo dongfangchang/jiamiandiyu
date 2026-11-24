@@ -463,7 +463,7 @@ func _refresh_chrome() -> void:
 func _sync_desk_spread() -> void:
 	if not is_instance_valid(_desk_stage):
 		return
-	_desk_stage.apply_spread(_current_spread())
+	_desk_stage.apply_spread_list(_spread_list, _current_spread_idx)
 	_sync_desk_flip_blocks()
 
 
