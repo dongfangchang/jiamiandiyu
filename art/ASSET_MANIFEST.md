@@ -307,3 +307,36 @@ v0.24.0 在不改变稳定 ID、构图和运行时语义的前提下，为现有
 - 来源、裁切坐标、哈希及接缝测量见 `art/production/v0.85.0/desk_material_sources.json`。两幅对边像素差均为 0；2×2 预览未见硬接缝，木结重复仍属于平铺纹理固有限制。
 - 运行时：`assets/ui/diary/parchment_grain.png`、`assets/ui/diary/desk_wood.png`。素材已接入样张，最终桌面呈现由 UI 审稿。
 - 尚缺七幅叙事插画和三态蜡封。本次不调用付费出图接口。
+
+## v0.87 归档
+
+v0.87.0 R1-05 / R1-06（AR-44、AR-45、AR-56）。以下文件已从 `main` 删除，历史完整保留在 git 标签 **`archive/pre-v0.87-assets`**（指向删除前提交 `dbdcdeac74468cb21d8fbfea3f25f908732dbebc`）。
+
+| 路径 | 大小 | 文件数（不含 `.import`） | 删除理由 |
+|---|---:|---:|---|
+| `assets/game/v0.3.0/` | 4.3 MB | 27 | 无运行时 / 测试 / 工具 / uid 引用；现行副本在 `assets/game/v0.24.0/v0.3.0/` |
+| `assets/game/v0.4.0/` | 1.8 MB | 13 | 同上（现行 `v0.24.0/v0.4.0/`） |
+| `assets/game/v0.5.0/` | 3.6 MB | 14 | 同上（现行 `v0.24.0/v0.5.0/`） |
+| `assets/game/v0.6.0/` | 0.9 MB | 14 | 同上（现行 `v0.24.0/v0.6.0/`） |
+| `assets/game/v0.7.0/` | 3.1 MB | 16 | 同上（现行 `v0.24.0/v0.7.0/`） |
+| `assets/game/cards/` | 2.6 MB | 5 | 无引用（现行 `v0.24.0/cards/`、`v0.85.0/cards/`） |
+| `assets/game/enemies/` | 0.2 MB | 1 | 无引用 |
+| `assets/game/icons/` | 0.5 MB | 1 | 无引用 |
+| `assets/game/templates/` | 0.5 MB | 1 | 无引用 |
+| `data/schema/v0.2.0/content_envelope.schema.json` | <0.01 MB | 1 | 无任何引用（仅 README 提及） |
+
+合计约 17.4 MB（`assets/` 由 158.2 MB 降到 140.8 MB，按 `du -sk` 计）。
+
+恢复命令：
+
+```bash
+git fetch origin tag archive/pre-v0.87-assets   # 标签已推送时
+git checkout archive/pre-v0.87-assets -- <path>
+# 例：git checkout archive/pre-v0.87-assets -- assets/game/v0.3.0
+```
+
+本轮保留（审查列为候选但仍有引用）：
+
+- `assets/game/{scenes,v0.13.0,v0.47.0,v0.49.0}/`：`art/tools/render_title_svg.gd`、`render_v013_cards.gd`、`render_v047_p3_scenes.gd`、`render_v049_shell_scenes.gd` 及对应 `.mjs` 以其为输出目录；按保守规则整目录保留，待美术确认后可归档。
+- 逐字节重复：`assets/ui/diary/desk_wood.png` = `props/desk-wood.png`、`wax_seal_available.png` = `props/wax-seal.png`（`props/` 经 `prop_ui_catalog.gd` 的 `PROP_DIR` 动态引用）；`assets/game/v0.24.0/cards/card-identity-reporter.png` = `templates/card-frame.png`（后者登记在 `v0.24.0/render-manifest.json`）。两份均有引用，均保留。`assets/game/v0.85.0` 与 `art/**` 的重复不在本轮范围（不动 `art/**`）。
+- `data/balance/v0.2.0/balance_draft.json`、`data/schema/v0.2.0/battle_cards.schema.json`：仍被 `tests/infrastructure/test_runner.gd` 读取，保留。
