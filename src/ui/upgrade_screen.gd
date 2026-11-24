@@ -5,6 +5,7 @@ signal back_requested
 
 const UiTheme := preload("res://src/ui/mask_ui_theme.gd")
 const ProgressionCatalog := preload("res://src/ui/progression_ui_catalog.gd")
+const CardFace := preload("res://src/ui/common/card_face.gd")
 const ProgressionSnapshotScript := preload("res://src/core/progression_snapshot.gd")
 const ProgressionCommandResultScript := preload("res://src/core/progression_command_result.gd")
 
@@ -223,12 +224,7 @@ func _build_card_row(card: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	pad.add_child(row)
-	var art := TextureRect.new()
-	art.texture = load(ProgressionCatalog.card_art(definition_id))
-	art.custom_minimum_size = Vector2(138, 108)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	row.add_child(art)
+	row.add_child(CardFace.make_face(definition_id, Vector2(138, 108), Vector2(30, 30)))
 
 	var info := VBoxContainer.new()
 	info.add_theme_constant_override("separation", 4)
