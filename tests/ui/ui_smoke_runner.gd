@@ -86,7 +86,7 @@ func _test_battle_screen() -> void:
 			&"card.skill.focus": "凝神",
 		},
 		{&"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(true, BattlePlayability.PLAYABLE)
 	)
 	_expect(
@@ -129,7 +129,7 @@ func _test_battle_screen() -> void:
 		"廷根旧宅",
 		{&"card.skill.ink_dart": "墨刺"},
 		{&"enemy.weeping_tenant": "哭泣的房客"},
-		func(_card_id: StringName, _target_id: StringName) -> BattlePlayability:
+		func(_card_id: StringName, _target_id: StringName, _discard_ids: Array) -> BattlePlayability:
 			return BattlePlayabilityScript.new(false, BattlePlayability.INVALID_TARGET)
 	)
 	_captured_command = null

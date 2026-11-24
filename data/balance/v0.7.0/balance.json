@@ -27,7 +27,10 @@
   "combat": {
     "max_rounds": 10,
     "enemy_pressure": {
-      "start_round": 5
+      "start_round": 5,
+      "interval_rounds": 2,
+      "trigger_count": 3,
+      "bonus_per_trigger": 1
     },
     "chain": {
       "threshold": 3,
@@ -35,7 +38,19 @@
       "draw": 1,
       "spirit": 1
     },
-    "danger_threshold": 9
+    "danger_threshold": 9,
+    "rules": {
+      "ritual_max_stacks": 3,
+      "danger_intent_corruption_at": 2,
+      "foresight_reduction": 1,
+      "attention_bonus_at_hunter": 1,
+      "attention_bonus_at_max": 2,
+      "corruption_round_hp_loss": 1,
+      "threat_risk": {
+        "corruption": 2,
+        "attention": 1
+      }
+    }
   },
   "progression": {
     "starting_divination_tickets": 3
