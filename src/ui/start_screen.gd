@@ -40,6 +40,7 @@ var _feedback_pacing_index := 0
 var _feedback_stuck: CheckButton
 var _tutorial_step := 0
 var _busy := false
+var _open_key := ""
 var _checkpoint_status := "none"
 var _challenge_available := false
 
@@ -150,6 +151,8 @@ func set_busy(busy: bool) -> void:
 	_busy = busy
 	## Coming back to the title after an open beat: restore the desk, or the
 	## screen would stay faded to black from the transition.
+	if not busy:
+		_open_key = ""
 	if not busy and is_instance_valid(_desk) and _desk.has_method("reset_open"):
 		_desk.reset_open()
 	if is_instance_valid(_continue_button):
@@ -465,34 +468,47 @@ func _on_new_game() -> void:
 	if _checkpoint_status == "loaded":
 		_open_new_game_confirmation()
 		return
-	set_busy(true)
-	new_game_requested.emit()
+	_request_open("new_game", new_game_requested)
 
 
 func _on_continue() -> void:
 	if _busy or _checkpoint_status != "loaded":
 		return
-	set_busy(true)
-	_emit_after_open("continue", func() -> void: continue_requested.emit())
+	_request_open("continue", continue_requested)
 
 
 func _on_challenge() -> void:
 	if _busy or not _challenge_available:
 		return
+	_request_open("challenge", challenge_requested)
+
+
+func _request_open(key: String, intent: Signal) -> void:
+	## Every exit from the title plays the same desk open beat, as the router's
+	## on_exit, so new game no longer hard-cuts while continue animates.
 	set_busy(true)
-	_emit_after_open("challenge", func() -> void: challenge_requested.emit())
+	_open_key = key
+	intent.emit()
 
 
-func _emit_after_open(key: String, action: Callable) -> void:
-	## Play the desk's open beat, then hand over. Without a desk (art missing)
-	## or if the animation refuses, fire straight away so the menu never hangs.
-	if not is_instance_valid(_desk) or not _desk.has_method("play_open"):
-		action.call()
+func on_enter() -> void:
+	var target: Button = (
+		_continue_button
+		if is_instance_valid(_continue_button) and not _continue_button.disabled
+		else _new_game_button
+	)
+	if is_instance_valid(target) and target.is_visible_in_tree() and not target.disabled:
+		target.grab_focus()
+
+
+func on_exit() -> void:
+	var key := _open_key
+	_open_key = ""
+	if key.is_empty() or not is_instance_valid(_desk) or not _desk.has_method("play_open"):
 		return
 	if not bool(_desk.play_open(key)):
-		action.call()
 		return
-	_desk.open_finished.connect(action, CONNECT_ONE_SHOT)
+	await _desk.open_finished
 
 
 func _on_quit() -> void:
@@ -512,8 +528,7 @@ func _open_new_game_confirmation() -> void:
 		_confirm_new_game.ok_button_text = "开始新游戏"
 		_confirm_new_game.cancel_button_text = "取消"
 		_confirm_new_game.confirmed.connect(func() -> void:
-			set_busy(true)
-			new_game_requested.emit()
+			_request_open("new_game", new_game_requested)
 		)
 		add_child(_confirm_new_game)
 	_confirm_new_game.popup_centered()
@@ -528,8 +543,7 @@ func _on_restore_backup() -> void:
 func _on_test_game() -> void:
 	if _busy:
 		return
-	set_busy(true)
-	test_game_requested.emit()
+	_request_open("new_game", test_game_requested)
 
 
 func show_backup_restore_result(success: bool, message: String) -> void:

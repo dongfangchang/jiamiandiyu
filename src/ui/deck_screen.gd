@@ -86,6 +86,12 @@ func set_progression_snapshot(snapshot: ProgressionSnapshot) -> void:
 		_render()
 
 
+func on_enter() -> void:
+	var target := _confirm_button if not _confirm_button.disabled else _back_button
+	if is_instance_valid(target):
+		target.grab_focus()
+
+
 func set_pending(pending: bool) -> void:
 	_busy = pending
 	_refresh_buttons()

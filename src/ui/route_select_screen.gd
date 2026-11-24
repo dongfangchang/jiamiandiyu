@@ -44,6 +44,21 @@ func request_back() -> void:
 	back_requested.emit()
 
 
+func set_back_label(text_value: String) -> void:
+	if is_instance_valid(_back_button):
+		_back_button.text = text_value
+
+
+func on_enter() -> void:
+	for node in _cards.find_children("*", "Button", true, false):
+		var button := node as Button
+		if not button.disabled:
+			button.grab_focus()
+			return
+	if is_instance_valid(_back_button):
+		_back_button.grab_focus()
+
+
 func get_background_path() -> String:
 	return RouteCatalog.ROUTE_BACKGROUND
 

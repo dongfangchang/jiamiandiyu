@@ -1,170 +1,149 @@
 extends Node
+## Destructive navigation with real router transitions (fades and exit
+## hooks on): double clicks, input during a swap, back while a battle exit is
+## pending, in-play errors as toasts, and a corrupt checkpoint on continue.
 
-const AppRootScene := preload("res://src/app/app_root.tscn")
-const PreferencesServiceScript := preload(
-	"res://src/infrastructure/player_preferences_service.gd"
-)
+const AppDriver := preload("res://tests/integration/app_driver.gd")
+const TEST_ROOT := "user://mask_whispers_app_destructive_nav"
+const SLOT := "destructive_slot"
+const SEED := 1
 
-const TEST_ROOT := "user://mask_whispers_v091_app_destructive"
-
-var _passed := 0
-var _failures: Array[String] = []
-var _controller: Control
+var _d: AppDriver
+var _route_log: Array[StringName] = []
 
 
 func _ready() -> void:
-	_remove_tree(TEST_ROOT)
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(TEST_ROOT))
-	var preferences_path := TEST_ROOT.path_join("preferences.json")
-	var preferences = PreferencesServiceScript.new(preferences_path)
-	preferences.save_preferences({
-		"settings_version": 1,
-		"tutorial_seen": true,
-		"fullscreen": false,
-		"ui_scale": 1.0,
-		"reduce_flash": false,
-	})
+	_d = AppDriver.new(get_tree())
+	await _d.mount(self, TEST_ROOT, SLOT, SEED)
+	_d.app.set_transitions_instant(false)
+	_d.app.route_changed.connect(func(route_name: StringName) -> void:
+		_route_log.append(route_name)
+	)
+	await _test_double_new_game_swaps_once()
+	await _d.begin_campaign()
+	await _test_double_seal_enters_one_battle()
+	await _test_battle_exit_pending_back_lands_on_diary()
+	await _test_finish_awaits_battle_exit_beat()
+	await _test_double_claim_and_double_close()
+	await _test_in_play_error_is_a_toast()
+	await _test_corrupt_checkpoint_on_continue()
+	_d.remove_tree(TEST_ROOT)
+	_d.finish("V091_APP_DESTRUCTIVE")
 
-	_controller = AppRootScene.instantiate()
-	_controller.configure_for_testing(
-		TEST_ROOT.path_join("saves"),
-		"test_checkpoint",
-		20261108,
-		preferences_path,
-		TEST_ROOT.path_join("diagnostics")
-	)
-	add_child(_controller)
-	await _wait_frames(3)
 
-	var test_button := _button_by_text(_controller, "测试档案")
-	_expect(test_button != null, "start screen should expose test profile")
-	if test_button != null:
-		test_button.pressed.emit()
-	await _wait_frames(4)
-	_expect(
-		String(_controller.get_current_route()) == "map",
-		"test profile should initialize the route map"
-	)
+func _count(route_name: StringName) -> int:
+	return _route_log.count(route_name)
 
-	var route_hub_button := _button_by_text(_controller, "回日记")
-	if route_hub_button == null:
-		route_hub_button = _button_by_text(_controller, "合上")
-	if route_hub_button != null:
-		route_hub_button.pressed.emit()
-	await _wait_frames(3)
-	_expect(
-		String(_controller.get_current_route()) == "hub",
-		"route map should return to the hub"
-	)
 
-	var gacha_button := _button_by_text(_controller, "进行灵界祈愿")
-	_expect(gacha_button != null, "hub should expose gacha")
-	if gacha_button != null:
-		gacha_button.pressed.emit()
-	await _wait_frames(3)
-	var single_button := _button_by_text(_controller, "单抽")
-	_expect(single_button != null, "gacha should expose single draw")
-	if single_button != null:
-		single_button.pressed.emit()
-	await _wait_frames(4)
-	var gacha_screen = _controller.get_current_screen()
-	_expect(
-		gacha_screen != null
-		and gacha_screen.has_method("get_result_count")
-		and int(gacha_screen.get_result_count()) > 0,
-		"successful draw should refresh displayed results"
+func _test_double_new_game_swaps_once() -> void:
+	var start := _d.screen()
+	var router: Control = _d.app.get_router()
+	start.new_game_requested.emit()
+	start.new_game_requested.emit()
+	_d.expect(_d.app.is_transitioning(), "new game starts a real transition")
+	_d.expect(
+		router.get_overlay().mouse_filter == Control.MOUSE_FILTER_STOP,
+		"overlay blocks input while the title fades out"
 	)
-	var gacha_back := _button_by_text(_controller, "回日记")
-	_expect(gacha_back != null and not gacha_back.disabled, "gacha must remain exitable")
-	if gacha_back != null:
-		gacha_back.pressed.emit()
-	await _wait_frames(3)
-	_expect(
-		String(_controller.get_current_route()) == "hub",
-		"gacha back should return to hub"
+	start.continue_requested.emit()
+	start.challenge_requested.emit()
+	_d.expect(await _d.wait_route(&"route_select"), "double new game lands on route selection")
+	_d.expect(_count(&"route_select") == 1, "double new game swaps exactly once")
+	_d.expect(_count(&"challenge_hub") == 0, "clicks during the swap are dropped")
+	_d.expect(
+		router.get_overlay().mouse_filter == Control.MOUSE_FILTER_IGNORE,
+		"overlay releases input after the swap"
 	)
+	_d.expect(_d.app.get_back_target(&"route_select") == &"start", "route select backs to the title")
+	_d.screen().request_back()
+	_d.expect(await _d.wait_route(&"start"), "route select back returns to the title")
+	_route_log.clear()
 
-	var battle_button := _button_by_text(_controller, "打开日记")
-	if battle_button == null:
-		battle_button = _button_by_text(_controller, "进入夜间战斗")
-	if battle_button != null:
-		battle_button.pressed.emit()
-	await _wait_frames(3)
-	var node_button := _button_by_text(_controller, "调查线索")
-	if node_button == null:
-		node_button = _button_by_text(_controller, "前往节点")
-	if node_button == null:
-		var screen = _controller.get_current_screen()
-		if screen != null:
-			node_button = screen.find_child("ClueHit", true, false) as Button
-	_expect(node_button != null, "diary/route should expose the first investigable clue")
-	if node_button != null and not node_button.disabled:
-		node_button.pressed.emit()
-	await _wait_frames(4)
-	_expect(
-		String(_controller.get_current_route()) == "battle",
-		"pressing a battle clue should enter battle"
+
+func _test_double_seal_enters_one_battle() -> void:
+	var diary := _d.screen()
+	var target := _d.node_id("first_hunt")
+	_d.expect(_d.press_seal(target), "first seal press is accepted")
+	_d.press_seal(target)
+	_d.expect(_d.app.is_transitioning(), "seal starts a real transition")
+	_d.expect(diary.is_inside_tree(), "diary stays on screen while its exit beat plays")
+	_d.expect(
+		diary.get_status_text().contains("调查开始"),
+		"clue status line is still on screen while the diary exits"
 	)
-	var exit_button := _button_by_text(_controller, "退出战斗")
-	_expect(exit_button != null, "battle should expose exit")
-	if exit_button != null:
-		exit_button.pressed.emit()
-	await _wait_frames(2)
-	var battle_screen = _controller.get_current_screen()
-	_expect(
-		bool(battle_screen.is_exit_confirmation_visible()),
-		"battle exit should ask for confirmation"
-	)
-	var confirmation: ConfirmationDialog = battle_screen.get("_exit_confirmation")
-	if confirmation != null:
-		confirmation.emit_signal("confirmed")
-	await _wait_frames(3)
-	_expect(
-		String(_controller.get_current_route()) == "start",
-		"confirmed battle exit should return to title"
+	_d.expect(await _d.wait_route(&"battle"), "seal enters battle")
+	_d.expect(_count(&"battle") == 1, "double seal press starts one battle")
+	_d.expect(_d.app.get_router().last_exit_was_awaited(), "diary on_exit beat was awaited")
+
+
+func _test_battle_exit_pending_back_lands_on_diary() -> void:
+	var battle := _d.screen()
+	_route_log.clear()
+	_d.expect(_d.app.get_back_target(&"battle") == &"map", "battle backs to the diary")
+	battle.request_exit()
+	_d.expect(battle.is_exit_confirmation_visible(), "battle exit asks for confirmation")
+	battle.confirm_exit()
+	battle.confirm_exit()
+	battle.end_turn()
+	_d.expect(await _d.wait_route(&"map"), "confirmed battle exit returns to the diary checkpoint")
+	_d.expect(_count(&"start") == 0, "battle exit no longer drops to the title")
+	_d.expect(_count(&"map") == 1, "repeated exit confirmation swaps once")
+	_d.expect(
+		_d.available_node_id() == _d.node_id("first_hunt"),
+		"abandoned battle leaves its clue available"
 	)
 
-	_remove_tree(TEST_ROOT)
-	if _failures.is_empty():
-		print("V091_APP_DESTRUCTIVE_OK checks=%d" % _passed)
-		get_tree().quit(0)
-		return
-	for failure in _failures:
-		printerr("V091_APP_DESTRUCTIVE_FAIL: %s" % failure)
-	get_tree().quit(1)
+
+func _test_finish_awaits_battle_exit_beat() -> void:
+	_d.expect(_d.press_seal(_d.node_id("first_hunt")), "seal again after exit")
+	_d.expect(await _d.wait_route(&"battle"), "battle reopens")
+	_d.expect(await _d.fight_until_finished(), "battle finishes")
+	_d.expect(_d.route() == &"reward", "victory opens the reward")
+	_d.expect(_d.app.get_router().last_exit_was_awaited(), "battle on_exit beat was awaited")
 
 
-func _wait_frames(count: int) -> void:
-	for _index in range(count):
-		await get_tree().process_frame
+func _test_double_claim_and_double_close() -> void:
+	var reward := _d.screen()
+	var options: Array = _d.app.get_progression_snapshot().data.get("reward_options", [])
+	var reward_id := String(options[0].get("id", "")) if not options.is_empty() else ""
+	var revision_before := int(_d.app.get_progression_snapshot().data.get("revision", 0))
+	reward.claim_reward(reward_id)
+	reward.claim_reward(reward_id)
+	_d.expect(await _d.wait_route(&"map"), "claimed reward returns to the diary")
+	_d.expect(
+		int(_d.app.get_progression_snapshot().data.get("revision", 0)) == revision_before + 1,
+		"double claim is applied once"
+	)
+	_route_log.clear()
+	var diary := _d.screen()
+	diary.request_close()
+	diary.request_close()
+	_d.expect(await _d.wait_route(&"hub"), "closing the diary opens the hub")
+	_d.expect(_count(&"hub") == 1, "double close swaps once")
 
 
-func _button_by_text(root: Node, text_value: String) -> Button:
-	if root is Button and (root as Button).text == text_value:
-		return root as Button
-	for child in root.get_children():
-		var found := _button_by_text(child, text_value)
-		if found != null:
-			return found
-	return null
+func _test_in_play_error_is_a_toast() -> void:
+	_d.screen().battle_requested.emit()
+	_d.expect(await _d.wait_route(&"map"), "hub reopens the diary")
+	var session_before = _d.app.get_session()
+	var failed = _d.app.start_new_challenge(SEED, &"challenge.does_not_exist")
+	await _d.settle()
+	_d.expect(not failed.ok, "unknown challenge fails to start")
+	_d.expect(_d.route() == &"map", "in-play error keeps the player on the diary")
+	_d.expect(_d.app.get_session() == session_before, "in-play error keeps the session")
+	_d.expect(not _d.app.get_toast_text().is_empty(), "in-play error is shown as a toast")
 
 
-func _expect(condition: bool, message: String) -> void:
-	if condition:
-		_passed += 1
-	else:
-		_failures.append(message)
-
-
-func _remove_tree(relative_path: String) -> void:
-	var absolute_path := ProjectSettings.globalize_path(relative_path)
-	if not DirAccess.dir_exists_absolute(absolute_path):
-		return
-	var directory := DirAccess.open(absolute_path)
-	if directory == null:
-		return
-	for file_name in directory.get_files():
-		DirAccess.remove_absolute(absolute_path.path_join(file_name))
-	for child_name in directory.get_directories():
-		_remove_tree(relative_path.path_join(child_name))
-	DirAccess.remove_absolute(absolute_path)
+func _test_corrupt_checkpoint_on_continue() -> void:
+	_d.screen().request_close()
+	_d.expect(await _d.wait_route(&"hub"), "diary closes to the hub")
+	_d.screen().main_menu_requested.emit()
+	_d.expect(await _d.wait_route(&"start"), "hub returns to the title")
+	var saves = AtomicSaveService.new(TEST_ROOT)
+	var path: String = saves.get_slot_path(SLOT)
+	_d.write_text(path, "{broken")
+	_d.expect(_d.app.continue_saved_checkpoint().ok == false, "continue refuses a corrupt checkpoint")
+	_d.expect(await _d.wait_route(&"start"), "corrupt checkpoint load returns to the title")
+	var start := _d.screen()
+	_d.expect(not start.is_continue_enabled(), "corrupt checkpoint disables continue")
+	_d.expect(_d.read_text(path) == "{broken", "corrupt checkpoint is not overwritten")
