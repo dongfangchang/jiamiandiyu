@@ -1,5 +1,42 @@
 # UI 报告 · v0.89.0
 
+## UI-P0-3-sync · 合入 P0-2 可读性（2026-11-24）
+
+```text
+版本：v0.89.0
+角色：UI 设计
+任务：UI-P0-3-sync（先提交 P0-3 → rebase origin/main P0-2 → 保留可读性底线并叠回质量层）
+状态：完成
+修改文件：
+  src/ui/diary_desk_stage.gd（ReadingMetrics + DeskQuality；DQ-01 后墙按 −75° 镜头后仰 −62°）
+  src/ui/diary_page_pair.gd（PAGE_SCALE/px/INK_FADE_LOCKED + DQ-04/蜡封 caption；装饰走 px()）
+  src/ui/diary_chapter_screen.gd（丝带「合上」+ CHROME_CLOSE_PX 宋体底线）
+  （其余 P0-3 / fix 文件随 rebase 提交一并带上）
+冲突文件（手改）：diary_desk_stage.gd / diary_page_pair.gd / diary_chapter_screen.gd
+验证：
+  tools/run_tests.sh → pass=95 fail=0 skipped=13 guard_block=0
+  diary_readability_runner PASS；diary_quality_wiring_runner PASS
+  合入后截图刷新：docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png
+困难与候选方案：
+  A) 直立后墙保留 → 陡镜头出画
+  B) DQ-01 板向镜头后仰 −62°、贴书桌远沿 → 采纳
+最终解决：可读性常量/物理像素视口/新镜头全留；质量层叠在其上；未动 start_screen
+风险：物理像素视口 × Forward+ FX 在 HiDPI 上更重；capture 抽样 fps 偏低，请用户真窗确认
+跨角色请求：请用户真窗看合入后画面与可读性
+下一步入口：用户签字；UI-X1
+commit：4d510ce（rebase 后）+ 本报告/tasks 跟进提交
+```
+
+### DQ-01 新镜头摆放
+
+| 项 | 合入前（P0-3） | 合入后（P0-2 镜头） |
+|---|---|---|
+| 板位 | `pos (0,0.9,-0.85)` 直立 | `pos (0,0.52,-0.78)`，`rot.x = -62°` |
+| 尺寸 | 4.5×2.6×0.08 | 3.8×2.2×0.04 |
+| 理由 | 旧 −59° 俯角能看见后墙 | −75° 长焦后直立墙出画；后仰后填书桌远沿 |
+
+---
+
 ## UI-P0-3-fix · 合入门清零（2026-11-24）
 
 ```text

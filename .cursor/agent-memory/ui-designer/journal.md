@@ -4,6 +4,7 @@
 
 ## Log
 
+- 2026-11-24 · UI-P0-3-sync done：WIP `f38393e` → rebase onto `b340186` → `4d510ce`；冲突三文件手改；DQ-01 后仰 −62°；测门 pass=95/0/guard0（含 readability）；已 push。
 - 2026-11-24 · boot：角色记忆目录初始化。
 - 2026-11-24 · UI-X0 done：`docs/design/DESK_WORLD_STATIONS.md` + `assets/ui/wireframes/desk_world/`；未实现 X1；请求 AR-04。
 - 2026-11-24 · UI-07 done：DW-01 open / DW-06 轮廓退回；其余 DW 过；请求区写入 art/tasks。
@@ -12,6 +13,18 @@
 - 2026-11-24 · UI-07-DQ / UI-07-07b done：DQ-01…06 + DW-07b 全过；请 CO-DQ 迁 diary_quality+index_card；未动 P0/P1 实现、未自迁 assets/game。
 - 2026-11-24 · UI-P0-3 done：DQ 接入 + Forward+ FX + 丝带「合上」；抽出 diary_desk_quality；未动主会话 P0-1/P0-2/P1-1 文件。
 - 2026-11-24 · UI-P0-3-fix done：守卫注释清零；v085→DQ-02；FX 预算 HiDPI≈37fps；测门 94/0/guard0；**等 P0-2 再 push**。
+
+### Retro · 2026-11-24 · UI-P0-3-sync rebase P0-2
+1. 目标是否达成？证据（命令/路径/截图）？  
+   是。`4d510ce`；`run_tests` pass=95 fail=0 guard_block=0；readability+quality wiring 绿；截图刷新 `ui_p0_3_fix_diary_*.png`。
+2. 哪一步最耗时或最易错？  
+   沙箱无法 unlink journal → rebase 必须 `all` 权限；冲突时易丢 `INK_FADE_LOCKED` / `px()`；陡镜头下 DQ-01 直立墙必然出画。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   并行轨道：WIP commit → rebase → 冲突表（保留底线列 / 叠质量列）→ 重评估出画资产 → 全量测门（非沙箱）→ push。
+4. 该进 Tool Registry 的命令是什么？  
+   已有 capture；补一句：测门必须非沙箱（需写 `user://`）。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   本 Retro + `ui_readability.md` §6 合并须知 + `godot-probe-gate`。
 
 ### Retro · 2026-11-24 · UI-P0-3-fix 合入门
 1. 目标是否达成？证据（命令/路径/截图）？  
