@@ -7,35 +7,29 @@
 ### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
 - status: todo
 - 来源: 2026-11-24 轮询。ADR-0035（Forward+）和 ADR-0036 复核（Mobile + 调优）冲突，由用户裁决。
-- 阻塞: UI-P0-3-reject（先修遮挡再调色）
+- 阻塞: 用户裁决 ADR-0035 vs ADR-0036（遮挡已清零）
 - 做法:
-  1. **在用户裁决前，不要提交 `project.godot` 的 rendering_method 改动。**
+  1. **在用户裁决前，不要提交 `project.godot` 的 rendering_method 改动。**（reject 修复已把 method 回 `gl_compatibility`）
   2. 先做与渲染器无关的调优（色调映射、环境光、烛光主光、页面材质 `specular_mode = SPECULAR_DISABLED`）。参数见 `tests/ui/renderer_eval_look.gd` 和 ADR-0036。
   3. 曝光与辉光混合方式按当前渲染器分支设置（ADR-0036 中有数值）。
   4. 任何渲染器下，正文对比度都必须 ≥ 4.5（ADR-0036 实测 Mobile 为 4.04，需要加深墨色或提亮纸色）。
 
 ### UI-P0-3-reject · 画面升级退回：背景板遮住书页，正文和题名不可见
-- status: doing
+- status: done
 - owner: ui-designer 智能体（2026-11-24 轮询派工）
 - 优先级: P0（最高）
-- 证据: 主会话真窗口截图 `docs/reports/v0.89.0/ui_p0_3_fix_diary_1600x900.png`（由你自己的 `v089_diary_quality_capture_runner` 生成）和 `.tools/ui-captures/v084_desk_idle.png`。
-  - 右页**题名和正文完全不见**，只剩蜡封。
-  - 左页插画上半部分被切掉。
-  - 书看起来被压扁成贴地视角。
-  - 上半屏是一堵竖立的书房墙。
-- 根因: `diary_desk_stage.gd` 把 room 背景板改为 `position (0, 0.52, -0.78)`、`rotation_degrees (-62, 0, 0)`，让它在 −75° 的阅读镜头下显示为"竖墙"。这块平面插进了镜头和书之间，**遮挡了书页的上半部分**。`diary_readability_runner` 只按相机常量计算字号，不检查遮挡，所以测试全绿而画面是坏的。
-- 违反: EXPERIENCE §5.1（正文必须可读）；ADR-0034 D3。另外 `diary_desk_quality.gd:157/160` 用 `visible = false` 隐藏旧的程序书签和 `BookmarkProp`，违反 D2"替换即删除"，应直接删掉旧节点和构建代码。
-- 做法（建议）: 背景板不能放在镜头与书之间的视锥里。可选方案：
-  - (a) 放到桌面远端之外、并低于书页平面的位置，只露出画面上缘的一条；
-  - (b) 不用 3D 平面，改为 SubViewport 背后的 2D 远景层，按镜头视差轻微偏移；
-  - (c) 本站不显示背景板，书房背景留给 title / desk 总览这类远景站位。
-  
-  任选其一，但**书页上任何一点都不能被遮挡**。
+- 方案: **(a) 远置直立** — `RoomBack` → `pos (0, 1.05, -1.72)` / `rot (0,0,0)`；D2：`attach_bookmark_ribbon` 单节点，删除 BookmarkProp/程序带构建与 `visible=false`
 - 完成标准:
   1. 两种分辨率的截图中，右页题名、正文、蜡封和左页整幅插画都完整可见，与 P0-2 截图 `.tools/ui-captures/v089_readability/after/diary_1600x900_idle.png` 的书页取景一致（书宽 55–65%）；
   2. 删除旧书签节点（不是隐藏）；
   3. 完成 AR-07 的遮挡守卫测试并通过。
-- 提交: 在本地 main 上修复后 amend 或追加提交，测试全绿后再推送。主会话在你修好之前**不会推送**本地 main。
+- 证据:
+  - `tools/run_tests.sh` → **pass=95 fail=0 skipped=14 guard_block=0**
+  - `diary_readability_runner` checks=43（含 AR-07 遮挡 clear）
+  - `diary_quality_wiring_runner` checks=33（z=-1.72 / upright / 无 BookmarkProp）
+  - 截图 `docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png`
+  - 报告 `docs/reports/v0.89.0/ui.md` UI-P0-3-reject 节
+  - `project.godot` rendering_method 保持 `gl_compatibility`（renderer-hold）
 
 ### UI-P0-3-sync · ⚠ 合入前必须先同步 origin/main（2026-11-24 轮询）
 - status: done
@@ -142,21 +136,20 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: blocked
-- **退回（2026-11-24 轮询）**: 见 UI-P0-3-reject。本地提交 4d510ce / 26c7b16 **未推送，也不得推送**，修好后再提交
+- status: todo
 - owner: ui-designer 智能体（2026-11-24；未覆盖主会话 P0-1/P0-2/P1-1/X0-rev）
 - 优先级: P0
 - 来源: 用户反馈"画风太简陋"；ADR-0034 D4
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_desk_quality.gd`、`src/ui/desk_world_catalog.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（仅合上书签）、`tests/ui/diary_quality_wiring_runner.*`
-- 做法: 接入 DQ-01…06；Forward+ ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
+- 做法: 接入 DQ-01…06；ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
 - 完成标准: 实现与探针绿；用户真窗认可截图（待签字）
-- 阻塞: UI-P0-3-reject
+- 阻塞: 无（UI-P0-3-reject 已清零）；渲染器 method 仍受 UI-P0-3-renderer-hold 约束
 - 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
 - 证据:
-  - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync 节
-  - `diary_quality_wiring_runner` PASS；与 P0-2 叠合后 `run_tests` **pass=95 fail=0 guard_block=0**（含 diary_readability）
-  - 截图 `ui_p0_3_diary_*.png` + 合入后刷新 `ui_p0_3_fix_diary_*.png`
-  - 合入提交：`4d510ce`（rebase onto b340186）
+  - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync / UI-P0-3-reject 节
+  - reject 后 `run_tests` **pass=95 fail=0 skipped=14 guard_block=0**（含 readability 遮挡）
+  - 截图刷新 `ui_p0_3_fix_diary_*.png`（书页完整可见）
+  - 待用户真窗签字
 
 ### UI-X0-rev · 按 ADR-0034 修订站位设计稿
 - status: done

@@ -400,18 +400,19 @@ func _build_stage() -> void:
 	cam.current = true
 	_cam = cam
 
-	## Steep reading camera (−75°) no longer sees an upright far wall; lean the
-	## DQ-01 plate toward the lens so it fills the far rim of the desk frame.
+	## DQ-01 room plate: upright, beyond the desk far rim and behind every page
+	## sample. Never lean it into the camera→book frustum (the −62° tilt at
+	## z≈−0.78 swung the lower edge onto the spread and occluded title/body).
 	var room := MeshInstance3D.new()
 	room.name = "RoomBack"
 	var room_mesh := BoxMesh.new()
-	room_mesh.size = Vector3(3.8, 2.2, 0.04)
+	room_mesh.size = Vector3(4.2, 2.4, 0.04)
 	room.mesh = room_mesh
 	var room_mat := StandardMaterial3D.new()
 	room_mat.albedo_color = Color(0.06, 0.04, 0.03)
 	room.material_override = room_mat
-	room.position = Vector3(0.0, 0.52, -0.78)
-	room.rotation_degrees = Vector3(-62.0, 0.0, 0.0)
+	room.position = Vector3(0.0, 1.05, -1.72)
+	room.rotation_degrees = Vector3(0.0, 0.0, 0.0)
 	_desk_world.add_child(room)
 	DeskQuality.apply_room_backplate(room)
 	## Side walls keep the desk from reading as a floating slab in black void.
@@ -642,26 +643,9 @@ func _build_pages_and_book() -> void:
 			_book_root.add_child(stack)
 
 	## DQ-05 ribbon (visual); interactive「合上」is the chapter-screen CloseBookmark.
-	var ribbon_art := _prop_sprite(
-		"bookmark", "BookmarkProp", Vector3(-0.03, -0.088, 0.40), 0.46
-	)
-	if ribbon_art != null:
-		ribbon_art.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-		_book_root.add_child(ribbon_art)
-	var ribbon := MeshInstance3D.new()
-	ribbon.name = "BookmarkRibbon"
-	ribbon.visible = false
-	var ribbon_mesh := BoxMesh.new()
-	ribbon_mesh.size = Vector3(0.05, 0.004, 0.30)
-	ribbon.mesh = ribbon_mesh
-	var ribbon_mat := StandardMaterial3D.new()
-	ribbon_mat.albedo_color = Color(0.42, 0.09, 0.08)
-	ribbon_mat.roughness = 0.6
-	ribbon.material_override = ribbon_mat
-	ribbon.position = Vector3(-0.03, -0.088, 0.56)
-	ribbon.rotation_degrees = Vector3(0.0, 4.0, 0.0)
-	_book_root.add_child(ribbon)
-	DeskQuality.replace_bookmark_ribbon(_book_root, ribbon)
+	## ADR-0034 D2: build one ribbon only — never keep a hidden BookmarkProp /
+	## procedural BookmarkRibbon under visible=false.
+	DeskQuality.attach_bookmark_ribbon(_book_root)
 
 	## Hinges sit on the spine so yaw turns the leaf like a real page, not a center spin.
 	_left_hinge = Node3D.new()

@@ -1,5 +1,46 @@
 # UI 报告 · v0.89.0
 
+## UI-P0-3-reject · 背景板遮挡退回修复（2026-11-25）
+
+```text
+版本：v0.89.0
+角色：UI 设计
+任务：UI-P0-3-reject（RoomBack 遮挡书页 + D2 删旧书签）
+状态：完成
+方案： (a) 直立远置 — RoomBack 移到书桌远沿之后 pos (0, 1.05, -1.72)、rot (0,0,0)；
+      禁止 −62° 后仰把下沿甩进镜头→书页视锥。
+修改文件：
+  src/ui/diary_desk_stage.gd（RoomBack 远置直立；书签只调 attach_bookmark_ribbon）
+  src/ui/diary_desk_quality.gd（replace_bookmark_ribbon → attach_bookmark_ribbon；删除 visible=false 藏旧节点）
+  src/ui/diary_page_occlusion.gd（AR-07 协作落地；舞台公开 get_page_occlusion_report）
+  tests/ui/diary_readability_runner.gd（AR-07 遮挡采样断言）
+  tests/ui/diary_quality_wiring_runner.gd（z≤−1.4 / 直立 / 无 BookmarkProp）
+  project.godot（rendering_method 回 gl_compatibility，遵守 UI-P0-3-renderer-hold；保留 SSAO 等无关调优）
+  docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png
+验证：
+  tools/run_tests.sh → pass=95 fail=0 skipped=14 guard_block=0
+  diary_readability_runner DIARY_READABILITY_OK checks=43（含 AR-07 遮挡）
+  diary_quality_wiring_runner checks=33 failures=0（z=-1.72 / upright / 无 BookmarkProp）
+  截图：docs/reports/v0.89.0/ui_p0_3_fix_diary_{1600x900,2920x1753}.png
+  目视：右页题名「密修会的闯入者」/正文/蜡封「启」与左页整幅插画完整可见；书宽约 55–65%
+困难与候选方案：
+  (a) 远置直立  (b) 2D 远景层  (c) 本站不显示 → 采纳 (a)
+最终解决：远置直立 + D2 单节点书签；AR-07 线段/AABB 遮挡守卫绿
+风险：陡读镜头下远墙几乎出画（可接受）；渲染器仍待用户裁决 ADR-0035/36
+跨角色请求：请用户真窗确认；AR-07 可标 done（与本条同证据）
+下一步入口：用户签字 → UI-P0-3-renderer-hold 裁决后调色
+```
+
+### DQ-01 摆放（reject 后）
+
+| 项 | 退回坏值 | 修复后 (a) |
+|---|---|---|
+| 板位 | `pos (0,0.52,-0.78)`，`rot.x=-62°` | `pos (0,1.05,-1.72)`，直立 |
+| 尺寸 | 3.8×2.2×0.04 | 4.2×2.4×0.04 |
+| 理由 | 下沿甩进书页视锥，遮题名/正文 | 整板在书页 z 后方；采样射线先到页 |
+
+---
+
 ## UI-P0-3-sync · 合入 P0-2 可读性（2026-11-24）
 
 ```text

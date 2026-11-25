@@ -48,9 +48,20 @@ func _ready() -> void:
 	if backplate == null:
 		backplate = screen.find_child("RoomBack", true, false) as MeshInstance3D
 	_expect(backplate != null, "room backplate node")
-	if backplate != null and backplate.material_override is StandardMaterial3D:
-		var mat := backplate.material_override as StandardMaterial3D
-		_expect(mat.albedo_texture != null, "DQ-01 albedo on room")
+	if backplate != null:
+		## Keep the plate behind the open spread (pages live near z∈[-0.5,0.5]).
+		_expect(
+			backplate.global_position.z <= -1.4,
+			"room backplate behind pages (z=%.2f)" % backplate.global_position.z
+		)
+		_expect(
+			is_zero_approx(backplate.rotation_degrees.x),
+			"room backplate upright (rot.x=%.1f)" % backplate.rotation_degrees.x
+		)
+		if backplate.material_override is StandardMaterial3D:
+			var mat := backplate.material_override as StandardMaterial3D
+			_expect(mat.albedo_texture != null, "DQ-01 albedo on room")
+	_expect(screen.find_child("BookmarkProp", true, false) == null, "no leftover BookmarkProp")
 
 	var desk_mesh := screen.find_child("DeskMesh", true, false) as MeshInstance3D
 	_expect(desk_mesh != null, "DeskMesh")

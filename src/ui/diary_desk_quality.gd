@@ -134,14 +134,25 @@ static func add_fore_edge_slabs(book_root: Node3D) -> void:
 		book_root.add_child(slab)
 
 
-static func replace_bookmark_ribbon(book_root: Node3D, procedural_fallback: MeshInstance3D) -> void:
+static func attach_bookmark_ribbon(book_root: Node3D) -> void:
 	## DQ-05 art lies flat from the gutter; the interactive「合上」lives in chrome.
+	## ADR-0034 D2: one visible ribbon node — no hidden procedural/BookmarkProp twins.
 	if book_root == null:
 		return
 	var tex := DeskCatalog.texture("desk.dq.ribbon_bookmark")
 	if tex == null:
-		if procedural_fallback != null:
-			procedural_fallback.visible = true
+		var fallback := MeshInstance3D.new()
+		fallback.name = "BookmarkRibbon"
+		var ribbon_mesh := BoxMesh.new()
+		ribbon_mesh.size = Vector3(0.05, 0.004, 0.30)
+		fallback.mesh = ribbon_mesh
+		var ribbon_mat := StandardMaterial3D.new()
+		ribbon_mat.albedo_color = Color(0.42, 0.09, 0.08)
+		ribbon_mat.roughness = 0.6
+		fallback.material_override = ribbon_mat
+		fallback.position = Vector3(-0.03, -0.088, 0.56)
+		fallback.rotation_degrees = Vector3(0.0, 4.0, 0.0)
+		book_root.add_child(fallback)
 		return
 	var shadow_tex := DeskCatalog.texture("desk.dq.ribbon_bookmark.shadow")
 	if shadow_tex != null:
@@ -153,11 +164,6 @@ static func replace_bookmark_ribbon(book_root: Node3D, procedural_fallback: Mesh
 	ribbon.position = Vector3(-0.03, -0.085, 0.40)
 	ribbon.rotation_degrees = Vector3(-90.0, 6.0, 0.0)
 	book_root.add_child(ribbon)
-	if procedural_fallback != null:
-		procedural_fallback.visible = false
-	var old_prop := book_root.get_node_or_null("BookmarkProp")
-	if old_prop != null:
-		old_prop.visible = false
 
 
 static func add_diary_contact_shadows(desk_world: Node3D, book_root: Node3D) -> void:
