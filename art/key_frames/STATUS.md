@@ -4,8 +4,8 @@
 
 | 站位 | 任务 | 方案 | 状态 | 签字稿 |
 |---|---|---|---|---|
-| title 标题页 | ART-KEY-01/02 | A/B/C → 选 **A** | 批注修改中 | — |
-| diary 日记页 | ART-KEY-01/02 | A/B/C → 选 **B** | 批注修改中 | — |
+| title 标题页 | ART-KEY-01/02 | 选 **A** → `candidate_v2` | **批注中** | — |
+| diary 日记页 | ART-KEY-01/02 | 选 **B**（环境改 A）→ `candidate_v2` | **批注中** | — |
 | desk 桌面总览 | ART-KEY-03 | 3 | 待出图 | — |
 | dossier 身份档案 | ART-KEY-04 | 2 | 待出图 | — |
 | cardbox 卡匣 | ART-KEY-05 | 3 | 待出图 | — |
@@ -15,3 +15,8 @@
 | drawer 挑战卷宗 | ART-KEY-09 | 2 | 待出图 | — |
 | transitions 过渡 | ART-KEY-10 | 1×3 组 | 待出图 | — |
 | settings 系统纸签 | ART-KEY-11 | 2 | 待出图 | — |
+
+## candidate_v2 路径（待用户签字）
+
+- `art/key_frames/title/candidate_v2.png` @1600×900
+- `art/key_frames/diary/candidate_v2.png` @1600×900

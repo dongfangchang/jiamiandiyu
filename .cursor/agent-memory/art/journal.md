@@ -47,3 +47,10 @@
 3. 可沉淀为 Skill 的步骤？目标帧流水线：ADR-0037 站位 → 三方向差异化提示词（禁字）→ 生成 16:9 → 放大 1600×900 → 思源宋体叠真实文案 → 3×2 总览 → README（光/色板/材质/实现难度）。Draft 候选：`target-frame-directions`（未晋升，等用户选型一轮验证）。
 4. 该进 Tool Registry 的命令？`.tools/art_venv` + Pillow 叠字/总览；暂不写死绝对盘符。
 5. 下次同一类任务，第一条该读？ADR-0037 + 本目录 README + `diary-page-art`（左页无字）；有 `references/` 先读再出。
+
+### Retro · 2026-11-25 · ART-KEY-02（candidate_v2 批注修改）
+1. 目标是否达成？证据：`art/key_frames/{title,diary}/candidate_v2.png` @1600×900；STATUS 批注中；报告已写；对比度标题≈15 / 日记≈5.3；未自称 approved、未开 03…11、未迁 assets/game。
+2. 哪一步最耗时或最易错？「启」叠字易漂到蜡旁 → 必须在无字底图上做圆域红点检测再居中；混合 A 环境+B 纸面要双参考出图，否则日记又变纯铜版房。
+3. 可沉淀为 Skill 的步骤？目标帧批注轮：读附录批注 → 禁字底图（参考已选方向）→ Pillow 思源叠字（字号/对比度断言）→ 蜡封单枚压印对齐 → STATUS=批注中 → 等签字。并入 draft `target-frame-directions`（仍不晋升，等签字轮验证）。
+4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；蜡心检测可进脚本后再登记。
+5. 下次同一类任务，第一条该读？ADR-0037 附录 A/B + `art/key_frames/STATUS.md` + 上一版 candidate；先对已签字/已选锚点再改。

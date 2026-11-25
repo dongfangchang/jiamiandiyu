@@ -5,7 +5,8 @@
 ## 进行中 / 待办
 
 ### ART-KEY-ORDER · 出图顺序与节奏
-- status: todo
+- status: doing
+- 进度: ART-KEY-02 candidate_v2 已交（title/diary 批注中，待用户签字）；03–11 未开
 - 做法: 先做 ART-KEY-02（标题和日记定稿），然后按 P0 → P1 → P2 依次出图：03 桌面、04 档案 → 05 卡匣、06 祈愿台、07 战斗、08 日记变体 → 09 抽屉、10 过渡、11 设置。每完成一个站位就提交推送，并在 `art/key_frames/STATUS.md` 表格里登记（站位 / 方案数 / 状态：待选、批注中、已签字），不必等全部画完。
 - 一致性: 每个站位出图前，先把已签字的 `approved.png` 放在旁边对照，保证同一个房间、同一张桌、同一支蜡烛、同一本书。
 
@@ -132,10 +133,19 @@
 - 备注: 无参考图先行；底图无字 + 思源宋体叠字
 
 ### ART-KEY-02 · 按用户批注修改，直到签字
-- status: todo
+- status: doing
+- owner: art 智能体（2026-11-25 TASK_POLL tick 277）
 - 解锁（2026-11-25）: 用户选定**标题页 = A，日记页 = B**。按 ADR-0037 附录 A 的风格规则和附录 B 的批注修改，产出 `art/key_frames/title/candidate_v2.png` 与 `art/key_frames/diary/candidate_v2.png`；两张必须看得出是同一个房间、同一本书。用户签字后改名为 `approved.png`
-- 阻塞: 用户选出方向并批注（ART-KEY-01 已交付）
+- 阻塞: 无 — **待用户签字**（candidate_v2 已交，STATUS=批注中）
 - 完成标准: `art/key_frames/{title,diary}/approved.png` 由用户签字（主会话在 v0.89 版本文档登记）
+- 本轮证据:
+  - `art/key_frames/title/candidate_v2.png` @1600×900（A 油画暗室；右侧暗处菜单；无插画内字）
+  - `art/key_frames/diary/candidate_v2.png` @1600×900（环境 A + 纸面 B；单蜡封「启」压印；页边距）
+  - `art/key_frames/STATUS.md` title/diary → 批注中
+  - 报告：`docs/reports/v0.89.0/art.md`
+  - 提交 SHA：见本提交
+- 跨角色请求: 请主会话转达用户审 candidate_v2（签字或继续批注）；勿开 KEY-03…11
+- 备注: 未自称 approved；附录 B 批注已落实到 v2
 
 
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
