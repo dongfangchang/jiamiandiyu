@@ -13,3 +13,10 @@
 3. 可沉淀？ACTIVE_PLAN↔CURRENT 指针对齐清单 → Draft `plan-pointer-align.md`。
 4. Tool Registry？无。
 5. 下次先读？该 Draft + 当版 product_manager 裁决摘要。
+
+### Retro · 2026-11-25 · PM-09 目标帧裁决落盘
+1. 目标是否达成？是。versions §1.1.1 + ADR-0037 附录 C + CURRENT/ACTIVE_PLAN 指针。
+2. 哪一步最易错？ACTIVE_PLAN 抬头滞后于 CURRENT（仍写 v0.88）——开版后应同步改抬头。
+3. 可沉淀？目标帧裁决双写：STATUS（进度）+ versions（产品记录）；ADR 附录固化禁令。暂不升新 Skill（一次验证）。
+4. Tool Registry？无。
+5. 下次先读？ADR-0037 附录 A+C、`art/key_frames/STATUS.md`、v0.89 §1.1.1。

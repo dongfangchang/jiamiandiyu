@@ -6,6 +6,14 @@
 
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 
+### PM-09 · 目标帧用户裁决落盘（title 签字 / diary·desk 驳回）
+- status: done
+- 来源: 用户裁决 2026-11-25；主会话已更新 art/ui tasks 与 `art/key_frames/STATUS.md`
+- 改哪些: `docs/versions/v0.89.0.md` §1.1.1；`docs/decisions/ADR-0037-target-frame-first.md` 附录 C；CURRENT_VERSION；ACTIVE_PLAN；`docs/reports/v0.89.0/product_manager.md`
+- 完成标准: 版本文档登记 title `approved.png` 与 diary/desk 驳回理由；ADR 附录补「文字载体须承接场景光；禁止纯白悬浮便签；目标帧 art+UI 联合」；commit+push（勿 force）
+- 怎么验: 文档与 STATUS 一致；远程含 docs + approved
+- 证据/说明: 见同 commit（SHA 提交后回填）；签字路径 `art/key_frames/title/approved.png`；报告 `docs/reports/v0.89.0/product_manager.md`
+
 ### PM-07 · v0.88 收口
 - status: done
 - 证据/说明: 用户 2026-11-24 确认 H-01 卡图、H-02 翻页通过；v0.88 有条件关闭；新报 BUG-0041 → v0.89 P1-1

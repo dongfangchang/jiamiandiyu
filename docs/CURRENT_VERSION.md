@@ -3,12 +3,13 @@
 ## 指针
 
 - 当前版本：`v0.89.0`
-- 阶段：执行中
-- 当前版本文档：`docs/versions/v0.89.0.md`
+- 阶段：执行中（画面类实现仍按 ADR-0037 等目标帧签字；**title 已签字**，diary/desk 重做中）
+- 当前版本文档：`docs/versions/v0.89.0.md`（§1.1.1 目标帧裁决）
 - ROADMAP 阶段：**X1 书桌世界 I ＋ 用户反馈 P0**（文字控件 / 删除旧界面 / 日记可读性与画面；ADR-0034）
-- 更新日期：2026-11-24
+- 更新日期：2026-11-25
 - 前一版本：`v0.88.0`（有条件关闭；H-03 由 X1-03 / P0-1 取代）
-- 决策：`docs/decisions/ADR-0031-architecture-consolidation.md`
+- 决策：`docs/decisions/ADR-0031-architecture-consolidation.md`；目标帧：`ADR-0037`（附录 C：文字载体 + art/UI 联合）
+- 目标帧进度：`art/key_frames/STATUS.md`（title → `approved.png`）
 - **活跃计划（可勾销）**：`docs/ACTIVE_PLAN.md`
 - **版本索引**：`docs/VERSION_INDEX.md`（里程碑 + 最近三版）
 - **版本流水账**：`docs/VERSION_LOG.md`
