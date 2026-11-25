@@ -111,6 +111,8 @@ Godot --headless --path . res://tests/ui/diary_readability_runner.tscn
 
 坏摆放证据（同进程注入 f875b79 姿态）：`clear` good→true / bad→false，`hits=8`，遮挡体均为 `RoomBackplate`（题名/正文/上角）。
 
+提交：`d995e28`（`test(arch): AR-07 diary page occlusion`）；tasks 证据行 `038fbdc`。未 push。
+
 ### 困难与候选方案
 
 1. PhysicsRayQuery + 临时碰撞体 → 拒（污染舞台 / headless 脆弱）。  
