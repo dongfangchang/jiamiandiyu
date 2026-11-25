@@ -12,7 +12,7 @@
 - 改哪些: `docs/versions/v0.89.0.md` §1.1.1；`docs/decisions/ADR-0037-target-frame-first.md` 附录 C；CURRENT_VERSION；ACTIVE_PLAN；`docs/reports/v0.89.0/product_manager.md`
 - 完成标准: 版本文档登记 title `approved.png` 与 diary/desk 驳回理由；ADR 附录补「文字载体须承接场景光；禁止纯白悬浮便签；目标帧 art+UI 联合」；commit+push（勿 force）
 - 怎么验: 文档与 STATUS 一致；远程含 docs + approved
-- 证据/说明: 见同 commit（SHA 提交后回填）；签字路径 `art/key_frames/title/approved.png`；报告 `docs/reports/v0.89.0/product_manager.md`
+- 证据/说明: commit fe000d5；签字路径 `art/key_frames/title/approved.png`；报告 `docs/reports/v0.89.0/product_manager.md`
 
 ### PM-07 · v0.88 收口
 - status: done
