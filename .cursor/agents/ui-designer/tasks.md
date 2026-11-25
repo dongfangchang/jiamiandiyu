@@ -4,6 +4,8 @@
 
 ## 进行中 / 待办
 
+> **2026-11-25**：用户要求**所有界面的目标帧都由用户拍板后再做实现**（ADR-0037）。在 `art/key_frames/<station>/approved.png` 出现之前，任何站位都不做画面风格实现。当前只做功能性条目：UI-CH-GREY、UI-RENDER-MOBILE。
+
 > **2026-11-25 用户裁决**：渲染器 = Mobile（ADR-0036）；挑战未解锁时显示为灰色并写明原因；手牌通过；**标题页和日记页画面仍然太简陋 → ADR-0037"目标帧先行"：画面类实现暂停，先出概念图，由用户选定。**
 
 ### UI-CH-GREY · 挑战未解锁时显示为灰色并写明原因
@@ -183,7 +185,7 @@
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_desk_quality.gd`、`src/ui/desk_world_catalog.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（仅合上书签）、`tests/ui/diary_quality_wiring_runner.*`
 - 做法: 接入 DQ-01…06；ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
 - 完成标准: 实现与探针绿；用户真窗认可截图（待签字）
-- 阻塞: 用户真窗认可截图（reject 已清零；渲染器 method 仍受 UI-P0-3-renderer-hold）
+- 阻塞: ADR-0037 目标帧签字（ART-KEY）后再续画面实现；reject/Mobile 已合入
 - 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
 - 证据:
   - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync / UI-P0-3-reject 节
