@@ -40,3 +40,10 @@
 3. 可沉淀为 Skill 的步骤？日记站材质批：BRIEF §5 → 生成远景/材质 → 接缝/PBR 派生 → 装饰程序化 → contact shadow 从物件 alpha → 示意对比。可并入 draft `desk-world-prop-batch` 的「材质/正视板」分支（暂不晋升）。
 4. 该进 Tool Registry 的命令？`.tools/art_venv` + Pillow 批处理；ComfyUI 本机未就绪，仍用 Cursor GenerateImage。
 5. 下次同一类任务，第一条该读？`ART_BRIEF_DESK_WORLD` §5 + EXPERIENCE §5.1；先定「能程序化的」（书口/涂鸦/接触阴影）再生成。
+
+### Retro · 2026-11-25 · ART-KEY-01（三方向目标帧）
+1. 目标是否达成？证据：`art/key_frames/directions/{A,B,C}/{title,diary}.png` ×6 @1600×900 + `overview.png` + `README.md`；报告已写；未做画面实现、未迁 assets/game。
+2. 哪一步最耗时或最易错？生成器中文不可靠 → 必须无字底图 + 思源宋体 Pillow 叠字；三方向要强制差异（油画 / 铜版 / 透视），否则用户无法选型。
+3. 可沉淀为 Skill 的步骤？目标帧流水线：ADR-0037 站位 → 三方向差异化提示词（禁字）→ 生成 16:9 → 放大 1600×900 → 思源宋体叠真实文案 → 3×2 总览 → README（光/色板/材质/实现难度）。Draft 候选：`target-frame-directions`（未晋升，等用户选型一轮验证）。
+4. 该进 Tool Registry 的命令？`.tools/art_venv` + Pillow 叠字/总览；暂不写死绝对盘符。
+5. 下次同一类任务，第一条该读？ADR-0037 + 本目录 README + `diary-page-art`（左页无字）；有 `references/` 先读再出。
