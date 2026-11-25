@@ -4,8 +4,32 @@
 
 ## 进行中 / 待办
 
-### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
+> **2026-11-25 用户裁决**：渲染器 = Mobile（ADR-0036）；挑战未解锁时显示为灰色并写明原因；手牌通过；**标题页和日记页画面仍然太简陋 → ADR-0037"目标帧先行"：画面类实现暂停，先出概念图，由用户选定。**
+
+### UI-CH-GREY · 挑战未解锁时显示为灰色并写明原因
 - status: todo
+- 来源: 用户 2026-11-25 裁决
+- 改哪些: `src/ui/start_screen.gd` / `src/ui/title/*`、`tests/ui/title_station_runner.gd`
+- 做法: 未解锁时，「挑战」条目照常列出，但为灰色、不可选中、不可聚焦；条目下方用小一号宋体显示 `get_challenge_hint_text()` 的原因。原因文字必须来自现有快照或文案表，不在 UI 里推导规则。
+- 完成标准: 测试断言未解锁时条目可见、disabled、原因文字非空；解锁后正常可点
+- 注意: 这是功能改动，不受 ADR-0037 画面暂停的限制
+
+### UI-RENDER-MOBILE · 切换到 Mobile 渲染器，并做与画面风格无关的必要校正
+- status: todo
+- 来源: ADR-0036 已采纳
+- 改哪些: `project.godot`（`rendering_method="mobile"`，`.mobile="mobile"`）、`src/ui/diary_desk_stage.gd` 的曝光和页面材质
+- 做法: 只做**保证不变差**的最小校正：
+  - 曝光按 ADR-0036 的 Mobile 数值设置。
+  - 页面材质 `specular_mode = SPECULAR_DISABLED`。
+  - 保证正文对比度 ≥ 4.5（`diary_readability_runner` 全绿）。
+  
+  **不做风格调优**（色调、氛围都等目标帧）。
+- 完成标准: run_tests 全绿；在 Mobile 下截一张 1600×900 日记图，亮度和可读性不低于当前 compatibility 截图
+
+
+### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
+- status: cancelled
+- 说明（2026-11-25）: 用户已裁决用 Mobile → 改为 UI-RENDER-MOBILE
 - 来源: 2026-11-24 轮询。ADR-0035（Forward+）和 ADR-0036 复核（Mobile + 调优）冲突，由用户裁决。
 - 阻塞: 用户裁决 ADR-0035 vs ADR-0036（遮挡已清零）
 - 做法:
@@ -136,14 +160,15 @@
 - 阻塞: 无
 
 ### UI-P0-3 · 日记站画面升级（光照、后期、右页版式、丝带书签）
-- status: todo
+- status: blocked
+- 说明（2026-11-25）: ADR-0037：画面类实现暂停，等 ART-KEY 目标帧由用户签字。已合入的遮挡修复（9429ae0）和可读性保留
 - owner: ui-designer 智能体（2026-11-24；未覆盖主会话 P0-1/P0-2/P1-1/X0-rev）
 - 优先级: P0
 - 来源: 用户反馈"画风太简陋"；ADR-0034 D4
 - 改哪些: `src/ui/diary_desk_stage.gd`、`src/ui/diary_desk_quality.gd`、`src/ui/desk_world_catalog.gd`、`src/ui/diary_page_pair.gd`、`src/ui/diary_chapter_screen.gd`（仅合上书签）、`tests/ui/diary_quality_wiring_runner.*`
 - 做法: 接入 DQ-01…06；ACES/glow/SSAO；丝带「合上」取代红块；右页 DQ-04 + 蜡封 caption
 - 完成标准: 实现与探针绿；用户真窗认可截图（待签字）
-- 阻塞: 无（UI-P0-3-reject 已清零）；渲染器 method 仍受 UI-P0-3-renderer-hold 约束
+- 阻塞: 用户真窗认可截图（reject 已清零；渲染器 method 仍受 UI-P0-3-renderer-hold）
 - 注意: 可读性参数留给 UI-P0-2；DQ-04 相对锚点可叠加 PAGE_VP 抬升
 - 证据:
   - `docs/reports/v0.89.0/ui.md` UI-P0-3 / UI-P0-3-fix / UI-P0-3-sync / UI-P0-3-reject 节
@@ -197,7 +222,8 @@
 - 证据: DESK_WORLD_STATIONS §1/§4；00_topdown + 03_transitions；ui.md「AR-04 条件已清」；请 architect 确认
 
 ### UI-X1 · v0.89 书桌世界 I 实现（X1-01…04、X1-06）
-- status: todo
+- status: blocked
+- 说明（2026-11-25）: 功能部分（常驻 DeskWorld、站位切换、文字入口）可以做；画面风格部分等目标帧。等 UI-RENDER-MOBILE 完成后再开工，以免和渲染器改动冲突
 - 证据/说明: 阻塞已解除（v0.88 已合并，X0 已评审，X1 美术已迁入）；排在 UI-P0-1、UI-P0-2、UI-X0-rev 之后
 - 来源: ROADMAP X1
 - 改哪些: `src/ui/**`、`src/app/screen_router.gd`、`scenes/ui/**`、`tests/ui/**`

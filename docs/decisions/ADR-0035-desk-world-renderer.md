@@ -1,6 +1,6 @@
 # ADR-0035：DeskWorld 渲染器选择（gl_compatibility / Mobile / Forward+）
 
-状态：已采纳（架构师 AR-05 评估，v0.89.0 / ADR-0034 D4）
+状态：**被 ADR-0036 取代**（用户 2026-11-25 选定 Mobile）
 日期：2026-11-24
 
 ## 背景
