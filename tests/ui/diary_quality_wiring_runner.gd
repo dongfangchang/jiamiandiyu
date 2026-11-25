@@ -40,9 +40,28 @@ func _ready() -> void:
 		var env: Environment = world_vp.world_3d.environment
 		_expect(env != null, "environment present")
 		if env != null:
+			var method := String(RenderingServer.get_current_rendering_method())
+			var compat := method == "gl_compatibility"
 			_expect(env.tonemap_mode == Environment.TONE_MAPPER_ACES, "ACES tonemap")
+			_expect(
+				is_equal_approx(env.tonemap_exposure, 1.15 if compat else 3.0),
+				"ADR-0036 exposure for %s (%.2f)" % [method, env.tonemap_exposure]
+			)
 			_expect(env.glow_enabled, "glow enabled")
-			_expect(env.ssao_enabled, "ssao enabled")
+			_expect(
+				env.ssao_enabled == (method == "forward_plus"),
+				"ssao only on forward_plus (method=%s enabled=%s)" % [method, env.ssao_enabled]
+			)
+	var page := screen.find_child("RightPageMesh", true, false) as MeshInstance3D
+	if page == null:
+		page = screen.find_child("LeftPageMesh", true, false) as MeshInstance3D
+	_expect(page != null, "page mesh present")
+	if page != null and page.material_override is StandardMaterial3D:
+		var pmat := page.material_override as StandardMaterial3D
+		_expect(
+			pmat.specular_mode == BaseMaterial3D.SPECULAR_DISABLED,
+			"page specular disabled (ADR-0036)"
+		)
 
 	var backplate := screen.find_child("RoomBackplate", true, false) as MeshInstance3D
 	if backplate == null:

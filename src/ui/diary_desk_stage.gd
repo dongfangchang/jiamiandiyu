@@ -860,6 +860,8 @@ func _make_under_mesh(node_name: String, is_left: bool) -> MeshInstance3D:
 func _page_material(mirror_u: bool, back: bool) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
 	mat.roughness = 0.88
+	## ADR-0036: RD specular washes ink toward paper; keep disabled on Mobile.
+	mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	## Front faces only on the leaf proper; its twin draws the back faces.
 	mat.cull_mode = BaseMaterial3D.CULL_FRONT if back else BaseMaterial3D.CULL_BACK
 	mat.emission_enabled = true

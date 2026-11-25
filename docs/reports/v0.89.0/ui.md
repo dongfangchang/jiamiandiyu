@@ -1,5 +1,51 @@
 # UI 报告 · v0.89.0
 
+## UI-CH-GREY + UI-RENDER-MOBILE（2026-11-25）
+
+```text
+版本：v0.89.0
+角色：UI 设计
+任务：UI-CH-GREY（挑战未解锁灰色+原因）＋ UI-RENDER-MOBILE（ADR-0036 Mobile 最小校正）
+状态：完成
+修改文件：
+  src/ui/start_screen.gd（挑战始终列出；锁定时 disabled + FOCUS_NONE；ChallengeHint 20px 宋体）
+  tests/ui/title_station_runner.gd（锁定可见/不可聚焦/原因非空；解锁可点）
+  project.godot（rendering_method / .mobile → mobile）
+  src/ui/diary_desk_quality.gd（Mobile exposure=3.0、glow SCREEN；SSAO 仅 forward_plus）
+  src/ui/diary_desk_stage.gd（页面 specular_mode=SPECULAR_DISABLED）
+  tests/ui/diary_quality_wiring_runner.gd（曝光/SSAO/specular 断言）
+  tests/ui/v089_diary_quality_capture_runner.gd（截图路径改 mobile）
+  docs/reports/v0.89.0/ui_render_mobile_diary_{1600x900,2920x1753}.png
+验证：
+  tools/run_tests.sh → pass=95 fail=0 skipped=14 guard_block=0
+  title_station_runner / diary_readability_runner / diary_quality_wiring_runner 全绿
+  capture method=mobile driver=metal；1600×900 正文可读
+困难与候选方案：锁定挑战是隐藏还是灰显 → 用户裁决灰显+原因
+最终解决：功能 GREY + Mobile 曝光/specular 最小校正；不做风格调优（ADR-0037）
+风险：HiDPI Mobile avg≈28 fps（抽样）；画面风格仍待目标帧
+跨角色请求：无
+下一步入口：ART-KEY 目标帧；UI-X1 功能轨
+```
+
+### UI-CH-GREY
+
+| 状态 | 「挑战」 | 原因行 |
+|---|---|---|
+| 未解锁 / 无存档 / 损坏 | 列出、灰色、`disabled`、`FOCUS_NONE` | `ChallengeHint` 显示 `get_challenge_hint_text()` |
+| 已解锁 | 可点、可聚焦 | 隐藏 hint |
+
+### UI-RENDER-MOBILE
+
+| 项 | 值 |
+|---|---|
+| `rendering_method` | `mobile` / `.mobile=mobile` |
+| `tonemap_exposure` | compat 1.15 / RD(Mobile) 3.0 |
+| 页面材质 | `SPECULAR_DISABLED` |
+| 正文对比度 | readability ≥4.5（body≈5.47） |
+| 截图 | `docs/reports/v0.89.0/ui_render_mobile_diary_1600x900.png` |
+
+---
+
 ## UI-P0-3-reject · 背景板遮挡退回修复（2026-11-25）
 
 ```text

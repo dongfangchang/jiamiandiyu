@@ -4,6 +4,7 @@
 
 ## Log
 
+- 2026-11-25 · UI-CH-GREY + UI-RENDER-MOBILE done：挑战锁定灰显+ChallengeHint；`project.godot` mobile；exposure 3.0 / SPECULAR_DISABLED；测门 95/0/14/0；截图 `ui_render_mobile_diary_1600x900.png`。
 - 2026-11-25 · UI-P0-3-reject done：方案 (a) RoomBack `(0,1.05,-1.72)` 直立；D2 `attach_bookmark_ribbon`；AR-07 遮挡绿；测门 95/0/14/0；renderer-hold 回 gl_compatibility；截图 `ui_p0_3_fix_diary_*.png`。
 - 2026-11-24 · UI-P0-3-sync done：WIP `f38393e` → rebase onto `b340186` → `4d510ce`；冲突三文件手改；DQ-01 后仰 −62°；测门 pass=95/0/guard0（含 readability）；已 push。
 - 2026-11-24 · boot：角色记忆目录初始化。
@@ -14,6 +15,18 @@
 - 2026-11-24 · UI-07-DQ / UI-07-07b done：DQ-01…06 + DW-07b 全过；请 CO-DQ 迁 diary_quality+index_card；未动 P0/P1 实现、未自迁 assets/game。
 - 2026-11-24 · UI-P0-3 done：DQ 接入 + Forward+ FX + 丝带「合上」；抽出 diary_desk_quality；未动主会话 P0-1/P0-2/P1-1 文件。
 - 2026-11-24 · UI-P0-3-fix done：守卫注释清零；v085→DQ-02；FX 预算 HiDPI≈37fps；测门 94/0/guard0；**等 P0-2 再 push**。
+
+### Retro · 2026-11-25 · UI-CH-GREY + UI-RENDER-MOBILE
+1. 目标是否达成？证据（命令/路径/截图）？  
+   是。GREY 锁定灰显+原因；Mobile exposure/specular；`run_tests` pass=95 fail=0 skipped=14 guard_block=0；截图 `ui_render_mobile_diary_1600x900.png`。
+2. 哪一步最耗时或最易错？  
+   Mobile 开 SSAO 会每次构建刷警告；须按 method 关 SSAO，并改 wiring 断言。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   渲染器切换清单：改 project.godot → 按 method 分支 exposure/glow/SSAO → 页面 SPECULAR_DISABLED → readability 绿 → 非 headless 截图写 method/driver。
+4. 该进 Tool Registry 的命令是什么？  
+   已有 `v089_diary_quality_capture_runner.tscn`；路径改为 `ui_render_mobile_diary_*`。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   ADR-0036 参数表 + 本 Retro；画面风格仍读 ADR-0037。
 
 ### Retro · 2026-11-25 · UI-P0-3-reject RoomBack 遮挡
 1. 目标是否达成？证据（命令/路径/截图）？  

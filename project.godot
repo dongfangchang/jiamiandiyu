@@ -27,8 +27,8 @@ enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
 
 [rendering]
 
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
 rendering/environment/ssao/quality=0
 rendering/environment/ssao/half_size=true
 rendering/environment/glow/upscale_mode=0

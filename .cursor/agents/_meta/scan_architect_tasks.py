@@ -41,13 +41,13 @@ def parse_tasks(path: Path) -> list[dict]:
         tid = id_m.group(1) if id_m else title
         arch_src = bool(
             re.search(
-                r"ADR-0032|ADR-0034|EXPERIENCE_ARCHITECTURE|ROADMAP\s*X|架构师|ART_BRIEF_DESK_WORLD|DESK_WORLD_STATIONS",
+                r"ADR-0032|ADR-0034|ADR-0035|ADR-0036|ADR-0037|EXPERIENCE_ARCHITECTURE|ROADMAP\s*X|架构师|ART_BRIEF_DESK_WORLD|DESK_WORLD_STATIONS|用户.*裁决",
                 source,
             )
         )
         arch_id = bool(
             re.match(
-                r"^(ART-DW|ART-DQ|UI-X|UI-P0|UI-07|CO-X|CO-DQ|LB-X|GD-X|AR-\d|PM-0[56]|P0-|X1-|X2-|X3-|DW-)",
+                r"^(ART-DW|ART-DQ|ART-KEY|UI-X|UI-P0|UI-07|UI-CH|UI-RENDER|CO-X|CO-DQ|LB-X|GD-X|AR-\d|PM-0[56]|P0-|X1-|X2-|X3-|DW-)",
                 tid,
             )
         )

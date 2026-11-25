@@ -8,8 +8,8 @@ const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
 const RouteSnapshotScript := preload("res://src/core/route_snapshot.gd")
 
 const OUT_DIR := "res://docs/reports/v0.89.0"
-const OUT_1600 := OUT_DIR + "/ui_p0_3_fix_diary_1600x900.png"
-const OUT_HIDPI := OUT_DIR + "/ui_p0_3_fix_diary_2920x1753.png"
+const OUT_1600 := OUT_DIR + "/ui_render_mobile_diary_1600x900.png"
+const OUT_HIDPI := OUT_DIR + "/ui_render_mobile_diary_2920x1753.png"
 const SAMPLE_FRAMES := 60
 
 

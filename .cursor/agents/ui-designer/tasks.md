@@ -7,17 +7,24 @@
 > **2026-11-25 用户裁决**：渲染器 = Mobile（ADR-0036）；挑战未解锁时显示为灰色并写明原因；手牌通过；**标题页和日记页画面仍然太简陋 → ADR-0037"目标帧先行"：画面类实现暂停，先出概念图，由用户选定。**
 
 ### UI-CH-GREY · 挑战未解锁时显示为灰色并写明原因
-- status: todo
+- status: done
+- owner: ui-designer 智能体（2026-11-25 轮询派工）
 - 来源: 用户 2026-11-25 裁决
-- 改哪些: `src/ui/start_screen.gd` / `src/ui/title/*`、`tests/ui/title_station_runner.gd`
+- 改哪些: `src/ui/start_screen.gd`、`tests/ui/title_station_runner.gd`
 - 做法: 未解锁时，「挑战」条目照常列出，但为灰色、不可选中、不可聚焦；条目下方用小一号宋体显示 `get_challenge_hint_text()` 的原因。原因文字必须来自现有快照或文案表，不在 UI 里推导规则。
 - 完成标准: 测试断言未解锁时条目可见、disabled、原因文字非空；解锁后正常可点
 - 注意: 这是功能改动，不受 ADR-0037 画面暂停的限制
+- 证据:
+  - `start_screen.gd`：`_set_challenge_item` + `ChallengeHint` 20px 宋体
+  - `title_station_runner`：锁定可见/FOCUS_NONE/hint 非空；解锁可点
+  - `tools/run_tests.sh` → **pass=95 fail=0 skipped=14 guard_block=0**
+  - 报告 `docs/reports/v0.89.0/ui.md` UI-CH-GREY 节
 
 ### UI-RENDER-MOBILE · 切换到 Mobile 渲染器，并做与画面风格无关的必要校正
-- status: todo
+- status: done
+- owner: ui-designer 智能体（2026-11-25 轮询派工；与 UI-CH-GREY 同批）
 - 来源: ADR-0036 已采纳
-- 改哪些: `project.godot`（`rendering_method="mobile"`，`.mobile="mobile"`）、`src/ui/diary_desk_stage.gd` 的曝光和页面材质
+- 改哪些: `project.godot`、`src/ui/diary_desk_quality.gd`、`src/ui/diary_desk_stage.gd`、wiring/capture runners
 - 做法: 只做**保证不变差**的最小校正：
   - 曝光按 ADR-0036 的 Mobile 数值设置。
   - 页面材质 `specular_mode = SPECULAR_DISABLED`。
@@ -25,6 +32,12 @@
   
   **不做风格调优**（色调、氛围都等目标帧）。
 - 完成标准: run_tests 全绿；在 Mobile 下截一张 1600×900 日记图，亮度和可读性不低于当前 compatibility 截图
+- 证据:
+  - `project.godot` → `rendering_method=mobile` / `.mobile=mobile`
+  - exposure RD=3.0；`SPECULAR_DISABLED`；SSAO 仅 forward_plus
+  - `tools/run_tests.sh` → **pass=95 fail=0 skipped=14 guard_block=0**
+  - 截图 `docs/reports/v0.89.0/ui_render_mobile_diary_1600x900.png`（method=mobile metal）
+  - 报告 `docs/reports/v0.89.0/ui.md` UI-RENDER-MOBILE 节
 
 
 ### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做
@@ -223,7 +236,7 @@
 
 ### UI-X1 · v0.89 书桌世界 I 实现（X1-01…04、X1-06）
 - status: blocked
-- 说明（2026-11-25）: 功能部分（常驻 DeskWorld、站位切换、文字入口）可以做；画面风格部分等目标帧。等 UI-RENDER-MOBILE 完成后再开工，以免和渲染器改动冲突
+- 说明（2026-11-25）: 功能部分（常驻 DeskWorld、站位切换、文字入口）可以做；画面风格部分等目标帧。UI-RENDER-MOBILE 已 done，渲染器冲突解除；画面仍受 ADR-0037 约束
 - 证据/说明: 阻塞已解除（v0.88 已合并，X0 已评审，X1 美术已迁入）；排在 UI-P0-1、UI-P0-2、UI-X0-rev 之后
 - 来源: ROADMAP X1
 - 改哪些: `src/ui/**`、`src/app/screen_router.gd`、`scenes/ui/**`、`tests/ui/**`

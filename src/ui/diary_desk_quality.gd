@@ -8,10 +8,13 @@ const DeskCatalog := preload("res://src/ui/desk_world_catalog.gd")
 
 
 static func apply_forward_plus_environment(env: Environment) -> void:
-	## ADR-0035 / UI-P0-3-fix budget: HiDPI idle ≥30 fps.
-	## Keep SSAO+glow on; use tiny radius/detail and lean on project half-size SSAO.
+	## ADR-0036 Mobile (user 2026-11-25): minimal exposure/glow correction only.
+	## No style retune (palette / candle layout wait for ADR-0037 key frames).
+	var method := String(RenderingServer.get_current_rendering_method())
+	var compat := method == "gl_compatibility"
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 1.0
+	## RD (Mobile) is ~60% darker at the same lights; lift exposure to match.
+	env.tonemap_exposure = 1.15 if compat else 3.0
 	env.tonemap_white = 1.0
 	env.glow_enabled = true
 	env.glow_intensity = 0.10
@@ -19,6 +22,10 @@ static func apply_forward_plus_environment(env: Environment) -> void:
 	env.glow_bloom = 0.0
 	env.glow_hdr_threshold = 1.25
 	env.glow_hdr_scale = 1.4
+	env.glow_blend_mode = (
+		Environment.GLOW_BLEND_MODE_SOFTLIGHT if compat
+		else Environment.GLOW_BLEND_MODE_SCREEN
+	)
 	## Prefer mid/high glow mips only — skips the costliest fine levels.
 	env.set("glow_levels/1", false)
 	env.set("glow_levels/2", false)
@@ -27,13 +34,15 @@ static func apply_forward_plus_environment(env: Environment) -> void:
 	env.set("glow_levels/5", true)
 	env.set("glow_levels/6", false)
 	env.set("glow_levels/7", false)
-	env.ssao_enabled = true
-	env.ssao_radius = 0.35
-	env.ssao_intensity = 0.48
-	env.ssao_power = 1.05
-	env.ssao_detail = 0.05
-	env.ssao_horizon = 0.1
-	env.ssao_sharpness = 0.85
+	## SSAO is Forward+-only; enabling it on Mobile spam-warns every build.
+	env.ssao_enabled = method == "forward_plus"
+	if env.ssao_enabled:
+		env.ssao_radius = 0.35
+		env.ssao_intensity = 0.48
+		env.ssao_power = 1.05
+		env.ssao_detail = 0.05
+		env.ssao_horizon = 0.1
+		env.ssao_sharpness = 0.85
 	## Warm night void behind the backplate; ambient kept low so SSAO reads.
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.025, 0.016, 0.012)

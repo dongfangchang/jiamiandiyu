@@ -46,6 +46,7 @@ var _open_key := ""
 var _checkpoint_status := "none"
 var _challenge_available := false
 var _challenge_hint := ""
+var _challenge_hint_label: Label
 
 
 func _ready() -> void:
@@ -165,7 +166,7 @@ func is_challenge_enabled() -> bool:
 
 
 func get_challenge_hint_text() -> String:
-	## The locked item is not listed; the reason stays queryable.
+	## Snapshot / copy-table reason; UI never invents the rule text.
 	return _challenge_hint
 
 
@@ -274,6 +275,11 @@ func _build_slip() -> void:
 	_add_item(menu, "continue", _on_continue)
 	_add_item(menu, "new_game", _on_new_game)
 	_add_item(menu, "challenge", _on_challenge)
+	## One size smaller than the 28px menu; only shown while locked.
+	_challenge_hint_label = Paper.wrapped_ink("", 20, Paper.INK_DISABLED)
+	_challenge_hint_label.name = "ChallengeHint"
+	_challenge_hint_label.visible = false
+	menu.add_child(_challenge_hint_label)
 	_add_item(menu, "settings", open_settings)
 	_add_item(menu, "quit", _on_quit)
 	if OS.is_debug_build():
@@ -322,7 +328,7 @@ func _refresh_items() -> void:
 	var has_checkpoint := _checkpoint_status == "loaded"
 	_set_item("continue", has_checkpoint, _busy)
 	_set_item("new_game", true, _busy)
-	_set_item("challenge", _challenge_available, _busy)
+	_set_challenge_item(_busy)
 	_set_item("settings", true, false)
 	_set_item("quit", true, _busy)
 	_set_item("test_game", true, _busy)
@@ -337,6 +343,25 @@ func _set_item(key: String, listed: bool, disabled: bool) -> void:
 	item.visible = listed
 	item.disabled = disabled
 	_sync_highlight(key)
+
+
+func _set_challenge_item(busy: bool) -> void:
+	## Locked challenge stays listed in grey with the snapshot reason under it
+	## (v0.89 user ruling); it cannot be selected or focused.
+	var item := _items.get("challenge") as Button
+	if item == null:
+		return
+	var locked := not _challenge_available
+	item.visible = true
+	item.disabled = locked or busy
+	item.focus_mode = Control.FOCUS_NONE if locked else Control.FOCUS_ALL
+	if is_instance_valid(_challenge_hint_label):
+		if locked and not _challenge_hint.is_empty():
+			_challenge_hint_label.text = _challenge_hint
+			_challenge_hint_label.visible = true
+		else:
+			_challenge_hint_label.visible = false
+	_sync_highlight("challenge")
 
 
 func _is_live(key: String) -> bool:

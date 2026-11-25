@@ -40,12 +40,26 @@ func _ready() -> void:
 	_check_props_inert(screen)
 	var empty_menu: PackedStringArray = screen.get_menu_texts()
 	_expect(not empty_menu.has("继续"), "no checkpoint: 继续 is not listed")
-	_expect(not empty_menu.has("挑战"), "no checkpoint: 挑战 is not listed")
+	_expect(empty_menu.has("挑战"), "no checkpoint: 挑战 stays listed (grey)")
 	_expect(empty_menu.has("新的日记") and empty_menu.has("设置") and empty_menu.has("离开"),
 		"no checkpoint: 新的日记 / 设置 / 离开 listed (%s)" % str(empty_menu))
 	_expect(screen.get_summary_text() == "尚无日记", "no checkpoint summary reads 尚无日记")
 	_expect(_label_uses_serif(screen.find_child("SaveSummary", true, false) as Label),
 		"save summary is set in Source Han Serif")
+	_check_challenge_locked(screen, "完成序列 8")
+
+	screen.show_checkpoint_status("loaded", {
+		"sequence": 9,
+		"identity_id": "identity.reporter",
+		"created_at": "2026-11-08T02:30:00Z",
+		"challenge_available": false,
+		"challenge_reason": "完成序列 8 晋升后开放",
+		"backup_available": true,
+	})
+	await get_tree().process_frame
+	_expect(screen.get_menu_texts().has("挑战"), "locked loaded: 挑战 stays listed")
+	_check_challenge_locked(screen, "序列 8")
+	_expect(not screen.is_challenge_enabled(), "locked loaded: challenge not enabled")
 
 	screen.show_checkpoint_status("loaded", {
 		"sequence": 9,
@@ -61,6 +75,11 @@ func _ready() -> void:
 	_expect(screen.get_summary_text().contains("记者 · 序列 9"), "summary names identity and sequence")
 	_expect(screen.get_summary_text().contains("保存于 2026-11-08 02:30"), "summary names saved-at")
 	_check_buttons_are_text(screen, MENU_ALLOWED, "loaded title")
+	var unlocked := _item(screen, "挑战")
+	_expect(unlocked != null and not unlocked.disabled, "unlocked 挑战 is enabled")
+	_expect(unlocked.focus_mode == Control.FOCUS_ALL, "unlocked 挑战 can focus")
+	var unlocked_hint := screen.find_child("ChallengeHint", true, false) as Label
+	_expect(unlocked_hint != null and not unlocked_hint.visible, "unlocked hides challenge hint")
 	await _snap("v089_title_rest")
 
 	var desk: Control = screen.get_desk()
@@ -135,6 +154,27 @@ func _item(root: Node, text_value: String) -> Button:
 		if button != null and button.text == text_value and button.is_visible_in_tree():
 			return button
 	return null
+
+
+func _check_challenge_locked(screen: Control, reason_fragment: String) -> void:
+	var challenge := _item(screen, "挑战")
+	_expect(challenge != null and challenge.visible, "locked: 挑战 visible")
+	_expect(challenge != null and challenge.disabled, "locked: 挑战 disabled")
+	_expect(
+		challenge != null and challenge.focus_mode == Control.FOCUS_NONE,
+		"locked: 挑战 cannot focus"
+	)
+	var hint_text := String(screen.get_challenge_hint_text())
+	_expect(not hint_text.strip_edges().is_empty(), "locked: get_challenge_hint_text non-empty")
+	_expect(hint_text.contains(reason_fragment), "locked: hint mentions %s" % reason_fragment)
+	var hint := screen.find_child("ChallengeHint", true, false) as Label
+	_expect(hint != null and hint.visible, "locked: ChallengeHint visible")
+	_expect(hint != null and hint.text == hint_text, "locked: ChallengeHint shows snapshot reason")
+	_expect(_label_uses_serif(hint), "locked: ChallengeHint is Source Han Serif")
+	_expect(
+		hint != null and hint.get_theme_font_size("font_size") < 28,
+		"locked: ChallengeHint is smaller than menu"
+	)
 
 
 func _check_no_legacy(screen: Control) -> void:
