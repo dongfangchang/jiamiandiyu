@@ -12,7 +12,7 @@
 - 联合规则（用户 2026-11-25）: 目标帧阶段起，带文字的站位必须 **art + ui-designer 共同决策**（版式/字号/载体材质），再出图。
 
 ### ART-KEY-02b · 日记页重做（文字落在纸面）· 联合 UI
-- status: todo
+- status: done
 - 优先级: P0
 - 来源: 用户 2026-11-25 驳回 diary `candidate_v2`：「为什么文字不是显示在笔记上的，而是悬浮起来的」
 - 协作: **art 出图 + ui-designer 共同决策**（右页版式、字号、页边距、墨色对比度；见 UI-KEY-DIARY-JOINT）
@@ -20,12 +20,20 @@
 - 对照: `art/key_frames/title/approved.png`（同房同桌同烛同书）
 - 驳回根因: 半透明纸色叠层浮在书页之上，未贴合右页透视与纸面材质
 - 做法:
-  1. 与 UI 先定：题名/正文/「启」的矩形落点（相对右页）、字号、行距、墨色（对比度 ≥4.5）
+  1. 与 UI 先定：题名/正文/「启」的矩形落点（相对右页）、字号、行距、墨色（对比度 ≥4.5）— **UI-KEY-DIARY-JOINT done**
   2. 产出 `art/key_frames/diary/candidate_v3.png`：正文**印在**右页纸上（随纸面透视/微曲），非 HUD 浮层；蜡封「启」压在蜡上
   3. 更新 STATUS / 报告；commit+push；交用户审
 - 完成标准: 用户可见「字在本子上」；通过后改名 `approved.png`
-- 阻塞: 无（可与 ART-KEY-03-rev 并行，但须先完成 UI 联合纪要）
+- 阻塞: 无（UI 联合纪要已完成）
 - 怎么验: 用户拍板；**须 UI 联合签字纪要**（tasks/报告各留一段）
+- 证据:
+  - `art/key_frames/diary/candidate_v3.png` @1600×900
+  - 底图 `art/key_frames/_work/kf_diary_v3_base.jpg`（无字；无浮层）
+  - 思源宋体按 UI 纪要落点% multiply 印纸；蜡心「启」
+  - STATUS diary → **批注中**
+  - 报告：`docs/reports/v0.89.0/art.md`
+  - 提交 SHA：见本提交
+- 备注: 未自称 approved；交用户审印纸感
 
 ### ART-KEY-03 · 目标帧参考图：桌面总览（hub）——首轮
 - status: rejected
@@ -41,7 +49,7 @@
 - 后续: 见 **ART-KEY-03-rev**
 
 ### ART-KEY-03-rev · 桌面总览重做（UI 载体融入场景光）· 联合 UI
-- status: todo
+- status: doing
 - 优先级: P0
 - 来源: 用户 2026-11-25 驳回 desk overview；要求后续与 ui-designer 共同决策
 - 协作: **art 出图 + ui-designer 共同决策**（索引卡材质、入口文案层级、悬停态；见 UI-KEY-DESK-JOINT）
@@ -53,7 +61,7 @@
   - **禁止**低饱和纯白平底便签、平面 HUD 叠层
   - 文字仍用思源宋体叠真实文案；菜单 ≥22px；对比度 ≥4.5
 - 交付: `art/key_frames/desk/options_v2/{1,2,3,overview}.png` + README；STATUS=待选
-- 阻塞: 无（可与 02b 并行；须先完成 UI 联合纪要）
+- 阻塞: 无（UI 联合纪要已完成；02b 已交批注）
 - 怎么验: 用户拍板；**须 UI 联合签字纪要**
 
 ### ART-KEY-04 · 目标帧参考图：身份档案（建档 / 局况）

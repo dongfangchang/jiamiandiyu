@@ -3,66 +3,46 @@
 ```text
 版本：v0.89.0
 角色：美术
-任务：ART-KEY-03（桌面总览 hub 三方案目标帧）
-状态：部分完成（三方案已交待选；未自称 approved；未开 04–11）
+任务：ART-KEY-02b（日记 candidate_v3 · 印纸）
+状态：完成（已交批注；未自称 approved）
 修改文件：
-  art/key_frames/desk/options/{1,2,3,overview}.png
-  art/key_frames/desk/README.md
-  art/key_frames/desk/_work/kf_desk_opt{1,2,3}_base.jpg
+  art/key_frames/diary/candidate_v3.png
+  art/key_frames/_work/kf_diary_v3_base.jpg
   art/key_frames/STATUS.md
   docs/reports/v0.89.0/art.md
   .cursor/agents/art/tasks.md
   .cursor/agent-memory/art/journal.md
 依赖：
-  ADR-0037 附录 A；一致性对照 title/diary candidate_v2（尚未签字）
+  UI-KEY-DIARY-JOINT（落点%/字号/禁浮层）；ADR-0037 附录 A/C
+  对照 art/key_frames/title/approved.png
   思源宋体 assets/ui/fonts/SourceHanSerifSC-Regular.otf
 验证：
-  三方案 + overview 均为 1600×900 PNG
-  索引卡菜单字号 26–28px（≥22）；对比度抽检 ≈7.56（≥4.5）
-  插画底图无字；中文思源叠字；悬停项各异（日记 / 祈愿 / 档案）
-困难与候选方案：
-  1) 底图索引卡过小难读 → 概念帧叠可读尺寸索引卡（B 纸面）承载六行入口
-  2) 生成器中文不可靠 → 禁字底图 + Pillow 叠字
-最终解决：产出 desk 三方案 + overview + README；STATUS=待选；等用户选型
-风险：
-  title/diary 仍批注中；desk 一致性暂以 candidate_v2 为锚，签字后可能需微调同书同烛
+  1600×900 PNG；底图无字无半透明浮层
+  题名/正文按右页矩形% multiply 印纸；蜡封「启」压蜡心
+  正文区对比度抽检 ≈4.8（≥4.5）；同房同桌同烛对照 title
 跨角色请求：
-  请主会话转达用户对 desk 三方案选型（1 俯角铺开 / 2 雨窗斜透视 / 3 近景密布）；
-  勿迁 assets/game；勿开 KEY-04…11；勿宣布 approved
-下一步入口：用户选定 desk 方案 → 批注轮 → approved.png；并行可继续等 title/diary 签字
+  请主会话转达用户审 diary v3「字是否印在本子上」；通过后改名 approved.png
+  勿迁 assets/game；勿开 KEY-04…11
+下一步入口：用户拍板 diary → 并行/紧接 ART-KEY-03-rev desk options_v2
 ```
 
-## ART-KEY-03 三方案差异（一句话）
+## ART-KEY-02b 要点
 
-| 方案 | 路径 | 差异 |
-|---|---|---|
-| 1 · 俯角静物铺开 | `art/key_frames/desk/options/1.png` | 略俯视横铺；悬停「日记」；索引卡右下 |
-| 2 · 雨窗斜透视 | `art/key_frames/desk/options/2.png` | 保留书架雨窗进深；悬停「祈愿」；同房感最强 |
-| 3 · 近景密布 | `art/key_frames/desk/options/3.png` | 镜头更近更密；悬停「档案」；索引卡左前大卡 |
-
-总览：`art/key_frames/desk/options/overview.png`  
-说明：`art/key_frames/desk/README.md`（构图 + 实现方式：分层绘制优先）
-
-## ART-KEY-02（仍有效 · 待签字）
-
-```text
-任务：ART-KEY-02（title/diary candidate_v2）
-状态：部分完成（candidate_v2 已交；待用户签字 → approved.png；未自称 approved）
-路径：
-  art/key_frames/title/candidate_v2.png
-  art/key_frames/diary/candidate_v2.png
-```
+- 驳回消除：不再铺半透明米黄 HUD 底板；墨迹直接乘算到右页纸纹。
+- 样本文案：题名「第一卷 · 雨夜来信」；蜡封「启」。
+- 落点参照 UI 纪要：题名 (12,9,70,7)、正文 (12,18,68,46)、蜡心 ≈(72,82)。
 
 ## 先前交付（仍有效）
 
-| ID | 路径 |
-|---|---|
-| ART-KEY-01 | `art/key_frames/directions/{A,B,C}/{title,diary}.png` + overview |
-| DQ-01…06 | `art/assets/raster/desk_world/diary_quality/` |
-| DW-07b | `art/assets/raster/desk_world/index_card/` |
+| ID | 路径 | 状态 |
+|---|---|---|
+| ART-KEY-01 | `art/key_frames/directions/{A,B,C}/…` | done |
+| ART-KEY-02 title | `art/key_frames/title/approved.png` | 已签字 |
+| ART-KEY-02 diary v2 | `art/key_frames/diary/candidate_v2.png` | 驳回留档 |
+| ART-KEY-03 | `art/key_frames/desk/options/{1,2,3,overview}.png` | 全驳回留档 |
+| DQ / DW-07b | `art/assets/raster/desk_world/…` | 仍有效 |
 
 ## 未做 / 边界
 
 - 未改 `src/ui/**`、未迁 `assets/game/**`
-- 未开 ART-KEY-04…11；未宣布 approved / 用户签字
-- 画面类实现仍按 ADR-0037 暂停
+- 未开 ART-KEY-04…11；未宣布 diary/desk approved

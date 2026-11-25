@@ -8,8 +8,8 @@
 | 站位 | 任务 | 方案 | 状态 | 签字稿 |
 |---|---|---|---|---|
 | title 标题页 | ART-KEY-02 | A → `candidate_v2` | **已签字** | `art/key_frames/title/approved.png` |
-| diary 日记页 | ART-KEY-02b（联合 UI） | v2 **驳回** → v3 | **重做中** | — |
-| desk 桌面总览 | ART-KEY-03-rev（联合 UI） | 1/2/3 **全驳回** | **重做中** | — |
+| diary 日记页 | ART-KEY-02b（联合 UI） | v3 | **批注中** | — |
+| desk 桌面总览 | ART-KEY-03-rev（联合 UI） | options_v2 重做中 | **重做中** | — |
 | dossier 身份档案 | ART-KEY-04 | 2 | 待出图（联合 UI；阻塞：diary/desk 风格闸） | — |
 | cardbox 卡匣 | ART-KEY-05 | 3 | 待出图（联合 UI） | — |
 | altar 祈愿台 | ART-KEY-06 | 2 | 待出图（联合 UI） | — |
@@ -22,10 +22,11 @@
 ## 用户裁决记录（2026-11-25）
 
 - **title**：`candidate_v2` **通过** → `approved.png`
-- **diary**：`candidate_v2` **不通过** — 文字悬浮，未印在笔记纸面上
-- **desk**：overview 三方案 **全不通过** — 场景厚涂油画 vs 菜单低饱和白底便签，材质/光影/笔触与环境脱节，无烛火暖橙反光与阴影，悬浮感严重
+- **diary**：`candidate_v2` **不通过** — 文字悬浮，未印在笔记纸面上 → **v3 已交批注**（`candidate_v3.png`）
+- **desk**：overview 三方案 **全不通过** — 场景厚涂油画 vs 菜单低饱和白底便签，材质/光影/笔触与环境脱节，无烛火暖橙反光与阴影，悬浮感严重 → **ART-KEY-03-rev**
 
 ## 路径
 
 - 签字：`art/key_frames/title/approved.png`
+- 批注中：`art/key_frames/diary/candidate_v3.png`
 - 驳回留档：`art/key_frames/diary/candidate_v2.png`、`art/key_frames/desk/options/{1,2,3,overview}.png`

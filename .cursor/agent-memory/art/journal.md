@@ -61,3 +61,10 @@
 3. 可沉淀为 Skill 的步骤？站位多方案目标帧：ADR 附录 A → 对照已有 candidate/approved → 禁字底图×N → Pillow 索引卡/纸面叠字（字号+对比度断言）→ overview 并排+一句话差异 → README（构图+实现方式）→ STATUS=待选。并入 draft `target-frame-directions`。
 4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；大 PNG `optimize=True` 易卡住 → 默认关 optimize。
 5. 下次同一类任务，第一条该读？ADR-0037 附录 A + `art/key_frames/STATUS.md` + 上一站位 candidate/approved；先定三方案「一句话差异」再出图。
+
+### Retro · 2026-11-25 · ART-KEY-02b（diary candidate_v3 印纸）
+1. 目标是否达成？证据：`art/key_frames/diary/candidate_v3.png` @1600×900；无半透明浮层；思源叠字 multiply 印右页；蜡心「启」；STATUS=批注中；报告已写。
+2. 哪一步最耗时或最易错？自动纸面 bbox 易锁到烛侧亮带变窄竖排；蜡心红点检测易被花边误吸 → 须手标定右页矩形 + 蜡心坐标。
+3. 可沉淀为 Skill 的步骤？印纸目标帧：禁字底图 → 手标定纸面 UV 矩形（相对页%）→ multiply/暗墨叠字（禁色块底板）→ 蜡心压印 → 对比度抽检。并入 draft `target-frame-directions`。
+4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；暂不晋升。
+5. 下次同一类任务，第一条该读？UI 联合纪要落点% + `title/approved.png` + 驳回样；先手标定纸面再叠字。
