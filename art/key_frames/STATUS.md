@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | title 标题页 | ART-KEY-01/02 | 选 **A** → `candidate_v2` | **批注中** | — |
 | diary 日记页 | ART-KEY-01/02 | 选 **B**（环境改 A）→ `candidate_v2` | **批注中** | — |
-| desk 桌面总览 | ART-KEY-03 | 3 | 待出图 | — |
+| desk 桌面总览 | ART-KEY-03 | 3 | **待选** | — |
 | dossier 身份档案 | ART-KEY-04 | 2 | 待出图 | — |
 | cardbox 卡匣 | ART-KEY-05 | 3 | 待出图 | — |
 | altar 祈愿台 | ART-KEY-06 | 2 | 待出图 | — |
@@ -20,3 +20,9 @@
 
 - `art/key_frames/title/candidate_v2.png` @1600×900
 - `art/key_frames/diary/candidate_v2.png` @1600×900
+
+## desk 三方案路径（待用户选型）
+
+- `art/key_frames/desk/options/{1,2,3}.png` @1600×900
+- `art/key_frames/desk/options/overview.png`
+- `art/key_frames/desk/README.md`

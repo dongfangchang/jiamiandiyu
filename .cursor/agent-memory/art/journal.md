@@ -54,3 +54,10 @@
 3. 可沉淀为 Skill 的步骤？目标帧批注轮：读附录批注 → 禁字底图（参考已选方向）→ Pillow 思源叠字（字号/对比度断言）→ 蜡封单枚压印对齐 → STATUS=批注中 → 等签字。并入 draft `target-frame-directions`（仍不晋升，等签字轮验证）。
 4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；蜡心检测可进脚本后再登记。
 5. 下次同一类任务，第一条该读？ADR-0037 附录 A/B + `art/key_frames/STATUS.md` + 上一版 candidate；先对已签字/已选锚点再改。
+
+### Retro · 2026-11-25 · ART-KEY-03（desk 三方案待选）
+1. 目标是否达成？证据：`art/key_frames/desk/options/{1,2,3,overview}.png` @1600×900 + README；STATUS desk=待选；报告已写；对比度≈7.56；未自称 approved、未开 04…11、未迁 assets/game。
+2. 哪一步最耗时或最易错？底图自带索引卡过小/过暗 → 必须叠可读尺寸 B 纸面索引卡再排六行；方案差异要在构图（俯角/雨窗进深/近景）与悬停项上同时钉死，否则 overview 选型无效。
+3. 可沉淀为 Skill 的步骤？站位多方案目标帧：ADR 附录 A → 对照已有 candidate/approved → 禁字底图×N → Pillow 索引卡/纸面叠字（字号+对比度断言）→ overview 并排+一句话差异 → README（构图+实现方式）→ STATUS=待选。并入 draft `target-frame-directions`。
+4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；大 PNG `optimize=True` 易卡住 → 默认关 optimize。
+5. 下次同一类任务，第一条该读？ADR-0037 附录 A + `art/key_frames/STATUS.md` + 上一站位 candidate/approved；先定三方案「一句话差异」再出图。
