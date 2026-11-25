@@ -4,6 +4,7 @@
 
 ## Log
 
+- 2026-11-25 · UI-KEY-DIARY-SEAL + UI-KEY-DESK-UNITY done：纪要置顶 `ui.md`；「启」=蜡面压痕禁近白浮字；desk 母版=title/approved，三方案只许镜头/疏密/悬停；解锁 art 02c / 03-rev2；未改 src/ui。
 - 2026-11-25 · UI-KEY-DIARY-JOINT + UI-KEY-DESK-JOINT done：联合纪要写入 `docs/reports/v0.89.0/ui.md`；日记落点%/印纸五准则；桌面索引卡材质·烛光·六行·悬停；未改 src/ui；解锁 art 02b / 03-rev。
 - 2026-11-25 · UI-CH-GREY + UI-RENDER-MOBILE done：挑战锁定灰显+ChallengeHint；`project.godot` mobile；exposure 3.0 / SPECULAR_DISABLED；测门 95/0/14/0；截图 `ui_render_mobile_diary_1600x900.png`。
 - 2026-11-25 · UI-P0-3-reject done：方案 (a) RoomBack `(0,1.05,-1.72)` 直立；D2 `attach_bookmark_ribbon`；AR-07 遮挡绿；测门 95/0/14/0；renderer-hold 回 gl_compatibility；截图 `ui_p0_3_fix_diary_*.png`。
@@ -16,6 +17,18 @@
 - 2026-11-24 · UI-07-DQ / UI-07-07b done：DQ-01…06 + DW-07b 全过；请 CO-DQ 迁 diary_quality+index_card；未动 P0/P1 实现、未自迁 assets/game。
 - 2026-11-24 · UI-P0-3 done：DQ 接入 + Forward+ FX + 丝带「合上」；抽出 diary_desk_quality；未动主会话 P0-1/P0-2/P1-1 文件。
 - 2026-11-24 · UI-P0-3-fix done：守卫注释清零；v085→DQ-02；FX 预算 HiDPI≈37fps；测门 94/0/guard0；**等 P0-2 再 push**。
+
+### Retro · 2026-11-25 · UI-KEY-SEAL + UNITY（二次驳回闸）
+1. 目标是否达成？证据（命令/路径/截图）？  
+   是。`ui.md` 置顶 SEAL/UNITY；tasks done；art 可开 02c / 03-rev2；无 src/ui 改动。
+2. 哪一步最耗时或最易错？  
+   JOINT 曾写「启」近白压印——被用户证伪；须用压痕/吃蜡光覆盖旧色值，避免 art 按旧表复刻浮字。
+3. 可沉淀为 Skill 的步骤有哪些？（可复制清单）  
+   二次驳回：保留已过闸 → 只开失败子闸 → 母版锁不可变项 + 白名单可变项 → 置顶纪要覆盖旧句。
+4. 该进 Tool Registry 的命令是什么？  
+   无新命令。
+5. 下次同一类任务，第一条该读哪份 Skill/Draft？  
+   本 Retro + `ui.md` SEAL/UNITY 置顶节 + title/approved。
 
 ### Retro · 2026-11-25 · UI-KEY 联合纪要（diary + desk）
 1. 目标是否达成？证据（命令/路径/截图）？  

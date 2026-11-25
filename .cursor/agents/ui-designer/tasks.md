@@ -8,43 +8,45 @@
 
 > **2026-11-25 用户裁决**：渲染器 = Mobile（ADR-0036）；挑战未解锁时显示为灰色并写明原因；手牌通过；**标题页和日记页画面仍然太简陋 → ADR-0037"目标帧先行"：画面类实现暂停，先出概念图，由用户选定。**
 
-> **2026-11-25 目标帧联合（用户）**：title `candidate_v2` **通过**；diary v2 **驳回**（字悬浮）；desk overview **全驳回**（白底便签与油画烛光脱节）。**后续目标帧须 art + ui-designer 共同决策**，再出图。
+> **2026-11-25 目标帧联合（用户）**：title 通过；diary v3 正文印纸认可但「启」仍悬浮；desk options_v2 三图风格仍割裂。继续 art+UI 联合。
 
 ### UI-KEY-DIARY-JOINT · 日记目标帧联合决策（配合 ART-KEY-02b）
 - status: done
-- 优先级: P0
-- 来源: 用户 2026-11-25 驳回 diary candidate_v2
-- 协作: 与 art 共同决策；UI 负责版式规格，art 负责出 `candidate_v3`
-- 改哪些（设计交付，非实现代码）: `docs/reports/v0.89.0/ui.md` 联合纪要
-- 决策内容:
-  1. 右页题名/正文/「启」的落点矩形（相对书页 %）、边距、行宽
-  2. 字号（题名/正文/蜡封）、行距、墨色（对比度 ≥4.5）
-  3. **禁止**半透明 HUD 浮层；文字必须像印在纸上（可接受纸面微透视变形）
-- 完成标准: 纪要写入报告；art 按纪要出 v3；用户通过后 diary `approved.png`
-- 阻塞: 无（纪要已交付；等 art v3 + 用户拍板）
-- 跨角色请求: art **可开** ART-KEY-02b
-- 证据:
-  - `docs/reports/v0.89.0/ui.md` § UI-KEY-DIARY-JOINT（落点% / 字号行距墨色 / 印纸五准则）
-  - 未改 `src/ui/**`（ADR-0037）
-  - commit/push：见本提交 SHA
+- 说明: 正文印纸闸已过；「启」问题转 **UI-KEY-DIARY-SEAL**
+- 证据: `docs/reports/v0.89.0/ui.md` § UI-KEY-DIARY-JOINT；art v3 @ `862db00`
 
-### UI-KEY-DESK-JOINT · 桌面 hub 目标帧联合决策（配合 ART-KEY-03-rev）
+### UI-KEY-DIARY-SEAL · 蜡封「启」压印规格（配合 ART-KEY-02c）
 - status: done
 - 优先级: P0
-- 来源: 用户 2026-11-25 驳回 desk overview 三方案
-- 协作: 与 art 共同决策；UI 定索引卡入口信息架构，art 出 options_v2
-- 驳回根因（必须消除）: 低饱和纯白便签与厚涂油画场景脱节；无烛火暖橙反光/阴影；悬浮感
+- 来源: 用户 2026-11-25：「启」为什么还是悬浮的
+- 协作: 与 art 共同决策；本条出纪要，art 出 candidate_v4
+- 改哪些: `docs/reports/v0.89.0/ui.md` 置顶节
 - 决策内容:
-  1. 索引卡是**桌面物件**（旧纸/铜版），不是 UI 面板；入口文案「日记 / 档案 / 卡匣 / 祈愿 / 卷宗 / 熄烛」
-  2. 悬停态如何在卡面+对应物件上同时可读（字色/提亮，仍吃烛光）
-  3. 字号 ≥22px；载体材质规格交给 art 画进场景光
-- 完成标准: 纪要写入报告；art 交 `desk/options_v2`；用户选型
-- 阻塞: 无（纪要已交付；等 art options_v2 + 用户选型）
-- 跨角色请求: art **可开** ART-KEY-03-rev；对照 `title/approved.png`
-- 证据:
-  - `docs/reports/v0.89.0/ui.md` § UI-KEY-DESK-JOINT（材质光影 / 六行层级 / 悬停联动 / 禁白底）
-  - 未改 `src/ui/**`（ADR-0037）
-  - commit/push：见本提交 SHA
+  1. 「启」必须是**蜡面压痕**（凹印/浮雕感），颜色随蜡红/烛光，禁止近白 HUD 字浮在蜡上
+  2. 蜡封贴右页纸面（接触阴影、随纸透视）；丝带可有，但字不脱离蜡平面
+  3. 自检：抹掉「启」后蜡面应仍是完整蜡块；字是压上去的
+- 完成标准: 纪要写入报告；解锁 art 02c
+- 跨角色请求: art 执行 ART-KEY-02c → `diary/candidate_v4.png`
+- 证据: `docs/reports/v0.89.0/ui.md` § UI-KEY-DIARY-SEAL（置顶）；本轮无改 src/ui
+
+### UI-KEY-DESK-JOINT · 桌面 hub 目标帧联合决策（配合 ART-KEY-03-rev）
+- status: done（索引卡材质闸部分过；风格统一转 UNITY）
+- 说明: options_v2 被用户以「三图风格割裂」驳回 → **UI-KEY-DESK-UNITY**
+- 证据: `ui.md` § UI-KEY-DESK-JOINT；art options_v2 @ `2d676a7`
+
+### UI-KEY-DESK-UNITY · 三方案风格统一闸（配合 ART-KEY-03-rev2）
+- status: done
+- 优先级: P0
+- 来源: 用户 2026-11-25：options_v2 三个图片风格还是很割裂
+- 协作: 与 art 共同决策；规定母版与可变项
+- 改哪些: `docs/reports/v0.89.0/ui.md` 置顶节
+- 决策内容:
+  1. 风格母版 = `title/approved.png`（笔触/调色/烛光不可变）
+  2. 三方案**只允许**变：镜头机位、物件疏密、悬停入口；不允许换画风/换光源色温/换纸材语言
+  3. 验收口令：并排 overview 时，眯眼看应像同一张照片的三种构图
+- 完成标准: 纪要写入报告；解锁 art 03-rev2
+- 跨角色请求: art 执行 ART-KEY-03-rev2 → `desk/options_v3/`
+- 证据: `docs/reports/v0.89.0/ui.md` § UI-KEY-DESK-UNITY（置顶）；本轮无改 src/ui
 
 ### UI-CH-GREY · 挑战未解锁时显示为灰色并写明原因
 - status: done
