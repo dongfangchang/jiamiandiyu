@@ -11,21 +11,25 @@
 > **2026-11-25 目标帧联合（用户）**：title `candidate_v2` **通过**；diary v2 **驳回**（字悬浮）；desk overview **全驳回**（白底便签与油画烛光脱节）。**后续目标帧须 art + ui-designer 共同决策**，再出图。
 
 ### UI-KEY-DIARY-JOINT · 日记目标帧联合决策（配合 ART-KEY-02b）
-- status: doing
+- status: done
 - 优先级: P0
 - 来源: 用户 2026-11-25 驳回 diary candidate_v2
 - 协作: 与 art 共同决策；UI 负责版式规格，art 负责出 `candidate_v3`
-- 改哪些（设计交付，非实现代码）: `docs/reports/v0.89.0/ui.md` 联合纪要；可选 `docs/design/` 短注
+- 改哪些（设计交付，非实现代码）: `docs/reports/v0.89.0/ui.md` 联合纪要
 - 决策内容:
   1. 右页题名/正文/「启」的落点矩形（相对书页 %）、边距、行宽
   2. 字号（题名/正文/蜡封）、行距、墨色（对比度 ≥4.5）
   3. **禁止**半透明 HUD 浮层；文字必须像印在纸上（可接受纸面微透视变形）
 - 完成标准: 纪要写入报告；art 按纪要出 v3；用户通过后 diary `approved.png`
-- 阻塞: 无
-- 跨角色请求: art 执行 ART-KEY-02b
+- 阻塞: 无（纪要已交付；等 art v3 + 用户拍板）
+- 跨角色请求: art **可开** ART-KEY-02b
+- 证据:
+  - `docs/reports/v0.89.0/ui.md` § UI-KEY-DIARY-JOINT（落点% / 字号行距墨色 / 印纸五准则）
+  - 未改 `src/ui/**`（ADR-0037）
+  - commit/push：见本提交 SHA
 
 ### UI-KEY-DESK-JOINT · 桌面 hub 目标帧联合决策（配合 ART-KEY-03-rev）
-- status: doing
+- status: done
 - 优先级: P0
 - 来源: 用户 2026-11-25 驳回 desk overview 三方案
 - 协作: 与 art 共同决策；UI 定索引卡入口信息架构，art 出 options_v2
@@ -35,8 +39,12 @@
   2. 悬停态如何在卡面+对应物件上同时可读（字色/提亮，仍吃烛光）
   3. 字号 ≥22px；载体材质规格交给 art 画进场景光
 - 完成标准: 纪要写入报告；art 交 `desk/options_v2`；用户选型
-- 阻塞: 无
-- 跨角色请求: art 执行 ART-KEY-03-rev；对照 `title/approved.png`
+- 阻塞: 无（纪要已交付；等 art options_v2 + 用户选型）
+- 跨角色请求: art **可开** ART-KEY-03-rev；对照 `title/approved.png`
+- 证据:
+  - `docs/reports/v0.89.0/ui.md` § UI-KEY-DESK-JOINT（材质光影 / 六行层级 / 悬停联动 / 禁白底）
+  - 未改 `src/ui/**`（ADR-0037）
+  - commit/push：见本提交 SHA
 
 ### UI-CH-GREY · 挑战未解锁时显示为灰色并写明原因
 - status: done
