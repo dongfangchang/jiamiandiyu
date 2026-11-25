@@ -4,6 +4,15 @@
 
 ## Log
 
+- 2026-11-25 · AR-07：`diary_readability_runner` 补遮挡维（相机→页采样 vs 非书本可见网格 AABB）。坏摆放 f875b79 RoomBack 失败 hits=8；修好后通过。证据 `docs/reports/v0.89.0/architect.md` AR-07。生产仅公开查询钩子。
+
+### Retro · 2026-11-25 · AR-07 遮挡探针
+1. 目标是否达成？是。证据：坏摆放 EXIT=1 / 好摆放 OK；tasks AR-07 done；报告 AR-07。
+2. 哪一步最耗时或最易错？工作区并行 UI 已改 RoomBack/ribbon API，和「只提交测钩、保留坏板」冲突——必须用 index 的 AR-07-only stage + HEAD quality 对齐验证。
+3. 可沉淀为 Skill 的步骤？3D 可读性遮挡：① 完整质量层舞台 ② UV 采样（角/题/文/蜡）③ 几何线段优先于 Physics（无碰撞体）④ 书本子树白名单 ⑤ 坏姿态注入作负例证据。
+4. 该进 Tool Registry 的命令？`diary-readability-occlusion`（headless runner）。
+5. 下次同一类任务第一条读？本 Retro + `diary_page_occlusion.gd` + architect.md AR-07。
+
 - 2026-11-24 · AR-05：三渲染器真窗口对比（M4 · 2920×1753）→ ADR-0035 采纳桌面默认 Forward+。证据 `docs/decisions/ADR-0035-desk-world-renderer.md`、`docs/reports/v0.89.0/architect.md`、`docs/reports/v0.89.0/ar05_renderer/`。未改 `src/ui/**` / `project.godot`。
 
 ### Retro · 2026-11-24 · AR-05 渲染器评估

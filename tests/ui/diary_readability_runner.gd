@@ -9,7 +9,9 @@ const UiContentFixture := preload("res://tests/ui/ui_content_fixture.gd")
 ## - page viewports are at least 1024x1440;
 ## - projected on-screen text sizes, ink contrast, reading angle and book
 ##   framing meet the floors, through public probes only;
-## - chrome text sizes meet the floors.
+## - chrome text sizes meet the floors;
+## - AR-07: after DeskQuality, camera→page samples are not occluded by
+##   non-book meshes (corners / title / body / wax on both leaves).
 
 const DiaryScreenScript := preload("res://src/ui/diary_chapter_screen.gd")
 const DeskStage := preload("res://src/ui/diary_desk_stage.gd")
@@ -75,7 +77,29 @@ func _ready() -> void:
 	_expect(int(chrome["title"]) >= 28, "volume title >= 28px (%d)" % chrome["title"])
 	for key in ["carrier", "hint", "close", "note"]:
 		_expect(int(chrome[key]) >= 15, "chrome %s >= 15px (%d)" % [key, chrome[key]])
+
+	## 6. Occlusion (AR-07): full stage with DeskQuality; non-book mesh on a
+	## camera→page sample segment fails (exposes leaned RoomBack / RoomBackplate).
+	var occ: Dictionary = desk.get_page_occlusion_report()
+	_expect(bool(occ.get("quality_backplate_present", false)), "DeskQuality backplate present for occlusion stage")
+	_expect(bool(occ.get("clear", false)), _occlusion_failure_label(occ))
 	_finish()
+
+
+func _occlusion_failure_label(occ: Dictionary) -> String:
+	if bool(occ.get("clear", false)):
+		return "page samples clear of non-book occluders (hits=0)"
+	var hits: Array = occ.get("hits", [])
+	var preview: PackedStringArray = PackedStringArray()
+	for i in mini(hits.size(), 4):
+		var h: Dictionary = hits[i]
+		preview.append("%s/%s←%s" % [h.get("side", "?"), h.get("sample", "?"), h.get("occluder", "?")])
+	var more := "" if hits.size() <= 4 else " +%d" % (hits.size() - 4)
+	return "page samples clear of non-book occluders (hits=%d: %s%s)" % [
+		int(occ.get("hit_count", hits.size())),
+		", ".join(preview),
+		more,
+	]
 
 
 static func _physical(window: Vector2i) -> Vector2i:

@@ -66,17 +66,90 @@ tools/architecture/ar05_run_compare.sh
 
 ---
 
+## AR-07 · 可读性测试补「遮挡」维度
+
+版本：v0.89.0  
+角色：架构师  
+任务：AR-07  
+状态：完成
+
+### 测试设计
+
+完整舞台（`DiaryChapterScreen` → `DeskStage`，已跑 `DeskQuality.apply_*`）上，对左右页各 7 个 UV 采样点：
+
+| 采样 | UV |
+|---|---|
+| 四角 | (0.06,0.06) (0.94,0.06) (0.06,0.94) (0.94,0.94) |
+| 题名 / 正文 / 蜡封 | (0.50,0.10) / (0.50,0.42) / (0.50,0.78) |
+
+从 `DeskCamera` 到采样世界坐标做**开线段**，与站内其他**可见** `MeshInstance3D` 的世界 AABB 做 slab 相交；`_book_root` 下网格允许。命中页面以外（如 `RoomBackplate`）即 `clear=false`。
+
+选用几何 AABB 而非 `PhysicsRayQuery`：书页/背景板无碰撞体，headless 不造生产 StaticBody。
+
+公开钩子（只读，不改规则）：
+
+- `page_uv_to_world(is_left, uv)`
+- `get_page_occlusion_report() -> {clear, hits, quality_backplate_present, ...}`
+
+### 修改文件
+
+- `src/ui/diary_page_occlusion.gd`（新）
+- `src/ui/diary_desk_stage.gd`（仅上述钩子；**不含** RoomBack 摆放修复）
+- `tests/ui/diary_readability_runner.gd`（§6 遮挡断言）
+- `docs/reports/v0.89.0/architect.md`、`.cursor/agents/architect/tasks.md`
+
+### 验证
+
+```text
+# f875b79 / 当前 origin 坏摆放 (0.52,-0.78) + rot X=-62° → 失败
+Godot --headless --path . res://tests/ui/diary_readability_runner.tscn
+# DIARY_READABILITY_FAIL ... hits=8: left/corner_tl←RoomBackplate ... EXIT=1
+
+# 修好后 (1.05,-1.72) upright → 通过（工作区 UI WIP 或后续 UI 提交）
+# DIARY_READABILITY_OK checks=43
+```
+
+坏摆放证据（同进程注入 f875b79 姿态）：`clear` good→true / bad→false，`hits=8`，遮挡体均为 `RoomBackplate`（题名/正文/上角）。
+
+### 困难与候选方案
+
+1. PhysicsRayQuery + 临时碰撞体 → 拒（污染舞台 / headless 脆弱）。  
+2. 屏幕空间深度/抓帧 → 拒（非 headless 默认门）。  
+3. **几何线段 vs AABB** → 采纳。
+
+### 最终解决
+
+方案 3 + 公开 `get_page_occlusion_report`；书本子树白名单避免假阳性。
+
+### 风险
+
+- AABB 比精确三角网格略宽；极薄擦边可能误报（未见）。  
+- 本提交保留 f875b79 坏 `RoomBack`，默认门会红直到 UI 合入摆放修复——属预期。  
+- 未 push（勿把未修好 UI / 红门强推远程，除非主会话裁决）。
+
+### 跨角色请求
+
+- **UI**：把 RoomBack 挪出镜头→书页锥体（工作区已有 upright `(0,1.05,-1.72)` 候选）；合入后本 runner 应绿。  
+- **主协调者**：AR-07 合入后与 UI-P0-3-fix 同门验收。
+
+### 下一步入口
+
+- UI 修 RoomBack → `diary_readability_runner` 全绿。  
+- AR-06 / AR-03 仍按原阻塞。
+
+---
+
 ```text
 版本：v0.89.0
 角色：架构师
-任务：AR-05 渲染器评估 → ADR-0035
+任务：AR-07 可读性遮挡维度
 状态：完成
-修改文件：ADR-0035、tools/architecture/ar05_*、docs/reports/v0.89.0/architect.md、ar05_renderer/**
-依赖：日记站捕获 API；未改 src/ui 生产实现
-验证：三渲染器真窗口截图 + FPS 报告；缩略图入库
-困难与候选方案：Compat 假阴影 / Mobile 无 SSAO / Forward+ 采纳
-最终解决：桌面默认 Forward+；见 ADR-0035
-风险：HiDPI 帧率；Windows 未在本机复测
-跨角色请求：协调者改 project.godot；UI-P0-3 开后期
-下一步入口：UI-P0-3；AR-06 待 UI-X0-rev
+修改文件：diary_page_occlusion.gd、diary_desk_stage 钩子、diary_readability_runner、architect.md、tasks
+依赖：DeskQuality 完整舞台；公开 page_uv_to_world / get_page_occlusion_report
+验证：坏摆放 EXIT=1 hits=8 RoomBackplate；修好后 OK checks=43
+困难与候选方案：PhysicsRay / 抓帧 / 几何 AABB（采纳）
+最终解决：相机→采样线段 vs 非书本可见网格 AABB
+风险：默认门在 UI 修板前为红；AABB 近似
+跨角色请求：UI 合入 RoomBack 修复；协调者同门验收
+下一步入口：UI-P0-3-fix RoomBack
 ```

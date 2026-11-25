@@ -16,6 +16,7 @@ const PropCatalog := preload("res://src/ui/prop_ui_catalog.gd")
 const PagePair := preload("res://src/ui/diary_page_pair.gd")
 const ArtLoader := preload("res://src/ui/diary_art_loader.gd")
 const ReadingMetrics := preload("res://src/ui/diary_reading_metrics.gd")
+const PageOcclusion := preload("res://src/ui/diary_page_occlusion.gd")
 const DeskQuality := preload("res://src/ui/diary_desk_quality.gd")
 const GRAIN_PATH := "res://assets/ui/diary/parchment_grain.png"
 const WOOD_PATH := "res://assets/ui/diary/desk_wood.png"
@@ -263,6 +264,22 @@ func get_readability_metrics() -> Dictionary:
 	out["world_viewport"] = get_world_viewport_size()
 	out["expected_world_viewport"] = expected_world_viewport_size()
 	return out
+
+
+func page_uv_to_world(is_left: bool, uv: Vector2) -> Vector3:
+	## Public UV→world for tests / occlusion probes (arched leaf surface).
+	var mesh := _left_page_mesh if is_left else _right_page_mesh
+	return _page_uv_to_world(mesh, uv)
+
+
+func get_page_occlusion_report() -> Dictionary:
+	## AR-07: after DeskQuality is applied, no non-book mesh may sit on the
+	## camera→page segment for corner / title / body / wax samples.
+	var probe := PageOcclusion.new(
+		_cam, _desk_world, _book_root, _left_page_mesh, _right_page_mesh,
+		page_uv_to_world
+	)
+	return probe.report()
 
 
 func physical_scale() -> Vector2:

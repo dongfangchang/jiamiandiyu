@@ -5,12 +5,13 @@
 ## 进行中 / 待办
 
 ### AR-07 · 可读性测试补"遮挡"维度（P0-3 退回暴露的测试缺口）
-- status: doing
+- status: done
 - owner: architect 智能体（2026-11-24 轮询派工）
 - 优先级: P0
 - 来源: 2026-11-24 轮询。`diary_readability_runner` 全绿，但真窗口里正文被背景板遮住，测试只检查相机常量。
 - 做法: 在 `diary_readability_runner`（headless 可跑）中，对左右页面网格的采样点（四角、题名、正文、蜡封）从相机做 `PhysicsRayQueryParameters3D` 射线检测，或按几何做"镜头 → 采样点"线段与站内其他可见网格包围盒的相交检测。命中页面以外的物体即判失败。必须在**装上质量层（DeskQuality）之后**的完整舞台上检测。
-- 完成标准: 用 4d510ce 的背景板摆放能让测试失败，修好后通过
+- 完成标准: 用 f875b79 的背景板摆放能让测试失败，修好后通过
+- 证据: 几何线段 vs AABB（`src/ui/diary_page_occlusion.gd`）；钩子 `get_page_occlusion_report`；runner §6。坏摆放 `(0.52,-0.78)/-62°` → `DIARY_READABILITY_FAIL hits=8←RoomBackplate` EXIT=1；修好 upright `(1.05,-1.72)` → OK checks=43。报告 `docs/reports/v0.89.0/architect.md` AR-07。SHA `55e9f8b5b37620f18f12972fd10726d6b0a8c94b`。
 
 > **2026-11-24 第二次下发（用户反馈 → ADR-0034）**：①控件绑定文字，物件只是画面；②替换即删除，禁止遮挡或隐藏旧界面；③日记可读性底线和画面升级。当前版本 **v0.89.0**（`docs/versions/v0.89.0.md`），P0 条目优先于其他所有条目。主会话会定时轮询本文件：done 条目必须写证据（提交 SHA、截图路径、测试输出），主会话据此合并、推送并下发后续任务。
 

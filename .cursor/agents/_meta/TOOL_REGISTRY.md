@@ -97,6 +97,16 @@
   notes: 交付同时同步 assets/game/v0.85.0/diary/ 须 coordinator 确认所有权
   skill: diary-page-art
 
+- id: diary-readability-occlusion
+  role: architect
+  status: candidate
+  purpose: 日记可读性底线 + AR-07 页遮挡（headless）
+  when: 改 DeskCamera / RoomBack / DeskQuality / 页网格后
+  run: |
+    "$GODOT" --headless --path . res://tests/ui/diary_readability_runner.tscn
+  notes: 须在 DeskQuality 完整舞台上；坏 RoomBack（f875b79 lean）应 FAIL；书本子树不计入遮挡
+  skill: godot-probe-gate
+
 - id: ar05-renderer-compare
   role: architect
   status: candidate
