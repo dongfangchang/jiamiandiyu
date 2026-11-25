@@ -19,6 +19,7 @@
   - `title_station_runner`：锁定可见/FOCUS_NONE/hint 非空；解锁可点
   - `tools/run_tests.sh` → **pass=95 fail=0 skipped=14 guard_block=0**
   - 报告 `docs/reports/v0.89.0/ui.md` UI-CH-GREY 节
+  - commit/push：`f898e33` → origin/main
 
 ### UI-RENDER-MOBILE · 切换到 Mobile 渲染器，并做与画面风格无关的必要校正
 - status: done
@@ -38,6 +39,7 @@
   - `tools/run_tests.sh` → **pass=95 fail=0 skipped=14 guard_block=0**
   - 截图 `docs/reports/v0.89.0/ui_render_mobile_diary_1600x900.png`（method=mobile metal）
   - 报告 `docs/reports/v0.89.0/ui.md` UI-RENDER-MOBILE 节
+  - commit/push：`f898e33` → origin/main
 
 
 ### UI-P0-3-renderer-hold · 渲染器待用户裁决，P0-3 先按"与渲染器无关"的调优做

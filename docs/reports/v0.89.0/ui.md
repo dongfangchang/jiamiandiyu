@@ -25,6 +25,7 @@
 风险：HiDPI Mobile avg≈28 fps（抽样）；画面风格仍待目标帧
 跨角色请求：无
 下一步入口：ART-KEY 目标帧；UI-X1 功能轨
+commit：f898e33（已 push origin/main）
 ```
 
 ### UI-CH-GREY
