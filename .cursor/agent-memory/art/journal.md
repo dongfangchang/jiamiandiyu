@@ -68,3 +68,10 @@
 3. 可沉淀为 Skill 的步骤？印纸目标帧：禁字底图 → 手标定纸面 UV 矩形（相对页%）→ multiply/暗墨叠字（禁色块底板）→ 蜡心压印 → 对比度抽检。并入 draft `target-frame-directions`。
 4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；暂不晋升。
 5. 下次同一类任务，第一条该读？UI 联合纪要落点% + `title/approved.png` + 驳回样；先手标定纸面再叠字。
+
+### Retro · 2026-11-25 · ART-KEY-03-rev（desk options_v2 旧纸卡）
+1. 目标是否达成？证据：`art/key_frames/desk/options_v2/{1,2,3,overview}.png` + README；STATUS=待选；对比度≈5.3+；无白便签；报告已写。
+2. 哪一步最耗时或最易错？底图自带卡过小/过暗 → 须程序化旧纸卡（暖橙 falloff + 接触阴影）再叠六行；过亮会像白便签、过暗对比度掉下 4.5。
+3. 可沉淀为 Skill 的步骤？场景菜单载体：禁字底图 → 旧纸卡程序材质（烛光梯度+阴影）→ 思源六行+悬停联动物件提亮 → overview 特写行。并入 draft `target-frame-directions`。
+4. 该进 Tool Registry 的命令？仍 `.tools/art_venv` + Pillow；暂不晋升。
+5. 下次同一类任务，第一条该读？UI-KEY-DESK-JOINT 材质表 + 驳回 overview + title/approved。

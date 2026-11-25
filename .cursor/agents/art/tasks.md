@@ -6,7 +6,7 @@
 
 ### ART-KEY-ORDER · 出图顺序与节奏
 - status: doing
-- 进度: title **已签字**；diary v2 驳回 → ART-KEY-02b；desk 三方案全驳回 → ART-KEY-03-rev；04–11 阻塞至 diary/desk 风格闸通过
+- 进度: title **已签字**；diary **v3 批注中**；desk **options_v2 待选**；04–11 阻塞至 diary/desk 风格闸通过
 - 做法: 标题定稿后，日记与桌面与 **ui-designer 共同决策**再出图；其后 P0→P1→P2：04 档案 → 05 卡匣… 每站提交推送并登记 STATUS。
 - 一致性: 对照 `art/key_frames/title/approved.png`；文字载体必须吃烛光（暖橙反光+阴影），禁止纯白悬浮便签。
 - 联合规则（用户 2026-11-25）: 目标帧阶段起，带文字的站位必须 **art + ui-designer 共同决策**（版式/字号/载体材质），再出图。
@@ -49,7 +49,7 @@
 - 后续: 见 **ART-KEY-03-rev**
 
 ### ART-KEY-03-rev · 桌面总览重做（UI 载体融入场景光）· 联合 UI
-- status: doing
+- status: done
 - 优先级: P0
 - 来源: 用户 2026-11-25 驳回 desk overview；要求后续与 ui-designer 共同决策
 - 协作: **art 出图 + ui-designer 共同决策**（索引卡材质、入口文案层级、悬停态；见 UI-KEY-DESK-JOINT）
@@ -63,6 +63,15 @@
 - 交付: `art/key_frames/desk/options_v2/{1,2,3,overview}.png` + README；STATUS=待选
 - 阻塞: 无（UI 联合纪要已完成；02b 已交批注）
 - 怎么验: 用户拍板；**须 UI 联合签字纪要**
+- 证据:
+  - `art/key_frames/desk/options_v2/{1,2,3,overview}.png` @1600×900
+  - `art/key_frames/desk/options_v2/README.md`
+  - 底图 `_work/kf_desk_v2_opt{1,2,3}_base.jpg`
+  - 索引卡对比度抽检 ≈5.3–5.5（≥4.5）；六行齐全；悬停 日记/祈愿/档案
+  - STATUS desk → **待选**
+  - 报告：`docs/reports/v0.89.0/art.md`
+  - 提交 SHA：见本提交
+- 备注: 未自称 approved；未开 KEY-04…11
 
 ### ART-KEY-04 · 目标帧参考图：身份档案（建档 / 局况）
 - status: todo
